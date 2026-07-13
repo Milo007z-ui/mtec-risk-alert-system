@@ -1,20 +1,21 @@
 """
 วิเคราะห์จุดเสี่ยงอุบัติเหตุเฉพาะ "กรุงเทพฯ และปริมณฑล" (6 จังหวัด)
 ดึงข้อมูลจาก MOT Data Catalog -> กรองเฉพาะปริมณฑล -> DBSCAN หาจุดเสี่ยง
--> export เป็น GeoJSON พร้อมใช้กับแดชบอร์ด bangkok-risk-dashboard.html
+-> export เป็น GeoJSON สำหรับเว็บแอปแจ้งเตือนจุดเสี่ยง
 
 วิธีใช้:
-    pip install requests scikit-learn pandas openpyxl --break-system-packages
-    python bangkok_metro_risk_zones.py
+    pip install requests scikit-learn numpy
+    py scripts/build_risk_points.py
 
-ผลลัพธ์: ไฟล์ bangkok_risk_zones.geojson
-   วางไว้โฟลเดอร์เดียวกับ bangkok-risk-dashboard.html แล้วเปิดผ่าน
-   local server (เช่น `python -m http.server`) แดชบอร์ดจะโหลดไฟล์นี้อัตโนมัติ
+ผลลัพธ์: ไฟล์ data/risk_points_bkk_metro.geojson
+   เว็บแอป (index.html) จะโหลดไฟล์นี้อัตโนมัติเมื่อเปิดผ่าน local server
+   (เช่น `py -m http.server`)
 """
 
 import requests
 import json
 from math import radians
+from pathlib import Path
 from sklearn.cluster import DBSCAN
 import numpy as np
 
@@ -31,7 +32,7 @@ BANGKOK_METRO_PROVINCES = [
 EPS_METERS = 400          # รัศมีกลุ่ม (เมตร) - ปรับกว้างขึ้นเพราะเขตเมืองถนนหนาแน่น
 MIN_SAMPLES = 3            # จำนวนอุบัติเหตุขั้นต่ำถึงจะนับเป็นจุดเสี่ยง
 API_BASE = "https://datagov.mot.go.th/api/3/action/datastore_search"
-OUTPUT_FILE = "bangkok_risk_zones.geojson"
+OUTPUT_FILE = Path(__file__).resolve().parent.parent / "data" / "risk_points_bkk_metro.geojson"
 
 
 def fetch_accidents(resource_id, limit=10000):
@@ -170,9 +171,10 @@ def main():
     medium = sum(1 for z in zones if z["level"] == "medium")
     print(f"  ระดับสูง {high} จุด | ระดับปานกลาง {medium} จุด | ระดับต่ำ {len(zones) - high - medium} จุด")
 
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(to_geojson(zones), f, ensure_ascii=False, indent=2)
-    print(f"บันทึกไฟล์ {OUTPUT_FILE} เรียบร้อย — เอาไปวางคู่กับ bangkok-risk-dashboard.html ได้เลย")
+    print(f"บันทึกไฟล์ {OUTPUT_FILE} เรียบร้อย")
 
 
 if __name__ == "__main__":

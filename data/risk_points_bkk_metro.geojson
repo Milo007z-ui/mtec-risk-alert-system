@@ -1,0 +1,2381 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.534247,
+          13.665
+        ]
+      },
+      "properties": {
+        "id": "zone_0",
+        "province": "สมุทรปราการ",
+        "road": "จุดเชื่อมต่อสะพานภูมิพลที่ 1 เข้าถนนวงแหวนอุตสาหกรรม",
+        "accident_count": 79,
+        "deaths": 4,
+        "serious_injury": 1,
+        "minor_injury": 47,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.700591,
+          13.911742
+        ]
+      },
+      "properties": {
+        "id": "zone_1",
+        "province": "กรุงเทพมหานคร",
+        "road": "บึงคำพร้อย - คลองพระยาสุเรนทร์",
+        "accident_count": 11,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 6,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.46899,
+          13.67921
+        ]
+      },
+      "properties": {
+        "id": "zone_2",
+        "province": "กรุงเทพมหานคร",
+        "road": "ไม่ระบุ",
+        "accident_count": 18,
+        "deaths": 0,
+        "serious_injury": 3,
+        "minor_injury": 13,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.425551,
+          13.652341
+        ]
+      },
+      "properties": {
+        "id": "zone_3",
+        "province": "กรุงเทพมหานคร",
+        "road": "ไม่ระบุ",
+        "accident_count": 146,
+        "deaths": 4,
+        "serious_injury": 1,
+        "minor_injury": 80,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.834071,
+          13.681897
+        ]
+      },
+      "properties": {
+        "id": "zone_4",
+        "province": "สมุทรปราการ",
+        "road": "ไม่ระบุ",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.39744,
+          13.784872
+        ]
+      },
+      "properties": {
+        "id": "zone_5",
+        "province": "กรุงเทพมหานคร",
+        "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
+        "accident_count": 364,
+        "deaths": 7,
+        "serious_injury": 12,
+        "minor_injury": 222,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.689215,
+          13.889722
+        ]
+      },
+      "properties": {
+        "id": "zone_6",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 27,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 13,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.710543,
+          13.943263
+        ]
+      },
+      "properties": {
+        "id": "zone_7",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 35,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.550902,
+          13.738609
+        ]
+      },
+      "properties": {
+        "id": "zone_8",
+        "province": "กรุงเทพมหานคร",
+        "road": "ดินแดง-ท่าเรือ",
+        "accident_count": 7,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.697309,
+          13.905324
+        ]
+      },
+      "properties": {
+        "id": "zone_9",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 7,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.693495,
+          13.513107
+        ]
+      },
+      "properties": {
+        "id": "zone_10",
+        "province": "สมุทรปราการ",
+        "road": "ไม่ระบุ",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.6982,
+          14.036756
+        ]
+      },
+      "properties": {
+        "id": "zone_11",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.449785,
+          13.626314
+        ]
+      },
+      "properties": {
+        "id": "zone_12",
+        "province": "กรุงเทพมหานคร",
+        "road": "ไม่ระบุ",
+        "accident_count": 6,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.848311,
+          13.667029
+        ]
+      },
+      "properties": {
+        "id": "zone_13",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 72,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 13,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.676979,
+          13.820781
+        ]
+      },
+      "properties": {
+        "id": "zone_14",
+        "province": "กรุงเทพมหานคร",
+        "road": "คันนายาว - แยกเข้ามีนบุรี",
+        "accident_count": 45,
+        "deaths": 1,
+        "serious_injury": 1,
+        "minor_injury": 19,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.649812,
+          13.739734
+        ]
+      },
+      "properties": {
+        "id": "zone_15",
+        "province": "กรุงเทพมหานคร",
+        "road": "ถนนศรีนครินทร - แขวงคลองสองต้นนุ่น",
+        "accident_count": 29,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 12,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.40377,
+          13.661835
+        ]
+      },
+      "properties": {
+        "id": "zone_16",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางบอน - โรงพยาบาลบางปะกอก8",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.29052,
+          13.571252
+        ]
+      },
+      "properties": {
+        "id": "zone_17",
+        "province": "สมุทรสาคร",
+        "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+        "accident_count": 13,
+        "deaths": 0,
+        "serious_injury": 2,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.787941,
+          13.732742
+        ]
+      },
+      "properties": {
+        "id": "zone_18",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 18,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ฝ่าฝืนสัญญาณไฟ/เครื่องหมายจราจร",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.275459,
+          13.561459
+        ]
+      },
+      "properties": {
+        "id": "zone_19",
+        "province": "สมุทรสาคร",
+        "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+        "accident_count": 14,
+        "deaths": 2,
+        "serious_injury": 1,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.59806,
+          13.75069
+        ]
+      },
+      "properties": {
+        "id": "zone_20",
+        "province": "กรุงเทพมหานคร",
+        "road": "รามอินทรา-อาจณรงค์",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.766724,
+          13.941224
+        ]
+      },
+      "properties": {
+        "id": "zone_21",
+        "province": "ปทุมธานี",
+        "road": "ลำลูกกา - คลอง16",
+        "accident_count": 4,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.688698,
+          13.774938
+        ]
+      },
+      "properties": {
+        "id": "zone_22",
+        "province": "กรุงเทพมหานคร",
+        "road": "ไม่ระบุ",
+        "accident_count": 10,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.399453,
+          13.659379
+        ]
+      },
+      "properties": {
+        "id": "zone_23",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางบอน - โรงพยาบาลบางปะกอก8",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.406294,
+          13.758623
+        ]
+      },
+      "properties": {
+        "id": "zone_24",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางแค - คลองมหาสวัสดิ์",
+        "accident_count": 9,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.692309,
+          13.657394
+        ]
+      },
+      "properties": {
+        "id": "zone_25",
+        "province": "สมุทรปราการ",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 16,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 10,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.180161,
+          13.523016
+        ]
+      },
+      "properties": {
+        "id": "zone_26",
+        "province": "สมุทรสาคร",
+        "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
+        "accident_count": 15,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.680758,
+          13.873348
+        ]
+      },
+      "properties": {
+        "id": "zone_27",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 9,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 11,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.727095,
+          13.731586
+        ]
+      },
+      "properties": {
+        "id": "zone_28",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 189,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 58,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.699619,
+          13.693472
+        ]
+      },
+      "properties": {
+        "id": "zone_29",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 8,
+        "deaths": 0,
+        "serious_injury": 3,
+        "minor_injury": 13,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.755806,
+          13.612804
+        ]
+      },
+      "properties": {
+        "id": "zone_30",
+        "province": "สมุทรปราการ",
+        "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
+        "accident_count": 3,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 8,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.706715,
+          14.004002
+        ]
+      },
+      "properties": {
+        "id": "zone_31",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 27,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 19,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.505526,
+          13.621078
+        ]
+      },
+      "properties": {
+        "id": "zone_32",
+        "province": "กรุงเทพมหานคร",
+        "road": "พระประแดง - บางแค",
+        "accident_count": 5,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.762052,
+          13.610224
+        ]
+      },
+      "properties": {
+        "id": "zone_33",
+        "province": "สมุทรปราการ",
+        "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.406444,
+          13.707277
+        ]
+      },
+      "properties": {
+        "id": "zone_34",
+        "province": "กรุงเทพมหานคร",
+        "road": "พระประแดง - บางแค",
+        "accident_count": 48,
+        "deaths": 2,
+        "serious_injury": 3,
+        "minor_injury": 22,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.34933,
+          13.618678
+        ]
+      },
+      "properties": {
+        "id": "zone_35",
+        "province": "สมุทรสาคร",
+        "road": "สมุทรสาคร - บางบอน",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.605169,
+          13.77041
+        ]
+      },
+      "properties": {
+        "id": "zone_36",
+        "province": "กรุงเทพมหานคร",
+        "road": "รามอินทรา-อาจณรงค์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางแยกต่างระดับ/Ramps",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.378819,
+          13.644012
+        ]
+      },
+      "properties": {
+        "id": "zone_37",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางบอน - โรงพยาบาลบางปะกอก8",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 10,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.384225,
+          13.616806
+        ]
+      },
+      "properties": {
+        "id": "zone_38",
+        "province": "กรุงเทพมหานคร",
+        "road": "ดาวคะนอง - แสมดำ",
+        "accident_count": 9,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.683287,
+          13.734837
+        ]
+      },
+      "properties": {
+        "id": "zone_39",
+        "province": "กรุงเทพมหานคร",
+        "road": "ถนนศรีนครินทร - แขวงคลองสองต้นนุ่น",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.240624,
+          13.5428
+        ]
+      },
+      "properties": {
+        "id": "zone_40",
+        "province": "สมุทรสาคร",
+        "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
+        "accident_count": 7,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.32863,
+          13.589453
+        ]
+      },
+      "properties": {
+        "id": "zone_41",
+        "province": "สมุทรสาคร",
+        "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+        "accident_count": 13,
+        "deaths": 1,
+        "serious_injury": 2,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.393268,
+          13.655389
+        ]
+      },
+      "properties": {
+        "id": "zone_42",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางบอน - โรงพยาบาลบางปะกอก8",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.700185,
+          14.019942
+        ]
+      },
+      "properties": {
+        "id": "zone_43",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 15,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 9,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.682162,
+          13.794501
+        ]
+      },
+      "properties": {
+        "id": "zone_44",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 4,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.218496,
+          13.535987
+        ]
+      },
+      "properties": {
+        "id": "zone_45",
+        "province": "สมุทรสาคร",
+        "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
+        "accident_count": 7,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.538387,
+          13.767848
+        ]
+      },
+      "properties": {
+        "id": "zone_46",
+        "province": "กรุงเทพมหานคร",
+        "road": "พญาไท-ศรีนครินทร์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางโค้งกว้าง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.713176,
+          13.980173
+        ]
+      },
+      "properties": {
+        "id": "zone_47",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 8,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.698193,
+          13.75762
+        ]
+      },
+      "properties": {
+        "id": "zone_48",
+        "province": "กรุงเทพมหานคร",
+        "road": "ไม่ระบุ",
+        "accident_count": 21,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 10,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.441613,
+          13.985297
+        ]
+      },
+      "properties": {
+        "id": "zone_49",
+        "province": "ปทุมธานี",
+        "road": "คลองบางไผ่ - คลองบางหลวง",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.51825,
+          13.734054
+        ]
+      },
+      "properties": {
+        "id": "zone_50",
+        "province": "กรุงเทพมหานคร",
+        "road": "พญาไท-บางโคล่",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.82251,
+          13.591159
+        ]
+      },
+      "properties": {
+        "id": "zone_51",
+        "province": "สมุทรปราการ",
+        "road": "บางนา-ชลบุรี",
+        "accident_count": 3,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.796031,
+          13.733513
+        ]
+      },
+      "properties": {
+        "id": "zone_52",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.754695,
+          13.936998
+        ]
+      },
+      "properties": {
+        "id": "zone_53",
+        "province": "ปทุมธานี",
+        "road": "ลำลูกกา - คลอง16",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.316029,
+          13.584446
+        ]
+      },
+      "properties": {
+        "id": "zone_54",
+        "province": "สมุทรสาคร",
+        "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+        "accident_count": 6,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.599367,
+          13.839522
+        ]
+      },
+      "properties": {
+        "id": "zone_55",
+        "province": "กรุงเทพมหานคร",
+        "road": "มหาวิทยาลัยเกษตรศาสตร์ - คันนายาว",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.674587,
+          13.855057
+        ]
+      },
+      "properties": {
+        "id": "zone_56",
+        "province": "กรุงเทพมหานคร",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 15,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 13,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.203144,
+          13.530806
+        ]
+      },
+      "properties": {
+        "id": "zone_57",
+        "province": "สมุทรสาคร",
+        "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
+        "accident_count": 13,
+        "deaths": 2,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.70072,
+          13.72174
+        ]
+      },
+      "properties": {
+        "id": "zone_58",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 10,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.898208,
+          13.635023
+        ]
+      },
+      "properties": {
+        "id": "zone_59",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.537058,
+          13.788972
+        ]
+      },
+      "properties": {
+        "id": "zone_60",
+        "province": "กรุงเทพมหานคร",
+        "road": "แจ้งวัฒนะ-พญาไท",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.705348,
+          13.922717
+        ]
+      },
+      "properties": {
+        "id": "zone_61",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.457327,
+          14.04409
+        ]
+      },
+      "properties": {
+        "id": "zone_62",
+        "province": "ปทุมธานี",
+        "road": "คลองบางหลวง - ต่างระดับเชียงรากน้อย",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "สูญเสียการควบคุม",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.580234,
+          14.055459
+        ]
+      },
+      "properties": {
+        "id": "zone_63",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน-แจ้งวัฒนะ",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.658908,
+          14.149811
+        ]
+      },
+      "properties": {
+        "id": "zone_64",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ยางเสื่อมสภาพ/ยางแตก",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.82937,
+          13.691447
+        ]
+      },
+      "properties": {
+        "id": "zone_65",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 8,
+        "deaths": 9,
+        "serious_injury": 3,
+        "minor_injury": 1,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.655557,
+          13.606396
+        ]
+      },
+      "properties": {
+        "id": "zone_66",
+        "province": "สมุทรปราการ",
+        "road": "บางพลี-สุขสวัสดิ์",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.836867,
+          13.588034
+        ]
+      },
+      "properties": {
+        "id": "zone_67",
+        "province": "สมุทรปราการ",
+        "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
+        "accident_count": 8,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.811264,
+          13.727626
+        ]
+      },
+      "properties": {
+        "id": "zone_68",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 8,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.684237,
+          13.786754
+        ]
+      },
+      "properties": {
+        "id": "zone_69",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 11,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 12,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.824708,
+          13.700875
+        ]
+      },
+      "properties": {
+        "id": "zone_70",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.485831,
+          13.68416
+        ]
+      },
+      "properties": {
+        "id": "zone_71",
+        "province": "กรุงเทพมหานคร",
+        "road": "ดาวคะนอง - แสมดำ",
+        "accident_count": 6,
+        "deaths": 2,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.604567,
+          13.622413
+        ]
+      },
+      "properties": {
+        "id": "zone_72",
+        "province": "สมุทรปราการ",
+        "road": "บางพลี-สุขสวัสดิ์",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.555626,
+          13.638498
+        ]
+      },
+      "properties": {
+        "id": "zone_73",
+        "province": "สมุทรปราการ",
+        "road": "บางพลี-สุขสวัสดิ์",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.712895,
+          13.96644
+        ]
+      },
+      "properties": {
+        "id": "zone_74",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 9,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.906539,
+          13.629743
+        ]
+      },
+      "properties": {
+        "id": "zone_75",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.533518,
+          13.846429
+        ]
+      },
+      "properties": {
+        "id": "zone_76",
+        "province": "นนทบุรี",
+        "road": "แจ้งวัฒนะ-พญาไท",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.391529,
+          13.62424
+        ]
+      },
+      "properties": {
+        "id": "zone_77",
+        "province": "กรุงเทพมหานคร",
+        "road": "ดาวคะนอง - แสมดำ",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.549639,
+          13.818936
+        ]
+      },
+      "properties": {
+        "id": "zone_78",
+        "province": "กรุงเทพมหานคร",
+        "road": "แจ้งวัฒนะ-พญาไท",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางโค้งกว้าง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.715848,
+          13.812732
+        ]
+      },
+      "properties": {
+        "id": "zone_79",
+        "province": "กรุงเทพมหานคร",
+        "road": "คันนายาว - แยกเข้ามีนบุรี",
+        "accident_count": 3,
+        "deaths": 1,
+        "serious_injury": 1,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.934278,
+          13.61198
+        ]
+      },
+      "properties": {
+        "id": "zone_80",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.821183,
+          13.707997
+        ]
+      },
+      "properties": {
+        "id": "zone_81",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.363007,
+          13.630899
+        ]
+      },
+      "properties": {
+        "id": "zone_82",
+        "province": "สมุทรสาคร",
+        "road": "สมุทรสาคร - บางบอน",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.736038,
+          13.621444
+        ]
+      },
+      "properties": {
+        "id": "zone_83",
+        "province": "สมุทรปราการ",
+        "road": "บางนา-ชลบุรี",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.696845,
+          14.063904
+        ]
+      },
+      "properties": {
+        "id": "zone_84",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 17,
+        "deaths": 0,
+        "serious_injury": 4,
+        "minor_injury": 8,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.29714,
+          13.574704
+        ]
+      },
+      "properties": {
+        "id": "zone_85",
+        "province": "สมุทรสาคร",
+        "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+        "accident_count": 5,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 1,
+        "top_cause": "เมาสุรา",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.685943,
+          14.102122
+        ]
+      },
+      "properties": {
+        "id": "zone_86",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 7,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.924668,
+          13.618092
+        ]
+      },
+      "properties": {
+        "id": "zone_87",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.865237,
+          13.656138
+        ]
+      },
+      "properties": {
+        "id": "zone_88",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 9,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 5,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.545371,
+          13.761726
+        ]
+      },
+      "properties": {
+        "id": "zone_89",
+        "province": "กรุงเทพมหานคร",
+        "road": "พญาไท-ศรีนครินทร์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.877636,
+          13.648133
+        ]
+      },
+      "properties": {
+        "id": "zone_90",
+        "province": "สมุทรปราการ",
+        "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.86669,
+          13.581712
+        ]
+      },
+      "properties": {
+        "id": "zone_91",
+        "province": "สมุทรปราการ",
+        "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.575102,
+          13.839995
+        ]
+      },
+      "properties": {
+        "id": "zone_92",
+        "province": "กรุงเทพมหานคร",
+        "road": "แยกมหาวิทยาลัยเกษตรศาสตร์ - สี่แยกแคราย",
+        "accident_count": 6,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ไม่ระบุ",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.329048,
+          13.695651
+        ]
+      },
+      "properties": {
+        "id": "zone_93",
+        "province": "สมุทรสาคร",
+        "road": "แยกสาครเกษม - คลองมะเดื่อ",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.203297,
+          13.770347
+        ]
+      },
+      "properties": {
+        "id": "zone_94",
+        "province": "นครปฐม",
+        "road": "พุทธมณฑลสาย4 - นครชัยศรี",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "สูญเสียการควบคุม",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.695879,
+          13.642257
+        ]
+      },
+      "properties": {
+        "id": "zone_95",
+        "province": "สมุทรปราการ",
+        "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.729312,
+          13.624511
+        ]
+      },
+      "properties": {
+        "id": "zone_96",
+        "province": "สมุทรปราการ",
+        "road": "บางนา-ชลบุรี",
+        "accident_count": 4,
+        "deaths": 1,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.705403,
+          13.812733
+        ]
+      },
+      "properties": {
+        "id": "zone_97",
+        "province": "กรุงเทพมหานคร",
+        "road": "คันนายาว - แยกเข้ามีนบุรี",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 1,
+        "top_cause": "หลับใน",
+        "road_feature": "ไม่ระบุ",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.760689,
+          14.030964
+        ]
+      },
+      "properties": {
+        "id": "zone_98",
+        "province": "ปทุมธานี",
+        "road": "วัดนาบุญ - คลอง14",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 6,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.489338,
+          13.620593
+        ]
+      },
+      "properties": {
+        "id": "zone_99",
+        "province": "กรุงเทพมหานคร",
+        "road": "พระประแดง - บางแค",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 4,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.624454,
+          13.608812
+        ]
+      },
+      "properties": {
+        "id": "zone_100",
+        "province": "สมุทรปราการ",
+        "road": "บางพลี-สุขสวัสดิ์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.675286,
+          14.120949
+        ]
+      },
+      "properties": {
+        "id": "zone_101",
+        "province": "ปทุมธานี",
+        "road": "บางปะอิน - แขวงรามอินทรา",
+        "accident_count": 4,
+        "deaths": 0,
+        "serious_injury": 2,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.680779,
+          13.801071
+        ]
+      },
+      "properties": {
+        "id": "zone_102",
+        "province": "กรุงเทพมหานคร",
+        "road": "แขวงรามอินทรา - บางพลี",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.394524,
+          13.79053
+        ]
+      },
+      "properties": {
+        "id": "zone_103",
+        "province": "กรุงเทพมหานคร",
+        "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 1,
+        "minor_injury": 7,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "medium"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.332138,
+          13.595492
+        ]
+      },
+      "properties": {
+        "id": "zone_104",
+        "province": "สมุทรสาคร",
+        "road": "สมุทรสาคร - บางบอน",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 2,
+        "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+        "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.533667,
+          13.631317
+        ]
+      },
+      "properties": {
+        "id": "zone_105",
+        "province": "สมุทรปราการ",
+        "road": "ราษฎร์บูรณะ - พระสมุทรเจดีย์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 3,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ไม่ระบุ",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.548243,
+          13.807502
+        ]
+      },
+      "properties": {
+        "id": "zone_106",
+        "province": "กรุงเทพมหานคร",
+        "road": "แจ้งวัฒนะ-พญาไท",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          100.566693,
+          13.752679
+        ]
+      },
+      "properties": {
+        "id": "zone_107",
+        "province": "กรุงเทพมหานคร",
+        "road": "พญาไท-ศรีนครินทร์",
+        "accident_count": 3,
+        "deaths": 0,
+        "serious_injury": 0,
+        "minor_injury": 0,
+        "top_cause": "ไม่ระบุ",
+        "road_feature": "ทางตรง",
+        "level": "low"
+      }
+    }
+  ]
+}
