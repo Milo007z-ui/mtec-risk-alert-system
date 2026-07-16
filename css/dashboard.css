@@ -1,0 +1,195 @@
+/* โทเคนสี: สลับ light/dark ที่เดียว ตัวคอมโพเนนต์อ้างตามบทบาท ไม่อ้าง hex ตรงๆ */
+:root {
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --hairline: #e1e0d9;
+  --border: rgba(11, 11, 11, 0.1);
+  --series-1: #2a78d6;   /* กราฟจังหวัด */
+  --series-2: #1baf7a;   /* กราฟสาเหตุ */
+  --track: #f0efec;
+  /* สีระดับความเสี่ยง = สี status เดียวกับแผนที่ ใช้คู่กับป้าย+ตัวเลขเสมอ */
+  --risk-high: #c62828;
+  --risk-medium: #ef6c00;
+  --risk-low: #f9a825;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --hairline: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.1);
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --track: #2c2c2a;
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", "Leelawadee UI", Tahoma, sans-serif;
+  padding: 20px clamp(12px, 4vw, 40px) 40px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-header h1 { font-size: 22px; }
+.subtitle { color: var(--ink-2); font-size: 13px; margin-top: 4px; }
+.btn-map {
+  background: var(--series-1);
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 22px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- stat tiles ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.stat-label { font-size: 13px; color: var(--ink-2); }
+.stat-value { font-size: 34px; font-weight: 600; margin: 4px 0 2px; }
+.stat-sub { font-size: 12px; color: var(--muted); }
+
+/* ---------- cards ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+.card h2 { font-size: 15px; margin-bottom: 2px; }
+.card-note { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+@media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ---------- แถบสัดส่วนระดับ (stacked bar) ---------- */
+.level-bar {
+  display: flex;
+  gap: 2px; /* surface gap คั่นแต่ละท่อน */
+  height: 34px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 14px 0 10px;
+}
+.level-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 2px;
+}
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend .swatch {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+/* ---------- กราฟแท่งแนวนอน ---------- */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+
+.bar-row { display: grid; grid-template-columns: 118px 1fr; gap: 10px; align-items: center; }
+.bar-row .bar-label {
+  font-size: 13px;
+  color: var(--ink-2);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* เลย์เอาต์ป้ายอยู่เหนือแท่ง สำหรับชื่อยาวๆ (สาเหตุ) */
+.bar-chart--stacked-label .bar-row { grid-template-columns: 1fr; gap: 3px; }
+.bar-chart--stacked-label .bar-label { text-align: left; }
+
+.bar-track { display: flex; align-items: center; gap: 8px; min-height: 24px; }
+.bar-fill {
+  height: 16px;
+  border-radius: 0 4px 4px 0; /* ปลายมน 4px ฝั่งข้อมูล ฐานเหลี่ยม */
+  min-width: 2px;
+  transition: opacity 0.15s;
+}
+.bar-row:hover .bar-fill { opacity: 0.8; }
+.bar-value { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* ---------- ตาราง ---------- */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--hairline); }
+th { color: var(--ink-2); font-weight: 600; white-space: nowrap; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr:hover { background: var(--track); }
+
+.level-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.level-chip.low { color: #0b0b0b; }
+
+/* ---------- tooltip ---------- */
+.tooltip {
+  position: fixed;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  pointer-events: none;
+  z-index: 100;
+  max-width: 260px;
+}
+
+.page-footer { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.page-footer a { color: var(--ink-2); }
+
+.load-msg { text-align: center; padding: 60px 20px; color: var(--ink-2); }
+
+.hidden { display: none !important; }

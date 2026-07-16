@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แดชบอร์ดจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="page-header">
+    <div>
+      <h1>📊 แดชบอร์ดจุดเสี่ยงอุบัติเหตุ</h1>
+      <p class="subtitle">กรุงเทพฯ และปริมณฑล · ข้อมูลอุบัติเหตุปี 2568 จาก MOT Data Catalog</p>
+    </div>
+    <a class="btn-map" href="index.html">🗺️ เปิดแผนที่แจ้งเตือน</a>
+  </header>
+
+  <main id="dashboard" class="hidden">
+    <!-- แถว KPI -->
+    <section class="kpi-row">
+      <div class="stat-tile">
+        <div class="stat-label">จุดเสี่ยงทั้งหมด</div>
+        <div class="stat-value" id="kpi-zones">–</div>
+        <div class="stat-sub" id="kpi-zones-sub"></div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">อุบัติเหตุสะสมในจุดเสี่ยง</div>
+        <div class="stat-value" id="kpi-accidents">–</div>
+        <div class="stat-sub">เฉพาะเหตุที่เกาะกลุ่มเป็นจุดเสี่ยง</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">ผู้เสียชีวิต</div>
+        <div class="stat-value" id="kpi-deaths">–</div>
+        <div class="stat-sub" id="kpi-deaths-sub"></div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">ผู้บาดเจ็บ</div>
+        <div class="stat-value" id="kpi-injured">–</div>
+        <div class="stat-sub" id="kpi-injured-sub"></div>
+      </div>
+    </section>
+
+    <!-- สัดส่วนระดับความเสี่ยง -->
+    <section class="card">
+      <h2>สัดส่วนจุดเสี่ยงตามระดับความรุนแรง</h2>
+      <div class="level-bar" id="level-bar"></div>
+      <div class="legend" id="level-legend"></div>
+    </section>
+
+    <div class="two-col">
+      <!-- จุดเสี่ยงรายจังหวัด -->
+      <section class="card">
+        <h2>จุดเสี่ยงรายจังหวัด</h2>
+        <p class="card-note">จำนวนจุดเสี่ยง (ชี้ที่แท่งเพื่อดูรายละเอียดระดับ)</p>
+        <div class="bar-chart" id="province-chart"></div>
+      </section>
+
+      <!-- สาเหตุยอดฮิต -->
+      <section class="card">
+        <h2>สาเหตุหลักของอุบัติเหตุ</h2>
+        <p class="card-note">จำนวนอุบัติเหตุสะสมในจุดเสี่ยงที่มีสาเหตุหลักนั้น</p>
+        <div class="bar-chart bar-chart--stacked-label" id="cause-chart"></div>
+      </section>
+    </div>
+
+    <!-- ตาราง 10 อันดับ -->
+    <section class="card">
+      <h2>10 จุดเสี่ยงอันตรายที่สุด</h2>
+      <p class="card-note">เรียงตามคะแนนความรุนแรง (เสียชีวิต×3 + สาหัส×2 + เล็กน้อย)</p>
+      <div class="table-wrap">
+        <table id="top-table">
+          <thead>
+            <tr>
+              <th>#</th><th>สายทาง</th><th>จังหวัด</th><th>ระดับ</th>
+              <th class="num">อุบัติเหตุ</th><th class="num">เสียชีวิต</th>
+              <th class="num">สาหัส</th><th class="num">เล็กน้อย</th><th class="num">คะแนน</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      แหล่งข้อมูล: <a href="https://datagov.mot.go.th/dataset/roadaccident" target="_blank" rel="noopener">
+      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ·
+      จัดกลุ่มด้วย DBSCAN รัศมี 400 ม. ขั้นต่ำ 3 เหตุการณ์
+    </footer>
+  </main>
+
+  <div id="load-error" class="load-msg hidden"></div>
+  <div id="loading" class="load-msg">กำลังโหลดข้อมูล...</div>
+  <div id="tooltip" class="tooltip hidden" role="status"></div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

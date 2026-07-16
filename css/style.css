@@ -26,6 +26,7 @@ html, body {
   gap: 8px;
 }
 #status-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#status-bar a { color: #90caf9; text-decoration: none; white-space: nowrap; font-weight: 600; }
 
 /* ---------- แบนเนอร์แจ้งเตือน ---------- */
 .alert-banner {
