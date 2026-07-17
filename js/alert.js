@@ -15,17 +15,7 @@ const AlertSystem = (() => {
   // id จุดเสี่ยง -> { lastAlertAt } (มี entry = ยังอยู่ในสถานะ "เตือนแล้ว")
   const alerted = new Map();
 
-  const LEVEL_TEXT = { high: "ความเสี่ยงสูง", medium: "ความเสี่ยงปานกลาง", low: "" };
-
-  function buildMessage(point, distance) {
-    const roundedDist = Math.round(distance / 50) * 50;
-    const levelText = LEVEL_TEXT[point.level] ? ` ${LEVEL_TEXT[point.level]}` : "";
-    return (
-      `ข้างหน้าอีกประมาณ ${roundedDist} เมตร มีจุดเสี่ยงอุบัติเหตุ${levelText} ` +
-      `บริเวณ${point.road_feature !== "ไม่ระบุ" ? point.road_feature : "ถนน" + point.road} ` +
-      `สาเหตุหลักคือ ${point.top_cause} โปรดขับขี่ด้วยความระมัดระวัง`
-    );
-  }
+  // ข้อความเตือน (สาเหตุ + คำแนะนำ) สร้างโดยกติกา Dynamic Alert ใน riskrules.js
 
   function showBanner(text, level) {
     const banner = document.getElementById("alert-banner");
@@ -54,7 +44,7 @@ const AlertSystem = (() => {
       if (state && now - state.lastAlertAt < REALERT_MS) continue;
 
       alerted.set(point.id, { lastAlertAt: now });
-      const msg = buildMessage(point, distance);
+      const msg = RiskRules.buildAlertMessage(point, distance);
       const spoken = TTS.speak(msg);
       showBanner((spoken ? "🔊 " : "⚠️ ") + msg, point.level);
       break;

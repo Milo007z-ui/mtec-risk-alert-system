@@ -6,7 +6,7 @@
   const LEVELS = [
     { key: "high", label: "สูง", color: "var(--risk-high)", ink: "#fff" },
     { key: "medium", label: "ปานกลาง", color: "var(--risk-medium)", ink: "#fff" },
-    { key: "low", label: "ต่ำ", color: "var(--risk-low)", ink: "#0b0b0b" },
+    { key: "low", label: "ต่ำ", color: "var(--risk-low)", ink: "#fff" },
   ];
 
   let zones;
@@ -23,7 +23,7 @@
   }
 
   const sum = (key) => zones.reduce((acc, z) => acc + (z[key] || 0), 0);
-  const score = (z) => z.deaths * 3 + z.serious_injury * 2 + z.minor_injury;
+  const score = (z) => z.risk_score ?? 0; // Risk Score จากโมเดล 4 ปัจจัย (คำนวณฝั่ง Python)
   const fmt = (n) => n.toLocaleString("th-TH");
 
   // ---------- KPI ----------

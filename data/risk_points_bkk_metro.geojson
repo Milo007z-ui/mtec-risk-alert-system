@@ -20,6 +20,16 @@
         "minor_injury": 47,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ไม่ระบุ",
+        "road_type": "ทางหลวงชนบท",
+        "speed_limit": 80,
+        "risk_score": 80.5,
+        "score_breakdown": {
+          "frequency": 30.0,
+          "severity": 33.0,
+          "geometry": 10.8,
+          "speed": 6.7
+        },
         "level": "high"
       }
     },
@@ -42,6 +52,16 @@
         "minor_injury": 6,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 54.9,
+        "score_breakdown": {
+          "frequency": 19.0,
+          "severity": 17.5,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -64,6 +84,16 @@
         "minor_injury": 13,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 64.5,
+        "score_breakdown": {
+          "frequency": 22.5,
+          "severity": 23.8,
+          "geometry": 9.8,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -86,6 +116,16 @@
         "minor_injury": 80,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 83.5,
+        "score_breakdown": {
+          "frequency": 30.0,
+          "severity": 35.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -108,7 +148,17 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 45.0,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -130,6 +180,16 @@
         "minor_injury": 222,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 83.5,
+        "score_breakdown": {
+          "frequency": 30.0,
+          "severity": 35.0,
+          "geometry": 10.1,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -152,6 +212,16 @@
         "minor_injury": 13,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 65.0,
+        "score_breakdown": {
+          "frequency": 25.4,
+          "severity": 21.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -174,6 +244,16 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 66.8,
+        "score_breakdown": {
+          "frequency": 27.3,
+          "severity": 21.1,
+          "geometry": 9.9,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -196,7 +276,17 @@
         "minor_injury": 5,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 45.4,
+        "score_breakdown": {
+          "frequency": 15.9,
+          "severity": 13.1,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -218,7 +308,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 54.1,
+        "score_breakdown": {
+          "frequency": 15.9,
+          "severity": 19.8,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -240,7 +340,17 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.2,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 14.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -262,7 +372,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.4,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -284,7 +404,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 53.5,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 20.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -306,7 +436,17 @@
         "minor_injury": 13,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 67.7,
+        "score_breakdown": {
+          "frequency": 30.0,
+          "severity": 19.3,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -328,6 +468,16 @@
         "minor_injury": 19,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 73.7,
+        "score_breakdown": {
+          "frequency": 29.2,
+          "severity": 25.7,
+          "geometry": 10.3,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -350,7 +500,17 @@
         "minor_injury": 12,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 63.0,
+        "score_breakdown": {
+          "frequency": 26.0,
+          "severity": 18.7,
+          "geometry": 9.9,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -372,6 +532,16 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 39.1,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -394,7 +564,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 57.1,
+        "score_breakdown": {
+          "frequency": 20.1,
+          "severity": 18.7,
+          "geometry": 9.8,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -416,7 +596,17 @@
         "minor_injury": 3,
         "top_cause": "ฝ่าฝืนสัญญาณไฟ/เครื่องหมายจราจร",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 51.0,
+        "score_breakdown": {
+          "frequency": 22.5,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -438,6 +628,16 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 63.4,
+        "score_breakdown": {
+          "frequency": 20.7,
+          "severity": 24.3,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -460,6 +660,16 @@
         "minor_injury": 6,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 44.3,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 14.2,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "medium"
       }
     },
@@ -482,7 +692,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 50.0,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 19.3,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -504,7 +724,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 48.5,
+        "score_breakdown": {
+          "frequency": 18.3,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -526,6 +756,16 @@
         "minor_injury": 6,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 44.9,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 14.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -548,6 +788,16 @@
         "minor_injury": 6,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 56.7,
+        "score_breakdown": {
+          "frequency": 17.6,
+          "severity": 20.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -570,7 +820,17 @@
         "minor_injury": 10,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 60.3,
+        "score_breakdown": {
+          "frequency": 21.6,
+          "severity": 19.8,
+          "geometry": 10.5,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -592,6 +852,16 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 54.6,
+        "score_breakdown": {
+          "frequency": 21.2,
+          "severity": 15.2,
+          "geometry": 9.9,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -614,7 +884,17 @@
         "minor_injury": 11,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 56.2,
+        "score_breakdown": {
+          "frequency": 17.6,
+          "severity": 20.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -636,6 +916,16 @@
         "minor_injury": 58,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 78.1,
+        "score_breakdown": {
+          "frequency": 30.0,
+          "severity": 29.8,
+          "geometry": 9.9,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -658,6 +948,16 @@
         "minor_injury": 13,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 59.0,
+        "score_breakdown": {
+          "frequency": 16.8,
+          "severity": 23.8,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -680,7 +980,17 @@
         "minor_injury": 8,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 49.2,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 21.5,
+          "geometry": 8.7,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -702,6 +1012,16 @@
         "minor_injury": 19,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 66.2,
+        "score_breakdown": {
+          "frequency": 25.4,
+          "severity": 21.9,
+          "geometry": 10.5,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -724,7 +1044,17 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 52.8,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 21.1,
+          "geometry": 9.6,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -746,7 +1076,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 40.5,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 11.7,
+          "geometry": 8.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -768,6 +1108,16 @@
         "minor_injury": 22,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 77.5,
+        "score_breakdown": {
+          "frequency": 29.7,
+          "severity": 29.2,
+          "geometry": 10.1,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -790,7 +1140,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 45.0,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -812,7 +1172,17 @@
         "minor_injury": 4,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางแยกต่างระดับ/Ramps",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 51.4,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 11.7,
+          "geometry": 18.7,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -834,6 +1204,16 @@
         "minor_injury": 10,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 46.5,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 17.5,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -856,7 +1236,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 50.4,
+        "score_breakdown": {
+          "frequency": 17.6,
+          "severity": 13.1,
+          "geometry": 11.3,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -878,6 +1268,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 32.1,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -900,7 +1300,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 44.4,
+        "score_breakdown": {
+          "frequency": 15.9,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -922,6 +1332,16 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 63.6,
+        "score_breakdown": {
+          "frequency": 20.1,
+          "severity": 23.8,
+          "geometry": 11.2,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -944,7 +1364,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.3,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 13.1,
+          "geometry": 9.5,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -966,7 +1396,17 @@
         "minor_injury": 9,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 56.9,
+        "score_breakdown": {
+          "frequency": 21.2,
+          "severity": 16.8,
+          "geometry": 10.5,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -988,7 +1428,17 @@
         "minor_injury": 6,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 50.4,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 20.7,
+          "geometry": 9.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1010,7 +1460,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 44.4,
+        "score_breakdown": {
+          "frequency": 15.9,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1032,7 +1492,17 @@
         "minor_injury": 4,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางโค้งกว้าง",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 45.4,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 11.7,
+          "geometry": 12.7,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1054,7 +1524,17 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.2,
+        "score_breakdown": {
+          "frequency": 16.8,
+          "severity": 8.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1076,7 +1556,17 @@
         "minor_injury": 10,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 59.5,
+        "score_breakdown": {
+          "frequency": 23.6,
+          "severity": 17.5,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -1098,6 +1588,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 29.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1120,6 +1620,16 @@
         "minor_injury": 1,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 36.7,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 5.1,
+          "geometry": 10.7,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -1142,7 +1652,17 @@
         "minor_injury": 1,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 46.5,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 18.1,
+          "geometry": 7.3,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1164,6 +1684,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 33.3,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1186,7 +1716,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 42.0,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 11.7,
+          "geometry": 9.5,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1208,7 +1748,17 @@
         "minor_injury": 1,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 51.4,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 18.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1230,7 +1780,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 42.2,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1252,7 +1812,17 @@
         "minor_injury": 13,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 58.7,
+        "score_breakdown": {
+          "frequency": 21.2,
+          "severity": 19.3,
+          "geometry": 9.9,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -1274,6 +1844,16 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 62.2,
+        "score_breakdown": {
+          "frequency": 20.1,
+          "severity": 23.8,
+          "geometry": 9.8,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -1296,6 +1876,16 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 56.8,
+        "score_breakdown": {
+          "frequency": 18.3,
+          "severity": 19.3,
+          "geometry": 10.8,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -1318,6 +1908,16 @@
         "minor_injury": 1,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 37.2,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 5.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1340,6 +1940,16 @@
         "minor_injury": 1,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 36.7,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 5.1,
+          "geometry": 10.7,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -1362,7 +1972,17 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 40.1,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 8.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1384,6 +2004,16 @@
         "minor_injury": 6,
         "top_cause": "สูญเสียการควบคุม",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.2,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 14.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -1406,6 +2036,16 @@
         "minor_injury": 2,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "อื่นๆ",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 35.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 8.0,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -1428,6 +2068,16 @@
         "minor_injury": 6,
         "top_cause": "ยางเสื่อมสภาพ/ยางแตก",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 44.9,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 14.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -1450,6 +2100,16 @@
         "minor_injury": 1,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 69.1,
+        "score_breakdown": {
+          "frequency": 16.8,
+          "severity": 33.9,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -1472,7 +2132,17 @@
         "minor_injury": 4,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 42.9,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 11.7,
+          "geometry": 8.5,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1494,7 +2164,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 47.5,
+        "score_breakdown": {
+          "frequency": 16.8,
+          "severity": 13.1,
+          "geometry": 9.2,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1516,6 +2196,16 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 50.4,
+        "score_breakdown": {
+          "frequency": 16.8,
+          "severity": 15.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -1538,7 +2228,17 @@
         "minor_injury": 12,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "medium"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 56.1,
+        "score_breakdown": {
+          "frequency": 19.0,
+          "severity": 18.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "high"
       }
     },
     {
@@ -1560,6 +2260,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 31.7,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 0.0,
+          "geometry": 9.6,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1582,6 +2292,16 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 57.8,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 23.5,
+          "geometry": 11.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -1604,6 +2324,16 @@
         "minor_injury": 2,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 38.1,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 8.0,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -1626,7 +2356,17 @@
         "minor_injury": 3,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 45.8,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 10.1,
+          "geometry": 11.6,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1648,7 +2388,17 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 47.8,
+        "score_breakdown": {
+          "frequency": 17.6,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1670,6 +2420,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 29.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1692,6 +2452,16 @@
         "minor_injury": 1,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนด้านข้าง",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 33.8,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 5.1,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -1714,7 +2484,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 45.0,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1736,7 +2516,17 @@
         "minor_injury": 3,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางโค้งกว้าง",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 43.8,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 10.1,
+          "geometry": 11.0,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1758,7 +2548,17 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "high"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 48.1,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 19.8,
+          "geometry": 9.3,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1780,6 +2580,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 30.7,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1802,6 +2612,16 @@
         "minor_injury": 1,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 34.1,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 5.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1824,7 +2644,17 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 40.8,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1846,6 +2676,16 @@
         "minor_injury": 3,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 37.8,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 10.1,
+          "geometry": 8.7,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1868,6 +2708,16 @@
         "minor_injury": 8,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 64.0,
+        "score_breakdown": {
+          "frequency": 22.1,
+          "severity": 23.5,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "high"
       }
     },
@@ -1890,7 +2740,17 @@
         "minor_injury": 1,
         "top_cause": "เมาสุรา",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 46.0,
+        "score_breakdown": {
+          "frequency": 13.7,
+          "severity": 13.1,
+          "geometry": 10.8,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1912,7 +2772,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 47.4,
+        "score_breakdown": {
+          "frequency": 15.9,
+          "severity": 13.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1934,6 +2804,16 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 37.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 8.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -1956,7 +2836,17 @@
         "minor_injury": 5,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 49.1,
+        "score_breakdown": {
+          "frequency": 17.6,
+          "severity": 13.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -1978,6 +2868,16 @@
         "minor_injury": 0,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "อื่นๆ",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 27.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -2000,7 +2900,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 42.5,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 11.7,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -2022,6 +2932,16 @@
         "minor_injury": 3,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 39.1,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 10.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2044,6 +2964,16 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ไม่ระบุ",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 39.3,
+        "score_breakdown": {
+          "frequency": 14.8,
+          "severity": 8.0,
+          "geometry": 8.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2066,6 +2996,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 28.3,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 9.3,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2088,6 +3028,16 @@
         "minor_injury": 0,
         "top_cause": "สูญเสียการควบคุม",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 29.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2110,6 +3060,16 @@
         "minor_injury": 3,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 39.8,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 10.1,
+          "geometry": 7.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -2132,7 +3092,17 @@
         "minor_injury": 2,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
-        "level": "high"
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 49.4,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 18.7,
+          "geometry": 8.0,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -2154,6 +3124,16 @@
         "minor_injury": 1,
         "top_cause": "หลับใน",
         "road_feature": "ไม่ระบุ",
+        "crash_pattern": "อื่นๆ",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 32.7,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 5.1,
+          "geometry": 8.7,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2176,6 +3156,16 @@
         "minor_injury": 6,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 43.2,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 14.2,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -2198,7 +3188,17 @@
         "minor_injury": 4,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 40.1,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 11.7,
+          "geometry": 9.3,
+          "speed": 8.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -2220,6 +3220,16 @@
         "minor_injury": 2,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 35.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 8.0,
+          "geometry": 6.0,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -2242,6 +3252,16 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 48.2,
+        "score_breakdown": {
+          "frequency": 12.3,
+          "severity": 17.5,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -2264,6 +3284,16 @@
         "minor_injury": 0,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 29.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2286,6 +3316,16 @@
         "minor_injury": 7,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 47.2,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 18.1,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "medium"
       }
     },
@@ -2308,6 +3348,16 @@
         "minor_injury": 2,
         "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
         "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "ทางหลวง",
+        "speed_limit": 90,
+        "risk_score": 37.0,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 8.0,
+          "geometry": 10.0,
+          "speed": 8.4
+        },
         "level": "low"
       }
     },
@@ -2330,7 +3380,17 @@
         "minor_injury": 3,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ไม่ระบุ",
-        "level": "low"
+        "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 42.4,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 10.1,
+          "geometry": 11.3,
+          "speed": 10.4
+        },
+        "level": "medium"
       }
     },
     {
@@ -2352,6 +3412,16 @@
         "minor_injury": 0,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "ชนท้าย",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 30.3,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 9.3,
+          "speed": 10.4
+        },
         "level": "low"
       }
     },
@@ -2374,6 +3444,16 @@
         "minor_injury": 0,
         "top_cause": "ไม่ระบุ",
         "road_feature": "ทางตรง",
+        "crash_pattern": "อื่นๆ",
+        "road_type": "การทางพิเศษ",
+        "speed_limit": 100,
+        "risk_score": 32.3,
+        "score_breakdown": {
+          "frequency": 10.6,
+          "severity": 0.0,
+          "geometry": 11.3,
+          "speed": 10.4
+        },
         "level": "low"
       }
     }

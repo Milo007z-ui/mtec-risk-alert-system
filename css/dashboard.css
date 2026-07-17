@@ -169,7 +169,6 @@ tbody tr:hover { background: var(--track); }
   font-weight: 600;
   white-space: nowrap;
 }
-.level-chip.low { color: #0b0b0b; }
 
 /* ---------- tooltip ---------- */
 .tooltip {
