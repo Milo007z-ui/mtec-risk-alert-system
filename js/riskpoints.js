@@ -8,7 +8,7 @@ const RiskPoints = (() => {
   const LEVEL_STYLE = {
     high: { color: "#c62828", label: "สูง" },
     medium: { color: "#ef6c00", label: "ปานกลาง" },
-    low: { color: "#f9a825", label: "ต่ำ" },
+    low: { color: "#2e7d32", label: "ต่ำ" },
   };
 
   let points = []; // [{lat, lng, id, road, province, accident_count, deaths, ...}]

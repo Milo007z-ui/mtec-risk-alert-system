@@ -1,17 +1,3 @@
-"""
-วิเคราะห์จุดเสี่ยงอุบัติเหตุเฉพาะ "กรุงเทพฯ และปริมณฑล" (6 จังหวัด)
-ดึงข้อมูลจาก MOT Data Catalog -> กรองเฉพาะปริมณฑล -> DBSCAN หาจุดเสี่ยง
--> export เป็น GeoJSON สำหรับเว็บแอปแจ้งเตือนจุดเสี่ยง
-
-วิธีใช้:
-    pip install requests scikit-learn numpy
-    py scripts/build_risk_points.py
-
-ผลลัพธ์: ไฟล์ data/risk_points_bkk_metro.geojson
-   เว็บแอป (index.html) จะโหลดไฟล์นี้อัตโนมัติเมื่อเปิดผ่าน local server
-   (เช่น `py -m http.server`)
-"""
-
 import requests
 import json
 from math import radians

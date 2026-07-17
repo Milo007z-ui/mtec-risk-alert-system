@@ -43,7 +43,7 @@ html, body {
 }
 .alert-high { background: #c62828; }
 .alert-medium { background: #ef6c00; }
-.alert-low { background: #f9a825; color: #333; }
+.alert-low { background: #2e7d32; }
 
 @keyframes slide-in {
   from { transform: translateY(-20px); opacity: 0; }

@@ -13,7 +13,7 @@
   /* สีระดับความเสี่ยง = สี status เดียวกับแผนที่ ใช้คู่กับป้าย+ตัวเลขเสมอ */
   --risk-high: #c62828;
   --risk-medium: #ef6c00;
-  --risk-low: #f9a825;
+  --risk-low: #2e7d32;
 }
 @media (prefers-color-scheme: dark) {
   :root {
