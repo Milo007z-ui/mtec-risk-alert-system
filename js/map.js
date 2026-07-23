@@ -7,6 +7,8 @@ const MapView = (() => {
   let map = null;
   let userMarker = null;
   let accuracyCircle = null;
+  let routeLine = null;
+  let firstFixZoom = 16;
   let autoPan = true;
 
   function init() {
@@ -51,7 +53,7 @@ const MapView = (() => {
         fillColor: "#1976d2",
         fillOpacity: 0.12,
       }).addTo(map);
-      map.setView(latlng, 16);
+      map.setView(latlng, firstFixZoom);
     } else {
       userMarker.setLatLng(latlng);
       accuracyCircle.setLatLng(latlng).setRadius(accuracyM);
@@ -59,9 +61,22 @@ const MapView = (() => {
     }
   }
 
+  /** วาดเส้นทางที่วางแผนไว้ (ใช้ในโหมดจำลอง) เป็นเส้นประ + ซูมออกให้เห็นทางข้างหน้า */
+  function drawRoute(latlngs) {
+    if (!latlngs || latlngs.length < 2) return;
+    if (routeLine) routeLine.remove();
+    routeLine = L.polyline(latlngs, {
+      color: "#1976d2",
+      weight: 4,
+      opacity: 0.55,
+      dashArray: "8 10",
+    }).addTo(map);
+    firstFixZoom = 14; // ซูมออกให้เห็นถนนและจุดเสี่ยงถัดไปข้างหน้า
+  }
+
   function getMap() {
     return map;
   }
 
-  return { init, updateUserPosition, getMap };
+  return { init, updateUserPosition, drawRoute, getMap };
 })();

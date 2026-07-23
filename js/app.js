@@ -32,6 +32,12 @@
 
     showStatus(GPS.isMockMode() ? "🧪 โหมดจำลอง GPS" : "กำลังค้นหาตำแหน่ง...");
 
+    // โหมดจำลอง: วาดเส้นทางที่จะขับ (ผ่านจุดเสี่ยงจริงหลายจุด) ก่อนเริ่มเคลื่อนที่
+    if (GPS.isMockMode()) {
+      const route = GPS.getMockRoute();
+      if (route.length) MapView.drawRoute(route.map((p) => [p.lat, p.lng]));
+    }
+
     GPS.start(
       (lat, lng, accuracy) => {
         MapView.updateUserPosition(lat, lng, accuracy);

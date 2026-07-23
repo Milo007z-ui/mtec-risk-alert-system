@@ -45,8 +45,11 @@ const AlertSystem = (() => {
 
       alerted.set(point.id, { lastAlertAt: now });
       const msg = RiskRules.buildAlertMessage(point, distance);
-      const spoken = TTS.speak(msg);
-      showBanner((spoken ? "🔊 " : "⚠️ ") + msg, point.level);
+      showBanner("🔊 " + msg, point.level);
+      // speak() เป็น async (ไล่ลอง Botnoi -> Google -> Web Speech) — ถ้าทุกชั้นล้มเหลวค่อยเปลี่ยนไอคอนเป็นเตือนภาพ
+      Promise.resolve(TTS.speak(msg)).then((spoken) => {
+        if (!spoken) showBanner("⚠️ " + msg, point.level);
+      });
       break;
     }
 

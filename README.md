@@ -44,7 +44,44 @@ py -m http.server 8123
 │   └── app.js                  # จุดเริ่มต้น ประกอบทุกโมดูล
 ├── data/risk_points_bkk_metro.geojson   # จุดเสี่ยง 108 จุด (สร้างจากสคริปต์)
 ├── scripts/build_risk_points.py         # ดึงข้อมูล MOT -> DBSCAN -> GeoJSON
+├── api/server.py                        # REST API (FastAPI) ให้อุปกรณ์ดึงข้อมูลจุดเสี่ยง
+├── device/pi_alert_client.py            # ไคลเอนต์ Raspberry Pi: GPS -> เรียก API -> พูดเตือน
 └── tests/distance.test.js               # unit test: node tests/distance.test.js
+```
+
+## REST API สำหรับอุปกรณ์ (`api/server.py`)
+
+เซิร์ฟเวอร์ FastAPI แจกจ่ายข้อมูลจุดเสี่ยงให้อุปกรณ์ภายนอก (Raspberry Pi, มือถือ ฯลฯ)
+และเสิร์ฟหน้าเว็บเดิมไปพร้อมกัน — ใช้เซิร์ฟเวอร์เดียวแทน `py -m http.server` ได้เลย
+
+```bash
+pip install -r api/requirements.txt
+python -m uvicorn api.server:app --host 0.0.0.0 --port 8000
+# เว็บ:      http://localhost:8000
+# API docs:  http://localhost:8000/docs   (Swagger UI อัตโนมัติ)
+```
+
+| Endpoint | ความหมาย |
+|---|---|
+| `GET /api/health` | สถานะเซิร์ฟเวอร์ + จำนวนจุดเสี่ยง |
+| `GET /api/risk-points` | ทุกจุด กรองได้: `?level=high` `?province=นนทบุรี` `?min_score=55` |
+| `GET /api/risk-points/nearby?lat=..&lng=..&radius=600` | จุดในรัศมี เรียงใกล้→ไกล พร้อม `distance_m` และ **`alert_message`** (ข้อความเตือนไทยสำเร็จรูป สร้างจากกติกา Dynamic Alert เดียวกับเว็บ) |
+| `GET /api/risk-points/{id}` | รายละเอียดจุดเดียว + ปัจจัยเสี่ยง |
+
+## ไคลเอนต์ Raspberry Pi (`device/pi_alert_client.py`)
+
+สคริปต์สำหรับติดบนรถ (เช่น รถเมล์): อ่านพิกัด GPS ของรถ ถาม API ว่ามีจุดเสี่ยงใกล้ๆ ไหม
+เมื่อเข้าใกล้กว่า 500 ม. จะพูดเตือนคนขับเป็นภาษาไทยผ่านลำโพง (espeak-ng)
+ใช้กติกา cooldown ชุดเดียวกับหน้าเว็บ ใช้เฉพาะ Python standard library ไม่ต้อง pip install
+
+```bash
+# บน Raspberry Pi (ต่อ GPS USB + ลำโพง)
+sudo apt install gpsd espeak-ng
+python3 device/pi_alert_client.py --api http://<IP-เซิร์ฟเวอร์>:8000 --gpsd
+
+# ทดสอบโดยไม่มี GPS: พิกัดคงที่ หรือจำลองเส้นทางจากไฟล์ (บรรทัดละ lat,lng)
+python3 device/pi_alert_client.py --api http://localhost:8000 --test 13.665 100.534
+python3 device/pi_alert_client.py --api http://localhost:8000 --route route.csv
 ```
 
 ## กติกาการแจ้งเตือน (ปรับได้ใน `js/alert.js`)
@@ -86,6 +123,8 @@ py -m http.server 8123
 node tests/distance.test.js     # unit test ระยะทาง (9 เคส)
 ```
 
-ทดสอบรวมทั้งระบบ: เปิด `http://localhost:8123/?mock=1` — ระบบจะจำลองการขับรถ
-ความเร็ว ~40 กม./ชม. วิ่งผ่านจุดเสี่ยงระดับสูงจุดแรก ต้องได้ยินเสียงเตือน **หนึ่งครั้ง**
-ตอนเข้าเขต 500 ม. และไม่เตือนซ้ำจนกว่าจะออกนอกเขตแล้วกลับเข้ามาใหม่
+ทดสอบรวมทั้งระบบ: เปิด `http://localhost:8123/?mock=1` — ระบบจะวาดเส้นทางจำลอง
+แล้วขับตามถนนเส้นเดียวผ่านจุดเสี่ยงจริงติดกัน 4–5 จุด (แนวเหนือ ถ.รามอินทรา-บางพลี)
+ต้องได้ยินเสียงเตือน **หนึ่งครั้งต่อจุด** ตอนเข้าเขต 500 ม. และไม่เตือนจุดเดิมซ้ำ
+จนกว่าจะออกนอกเขตแล้วกลับเข้ามาใหม่ ปรับจังหวะช้า/เร็วได้ด้วย `?mock=1&mockpace=12`
+(วินาทีต่อกิโลเมตร — ค่ามากยิ่งช้า)
