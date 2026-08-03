@@ -5,85 +5,81 @@ from pathlib import Path
 from sklearn.cluster import DBSCAN
 import numpy as np
 
-# ---------- ตั้งค่า ----------
-RESOURCE_ID_2025 = "64089b01-29ae-4cff-8115-c1e65894c5a6"   # ปี 2568 (มี API)
-XLSX_FILE_2026 = None   # ตั้งเป็น "accident2026.xlsx" ถ้าดาวน์โหลดไฟล์ปี 2569 มาแล้ว
+RESOURCE_ID_2025 = "64089b01-29ae-4cff-8115-c1e65894c5a6"
+XLSX_FILE_2026 = None
 
-# 6 จังหวัดที่นับเป็น "กรุงเทพฯ และปริมณฑล"
 BANGKOK_METRO_PROVINCES = [
     "กรุงเทพมหานคร", "นนทบุรี", "ปทุมธานี",
     "สมุทรปราการ", "นครปฐม", "สมุทรสาคร"
 ]
 
-EPS_METERS = 400          # รัศมีกลุ่ม (เมตร) - ปรับกว้างขึ้นเพราะเขตเมืองถนนหนาแน่น
-MIN_SAMPLES = 3            # จำนวนอุบัติเหตุขั้นต่ำถึงจะนับเป็นจุดเสี่ยง
+EPS_METERS = 400
+MIN_SAMPLES = 3
 API_BASE = "https://datagov.mot.go.th/api/3/action/datastore_search"
 OUTPUT_FILE = Path(__file__).resolve().parent.parent / "data" / "risk_points_bkk_metro.geojson"
 
-# ---------- Road Risk Assessment Model (คะแนนเต็ม 100) ----------
-# 4 ปัจจัย: ความถี่ 30 + ความรุนแรง 35 + ลักษณะถนน 20 + ความเร็วถนน 15
-#
-# น้ำหนัก EPDO (Equivalent Property Damage Only — แนวปฏิบัติของ FHWA/HSIP):
-# แปลงเหยื่อแต่ละระดับเป็น "หน่วยความสูญเสียเทียบเท่า" เสียชีวิตหนักสุด
 EPDO_DEATH = 10
 EPDO_SERIOUS = 4
 EPDO_MINOR = 1
 
-# จุดอิ่มตัวของสเกล log (เกินนี้ได้คะแนนเต็ม) — ใช้ log เพราะจำนวนอุบัติเหตุ
-# มีการแจกแจงหางยาว (จุดส่วนใหญ่ 3-20 ครั้ง แต่จุดสูงสุด 364 ครั้ง)
-FREQ_SATURATION = 50       # อุบัติเหตุ 50 ครั้ง/ปี = ความถี่เต็ม 30 คะแนน
-EPDO_SATURATION = 120      # EPDO 120 (≈เสียชีวิต 12) = ความรุนแรงเต็ม 35 คะแนน
-
-# ความเร็วตามกฎหมาย (กม./ชม.) อนุมานจากประเภทสายทางของหน่วยงานรับผิดชอบ
-# (ชุดข้อมูลไม่มีป้ายจำกัดความเร็วรายจุด — ใช้ค่าแทนตามกฎกระทรวงฯ พ.ศ. 2564)
 SPEED_LIMIT_BY_ROADTYPE = {
-    "การทางพิเศษ": 100,     # ทางพิเศษ/ทางด่วน
-    "ทางหลวง": 90,          # ทางหลวงแผ่นดินนอกเขตเทศบาล
+    "การทางพิเศษ": 100,
+    "ทางหลวง": 90,
     "ทางหลวงชนบท": 80,
 }
 SPEED_LIMIT_DEFAULT = 80
 
-# เกณฑ์แบ่งระดับ (คาลิเบรตจากการกระจายคะแนนจริง — ดู print ใน main)
-THRESHOLD_HIGH = 55
-THRESHOLD_MEDIUM = 40
+GEOMETRY_FULL_SCORE = 20
+CP_MAX = 32
+CONFLICT_POINTS = {
+    "4leg": 32,
+    "3leg": 9,
+    "roundabout": 8,
+    "uturn": 4,
+    "straight": 0,
+}
+CURVE_SCORE_PROVISIONAL = 10.0
+
+SPEED_FULL_SCORE = 15
+NILSSON_FATALITY_EXPONENT = 4
+
+LOSS_SD_MULTIPLIER = 0.5
+KSI_BLACKSPOT_COUNT = 3
 
 
-def geometry_weight(location_type):
-    """
-    น้ำหนักอันตรายเชิงกายภาพของถนน (0-1) ตามจำนวนจุดขัดแย้งกระแสจราจร
-    (conflict points): ทางแยกมีจุดตัดกระแสมากสุด รองลงมาคือจุดกลับรถ/ทางโค้ง
-    """
+def geometry_score_for_type(location_type):
     t = location_type or ""
+    if "วงเวียน" in t:
+        return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["roundabout"] / CP_MAX
+    if "สามแยก" in t or "3 แยก" in t:
+        return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["3leg"] / CP_MAX
     if "แยก" in t or "ทางร่วม" in t:
-        return 1.0   # ทางแยก/ทางร่วม — จุดตัดกระแสจราจรสูงสุด
+        return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["4leg"] / CP_MAX
     if "กลับรถ" in t:
-        return 0.9   # จุดกลับรถ — ตัดกระแสสวนทาง + รถชะลอ
-    if "โค้ง" in t:
-        return 0.9 if "ลาดชัน" in t else 0.8   # ระยะมองเห็นจำกัด
+        return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["uturn"] / CP_MAX
     if "เชื่อมเข้า" in t:
-        return 0.7   # ทางเชื่อมเข้าพื้นที่ — รถเข้าออกไม่คาดคิด
-    if "ลาดชัน" in t:
-        return 0.5
-    if "ทางตรง" in t:
-        return 0.3   # ฐานความเสี่ยงของถนนปกติ
-    return 0.4       # ไม่ระบุ/อื่นๆ
+        return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["3leg"] / CP_MAX
+    if "โค้ง" in t:
+        return CURVE_SCORE_PROVISIONAL
+    return GEOMETRY_FULL_SCORE * CONFLICT_POINTS["straight"] / CP_MAX
 
 
-def compute_risk_score(members, deaths, serious, minor, speed_limit):
-    """คืน (risk_score, breakdown) ตามโมเดล 4 ปัจจัย คะแนนเต็ม 100"""
-    # 1) Accident Frequency (30) — สเกล log อิ่มตัวที่ FREQ_SATURATION
-    freq = 30 * min(1.0, log(1 + len(members)) / log(1 + FREQ_SATURATION))
+def _log_norm_score(value, max_value, full_score):
+    if max_value <= 0:
+        return 0.0
+    return full_score * min(1.0, log(1 + value) / log(1 + max_value))
 
-    # 2) Accident Severity (35) — EPDO สเกล log อิ่มตัวที่ EPDO_SATURATION
+
+def compute_risk_score(members, deaths, serious, minor, speed_limit, v_ref,
+                       freq_max, epdo_max):
+    freq = _log_norm_score(len(members), freq_max, 30)
+
     epdo = deaths * EPDO_DEATH + serious * EPDO_SERIOUS + minor * EPDO_MINOR
-    severity = 35 * min(1.0, log(1 + epdo) / log(1 + EPDO_SATURATION))
+    severity = _log_norm_score(epdo, epdo_max, 35)
 
-    # 3) Road Geometry (20) — ค่าเฉลี่ยถ่วงน้ำหนักจากทุกเหตุการณ์ในกลุ่ม
-    #    (ไม่ใช้แค่ค่าฐานนิยม เพื่อให้จุดที่มีทั้งทางแยก+ทางตรงได้คะแนนกลางๆ)
-    geometry = 20 * (sum(geometry_weight(m["location_type"]) for m in members) / len(members))
+    geometry = sum(geometry_score_for_type(m["location_type"]) for m in members) / len(members)
 
-    # 4) Speed Limit (15) — พลังงานจลน์ ∝ ความเร็ว² จึงใช้กำลังสอง ไม่ใช่เชิงเส้น
-    speed = 15 * (speed_limit / 120) ** 2
+    speed = SPEED_FULL_SCORE * (speed_limit / v_ref) ** NILSSON_FATALITY_EXPONENT
 
     total = freq + severity + geometry + speed
     return round(total, 1), {
@@ -94,16 +90,14 @@ def compute_risk_score(members, deaths, serious, minor, speed_limit):
     }
 
 
-def classify(risk_score, deaths):
-    """
-    แบ่ง 3 ระดับด้วยเกณฑ์คะแนน + safety override ตามหลัก KSI
-    (Killed or Seriously Injured — จุดที่เคยมีผู้เสียชีวิตต้องไม่ถูกจัดต่ำ)
-    """
-    if risk_score >= THRESHOLD_HIGH or deaths >= 2:
+def classify(risk_score, ksi_count, mean_score, sd_score):
+    if ksi_count >= KSI_BLACKSPOT_COUNT:
         return "high"
-    if risk_score >= THRESHOLD_MEDIUM or deaths >= 1:
-        return "medium"
-    return "low"
+    if risk_score > mean_score + LOSS_SD_MULTIPLIER * sd_score:
+        return "high"
+    if risk_score < mean_score - LOSS_SD_MULTIPLIER * sd_score:
+        return "low"
+    return "medium"
 
 
 def fetch_accidents(resource_id, limit=10000):
@@ -129,7 +123,6 @@ def load_xlsx_records(path):
 
 
 def clean_points(records):
-    """กรองเฉพาะปริมณฑล + พิกัดถูกต้อง"""
     points = []
     for r in records:
         if r.get("จังหวัด") not in BANGKOK_METRO_PROVINCES:
@@ -175,7 +168,6 @@ def cluster_risk_zones(points, eps_meters, min_samples):
         serious = sum(m["serious"] for m in members)
         minor = sum(m["minor"] for m in members)
 
-        # ค่าฐานนิยม (mode) ของแต่ละมิติ ใช้บรรยายลักษณะเด่นของจุดเสี่ยง
         def mode_of(key):
             counts = {}
             for m in members:
@@ -188,8 +180,6 @@ def cluster_risk_zones(points, eps_meters, min_samples):
         top_road_type = mode_of("road_type")
 
         speed_limit = SPEED_LIMIT_BY_ROADTYPE.get(top_road_type, SPEED_LIMIT_DEFAULT)
-        risk_score, breakdown = compute_risk_score(members, deaths, serious, minor, speed_limit)
-        level = classify(risk_score, deaths)
 
         zones.append({
             "id": f"zone_{cluster_id}",
@@ -206,10 +196,32 @@ def cluster_risk_zones(points, eps_meters, min_samples):
             "crash_pattern": top_crash_pattern,
             "road_type": top_road_type,
             "speed_limit": speed_limit,
-            "risk_score": risk_score,
-            "score_breakdown": breakdown,
-            "level": level,
+            "_members": members,
         })
+
+    if not zones:
+        return zones
+
+    v_ref = max(z["speed_limit"] for z in zones)
+    freq_max = max(z["accident_count"] for z in zones)
+    epdo_max = max(
+        z["deaths"] * EPDO_DEATH + z["serious_injury"] * EPDO_SERIOUS
+        + z["minor_injury"] * EPDO_MINOR
+        for z in zones
+    )
+    for z in zones:
+        z["risk_score"], z["score_breakdown"] = compute_risk_score(
+            z["_members"], z["deaths"], z["serious_injury"], z["minor_injury"],
+            z["speed_limit"], v_ref, freq_max, epdo_max,
+        )
+        del z["_members"]
+
+    scores = np.array([z["risk_score"] for z in zones])
+    mean_score, sd_score = float(scores.mean()), float(scores.std())
+    for z in zones:
+        ksi_count = z["deaths"] + z["serious_injury"]
+        z["level"] = classify(z["risk_score"], ksi_count, mean_score, sd_score)
+
     return zones
 
 
@@ -246,7 +258,6 @@ def main():
     medium = sum(1 for z in zones if z["level"] == "medium")
     print(f"  ระดับสูง {high} จุด | ระดับปานกลาง {medium} จุด | ระดับต่ำ {len(zones) - high - medium} จุด")
 
-    # สถิติการกระจาย risk_score ไว้ตรวจสอบ/คาลิเบรต threshold
     scores = sorted(z["risk_score"] for z in zones)
     pct = lambda p: scores[min(len(scores) - 1, int(p / 100 * len(scores)))]
     print(f"  risk_score: min {scores[0]} | P25 {pct(25)} | P50 {pct(50)} | "
@@ -258,5 +269,65 @@ def main():
     print(f"บันทึกไฟล์ {OUTPUT_FILE} เรียบร้อย")
 
 
+def _self_test():
+    v_ref = 100
+    freq_max, epdo_max = 50, 120
+
+    intersection = [{"location_type": "ทางแยก"}] * 5
+    s_int, b_int = compute_risk_score(intersection, deaths=2, serious=1,
+                                      minor=2, speed_limit=90, v_ref=v_ref,
+                                      freq_max=freq_max, epdo_max=epdo_max)
+
+    straight = [{"location_type": "ทางตรง"}] * 5
+    s_str, b_str = compute_risk_score(straight, deaths=0, serious=0,
+                                      minor=2, speed_limit=80, v_ref=v_ref,
+                                      freq_max=freq_max, epdo_max=epdo_max)
+
+    print(f"สี่แยก+เสียชีวิต : {s_int} {b_int}")
+    print(f"ทางตรง+ไม่ตาย    : {s_str} {b_str}")
+    assert s_int > s_str, "สี่แยกที่มีผู้เสียชีวิตต้องได้คะแนนสูงกว่าทางตรงที่ไม่มี"
+
+    assert geometry_score_for_type("ทางแยก") == 20.0
+    assert round(geometry_score_for_type("สามแยก"), 3) == 5.625
+    assert geometry_score_for_type("วงเวียน") == 5.0
+    assert geometry_score_for_type("จุดกลับรถ") == 2.5
+    assert geometry_score_for_type("ทางโค้ง") == CURVE_SCORE_PROVISIONAL
+    assert geometry_score_for_type("ทางตรง") == 0.0
+
+    assert b_int["speed"] == round(15 * 0.9 ** 4, 1)
+    assert b_str["speed"] == round(15 * 0.8 ** 4, 1)
+
+    assert _log_norm_score(100, 100, 30) == 30.0
+    assert _log_norm_score(0, 100, 30) == 0.0
+    assert _log_norm_score(5, 0, 30) == 0.0
+
+    top_freq = [{"location_type": "ทางตรง"}] * 40
+    _, b_topf = compute_risk_score(top_freq, deaths=0, serious=0, minor=0,
+                                   speed_limit=80, v_ref=v_ref,
+                                   freq_max=40, epdo_max=100)
+    assert b_topf["frequency"] == 30.0, b_topf
+
+    _, b_tops = compute_risk_score([{"location_type": "ทางตรง"}], deaths=1,
+                                   serious=0, minor=0, speed_limit=80,
+                                   v_ref=v_ref, freq_max=10, epdo_max=10)
+    assert b_tops["severity"] == 35.0, b_tops
+
+    _, b_zero = compute_risk_score([{"location_type": "ทางตรง"}], deaths=0,
+                                   serious=0, minor=0, speed_limit=80,
+                                   v_ref=v_ref, freq_max=10, epdo_max=0)
+    assert b_zero["severity"] == 0.0, b_zero
+
+    assert classify(10.0, ksi_count=3, mean_score=50.0, sd_score=10.0) == "high"
+    assert classify(56.0, ksi_count=0, mean_score=50.0, sd_score=10.0) == "high"
+    assert classify(50.0, ksi_count=0, mean_score=50.0, sd_score=10.0) == "medium"
+    assert classify(44.0, ksi_count=0, mean_score=50.0, sd_score=10.0) == "low"
+
+    print("self-test ผ่านทั้งหมด")
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--selftest" in sys.argv:
+        _self_test()
+    else:
+        main()

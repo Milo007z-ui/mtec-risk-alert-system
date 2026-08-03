@@ -98,5 +98,12 @@ const RiskPoints = (() => {
     return points;
   }
 
-  return { load, drawOnMap, all, LEVEL_STYLE };
+  /** เอาจุดเสี่ยงตาม id ออกจากชุดข้อมูลในหน่วยความจำ (ไม่แตะไฟล์ต้นฉบับ) */
+  function remove(ids) {
+    if (!ids || !ids.length) return;
+    const drop = new Set(ids);
+    points = points.filter((p) => !drop.has(p.id));
+  }
+
+  return { load, drawOnMap, all, remove, LEVEL_STYLE };
 })();

@@ -12,9 +12,11 @@
 
   // โหลดจุดเสี่ยงก่อน — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้ ให้แจ้งชัดๆ
   try {
-    const points = await RiskPoints.load();
+    await RiskPoints.load();
+    if (GPS.isMockMode()) RiskPoints.remove(GPS.mockExcludes()); // ซ่อนจุดที่รถไม่ได้ขับผ่านจริง (เฉพาะจำลอง)
     RiskPoints.drawOnMap(map);
-    statusEl.textContent = `โหลดจุดเสี่ยง ${points.length} จุดแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
+    await GPS.prepare(); // โหมดจำลอง: เตรียมเส้นทางถนนจริงไว้ล่วงหน้า
+    statusEl.textContent = `โหลดจุดเสี่ยง ${RiskPoints.all().length} จุดแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
   } catch (err) {
     statusEl.textContent = `❌ ${err.message} — ตรวจว่าเปิดผ่าน local server ไม่ใช่ file://`;
     startBtn.disabled = true;

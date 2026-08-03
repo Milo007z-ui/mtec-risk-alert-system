@@ -8,9 +8,16 @@ const GPS = (() => {
   let mockTimer = null;
   let plannedRoute = null; // เส้นทางจำลอง (memoized) — [{lat,lng}] รวมจุดตั้งต้น/สิ้นสุด
 
-  // ชุดจุดเสี่ยงจริงที่เรียงต่อกันเป็น "ถนน" เดียว (ทางเหนือ ถ.รามอินทรา-บางพลี)
-  // ขับตรงขึ้นเหนือ ~15 กม. ผ่านจุดเสี่ยงระดับสูงหลายจุดติดกัน
+  // เส้นทางถนนจริง (สร้างจาก OSRM) ให้รถวิ่งตามเลนถนนตลอด ไม่ตัดข้ามอาคาร
+  // ผ่านจุดเสี่ยงครบ 3 ระดับบนถนน "บางปะอิน - แขวงรามอินทรา" (~10.5 กม.)
+  const MOCK_ROUTE_URL = "data/mock_route.geojson";
+
+  // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยจุดเสี่ยงเป็นเส้นตรงแทน
   const MOCK_ROUTE_IDS = ["zone_25", "zone_29", "zone_58", "zone_48", "zone_69"];
+
+  // จุดเสี่ยงที่ "ยกเว้นเฉพาะโหมดจำลอง" — อยู่คนละฝั่งเลน/แรมป์ รถไม่ได้ขับผ่านจริง
+  // จะไม่แสดงหมุดและไม่แจ้งเตือนตอนขับจำลอง (ข้อมูลจริงในไฟล์/หน้าสถิติยังอยู่ครบ)
+  const MOCK_EXCLUDE_IDS = ["zone_43"];
 
   const ERROR_MESSAGES = {
     1: "คุณไม่ได้อนุญาตให้เข้าถึงตำแหน่ง — เปิดสิทธิ์ Location ในการตั้งค่าเบราว์เซอร์แล้วรีเฟรชหน้า",
@@ -108,6 +115,28 @@ const GPS = (() => {
     return { lat: from.lat + mLat / 111320, lng: from.lng + mLng / (111320 * cos) };
   }
 
+  /**
+   * โหลดเส้นทางถนนจริงจากไฟล์ GeoJSON (LineString) มาเป็นเส้นทางจำลอง
+   * เรียกครั้งเดียวตอนเริ่มแอป (มีผลเฉพาะโหมดจำลอง) — ถ้าล้มเหลวเงียบๆ แล้วใช้ fallback
+   */
+  async function prepare() {
+    if (!isMockMode() || plannedRoute) return;
+    try {
+      // ต่อ query กันเบราว์เซอร์ cache เส้นทางเก่า (ไฟล์อัปเดตบ่อยระหว่างทดสอบ)
+      const resp = await fetch(`${MOCK_ROUTE_URL}?_=${Date.now()}`, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const gj = await resp.json();
+      const line = gj.features.find((f) => f.geometry.type === "LineString");
+      const coords = line && line.geometry.coordinates;
+      if (coords && coords.length >= 2) {
+        plannedRoute = coords.map(([lng, lat]) => ({ lat, lng })); // GeoJSON = [lng,lat]
+        console.log(`[MOCK] โหลดเส้นทางถนนจริง ${plannedRoute.length} จุดพิกัด (${MOCK_ROUTE_URL})`);
+      }
+    } catch (err) {
+      console.warn(`[MOCK] โหลดเส้นทางถนนไม่ได้ (${err.message}) — ใช้เส้นทางสำรองแบบลากจุดเสี่ยง`);
+    }
+  }
+
   /** สร้าง (และ cache) เส้นทางจำลองเต็ม: [ทางเข้า, ...จุดเสี่ยง, ทางออก] */
   function getMockRoute() {
     if (plannedRoute) return plannedRoute;
@@ -170,5 +199,5 @@ const GPS = (() => {
     }, TICK_MS);
   }
 
-  return { start, stop, isMockMode, getMockRoute };
+  return { start, stop, isMockMode, getMockRoute, prepare, mockExcludes: () => MOCK_EXCLUDE_IDS };
 })();

@@ -23,12 +23,12 @@
         "crash_pattern": "ไม่ระบุ",
         "road_type": "ทางหลวงชนบท",
         "speed_limit": 80,
-        "risk_score": 80.5,
+        "risk_score": 56.4,
         "score_breakdown": {
-          "frequency": 30.0,
-          "severity": 33.0,
-          "geometry": 10.8,
-          "speed": 6.7
+          "frequency": 22.3,
+          "severity": 27.1,
+          "geometry": 0.9,
+          "speed": 6.1
         },
         "level": "high"
       }
@@ -55,12 +55,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 54.9,
+        "risk_score": 36.9,
         "score_breakdown": {
-          "frequency": 19.0,
-          "severity": 17.5,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 12.6,
+          "severity": 14.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -87,12 +87,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 64.5,
+        "risk_score": 44.4,
         "score_breakdown": {
-          "frequency": 22.5,
-          "severity": 23.8,
-          "geometry": 9.8,
-          "speed": 8.4
+          "frequency": 15.0,
+          "severity": 19.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -119,12 +119,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 83.5,
+        "risk_score": 64.3,
         "score_breakdown": {
-          "frequency": 30.0,
-          "severity": 35.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 25.4,
+          "severity": 29.0,
+          "geometry": 0.1,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -151,12 +151,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 45.0,
+        "risk_score": 29.4,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -183,12 +183,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 83.5,
+        "risk_score": 75.3,
         "score_breakdown": {
           "frequency": 30.0,
           "severity": 35.0,
-          "geometry": 10.1,
-          "speed": 8.4
+          "geometry": 0.4,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -215,12 +215,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 65.0,
+        "risk_score": 44.1,
         "score_breakdown": {
-          "frequency": 25.4,
-          "severity": 21.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 16.9,
+          "severity": 17.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -247,12 +247,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 66.8,
+        "risk_score": 45.4,
         "score_breakdown": {
-          "frequency": 27.3,
-          "severity": 21.1,
-          "geometry": 9.9,
-          "speed": 8.4
+          "frequency": 18.2,
+          "severity": 17.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -279,12 +279,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 45.4,
+        "risk_score": 36.3,
         "score_breakdown": {
-          "frequency": 15.9,
-          "severity": 13.1,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 10.6,
+          "severity": 10.8,
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -311,12 +311,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 54.1,
+        "risk_score": 36.7,
         "score_breakdown": {
-          "frequency": 15.9,
-          "severity": 19.8,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 10.6,
+          "severity": 16.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -343,12 +343,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.2,
+        "risk_score": 28.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 14.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -375,14 +375,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.4,
+        "risk_score": 28.1,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -407,12 +407,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 53.5,
+        "risk_score": 36.4,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 20.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 16.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -439,12 +439,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 67.7,
+        "risk_score": 47.5,
         "score_breakdown": {
-          "frequency": 30.0,
-          "severity": 19.3,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 21.8,
+          "severity": 15.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -471,12 +471,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 73.7,
+        "risk_score": 51.1,
         "score_breakdown": {
-          "frequency": 29.2,
-          "severity": 25.7,
-          "geometry": 10.3,
-          "speed": 8.4
+          "frequency": 19.5,
+          "severity": 21.2,
+          "geometry": 0.7,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -503,12 +503,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 63.0,
+        "risk_score": 42.5,
         "score_breakdown": {
-          "frequency": 26.0,
-          "severity": 18.7,
-          "geometry": 9.9,
-          "speed": 8.4
+          "frequency": 17.3,
+          "severity": 15.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -535,12 +535,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 39.1,
+        "risk_score": 25.2,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -567,12 +567,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 57.1,
+        "risk_score": 38.7,
         "score_breakdown": {
-          "frequency": 20.1,
-          "severity": 18.7,
-          "geometry": 9.8,
-          "speed": 8.4
+          "frequency": 13.4,
+          "severity": 15.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -599,12 +599,12 @@
         "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 51.0,
+        "risk_score": 33.1,
         "score_breakdown": {
-          "frequency": 22.5,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 15.0,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -631,12 +631,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 63.4,
+        "risk_score": 44.3,
         "score_breakdown": {
-          "frequency": 20.7,
-          "severity": 24.3,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 13.8,
+          "severity": 20.0,
+          "geometry": 0.7,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -663,12 +663,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 44.3,
+        "risk_score": 35.8,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 14.2,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 9.1,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -695,12 +695,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 50.0,
+        "risk_score": 33.9,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 19.3,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 15.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -727,12 +727,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 48.5,
+        "risk_score": 31.7,
         "score_breakdown": {
-          "frequency": 18.3,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 12.2,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -759,12 +759,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 44.9,
+        "risk_score": 29.7,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 14.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -791,14 +791,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 56.7,
+        "risk_score": 38.6,
         "score_breakdown": {
-          "frequency": 17.6,
-          "severity": 20.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.7,
+          "severity": 17.0,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "high"
+        "level": "medium"
       }
     },
     {
@@ -823,12 +823,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 60.3,
+        "risk_score": 41.1,
         "score_breakdown": {
-          "frequency": 21.6,
-          "severity": 19.8,
-          "geometry": 10.5,
-          "speed": 8.4
+          "frequency": 14.4,
+          "severity": 16.3,
+          "geometry": 0.6,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -855,12 +855,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 54.6,
+        "risk_score": 36.4,
         "score_breakdown": {
-          "frequency": 21.2,
-          "severity": 15.2,
-          "geometry": 9.9,
-          "speed": 8.4
+          "frequency": 14.1,
+          "severity": 12.5,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -887,14 +887,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 56.2,
+        "risk_score": 38.2,
         "score_breakdown": {
-          "frequency": 17.6,
-          "severity": 20.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.7,
+          "severity": 16.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "high"
+        "level": "medium"
       }
     },
     {
@@ -919,12 +919,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 78.1,
+        "risk_score": 61.2,
         "score_breakdown": {
-          "frequency": 30.0,
-          "severity": 29.8,
-          "geometry": 9.9,
-          "speed": 8.4
+          "frequency": 26.7,
+          "severity": 24.5,
+          "geometry": 0.2,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -951,12 +951,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 59.0,
+        "risk_score": 40.6,
         "score_breakdown": {
-          "frequency": 16.8,
-          "severity": 23.8,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.2,
+          "severity": 19.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -983,12 +983,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 49.2,
+        "risk_score": 34.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 21.5,
-          "geometry": 8.7,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 17.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1015,12 +1015,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 66.2,
+        "risk_score": 45.5,
         "score_breakdown": {
-          "frequency": 25.4,
-          "severity": 21.9,
-          "geometry": 10.5,
-          "speed": 8.4
+          "frequency": 16.9,
+          "severity": 18.0,
+          "geometry": 0.7,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1047,12 +1047,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 52.8,
+        "risk_score": 36.3,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 21.1,
-          "geometry": 9.6,
-          "speed": 8.4
+          "frequency": 9.1,
+          "severity": 17.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1079,14 +1079,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 40.5,
+        "risk_score": 27.7,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 11.7,
-          "geometry": 8.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -1111,12 +1111,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 77.5,
+        "risk_score": 53.8,
         "score_breakdown": {
-          "frequency": 29.7,
-          "severity": 29.2,
-          "geometry": 10.1,
-          "speed": 8.4
+          "frequency": 19.8,
+          "severity": 24.0,
+          "geometry": 0.1,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1143,12 +1143,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 45.0,
+        "risk_score": 29.4,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1175,14 +1175,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 51.4,
+        "risk_score": 48.4,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 11.7,
-          "geometry": 18.7,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 9.7,
+          "geometry": 16.7,
+          "speed": 15.0
         },
-        "level": "medium"
+        "level": "high"
       }
     },
     {
@@ -1207,12 +1207,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 46.5,
+        "risk_score": 31.3,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 17.5,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 14.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1239,12 +1239,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 50.4,
+        "risk_score": 34.0,
         "score_breakdown": {
-          "frequency": 17.6,
-          "severity": 13.1,
-          "geometry": 11.3,
-          "speed": 8.4
+          "frequency": 11.7,
+          "severity": 10.8,
+          "geometry": 1.7,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1271,12 +1271,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 32.1,
+        "risk_score": 19.0,
         "score_breakdown": {
-          "frequency": 13.7,
+          "frequency": 9.1,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -1303,12 +1303,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 44.4,
+        "risk_score": 28.7,
         "score_breakdown": {
-          "frequency": 15.9,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 10.6,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1335,12 +1335,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 63.6,
+        "risk_score": 44.4,
         "score_breakdown": {
-          "frequency": 20.1,
-          "severity": 23.8,
-          "geometry": 11.2,
-          "speed": 8.4
+          "frequency": 13.4,
+          "severity": 19.6,
+          "geometry": 1.5,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1367,12 +1367,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.3,
+        "risk_score": 28.8,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 13.1,
-          "geometry": 9.5,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 10.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1399,14 +1399,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 56.9,
+        "risk_score": 38.4,
         "score_breakdown": {
-          "frequency": 21.2,
-          "severity": 16.8,
-          "geometry": 10.5,
-          "speed": 8.4
+          "frequency": 14.1,
+          "severity": 13.8,
+          "geometry": 0.7,
+          "speed": 9.8
         },
-        "level": "high"
+        "level": "medium"
       }
     },
     {
@@ -1431,12 +1431,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 50.4,
+        "risk_score": 35.0,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 20.7,
-          "geometry": 9.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 17.0,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1463,12 +1463,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 44.4,
+        "risk_score": 28.7,
         "score_breakdown": {
-          "frequency": 15.9,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 10.6,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1495,12 +1495,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 45.4,
+        "risk_score": 38.4,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 11.7,
-          "geometry": 12.7,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 9.7,
+          "geometry": 6.7,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -1527,14 +1527,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.2,
+        "risk_score": 27.6,
         "score_breakdown": {
-          "frequency": 16.8,
-          "severity": 8.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.2,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -1559,12 +1559,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 59.5,
+        "risk_score": 39.9,
         "score_breakdown": {
-          "frequency": 23.6,
-          "severity": 17.5,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 15.7,
+          "severity": 14.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1591,12 +1591,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 29.0,
+        "risk_score": 16.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -1623,14 +1623,14 @@
         "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 36.7,
+        "risk_score": 32.9,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 5.1,
-          "geometry": 10.7,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 4.2,
+          "geometry": 6.7,
+          "speed": 15.0
         },
-        "level": "low"
+        "level": "medium"
       }
     },
     {
@@ -1655,12 +1655,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 46.5,
+        "risk_score": 37.0,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 18.1,
-          "geometry": 7.3,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 14.9,
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -1687,12 +1687,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 33.3,
+        "risk_score": 19.7,
         "score_breakdown": {
-          "frequency": 14.8,
+          "frequency": 9.9,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -1719,14 +1719,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 42.0,
+        "risk_score": 27.7,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 11.7,
-          "geometry": 9.5,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -1751,12 +1751,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 51.4,
+        "risk_score": 34.6,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 18.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 14.9,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -1783,14 +1783,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 42.2,
+        "risk_score": 27.3,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.1,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -1815,12 +1815,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 58.7,
+        "risk_score": 39.8,
         "score_breakdown": {
-          "frequency": 21.2,
-          "severity": 19.3,
-          "geometry": 9.9,
-          "speed": 8.4
+          "frequency": 14.1,
+          "severity": 15.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1847,12 +1847,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 62.2,
+        "risk_score": 42.8,
         "score_breakdown": {
-          "frequency": 20.1,
-          "severity": 23.8,
-          "geometry": 9.8,
-          "speed": 8.4
+          "frequency": 13.4,
+          "severity": 19.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1879,12 +1879,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 56.8,
+        "risk_score": 38.9,
         "score_breakdown": {
-          "frequency": 18.3,
-          "severity": 19.3,
-          "geometry": 10.8,
-          "speed": 8.4
+          "frequency": 12.2,
+          "severity": 15.8,
+          "geometry": 1.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -1911,12 +1911,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 37.2,
+        "risk_score": 23.1,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 5.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.1,
+          "severity": 4.2,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -1943,12 +1943,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 36.7,
+        "risk_score": 28.1,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 5.1,
-          "geometry": 10.7,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 4.2,
+          "geometry": 1.9,
+          "speed": 15.0
         },
         "level": "low"
       }
@@ -1975,14 +1975,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 40.1,
+        "risk_score": 25.5,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 8.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.1,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -2007,12 +2007,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.2,
+        "risk_score": 28.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 14.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2039,14 +2039,14 @@
         "crash_pattern": "อื่นๆ",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 35.0,
+        "risk_score": 28.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 8.0,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 15.0
         },
-        "level": "low"
+        "level": "medium"
       }
     },
     {
@@ -2071,12 +2071,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 44.9,
+        "risk_score": 29.7,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 14.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2103,12 +2103,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 69.1,
+        "risk_score": 48.9,
         "score_breakdown": {
-          "frequency": 16.8,
-          "severity": 33.9,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.2,
+          "severity": 27.9,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -2135,12 +2135,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 42.9,
+        "risk_score": 35.3,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 11.7,
-          "geometry": 8.5,
-          "speed": 10.4
+          "frequency": 8.2,
+          "severity": 9.7,
+          "geometry": 2.5,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -2167,12 +2167,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 47.5,
+        "risk_score": 31.8,
         "score_breakdown": {
-          "frequency": 16.8,
-          "severity": 13.1,
-          "geometry": 9.2,
-          "speed": 8.4
+          "frequency": 11.2,
+          "severity": 10.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2199,12 +2199,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 50.4,
+        "risk_score": 33.5,
         "score_breakdown": {
-          "frequency": 16.8,
-          "severity": 15.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.2,
+          "severity": 12.5,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2231,14 +2231,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 56.1,
+        "risk_score": 37.9,
         "score_breakdown": {
-          "frequency": 19.0,
-          "severity": 18.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 12.6,
+          "severity": 15.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "high"
+        "level": "medium"
       }
     },
     {
@@ -2263,12 +2263,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 31.7,
+        "risk_score": 19.0,
         "score_breakdown": {
-          "frequency": 13.7,
+          "frequency": 9.1,
           "severity": 0.0,
-          "geometry": 9.6,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2295,12 +2295,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 57.8,
+        "risk_score": 40.7,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 23.5,
-          "geometry": 11.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 19.3,
+          "geometry": 1.7,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -2327,14 +2327,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 38.1,
+        "risk_score": 30.7,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 8.0,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 9.1,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 15.0
         },
-        "level": "low"
+        "level": "medium"
       }
     },
     {
@@ -2359,12 +2359,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 45.8,
+        "risk_score": 37.6,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 10.1,
-          "geometry": 11.6,
-          "speed": 10.4
+          "frequency": 9.1,
+          "severity": 8.3,
+          "geometry": 5.1,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -2391,12 +2391,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 47.8,
+        "risk_score": 31.2,
         "score_breakdown": {
-          "frequency": 17.6,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.7,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2423,12 +2423,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 29.0,
+        "risk_score": 16.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2455,12 +2455,12 @@
         "crash_pattern": "ชนด้านข้าง",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 33.8,
+        "risk_score": 27.3,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 5.1,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 8.2,
+          "severity": 4.2,
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "low"
       }
@@ -2487,12 +2487,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 45.0,
+        "risk_score": 29.4,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2519,12 +2519,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 43.8,
+        "risk_score": 36.5,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 10.1,
-          "geometry": 11.0,
-          "speed": 10.4
+          "frequency": 8.2,
+          "severity": 8.3,
+          "geometry": 5.0,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -2551,12 +2551,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 48.1,
+        "risk_score": 33.1,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 19.8,
-          "geometry": 9.3,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 16.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2583,12 +2583,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 30.7,
+        "risk_score": 18.0,
         "score_breakdown": {
-          "frequency": 12.3,
+          "frequency": 8.2,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2615,12 +2615,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 34.1,
+        "risk_score": 21.1,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 5.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 4.2,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2647,14 +2647,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 40.8,
+        "risk_score": 26.3,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -2679,12 +2679,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 37.8,
+        "risk_score": 25.2,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 10.1,
-          "geometry": 8.7,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2711,12 +2711,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 64.0,
+        "risk_score": 43.9,
         "score_breakdown": {
-          "frequency": 22.1,
-          "severity": 23.5,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 14.7,
+          "severity": 19.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "high"
       }
@@ -2743,12 +2743,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 46.0,
+        "risk_score": 30.8,
         "score_breakdown": {
-          "frequency": 13.7,
-          "severity": 13.1,
-          "geometry": 10.8,
-          "speed": 8.4
+          "frequency": 9.1,
+          "severity": 10.8,
+          "geometry": 1.1,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2775,12 +2775,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 47.4,
+        "risk_score": 31.2,
         "score_breakdown": {
-          "frequency": 15.9,
-          "severity": 13.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 10.6,
+          "severity": 10.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2807,12 +2807,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 37.0,
+        "risk_score": 23.5,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 8.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2839,12 +2839,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 49.1,
+        "risk_score": 32.3,
         "score_breakdown": {
-          "frequency": 17.6,
-          "severity": 13.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 11.7,
+          "severity": 10.8,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -2871,12 +2871,12 @@
         "crash_pattern": "อื่นๆ",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 27.0,
+        "risk_score": 22.0,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 6.0,
-          "speed": 10.4
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "low"
       }
@@ -2903,14 +2903,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 42.5,
+        "risk_score": 27.7,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 11.7,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -2935,12 +2935,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 39.1,
+        "risk_score": 25.2,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 10.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2967,12 +2967,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 39.3,
+        "risk_score": 26.3,
         "score_breakdown": {
-          "frequency": 14.8,
-          "severity": 8.0,
-          "geometry": 8.0,
-          "speed": 8.4
+          "frequency": 9.9,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -2999,12 +2999,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 28.3,
+        "risk_score": 16.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 9.3,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -3031,12 +3031,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 29.0,
+        "risk_score": 16.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -3063,14 +3063,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 39.8,
+        "risk_score": 31.5,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 10.1,
-          "geometry": 7.0,
-          "speed": 10.4
+          "frequency": 8.2,
+          "severity": 8.3,
+          "geometry": 0.0,
+          "speed": 15.0
         },
-        "level": "low"
+        "level": "medium"
       }
     },
     {
@@ -3095,12 +3095,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 49.4,
+        "risk_score": 38.6,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 18.7,
-          "geometry": 8.0,
-          "speed": 10.4
+          "frequency": 8.2,
+          "severity": 15.4,
+          "geometry": 0.0,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -3127,12 +3127,12 @@
         "crash_pattern": "อื่นๆ",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 32.7,
+        "risk_score": 21.1,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 5.1,
-          "geometry": 8.7,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 4.2,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -3159,12 +3159,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 43.2,
+        "risk_score": 28.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 14.2,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 11.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -3191,14 +3191,14 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 40.1,
+        "risk_score": 26.5,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 11.7,
-          "geometry": 9.3,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 9.7,
+          "geometry": 0.0,
+          "speed": 9.8
         },
-        "level": "medium"
+        "level": "low"
       }
     },
     {
@@ -3223,14 +3223,14 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 35.0,
+        "risk_score": 28.6,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 8.0,
-          "geometry": 6.0,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 15.0
         },
-        "level": "low"
+        "level": "medium"
       }
     },
     {
@@ -3255,12 +3255,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 48.2,
+        "risk_score": 32.4,
         "score_breakdown": {
-          "frequency": 12.3,
-          "severity": 17.5,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 8.2,
+          "severity": 14.4,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -3287,12 +3287,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 29.0,
+        "risk_score": 16.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -3319,12 +3319,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 47.2,
+        "risk_score": 31.8,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 18.1,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 14.9,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "medium"
       }
@@ -3351,12 +3351,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "ทางหลวง",
         "speed_limit": 90,
-        "risk_score": 37.0,
+        "risk_score": 23.5,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 8.0,
-          "geometry": 10.0,
-          "speed": 8.4
+          "frequency": 7.0,
+          "severity": 6.6,
+          "geometry": 0.0,
+          "speed": 9.8
         },
         "level": "low"
       }
@@ -3383,12 +3383,12 @@
         "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 42.4,
+        "risk_score": 37.0,
         "score_breakdown": {
-          "frequency": 10.6,
-          "severity": 10.1,
-          "geometry": 11.3,
-          "speed": 10.4
+          "frequency": 7.0,
+          "severity": 8.3,
+          "geometry": 6.7,
+          "speed": 15.0
         },
         "level": "medium"
       }
@@ -3415,12 +3415,12 @@
         "crash_pattern": "ชนท้าย",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 30.3,
+        "risk_score": 25.4,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 9.3,
-          "speed": 10.4
+          "geometry": 3.3,
+          "speed": 15.0
         },
         "level": "low"
       }
@@ -3447,12 +3447,12 @@
         "crash_pattern": "อื่นๆ",
         "road_type": "การทางพิเศษ",
         "speed_limit": 100,
-        "risk_score": 32.3,
+        "risk_score": 23.9,
         "score_breakdown": {
-          "frequency": 10.6,
+          "frequency": 7.0,
           "severity": 0.0,
-          "geometry": 11.3,
-          "speed": 10.4
+          "geometry": 1.9,
+          "speed": 15.0
         },
         "level": "low"
       }
