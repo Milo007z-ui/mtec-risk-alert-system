@@ -95,33 +95,27 @@ const RiskPoints = (() => {
     const multi = p.multi_count ?? 0;
 
     // แถบคะแนนย่อย 4 เกณฑ์ — ทุกเกณฑ์เป็น Percentile Rank 0-100 น้ำหนักเท่ากัน 25%
-    // เกณฑ์รถคันเดียวมีบรรทัดบอกจำนวนครั้งจริง เพราะเปอร์เซ็นต์อย่างเดียวไม่บอกขนาดฐาน
+    // เกณฑ์รถคันเดียวมีแถบเทียบสัดส่วนต่อท้าย เพราะคะแนน percentile อย่างเดียว
+    // ไม่บอกว่าจุดนี้เป็นปัญหารถเสียหลักเดี่ยวหรือปัญหารถชนกัน
     const b = p.score_breakdown || {};
     const bars = [
       ["ความถี่", b.frequency, ""],
       ["ความเสียหาย ฿", b.economic_loss, ""],
-      [
-        "รถคันเดียว",
-        b.single_vehicle,
-        `รถคันเดียว ${single} ครั้ง · รถหลายคัน ${multi} ครั้ง จาก ${p.accident_count} ครั้ง`,
-      ],
+      ["รถคันเดียว", b.single_vehicle, buildSplitHtml(p, single, multi)],
       ["กายภาพถนน", b.geometry, ""],
     ]
       .map(
-        ([name, val, note]) => `
+        ([name, val, extra]) => `
         <div class="pp-factor">
           <span class="pp-factor-name">${name}</span>
           <span class="pp-factor-track"><span class="pp-factor-fill"
             style="width:${val || 0}%;background:${style.color}"></span></span>
           <span class="pp-factor-val">${val ?? "-"}</span>
-        </div>` + (note ? `<div class="pp-factor-note">${note}</div>` : "")
+        </div>${extra}`
       )
       .join("");
 
     const engAdvice = ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed;
-    const calibNote = calibration
-      ? `คำนวณจากรอบข้อมูล ${calibration.version} · Percentile Rank + Jenks`
-      : "";
 
     return `
       <div class="popup">
@@ -148,7 +142,28 @@ const RiskPoints = (() => {
         <div class="pp-advice">🛠️ ${engAdvice}</div>
         <div class="pp-section">องค์ประกอบคะแนน (Percentile 0-100 × 25%)</div>
         ${bars}
-        ${calibNote ? `<div class="pp-sub" style="margin-top:6px">${calibNote}</div>` : ""}
+      </div>`;
+  }
+
+  /**
+   * แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคันของคลัสเตอร์ พร้อมจำนวนครั้งจริง
+   * ตัวเลข % ในแถบจะซ่อนเมื่อช่วงแคบเกินไป (ตัวเลขเต็มอยู่ในบรรทัดใต้แถบแล้ว)
+   */
+  function buildSplitHtml(p, single, multi) {
+    const singlePct = p.single_pct ?? 0;
+    const multiPct = p.multi_pct ?? 0;
+    const label = (pct) => (pct >= 18 ? `${Math.round(pct)}%` : "");
+
+    return `
+      <div class="pp-split">
+        <div class="pp-split-bar">
+          <span class="pp-split-seg pp-split-single" style="width:${singlePct}%">${label(singlePct)}</span>
+          <span class="pp-split-seg pp-split-multi" style="width:${multiPct}%">${label(multiPct)}</span>
+        </div>
+        <div class="pp-split-legend">
+          <span><i class="pp-sw pp-sw-single"></i>รถคันเดียว <b>${single}</b> ครั้ง (${Math.round(singlePct)}%)</span>
+          <span><i class="pp-sw pp-sw-multi"></i>รถหลายคัน <b>${multi}</b> ครั้ง (${Math.round(multiPct)}%)</span>
+        </div>
       </div>`;
   }
 

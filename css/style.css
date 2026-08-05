@@ -217,12 +217,42 @@ html, body {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-/* บรรทัดค่าดิบใต้แถบคะแนน (ใช้กับเกณฑ์รถคันเดียว) จัดให้ตรงกับหัวแถบ */
-.pp-factor-note {
-  font-size: 10.5px;
-  color: #999;
-  margin: 0 0 6px 82px;
-  line-height: 1.4;
+/* แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคัน (ใต้แถบคะแนนเกณฑ์รถคันเดียว) */
+.pp-split { margin: 2px 0 8px 82px; }
+.pp-split-bar {
+  display: flex;
+  height: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f0efec;
 }
+.pp-split-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+}
+.pp-split-single { background: #5c6bc0; }
+.pp-split-multi { background: #26a69a; }
+.pp-split-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+  font-size: 10.5px;
+  color: #777;
+}
+.pp-split-legend b { color: #333; }
+.pp-sw {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+.pp-sw-single { background: #5c6bc0; }
+.pp-sw-multi { background: #26a69a; }
 
 .hidden { display: none !important; }

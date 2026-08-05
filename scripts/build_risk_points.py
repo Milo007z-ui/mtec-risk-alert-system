@@ -33,7 +33,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r1"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r2"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,8 +46,9 @@ BANGKOK_METRO_PROVINCES = [
     "สมุทรปราการ", "นครปฐม", "สมุทรสาคร",
 ]
 
-# DBSCAN: สเปก v2 กำหนด buffer รวมเหตุใกล้กัน 100-150 ม. / ขั้นต่ำ 3 เหตุการณ์
-EPS_METERS = 150
+# DBSCAN: รัศมี 400 ม. ครอบคลุมช่วงถนนหนึ่งช่วง (จุดเสี่ยงระดับ "ช่วงทาง" ไม่ใช่รายจุด)
+# ขั้นต่ำ 3 เหตุการณ์ตามนิยาม Black Spot
+EPS_METERS = 400
 MIN_SAMPLES = 3
 EARTH_RADIUS_M = 6371000
 
