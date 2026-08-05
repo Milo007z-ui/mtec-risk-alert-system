@@ -10,10 +10,13 @@
   ];
 
   let zones;
+  let calibration = null;
   try {
     const resp = await fetch("data/risk_points_bkk_metro.geojson");
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    zones = (await resp.json()).features.map((f) => f.properties);
+    const geojson = await resp.json();
+    calibration = geojson.calibration || null;
+    zones = geojson.features.map((f) => f.properties);
   } catch (err) {
     document.getElementById("loading").classList.add("hidden");
     const el = document.getElementById("load-error");
@@ -128,6 +131,14 @@
       <td class="num">${score(z)}</td>`;
     tbody.appendChild(tr);
   });
+
+  // ระบุรอบ calibration ที่คะแนนชุดนี้ถูก "ล็อก" ไว้ (Fixed-Schedule Recalibration)
+  if (calibration) {
+    const [b1, b2] = calibration.jenks_breaks || [];
+    document.getElementById("calib-note").textContent =
+      ` · รอบคำนวณ ${calibration.version}` +
+      (b1 != null ? ` (Jenks: ต่ำ ≤ ${b1} < ปานกลาง ≤ ${b2} < สูง)` : "");
+  }
 
   document.getElementById("loading").classList.add("hidden");
   document.getElementById("dashboard").classList.remove("hidden");

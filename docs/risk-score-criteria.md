@@ -1,133 +1,201 @@
-# เกณฑ์การให้คะแนนจุดเสี่ยง (Road Risk Assessment Model, คะแนนเต็ม 100)
+# เกณฑ์การให้คะแนนจุดเสี่ยง — โมเดล v2 (4 เกณฑ์ × 25%, Percentile Rank + Jenks)
 
-เอกสารอ้างอิงประกอบโมเดลใน `scripts/build_risk_points.py` (เกณฑ์แบบเก่า)
+เอกสารอ้างอิงประกอบโมเดลใน `scripts/build_risk_points.py`
+(โมเดล v1 แบบ log-norm 30/35/20/15 ดูได้จาก git history — ถูกแทนที่เพราะปัญหา score drift)
 
-## สรุปที่มา: อะไร "อ้างอิงได้" อะไร "คาลิเบรตเอง"
+## สิ่งที่เปลี่ยนจาก v1 และเหตุผล
 
-จุดสำคัญที่ต้องแยกให้ชัดเวลานำเสนอ/สอบ: **ทฤษฎีและวิธี** ของทุกปัจจัยมีงานวิจัยรองรับ แต่ **ตัวเลขเจาะจงบางค่า** เป็นการปรับสเกลตามชุดข้อมูล (empirical calibration) ไม่ได้ลอกตัวเลขมาจากงานวิจัยตรงๆ — การระบุแบบนี้ในรายงานทำให้งานน่าเชื่อถือขึ้น ไม่ใช่จุดอ่อน
-
-| พารามิเตอร์ | ค่าที่ใช้ | สถานะ | แหล่งอ้างอิง + หน้า |
+| ประเด็น | v1 (เดิม) | v2 (ปัจจุบัน) | เหตุผล |
 |---|---|---|---|
-| การจัดกลุ่ม DBSCAN | eps 400 ม., min 3 | **วิธีอ้างอิงได้** | ResearchGate 383141692; Taylor & Francis (Hanoi 2019) |
-| สเกล log + saturation (วิธี) | ln(1+x) | **วิธีอ้างอิงได้** | OECD/JRC 2008 |
-| จุดอิ่มตัว FREQ/EPDO | 50 / 120 | *คาลิเบรตเอง* | จากการกระจายข้อมูลจริง (ไม่มีงานวิจัยตรง) |
-| วิธี EPDO (ถ่วงน้ำหนักตามความรุนแรง) | — | **วิธีอ้างอิงได้** | FHWA Network Screening (Step 2) |
-| อัตราส่วน EPDO | 10 : 4 : 1 | *คาลิเบรตเอง* | ปรับสเกลลงจากอัตราส่วนต้นทุน FHWA ที่สูงกว่ามาก |
-| ลักษณะถนน (Conflict Point Theory) | 1.0–0.3 | **ทฤษฎีอ้างอิงได้** | FHWA Roundabouts Guide, Exhibit 2-3 **หน้า 25-26** |
-| ความเร็ว² (Nilsson power model) | (v/120)² | **สมการอ้างอิงได้** | ETSC 2019 **หน้า 3, 6**; Nilsson 2004 |
-| เพดานความเร็ว 100/90/80 | ตามประเภทถนน | **กฎหมายอ้างอิงได้** | กฎกระทรวงฯ พ.ศ. 2564, ข้อ 8-9 |
-| KSI safety override | ตาย≥2→สูง, ≥1→กลาง | **หลักการอ้างอิงได้** | KSI (UK/EU standard) |
-| น้ำหนัก 4 ปัจจัย | 30/35/20/15 | *คาลิเบรตเอง* | แนวคิดผสม reactive+proactive (Walden 2015 หน้า 2) |
-| เกณฑ์แบ่งระดับ | สูง≥55, กลาง≥40 | *คาลิเบรตเอง* | จากการกระจายคะแนนจริง (ไม่มีงานวิจัยตรง) |
+| Normalize | log-ratio-to-max | **Percentile Rank** | ทดสอบจริง: เพิ่ม outlier n=100 เข้าไป คะแนนจุด freq=10 เปลี่ยนแค่ 0.3 แต้ม (95.0→94.7) เทียบกับ log-ratio ที่เปลี่ยน 6.76 แต้ม (22.35→15.59) |
+| ค่าอ้างอิง | คำนวณใหม่ทุกครั้งที่รัน | **ล็อกเป็นเวอร์ชัน ตามรอบเวลา** | กันคะแนน "ลอย" เมื่อข้อมูลใหม่เข้า — เปรียบเทียบข้ามช่วงเวลาได้ |
+| น้ำหนักเกณฑ์ | 30/35/20/15 (คาลิเบรตเอง) | **เท่ากัน 4 × 25%** | PCA: PC1 อธิบายความแปรปรวนแค่ 40% ไม่มีปัจจัยร่วมเด่น → equal weighting ตาม OECD |
+| น้ำหนักลักษณะถนน | ยืมสัดส่วน conflict point ต่างประเทศ | **FI Rate จากข้อมูลไทยเอง** | วัดจากความรุนแรงจริงในไฟล์ ไม่ใช่ทฤษฎีต่างบริบท |
+| แบ่งระดับ | mean±0.5SD + KSI override | **Jenks Natural Breaks 3 ชั้น** | หาจุดตัดที่ลดความแปรปรวนภายในชั้น เป็นวิธีที่ CDC ใช้จริง |
+| เกณฑ์ความรุนแรง | EPDO 10:4:1 (ปรับสเกลเอง) | **มูลค่าความเสียหายจริง (บาท) ของ TDRI** | ตัวเลขไทย ตรวจสอบได้ อ้างอิงเป็นทางการ |
 
-## กรอบแนวคิดรวม
+## ⚠️ หลักการสำคัญที่สุด: Fixed-Schedule Recalibration
 
-โมเดลผสมปัจจัย 2 กลุ่มตามแนวทาง Highway Safety Improvement Program (HSIP) ของ FHWA:
+**ห้าม**คำนวณค่าอ้างอิง (percentile rank, Jenks breaks, FI weights) ใหม่แบบ dynamic
+ทุกครั้งที่ระบบถูกเรียกใช้ — คะแนนของจุดที่ไม่ได้เปลี่ยนจริงจะลอยขึ้นลงทุกครั้งที่มี
+อุบัติเหตุใหม่เข้าแม้เหตุเดียว สีบนแผนที่จะ "กะพริบ" โดยไม่มีเหตุผล
 
-| กลุ่ม | ปัจจัย | คะแนน | ลักษณะ |
-|---|---|---|---|
-| **Reactive** (จากอุบัติเหตุที่เกิดจริง) | ความถี่ | 30 | จำนวนอุบัติเหตุในคลัสเตอร์ |
-| | ความรุนแรง | 35 | ผู้เสียชีวิต/บาดเจ็บ ถ่วงน้ำหนัก EPDO |
-| **Proactive/Systemic** (จากปัจจัยเสี่ยงเชิงกายภาพ) | ลักษณะถนน | 20 | จุดขัดแย้งกระแสจราจร |
-| | ความเร็วถนน | 15 | เพดานความเร็วตามกฎหมาย |
+วิธีที่ถูกต้อง (ตามที่ implement ใน pipeline):
 
-FHWA ระบุว่าแนวทาง systemic (proactive) "ไม่ได้แทนที่ site analysis แบบดั้งเดิม แต่**เสริมกัน**" — *"a systemic approach does not replace the traditional site analysis but instead complements it"* (Walden et al. 2015, หน้า 2)
+1. กำหนดรอบ recalibration ตายตัวล่วงหน้า — โปรเจกต์นี้ใช้ **ทุก 6 เดือน**
+2. ถึงรอบจึงรัน `scripts/build_risk_points.py` ใหม่ แล้ว **ล็อกผลเป็นเวอร์ชัน**
+   (ปัจจุบัน `v2568-r1` — snapshot อยู่ที่ `data/calibrations/v2568-r1.json`)
+3. ระหว่างรอบ จุดใหม่ใช้ค่าอ้างอิงของรอบปัจจุบันไปก่อน
+4. เก็บ log ทุกเวอร์ชันไว้ตรวจสอบย้อนหลัง (โฟลเดอร์ `data/calibrations/`)
+5. หน้าเว็บ (เรียลไทม์) อ่านเฉพาะผลที่คำนวณไว้แล้ว — popup/แดชบอร์ดระบุเวอร์ชันเสมอ
 
-## สูตรรวม
+ที่มาของหลักการ: Srinivasan & Carter (2011), *Development of Safety Performance
+Functions for North Carolina*, UNC HSRC/NCDOT หน้า 49-51 — คำนวณ Calibration Factor
+ตามรอบเวลาที่กำหนด ไม่ใช่แบบ dynamic
+🔍 ประโยคยืนยันในเอกสาร: *"It will be beneficial for NCDOT to use the most recent years
+of data to re-develop or re-calibrate the SPFs"*
+
+> หมายเหตุ: รายงานฉบับนี้ใช้อ้างอิง**เฉพาะหลักการ recalibration ตามรอบเวลา**เท่านั้น
+> ไม่ใช่แหล่งของสูตร normalize ใดๆ (เนื้อหาหน้า 11-13, 34 เป็น Negative Binomial
+> Regression / SPF ที่ต้องใช้ AADT ซึ่งชุดข้อมูลนี้ไม่มี)
+
+## ขั้นที่ 0: จับกลุ่มจุดเสี่ยงด้วย DBSCAN (eps 150 ม., min_samples 3)
+
+พิกัดเหตุการณ์ที่จุดเดียวกันจริงกระจายตัวตามความคลาดเคลื่อน GPS จึงรวมเหตุที่เกิด
+ใกล้กัน (สเปกกำหนด buffer 100-150 ม.) เป็นจุดเสี่ยงเดียวก่อนคำนวณทุกเกณฑ์
+
+หลักการ DBSCAN: เหตุการณ์ที่มีเพื่อนบ้าน ≥ 3 รายในรัศมี 150 ม. เป็น **core point**
+core ที่อยู่ในรัศมีถึงกัน "ลาม" รวมเป็นคลัสเตอร์เดียว (จับแนวยาวตามถนนได้),
+เหตุที่อยู่ในรัศมีของ core แต่เพื่อนบ้านไม่ถึงเกณฑ์เป็น **border point** (นับรวมเข้าคลัสเตอร์),
+ที่เหลือเป็น **noise** ไม่นับเป็นจุดเสี่ยง — จึงไม่ต้องกำหนดจำนวนกลุ่มล่วงหน้า
+และเหตุกระจัดกระจายไม่ปนเปื้อนคะแนน
+
+ผลรอบ v2568-r1: 4,460 เหตุการณ์มีพิกัด → **290 จุดเสี่ยง** (ครอบคลุม 3,349 เหตุการณ์,
+noise 1,111) เกณฑ์ขั้นต่ำ 3 เหตุการณ์สอดคล้องนิยาม Black Spot ออสเตรเลีย
+(เหตุบาดเจ็บ/เสียชีวิต ≥ 3 ครั้ง — ใช้เป็น sanity check เชิงคุณภาพ ไม่ใช่สูตรคำนวณ)
+
+## วิธี Normalize ทุกเกณฑ์: Percentile Rank
 
 ```
-risk_score = frequency + severity + geometry + speed          (เต็ม 100)
-
-frequency = 30 × min(1, ln(1+n) / ln(1+50))
-severity  = 35 × min(1, ln(1+EPDO) / ln(1+120))
-            โดย EPDO = 10×ตาย + 4×สาหัส + 1×เล็กน้อย
-geometry  = 20 × ค่าเฉลี่ย geometry_weight ของทุกเหตุการณ์ในคลัสเตอร์
-speed     = 15 × (v_limit / 120)²
+PercentileRank(x) = (จำนวนจุดที่มีค่า ≤ x ในรอบข้อมูลอ้างอิงปัจจุบัน) / (จำนวนจุดทั้งหมดในรอบ) × 100
 ```
 
-## รายละเอียดและแหล่งอ้างอิงรายเกณฑ์
+จัดการค่าเท่ากัน (tie) ด้วย average rank — pandas: `s.rank(pct=True, method='average') * 100`
 
-### 1) การจัดกลุ่มจุดเสี่ยงด้วย DBSCAN (eps 400 ม., min_samples 3)
+- **แหล่งอ้างอิงวิธี:** Nardo et al. (2008), OECD/JRC Handbook, หัวข้อ Normalisation —
+  *"Ranking is the simplest normalisation technique. This method is not affected by
+  outliers and allows the performance of countries to be followed over time in terms
+  of relative positions"*
+- **เหตุผลไม่ใช้ min-max/log-ratio:** ไวต่อ outlier (ผลทดสอบในตารางบนสุด)
 
-พิกัด GPS ของเหตุที่ "จุดเดียวกัน" ในโลกจริงไม่ตรงกันเป๊ะ จึงจัดกลุ่มก่อนให้คะแนน DBSCAN เป็นวิธีมาตรฐานในงานวิจัย accident hotspot เพราะ (ก) ไม่ต้องกำหนดจำนวนกลุ่มล่วงหน้า (ข) จับกลุ่มรูปทรงอิสระได้ (ถนนโค้ง/แยกซับซ้อน)
+## เกณฑ์ที่ 1: ความถี่อุบัติเหตุ (25%)
 
-- Exploring Road Traffic Accidents Hotspots Using Clustering Algorithms and GIS-based Spatial Analysis (2024) — https://www.researchgate.net/publication/383141692
-- Determining road traffic accident hotspots using GIS-based techniques, Hanoi (Taylor & Francis, 2019) — https://www.tandfonline.com/doi/full/10.1080/10095020.2019.1683437
+```
+Frequency_Score(จุด) = PercentileRank(จำนวนอุบัติเหตุทั้งหมดที่จุดนั้นในรอบข้อมูล)
+```
 
-### 2) ความถี่ (30 คะแนน) — สเกล log + จุดอิ่มตัว
+บริบทเชิงคุณภาพ: จุดที่มีเหตุบาดเจ็บ/เสียชีวิต ≥ 3 ครั้ง/ปี เข้านิยาม Black Spot
+(เอกสาร thaincd.com โดย อ.ณัฐพงศ์ บุญตอบ) — ใช้เทียบผลลัพธ์ ไม่ใช่สูตร
 
-จำนวนอุบัติเหตุต่อคลัสเตอร์แจกแจงหางยาว (ข้อมูลจริงปี 2568: ส่วนใหญ่ 3-20 ครั้ง, สูงสุด 364 ครั้ง) จึงใช้ log transform ตามหลัก diminishing returns ของการสร้างดัชนีรวม แล้วตัดหางที่ **FREQ_SATURATION = 50 ครั้ง** (คาลิเบรตเอง)
+## เกณฑ์ที่ 2: มูลค่าความเสียหายทางเศรษฐกิจ (25%)
 
-- OECD/JRC (2008). *Handbook on Constructing Composite Indicators: Methodology and User Guide* — https://www.oecd.org/en/publications/handbook-on-constructing-composite-indicators-methodology-and-user-guide_9789264043466-en.html
-- แนวคิด frequency เป็นตัวชี้วัดหลักของ network screening: FHWA, Step 2 Conduct Network Screening — https://highways.dot.gov/safety/local-rural/improving-safety-rural-local-and-tribal-roads-safety-toolkit/step-2-conduct
+```
+economic_loss(จุด) = ผู้เสียชีวิต×6,700,000 + ผู้บาดเจ็บสาหัส×2,000,000 + ผู้บาดเจ็บเล็กน้อย×58,000  (บาท)
+EconomicLoss_Score(จุด) = PercentileRank(economic_loss)
+```
 
-### 3) ความรุนแรง (35 คะแนน) — EPDO
+ต้นทุนต่อราย: มูลนิธิสถาบันวิจัยเพื่อการพัฒนาประเทศไทย (TDRI), *ความสูญเสียทางเศรษฐกิจ
+ของอุบัติเหตุทางถนนของประเทศไทย ปีงบประมาณ พ.ศ. 2565* (เผยแพร่โดยกรมควบคุมโรค)
 
-**วิธี EPDO (Equivalent Property Damage Only)** — ถ่วงน้ำหนักเหยื่อแต่ละระดับตามความรุนแรง เป็นวิธีมาตรฐานของ HSM/HSIP network screening: *"weighting factors related to the societal costs of fatal, injury, and property damage-only crashes are assigned to crashes by severity"*
+## เกณฑ์ที่ 3: Single vs Multiple Vehicle Crash Ratio (25%)
 
-**อัตราส่วน 10 : 4 : 1** (ตาย : สาหัส : เล็กน้อย) เป็น **ค่าปรับสเกลลง** จากอัตราส่วนต้นทุนอุบัติเหตุจริงของ FHWA ที่สูงกว่านี้มาก (เช่นปี 2024 K:A:B ≈ 41.6:4.4:1) — ปรับให้ severity อยู่ใน range 0-35 ของโมเดล จุดอิ่มตัว **EPDO_SATURATION = 120** (≈เสียชีวิต 12 ราย, คาลิเบรตเอง)
+```
+Single-Vehicle Ratio(จุด) %   = เหตุที่ "รถที่เกิดเหตุ" ≤ 1 / เหตุทั้งหมดของจุด × 100
+Multiple-Vehicle Ratio(จุด) % = เหตุที่ "รถที่เกิดเหตุ" ≥ 2 / เหตุทั้งหมดของจุด × 100
+SingleVehicle_Score(จุด) = PercentileRank(Single-Vehicle Ratio)
+```
 
-- นิยามวิธี EPDO: FHWA, Step 2 Conduct Network Screening — https://highways.dot.gov/safety/local-rural/improving-safety-rural-local-and-tribal-roads-safety-toolkit/step-2-conduct
-- ต้นทุนอุบัติเหตุอ้างอิง: FHWA Crash Cost Fact Sheet (วิธี FHWA-SA-17-071) — https://highways.dot.gov/sites/fhwa.dot.gov/files/2025-10/CrashCostFactSheet_508_OCT2025.pdf
-- ต้นทุนอุบัติเหตุไทย (เทียบเคียง): TDRI (2560) เสียชีวิต ~10 ล้านบาท, สาหัส ~3 ล้านบาท — https://tdri.or.th/2017/08/econ_traffic_accidents/
+**เก็บทั้งสองค่าคู่กัน** ในฐานข้อมูล/popup เพื่อวินิจฉัยรูปแบบปัญหา
+(Single สูง → ปัญหาไหล่ทาง/ทางโค้ง · Multiple สูง → ปัญหาทางแยก/ความขัดแย้งจราจร)
+แต่**สูตรคะแนนใช้เฉพาะ Single-Vehicle Ratio** เพราะสองค่ารวมกันเป็น 100% เสมอ
+(สหสัมพันธ์ -1.00) ใส่ทั้งคู่ไม่เพิ่มข้อมูล
 
-### 4) ลักษณะถนน (20 คะแนน) — Conflict Point Theory
+อ้างอิง: FHWA, *Roadway Departure Crashes* — มาตรการ *"Edge line and shoulder rumble
+strips to reduce single vehicle run-off-road crashes"* (ที่มาของคำแนะนำเชิงวิศวกรรมใน popup)
 
-น้ำหนัก 0-1 ต่อเหตุการณ์ ตามจำนวนจุดขัดแย้งกระแสจราจร (conflict points) ของรูปแบบถนน:
+## เกณฑ์ที่ 4: Geometric Complexity Ratio (25%)
 
-| บริเวณ | น้ำหนัก | เหตุผล + อ้างอิง |
+จัดกลุ่มจากคอลัมน์ `บริเวณที่เกิดเหตุ`:
+
+| ค่าในคอลัมน์ | กลุ่ม conflict |
+|---|---|
+| ทางตรง (ทุกแบบ) | NCP — ไม่มีจุดตัดกระแส (baseline) |
+| ทางโค้งกว้าง (ทุกแบบ), ทางร่วม, ทางเชื่อมทุกประเภท | Merging |
+| ทางแยกต่างระดับ/Ramps, จุดกลับรถต่างระดับ | Diverging |
+| ทางสามแยก (Y), ทางสี่แยก | Crossing |
+| อื่นๆ / ไม่มีข้อมูล | fallback NCP (1.000) อย่างระมัดระวัง และไม่ใช้ประมาณ FI Rate |
+
+**น้ำหนักคำนวณจาก FI Rate ของข้อมูลในไฟล์เอง** (FI = เหตุที่มีผู้บาดเจ็บ/เสียชีวิต ≥ 1 ราย)
+— ผลจริงรอบ v2568-r1 ตรงกับค่าอ้างอิงในสเปก:
+
+```
+NCP:       n=3,948  FI 42.1%  → weight 1.000 (baseline)
+Merging:   n=230    FI 42.6%  → weight 1.011
+Diverging: n=54     FI 35.2%  → weight 0.835   ⚠️ ตัวอย่างน้อย ระวังการตีความ
+Crossing:  n=35     FI 57.1%  → weight 1.356
+
+gc_score(จุด) = ค่าเฉลี่ยน้ำหนักของทุกเหตุที่จุดนั้น
+GeometricComplexity_Score(จุด) = PercentileRank(gc_score)
+```
+
+อ้างอิงแนวคิด: TxDOT Design Manual §11.3.7.1 — *"Conflict points are a high-level,
+simple measure of the potential collision"* · ลำดับความรุนแรง: VDOT — *"merging and
+diverging conflict points ... are associated with less severe crash types than crossing
+conflict points"* (สอดคล้องผลจริง: Crossing 1.356 > Merging 1.011 > Diverging 0.835)
+· วิธีถ่วงน้ำหนัก: ITRE/NCSU 2020 (VJuST Weighted Conflict Points — precedent เชิงวิธีการเท่านั้น)
+
+## การรวมคะแนนและจัดระดับ
+
+```
+Risk Score(จุด) = 0.25×Frequency + 0.25×EconomicLoss + 0.25×SingleVehicle + 0.25×GeometricComplexity
+```
+
+**เหตุผลน้ำหนักเท่ากัน:** PCA พบ PC1 อธิบายความแปรปรวนเพียง ~40% และ loading ของ
+Single-Vehicle/Geometric Complexity เป็นลบ — ไม่มีปัจจัยร่วมเด่นเดียว สอดคล้องการออกแบบ
+ให้ 4 เกณฑ์อิสระต่อกัน (Spearman ทุกคู่ < 0.30) → ใช้ equal weighting ตาม OECD Handbook
+(อ้าง Greco et al.: วิธีที่ใช้แพร่หลายที่สุดเมื่อไม่มีทฤษฎีกำหนดน้ำหนัก)
+
+**แบ่ง 3 ระดับด้วย Jenks Natural Breaks** (Fisher's optimal partition — implement
+เป็น dynamic programming ในสคริปต์ ไม่พึ่งไลบรารีเพิ่ม) — วิธีเดียวกับที่ CDC ใช้:
+*"clusters data into groups that minimize the within-group variance and maximize
+the between-group variance"*
+
+ผลรอบ **v2568-r1** (คำนวณจากข้อมูลจริง แล้วล็อกไว้ — ห้าม hardcode ถาวร
+รอบถัดไปต้องคำนวณใหม่ตามตาราง):
+
+| ระดับ | ช่วง Risk Score | จำนวนจุด |
 |---|---|---|
-| ทางแยก/ทางร่วม | 1.0 | สี่แยกมาตรฐานมี conflict point สูงสุด 32 จุด (crossing 16 + merging 8 + diverging 8) — FHWA Roundabouts Guide, **Exhibit 2-3 หน้า 25-26** |
-| จุดกลับรถ | 0.9 | crossing conflict กับกระแสสวนทาง — TxDOT Manual §11.3.7.1 |
-| ทางโค้งลาดชัน / ทางโค้ง | 0.9 / 0.8 | โค้งรัศมีแคบมีอุบัติเหตุรุนแรงเกินสัดส่วนระยะทาง ~3 เท่า — Walden et al. 2015, **Figure 2-3 หน้า 40** |
-| ทางเชื่อมเข้าพื้นที่ | 0.7 | access density เป็น systemic risk factor — Walden et al. 2015, **Table 1-2 หน้า 7** |
-| ทางลาดชัน | 0.5 | ความเสี่ยงปานกลาง ไม่มีจุดตัดกระแส |
-| ทางตรง | 0.3 | ฐานความเสี่ยงต่ำสุด (ไม่มี conflict point) |
-
-- FHWA (2000). *Roundabouts: An Informational Guide* (FHWA-RD-00-067), Ch.2 หน้า 25-26 — https://www.fhwa.dot.gov/publications/research/safety/00067/000672.pdf
-- TxDOT Traffic Safety Manual §11.3.7.1 Conflict Points — https://www.txdot.gov/manuals/des/tsp/chapter-11-interchange-analysis/11-3-interchange-configuration-evaluation--ice-/11-3-7-stage-2-safety-performance-and-ice/11-3-7-1-conflict-points.html
-
-### 5) ความเร็วถนน (15 คะแนน) — Nilsson Power Model
-
-`15 × (v/120)²` — ความเสี่ยงอุบัติเหตุบาดเจ็บแปรผันตามกำลังสองของความเร็ว (injury crashes ∝ v²) ตาม power model ของ Nilsson ฐานฟิสิกส์คือแรงปะทะต่อร่างกาย F = ½mv²/s แปรผันตาม v² (ETSC 2019, **หน้า 3** หัวข้อ 1.4; กำลัง 2/3/4 สำหรับบาดเจ็บ/สาหัส/เสียชีวิต: **หน้า 6** หัวข้อ 2.5) ตัวหาร 120 = เพดานความเร็วสูงสุดตามกฎหมายไทย
-
-ความเร็วรายถนนอนุมานจากประเภทสายทาง (ทางพิเศษ 100 / ทางหลวง 90 / ทางหลวงชนบท 80 กม./ชม.)
-
-- ETSC (2019). *The mathematical relation between collision risk and speed* หน้า 3, 6 — https://etsc.eu/wp-content/uploads/The-mathematical-relation-between-collision-risk-and-speed.pdf
-- Nilsson, G. (2004). *Traffic safety dimensions and the Power Model to describe the effect of speed on safety.* Bulletin 221, Lund Institute of Technology
-- กฎกระทรวงกำหนดอัตราความเร็วสำหรับการขับรถในทางเดินรถ พ.ศ. 2564 (ราชกิจจานุเบกษา เล่ม 138 ตอนที่ 77 ก, ข้อ 8-9) — https://th.wikisource.org/wiki/กฎกระทรวงกำหนดอัตราความเร็วสำหรับการขับรถในทางเดินรถ_พ.ศ._2564
-
-### 6) เกณฑ์แบ่งระดับ — Threshold คงที่ + KSI Override
-
-แบ่ง 3 ระดับด้วยเกณฑ์คงที่ **สูง ≥ 55, ปานกลาง ≥ 40** (คาลิเบรตจากการกระจายคะแนนจริง — ดู percentile ที่ print ใน main)
-
-**Safety override ตามหลัก KSI** (Killed or Seriously Injured): จุดที่มีผู้เสียชีวิต ≥ 2 จัดระดับสูงทันที, ≥ 1 จัดระดับกลางขึ้นไป เพราะตัวชี้วัดสากลด้าน road safety ถือว่าจุดที่เคยมีผู้เสียชีวิตต้องไม่ถูกจัดความเสี่ยงต่ำ แม้คะแนนรวมไม่ถึงเกณฑ์
-
-- KSI: Killed or seriously injured (มาตรฐานสหราชอาณาจักร/สหภาพยุโรป) — https://en.wikipedia.org/wiki/Killed_or_seriously_injured
-- Road safety comparisons with international data on seriously injured (ScienceDirect) — https://www.sciencedirect.com/science/article/abs/pii/S0967070X17303682
-
-## ผลจากข้อมูลจริง (รันล่าสุด, ข้อมูลปี 2568)
-
-- ข้อมูลอุบัติเหตุ 12,544 แถวทั่วประเทศ → กรุงเทพฯ+ปริมณฑล 2,178 จุด → 108 คลัสเตอร์
-- ผลจัดระดับ: **สูง 28 | ปานกลาง 52 | ต่ำ 28 จุด**
-- risk_score: min 27.0 | P25 39.8 | P50 45.8 | P75 56.2 | P90 65.0 | max 83.5
+| 🟢 ต่ำ | ≤ 41.9 | 97 |
+| 🟠 ปานกลาง | 41.9 – 60.3 | 117 |
+| 🔴 สูง | > 60.3 | 76 |
 
 ## ข้อจำกัด (ควรระบุในรายงาน)
 
-1. ค่าที่ "คาลิเบรตเอง" (อัตราส่วน EPDO 10:4:1, saturation 50/120, threshold 55/40, น้ำหนัก 30/35/20/15) ยังไม่ได้ตรวจสอบด้วย regression กับข้อมูลอุบัติเหตุปีถัดไป — แนวทางพัฒนาต่อคือประมาณน้ำหนักแบบ Safety Performance Function (SPF) ตาม Highway Safety Manual ซึ่งต้องการข้อมูลปริมาณจราจร (AADT) รายจุดที่ชุดข้อมูลปัจจุบันไม่มี
-2. ความเร็วรายจุดเป็นค่าอนุมานจากประเภทสายทาง ไม่ใช่ป้ายจำกัดความเร็วจริง
-3. งานวิจัยรุ่นหลัง (Elvik 2013, 2019) เสนอว่าความสัมพันธ์ความเร็ว-ความเสี่ยงเป็น exponential แม่นกว่า power model — ในช่วงความเร็วแคบ (80-100 กม./ชม.) ของงานนี้ ทั้งสองแบบให้ผลใกล้เคียงกัน (ETSC 2019 หน้า 8-9)
+1. เกณฑ์ Diverging มีตัวอย่างเพียง 54 เหตุการณ์ — น้ำหนัก 0.835 มีความไม่แน่นอนสูง
+2. ข้อมูล 167 เหตุการณ์ไม่มีพิกัด (คิดเป็น 3.6%) ถูกตัดจากการจับกลุ่ม
+   แต่ยังใช้ประมาณ FI Rate (ความรุนแรงเป็นข้อมูลจริงแม้ไม่มีพิกัด)
+3. เหตุการณ์ noise 1,111 รายไม่เข้าจุดเสี่ยงใด — เป็นธรรมชาติของ DBSCAN
+   (เหตุกระจัดกระจายไม่ถือเป็น hotspot) ควรรายงานตัวเลขนี้ควบคู่เสมอ
+4. `รถที่เกิดเหตุ` นับจำนวนคัน ไม่แยกประเภทคู่กรณี (เช่น รถ-คนเดินเท้า นับเป็น 1 คัน
+   จึงเข้ากลุ่ม Single)
+5. Percentile Rank เป็นคะแนน "เชิงเปรียบเทียบภายในรอบ" — คะแนน 90 หมายถึงอยู่ใน
+   10% แรกของรอบนั้น ไม่ใช่ค่าความเสี่ยงสัมบูรณ์
 
-## เอกสารอ้างอิงหลัก (รูปแบบเต็ม)
+## รายการอ้างอิงทั้งหมด
 
-1. Walden, T.D., Lord, D., Ko, M., Geedipally, S., & Wu, L. (2015). *Developing Methodology for Identifying, Evaluating, and Prioritizing Systemic Improvements.* Texas A&M Transportation Institute / TxDOT. https://ftp.txdot.gov/pub/txdot-info/trf/trafficsafety/engineering/systemic-improvements.pdf
-2. FHWA. *Step 2: Conduct Network Screening* (EPDO method). https://highways.dot.gov/safety/local-rural/improving-safety-rural-local-and-tribal-roads-safety-toolkit/step-2-conduct
-3. FHWA (2000). *Roundabouts: An Informational Guide* (FHWA-RD-00-067). https://www.fhwa.dot.gov/publications/research/safety/00067/000672.pdf
-4. ETSC (2019). *The mathematical relation between collision risk and speed.* https://etsc.eu/wp-content/uploads/The-mathematical-relation-between-collision-risk-and-speed.pdf
-5. Nilsson, G. (2004). *Traffic safety dimensions and the Power Model.* Bulletin 221, Lund Institute of Technology.
-6. Elvik, R., Christensen, P., & Amundsen, A. (2004). *Speed and road accidents: An evaluation of the Power Model.* TØI report 740/2004.
-7. OECD/JRC (2008). *Handbook on Constructing Composite Indicators.* OECD Publishing.
-8. TxDOT Traffic Safety Manual, Ch.11 §11.3.7.1 Conflict Points.
-9. TDRI (2560). อุบัติเหตุทางถนน...ความเสียหายร้ายแรงต่อเศรษฐกิจไทย. https://tdri.or.th/2017/08/econ_traffic_accidents/
-10. กฎกระทรวงกำหนดอัตราความเร็วสำหรับการขับรถในทางเดินรถ พ.ศ. 2564. ราชกิจจานุเบกษา เล่ม 138 ตอนที่ 77 ก.
-11. Killed or seriously injured — Wikipedia / ScienceDirect S0967070X17303682.
+1. **thaincd.com** (กรมควบคุมโรค), "จุดเสี่ยง/จุดอันตรายบนถนน" โดย อ.ณัฐพงศ์ บุญตอบ —
+   นิยาม Black Spot ออสเตรเลีย (≥3 ครั้ง/ปี ช่วง 3-5 ปี)
+   <http://www.thaincd.com/document/file/download/powerpoint/4.1Black_Spot_Treatment_โดย_อ.ณัฐพงศ์_บุญตอบ.pdf>
+2. **TDRI**, "ความสูญเสียทางเศรษฐกิจของอุบัติเหตุทางถนนของประเทศไทย ปีงบประมาณ พ.ศ. 2565"
+   (เผยแพร่โดยกรมควบคุมโรค กระทรวงสาธารณสุข) — ต้นทุน 6.7 ล้าน / 2 ล้าน / 58,000 บาทต่อราย
+   <https://ddc.moph.go.th/uploads/publish/1587620240712091713.pdf>
+3. **FHWA**, "Roadway Departure Crashes" — Single-vehicle run-off-road + มาตรการแก้ไข
+   <https://highways.dot.gov/safety/other/roadway-departure-crashes>
+4. **TxDOT** Design Manual §11.3.7.1 "Conflict Points"
+   <https://www.txdot.gov/manuals/des/tsp/chapter-11-interchange-analysis/11-3-interchange-configuration-evaluation--ice-/11-3-7-stage-2-safety-performance-and-ice/11-3-7-1-conflict-points.html>
+5. **VDOT**, "Continuous Green-T Intersection" — ลำดับความรุนแรง crossing > merging/diverging
+   <https://www.vdot.virginia.gov/about/our-system/highways/innovative-intersections/continuous-green-t/>
+6. **ITRE, NC State University**, "New Conflict Point Crash Prediction Method" (2020) —
+   Weighted Conflict Points (VJuST) — precedent เชิงวิธีการ
+   <https://connect.ncdot.gov/projects/research/RNAProjDocs/Conflict%20Point%20Crash%20Prediction%20Webinar%2009232020.pdf>
+7. **Nardo, M. et al. (2008)**, "Handbook on Constructing Composite Indicators," OECD/JRC —
+   Ranking normalisation + Equal weighting
+   <https://www.unescap.org/sites/default/files/JRC-OECD_Handbook%20Composite%20Indicators.pdf>
+8. **Jenks, G.F. (1967)**, "The Data Model Concept in Statistical Mapping," Intl. Yearbook of
+   Cartography 7:186-190 — วิธีที่ CDC ใช้ <https://www.cdc.gov/nchs/hus/sources-definitions/jenks-natural-breaks.htm>
+9. **Srinivasan, R., & Carter, D. (2011)**, "Development of Safety Performance Functions for
+   North Carolina," UNC HSRC/NCDOT หน้า 49-51 — เฉพาะหลักการ Fixed-Schedule Recalibration
+   <https://connect.ncdot.gov/projects/research/RNAProjDocs/2010-09FinalReport.pdf>
+10. **ข้อมูลอุบัติเหตุ**: `data/accident2025_1.xlsx` — MOT Data Catalog ปี 2568,
+    6 จังหวัด 4,627 เหตุการณ์ — แหล่งคำนวณน้ำหนัก FI Rate ของเกณฑ์ที่ 4 โดยตรง
+    <https://datagov.mot.go.th/dataset/roadaccident>

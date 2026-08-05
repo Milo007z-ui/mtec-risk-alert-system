@@ -45,6 +45,20 @@ const RiskRules = (() => {
       icon: "🚪",
     },
     {
+      id: "single-vehicle",
+      when: (p) => p.pattern === "single",
+      cause: (p) => `สถิติชี้รถคันเดียวเสียหลักเป็นหลัก (${Math.round(p.single_pct || 0)}%)`,
+      advice: "ลดความเร็ว จับพวงมาลัยมั่นคง ระวังขอบทาง",
+      icon: "🛞",
+    },
+    {
+      id: "multi-vehicle",
+      when: (p) => p.pattern === "multiple",
+      cause: (p) => `สถิติชี้รถหลายคันชนกันเป็นหลัก (${Math.round(p.multi_pct || 0)}%)`,
+      advice: "เว้นระยะห่าง ระวังรถตัดกระแสและเปลี่ยนช่องทาง",
+      icon: "🚦",
+    },
+    {
       id: "speeding-cause",
       when: (p) => /เร็ว/.test(p.top_cause || ""),
       cause: () => "สถิติชี้ว่าสาเหตุหลักคือการขับเร็วเกินกำหนด",

@@ -1,5 +1,8 @@
 /**
  * riskpoints.js — โหลด GeoJSON จุดเสี่ยงและวาดลงแผนที่
+ *
+ * คะแนนคำนวณล่วงหน้าฝั่ง Python ตามรอบ calibration (Fixed-Schedule) —
+ * หน้าเว็บแค่แสดงผล ไม่คำนวณ percentile/Jenks สดเอง
  */
 
 const RiskPoints = (() => {
@@ -11,12 +14,24 @@ const RiskPoints = (() => {
     low: { color: "#2e7d32", label: "ต่ำ" },
   };
 
-  let points = []; // [{lat, lng, id, road, province, accident_count, deaths, ...}]
+  // คำแนะนำเชิงวิศวกรรมตามรูปแบบปัญหาเด่นของจุด (Single vs Multiple Vehicle)
+  const ENG_ADVICE = {
+    single:
+      "ป้องกันรถหลุดออกนอกทาง: เส้นสั่นเตือนขอบทาง (rumble strips) · ราวกันอันตราย · ป้าย/ไฟเตือนแนวโค้ง · ปรับปรุงไหล่ทาง",
+    multiple:
+      "ลดความขัดแย้งกระแสจราจร: ปรับจังหวะสัญญาณไฟ · เพิ่มช่องรอเลี้ยว · จัดการจุดตัด/จุดกลับรถ · เพิ่มทัศนวิสัยบริเวณทางแยก",
+    mixed:
+      "รูปแบบผสม: บังคับใช้กฎหมายความเร็ว · ทบทวนป้าย/เครื่องหมายจราจรและกายภาพถนนโดยรวม",
+  };
+
+  let points = []; // [{lat, lng, id, road, province, accident_count, ...}]
+  let calibration = null; // เวอร์ชันรอบคำนวณจาก foreign member ใน GeoJSON
 
   async function load() {
     const resp = await fetch(DATA_URL);
     if (!resp.ok) throw new Error(`โหลดข้อมูลจุดเสี่ยงไม่สำเร็จ (HTTP ${resp.status})`);
     const geojson = await resp.json();
+    calibration = geojson.calibration || null;
     points = geojson.features.map((f) => ({
       lng: f.geometry.coordinates[0],
       lat: f.geometry.coordinates[1],
@@ -36,11 +51,14 @@ const RiskPoints = (() => {
         fillOpacity: 0.5,
       }).addTo(map);
 
-      marker.bindPopup(buildPopupHtml(p, style), { maxWidth: 300, minWidth: 260 });
+      marker.bindPopup(buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
     }
   }
 
-  /** popup: Risk Score + ระดับ + สถิติ + ปัจจัยเสี่ยง + คำแนะนำ + คะแนนย่อย 4 ปัจจัย */
+  /**
+   * popup: Risk Score + ระดับ + สถิติ + มูลค่าความเสียหาย + Single/Multi
+   * + ปัจจัยเสี่ยง + คำแนะนำขับขี่ + คำแนะนำวิศวกรรม + คะแนนย่อย 4 เกณฑ์ (Percentile)
+   */
   function buildPopupHtml(p, style) {
     const rules = RiskRules.evaluate(p);
     const factors = rules
@@ -50,24 +68,32 @@ const RiskPoints = (() => {
       ? rules[0].advice
       : "ขับขี่ด้วยความระมัดระวังตามปกติ";
 
-    // แถบคะแนนย่อย: (ชื่อ, คะแนนที่ได้, คะแนนเต็มของปัจจัย)
+    // แถบคะแนนย่อย 4 เกณฑ์ — ทุกเกณฑ์เป็น Percentile Rank 0-100 น้ำหนักเท่ากัน 25%
     const b = p.score_breakdown || {};
     const bars = [
-      ["ความถี่", b.frequency, 30],
-      ["ความรุนแรง", b.severity, 35],
-      ["ลักษณะถนน", b.geometry, 20],
-      ["ความเร็ว", b.speed, 15],
+      ["ความถี่", b.frequency],
+      ["ความเสียหาย ฿", b.economic_loss],
+      ["รถคันเดียว", b.single_vehicle],
+      ["กายภาพถนน", b.geometry],
     ]
       .map(
-        ([name, val, max]) => `
+        ([name, val]) => `
         <div class="pp-factor">
           <span class="pp-factor-name">${name}</span>
           <span class="pp-factor-track"><span class="pp-factor-fill"
-            style="width:${((val || 0) / max) * 100}%;background:${style.color}"></span></span>
-          <span class="pp-factor-val">${val ?? "-"}/${max}</span>
+            style="width:${val || 0}%;background:${style.color}"></span></span>
+          <span class="pp-factor-val">${val ?? "-"}</span>
         </div>`
       )
       .join("");
+
+    const lossMB = ((p.economic_loss || 0) / 1e6).toLocaleString("th-TH", {
+      maximumFractionDigits: 1,
+    });
+    const engAdvice = ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed;
+    const calibNote = calibration
+      ? `คำนวณจากรอบข้อมูล ${calibration.version} · Percentile Rank + Jenks`
+      : "";
 
     return `
       <div class="popup">
@@ -87,15 +113,23 @@ const RiskPoints = (() => {
           <div><b>${p.serious_injury}</b><span>สาหัส</span></div>
           <div><b>${p.minor_injury}</b><span>เล็กน้อย</span></div>
         </div>
+        <div class="pp-sub">💸 ความเสียหายรวม ≈ ${lossMB} ล้านบาท ·
+          🚘 คันเดียว ${p.single_pct}% / หลายคัน ${p.multi_pct}%</div>
         ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
         <div class="pp-advice">💡 ${advice}</div>
-        <div class="pp-section">องค์ประกอบคะแนน</div>
+        <div class="pp-advice">🛠️ ${engAdvice}</div>
+        <div class="pp-section">องค์ประกอบคะแนน (Percentile 0-100 × 25%)</div>
         ${bars}
+        ${calibNote ? `<div class="pp-sub" style="margin-top:6px">${calibNote}</div>` : ""}
       </div>`;
   }
 
   function all() {
     return points;
+  }
+
+  function getCalibration() {
+    return calibration;
   }
 
   /** เอาจุดเสี่ยงตาม id ออกจากชุดข้อมูลในหน่วยความจำ (ไม่แตะไฟล์ต้นฉบับ) */
@@ -105,5 +139,5 @@ const RiskPoints = (() => {
     points = points.filter((p) => !drop.has(p.id));
   }
 
-  return { load, drawOnMap, all, remove, LEVEL_STYLE };
+  return { load, drawOnMap, all, remove, getCalibration, LEVEL_STYLE };
 })();

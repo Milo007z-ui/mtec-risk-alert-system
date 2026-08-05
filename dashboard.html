@@ -66,7 +66,7 @@
     <!-- ตาราง 10 อันดับ -->
     <section class="card">
       <h2>10 จุดเสี่ยงอันตรายที่สุด</h2>
-      <p class="card-note">เรียงตาม Risk Score (โมเดล 4 ปัจจัย: ความถี่ 30 + ความรุนแรง 35 + ลักษณะถนน 20 + ความเร็ว 15 = 100 คะแนน)</p>
+      <p class="card-note">เรียงตาม Risk Score (โมเดล v2: 4 เกณฑ์ × 25% — ความถี่ · มูลค่าความเสียหายเศรษฐกิจ · Single-Vehicle Ratio · Geometric Complexity — Normalize ด้วย Percentile Rank แบ่งระดับด้วย Jenks Natural Breaks)</p>
       <div class="table-wrap">
         <table id="top-table">
           <thead>
@@ -83,8 +83,8 @@
 
     <footer class="page-footer">
       แหล่งข้อมูล: <a href="https://datagov.mot.go.th/dataset/roadaccident" target="_blank" rel="noopener">
-      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ·
-      จัดกลุ่มด้วย DBSCAN รัศมี 400 ม. ขั้นต่ำ 3 เหตุการณ์
+      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2568 รวม 4,627 เหตุการณ์ ·
+      จัดกลุ่มด้วย DBSCAN รัศมี 150 ม. ขั้นต่ำ 3 เหตุการณ์<span id="calib-note"></span>
     </footer>
   </main>
 
@@ -92,6 +92,6 @@
   <div id="loading" class="load-msg">กำลังโหลดข้อมูล...</div>
   <div id="tooltip" class="tooltip hidden" role="status"></div>
 
-  <script src="js/dashboard.js"></script>
+  <script src="js/dashboard.js?v=2"></script>
 </body>
 </html>
