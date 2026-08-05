@@ -24,9 +24,6 @@ const RiskPoints = (() => {
       "รูปแบบผสม: บังคับใช้กฎหมายความเร็ว · ทบทวนป้าย/เครื่องหมายจราจรและกายภาพถนนโดยรวม",
   };
 
-  // ขนาดหมุดตามระดับ — ระดับสูงเด่นกว่าและมีวงรัศมีรอบนอกช่วยให้สังเกตเห็นก่อน
-  const LEVEL_RADIUS = { high: 10, medium: 8, low: 7 };
-
   let points = []; // [{lat, lng, id, road, province, accident_count, ...}]
   let calibration = null; // เวอร์ชันรอบคำนวณจาก foreign member ใน GeoJSON
 
@@ -69,52 +66,16 @@ const RiskPoints = (() => {
   function drawOnMap(map) {
     for (const p of points) {
       const style = LEVEL_STYLE[p.level] || LEVEL_STYLE.low;
-
-      // วงรัศมีจางรอบจุดเสี่ยงสูง — ช่วยให้กวาดสายตาเจอจุดอันตรายได้ก่อน
-      if (p.level === "high") {
-        L.circleMarker([p.lat, p.lng], {
-          radius: 17,
-          color: style.color,
-          weight: 0,
-          fillColor: style.color,
-          fillOpacity: 0.14,
-          interactive: false,
-        }).addTo(map);
-      }
-
       const marker = L.circleMarker([p.lat, p.lng], {
-        radius: LEVEL_RADIUS[p.level] || LEVEL_RADIUS.low,
-        color: "#fff",
+        radius: 9,
+        color: style.color,
         weight: 2,
         fillColor: style.color,
-        fillOpacity: 0.95,
-        className: "risk-marker",
+        fillOpacity: 0.5,
       }).addTo(map);
 
-      marker.bindPopup(buildPopupHtml(p, style), {
-        maxWidth: 320,
-        minWidth: 280,
-        className: `risk-popup risk-popup--${p.level}`,
-      });
+      marker.bindPopup(buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
     }
-    updateLegend();
-  }
-
-  /** legend แสดงจำนวนจุดของแต่ละระดับ ให้เห็นภาพรวมโดยไม่ต้องเปิดหน้าสถิติ */
-  function updateLegend() {
-    const el = document.getElementById("legend");
-    if (!el) return;
-    const rows = ["high", "medium", "low"]
-      .map((key) => {
-        const count = points.filter((p) => p.level === key).length;
-        return `<div class="legend-row">
-            <span class="dot" style="background:${LEVEL_STYLE[key].color}"></span>
-            <span class="legend-label">${LEVEL_STYLE[key].label}</span>
-            <span class="legend-count">${count}</span>
-          </div>`;
-      })
-      .join("");
-    el.innerHTML = `<div class="legend-title">จุดเสี่ยง ${points.length} จุด</div>${rows}`;
   }
 
   /**
@@ -134,17 +95,17 @@ const RiskPoints = (() => {
     const multi = p.multi_count ?? 0;
 
     // แถบคะแนนย่อย 4 เกณฑ์ — ทุกเกณฑ์เป็น Percentile Rank 0-100 น้ำหนักเท่ากัน 25%
-    // แต่ละแถบมีบรรทัดบอก "ค่าดิบ" ที่คะแนนนั้นมาจาก ให้ตรวจสอบย้อนได้ทันที
+    // เกณฑ์รถคันเดียวมีบรรทัดบอกจำนวนครั้งจริง เพราะเปอร์เซ็นต์อย่างเดียวไม่บอกขนาดฐาน
     const b = p.score_breakdown || {};
     const bars = [
-      ["ความถี่", b.frequency, `${p.accident_count} ครั้งในรอบข้อมูล`],
-      ["ความเสียหาย", b.economic_loss, formatBaht(p.economic_loss)],
+      ["ความถี่", b.frequency, ""],
+      ["ความเสียหาย ฿", b.economic_loss, ""],
       [
         "รถคันเดียว",
         b.single_vehicle,
-        `รถคันเดียว ${single} ครั้ง · รถหลายคัน ${multi} ครั้ง (${p.single_pct}% / ${p.multi_pct}%)`,
+        `รถคันเดียว ${single} ครั้ง · รถหลายคัน ${multi} ครั้ง จาก ${p.accident_count} ครั้ง`,
       ],
-      ["กายภาพถนน", b.geometry, p.road_feature],
+      ["กายภาพถนน", b.geometry, ""],
     ]
       .map(
         ([name, val, note]) => `
@@ -153,8 +114,7 @@ const RiskPoints = (() => {
           <span class="pp-factor-track"><span class="pp-factor-fill"
             style="width:${val || 0}%;background:${style.color}"></span></span>
           <span class="pp-factor-val">${val ?? "-"}</span>
-        </div>
-        <div class="pp-factor-note">${note}</div>`
+        </div>` + (note ? `<div class="pp-factor-note">${note}</div>` : "")
       )
       .join("");
 
@@ -165,38 +125,30 @@ const RiskPoints = (() => {
 
     return `
       <div class="popup">
-        <div class="pp-head" style="background:${style.color}">
-          <div class="pp-head-main">
-            <div class="pp-title">${p.road}</div>
-            <div class="pp-sub-light">${p.province} · ${p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
-            <div class="pp-level">ความเสี่ยงระดับ${style.label}</div>
+        <div class="pp-head">
+          <div class="pp-title">${p.road}</div>
+          <div class="pp-score" style="background:${style.color}">
+            ${Math.round(p.risk_score)}<small>/100</small>
           </div>
-          <div class="pp-score">${Math.round(p.risk_score)}<small>/100</small></div>
         </div>
-        <div class="pp-body">
-          <div class="pp-stats">
-            <div><b>${p.accident_count}</b><span>อุบัติเหตุ</span></div>
-            <div><b>${p.deaths}</b><span>เสียชีวิต</span></div>
-            <div><b>${p.serious_injury}</b><span>สาหัส</span></div>
-            <div><b>${p.minor_injury}</b><span>เล็กน้อย</span></div>
-          </div>
-          <div class="pp-tiles">
-            <div class="pp-tile">
-              <span class="pp-tile-label">💸 ความเสียหายรวม</span>
-              <b>${formatBaht(p.economic_loss)}</b>
-            </div>
-            <div class="pp-tile">
-              <span class="pp-tile-label">🚘 รูปแบบการชน</span>
-              <b>คันเดียว ${single} · หลายคัน ${multi}</b>
-            </div>
-          </div>
-          ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
-          <div class="pp-advice">💡 ${advice}</div>
-          <div class="pp-advice pp-advice--eng">🛠️ ${engAdvice}</div>
-          <div class="pp-section">องค์ประกอบคะแนน · Percentile 0-100 × 25%</div>
-          ${bars}
-          ${calibNote ? `<div class="pp-calib">${calibNote}</div>` : ""}
+        <div class="pp-sub">${p.province} · ${p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
+        <div class="pp-levelrow">ระดับความเสี่ยง:
+          <span class="pp-level" style="background:${style.color}">${style.label}</span>
         </div>
+        <div class="pp-stats">
+          <div><b>${p.accident_count}</b><span>อุบัติเหตุ</span></div>
+          <div><b>${p.deaths}</b><span>เสียชีวิต</span></div>
+          <div><b>${p.serious_injury}</b><span>สาหัส</span></div>
+          <div><b>${p.minor_injury}</b><span>เล็กน้อย</span></div>
+        </div>
+        <div class="pp-sub">💸 ความเสียหายรวม ${formatBaht(p.economic_loss)} ·
+          🚘 คันเดียว ${single} ครั้ง / หลายคัน ${multi} ครั้ง</div>
+        ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
+        <div class="pp-advice">💡 ${advice}</div>
+        <div class="pp-advice">🛠️ ${engAdvice}</div>
+        <div class="pp-section">องค์ประกอบคะแนน (Percentile 0-100 × 25%)</div>
+        ${bars}
+        ${calibNote ? `<div class="pp-sub" style="margin-top:6px">${calibNote}</div>` : ""}
       </div>`;
   }
 

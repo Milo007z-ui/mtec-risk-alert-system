@@ -13,14 +13,9 @@ const MapView = (() => {
 
   function init() {
     map = L.map("map").setView(BKK_CENTER, 11);
-
-    // แผนที่ฐานโทนอ่อน (CARTO Positron) — สีถนนไม่แย่งสายตา ทำให้หมุดสีแดง/ส้ม/เขียวเด่นชัด
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      subdomains: "abcd",
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; ' +
-        '<a href="https://carto.com/attributions">CARTO</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     // ถ้าผู้ใช้ลากแผนที่เอง ให้หยุด auto-pan ชั่วคราว จนกว่าจะกดปุ่มกลับมาตามตำแหน่ง
@@ -53,10 +48,10 @@ const MapView = (() => {
       }).addTo(map);
       accuracyCircle = L.circle(latlng, {
         radius: accuracyM,
-        color: "#1e88e5",
+        color: "#1976d2",
         weight: 1,
-        fillColor: "#1e88e5",
-        fillOpacity: 0.1,
+        fillColor: "#1976d2",
+        fillOpacity: 0.12,
       }).addTo(map);
       map.setView(latlng, firstFixZoom);
     } else {
@@ -71,11 +66,10 @@ const MapView = (() => {
     if (!latlngs || latlngs.length < 2) return;
     if (routeLine) routeLine.remove();
     routeLine = L.polyline(latlngs, {
-      color: "#1e88e5",
-      weight: 5,
-      opacity: 0.5,
-      dashArray: "9 11",
-      lineCap: "round",
+      color: "#1976d2",
+      weight: 4,
+      opacity: 0.55,
+      dashArray: "8 10",
     }).addTo(map);
     firstFixZoom = 14; // ซูมออกให้เห็นถนนและจุดเสี่ยงถัดไปข้างหน้า
   }

@@ -1,369 +1,228 @@
-:root {
-  /* ต้องตรงกับ LEVEL_STYLE ใน js/riskpoints.js — หมุด legend และแถบเตือนใช้ชุดสีเดียวกัน */
-  --risk-high: #c62828;
-  --risk-medium: #ef6c00;
-  --risk-low: #2e7d32;
-  --ink: #1f2a30;
-  --ink-soft: #6b7780;
-  --line: #e6e8ea;
-  --surface: #fff;
-  --shadow-sm: 0 1px 4px rgba(15, 30, 40, .12);
-  --shadow-md: 0 4px 16px rgba(15, 30, 40, .16);
-  --shadow-lg: 0 12px 32px rgba(15, 30, 40, .22);
-}
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   height: 100%;
-  color: var(--ink);
   font-family: "Segoe UI", "Leelawadee UI", Tahoma, sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
 
 #map {
   position: absolute;
-  inset: 46px 0 0 0;
-  background: #eef1f3;
+  inset: 42px 0 0 0;
 }
 
 /* ---------- แถบสถานะด้านบน ---------- */
 #status-bar {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 46px;
-  background: linear-gradient(180deg, #2b3a43, #1f2a30);
+  height: 42px;
+  background: #263238;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding: 0 12px;
   font-size: 13px;
-  letter-spacing: .1px;
-  box-shadow: var(--shadow-md);
   z-index: 1100;
-  gap: 10px;
+  gap: 8px;
 }
 #status-bar span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#nearest-info {
-  background: rgba(255, 255, 255, .12);
-  border-radius: 20px;
-  padding: 4px 12px;
-  font-weight: 600;
-}
-#status-bar a {
-  color: #8fd0ff;
-  text-decoration: none;
-  white-space: nowrap;
-  font-weight: 600;
-}
-#status-bar a:hover { color: #c7e7ff; }
+#status-bar a { color: #90caf9; text-decoration: none; white-space: nowrap; font-weight: 600; }
 
 /* ---------- แบนเนอร์แจ้งเตือน ---------- */
 .alert-banner {
   position: absolute;
-  top: 58px; left: 12px; right: 12px;
-  padding: 14px 18px;
-  border-radius: 14px;
-  border-left: 6px solid rgba(255, 255, 255, .55);
+  top: 54px; left: 10px; right: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
-  line-height: 1.45;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
   z-index: 1200;
-  animation: slide-in .32s cubic-bezier(.2, .8, .3, 1);
+  animation: slide-in .3s ease;
 }
-.alert-high { background: linear-gradient(135deg, #e53935, #b71c1c); }
-.alert-medium { background: linear-gradient(135deg, #fb8c00, #e65100); }
-.alert-low { background: linear-gradient(135deg, #43a047, #1b5e20); }
+.alert-high { background: #c62828; }
+.alert-medium { background: #ef6c00; }
+.alert-low { background: #2e7d32; }
 
 @keyframes slide-in {
-  from { transform: translateY(-18px); opacity: 0; }
+  from { transform: translateY(-20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ---------- marker ตำแหน่งผู้ใช้ + จุดเสี่ยง ---------- */
+/* ---------- marker ตำแหน่งผู้ใช้ ---------- */
 .user-dot {
   width: 18px; height: 18px;
-  background: #1e88e5;
+  background: #1976d2;
   border: 3px solid #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(30, 136, 229, .25), var(--shadow-sm);
+  box-shadow: 0 0 6px rgba(25,118,210,.8);
 }
-.risk-marker { transition: stroke-width .15s ease; cursor: pointer; }
-.risk-marker:hover { stroke-width: 3.5; }
 
 /* ---------- ปุ่มกลับมาตำแหน่งฉัน ---------- */
 #btn-recenter {
   position: absolute;
-  bottom: 26px; right: 14px;
-  padding: 11px 18px;
-  background: var(--surface);
-  color: var(--ink);
+  bottom: 90px; right: 12px;
+  padding: 10px 14px;
+  background: #fff;
   border: none;
   border-radius: 24px;
   font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
   cursor: pointer;
   z-index: 1100;
 }
-#btn-recenter:hover { background: #f5f7f8; }
 
 /* ---------- legend ---------- */
 #legend {
   position: absolute;
-  bottom: 26px; left: 14px;
-  background: rgba(255, 255, 255, .94);
-  backdrop-filter: blur(6px);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 12.5px;
-  box-shadow: var(--shadow-md);
+  bottom: 24px; left: 12px;
+  background: rgba(255,255,255,.92);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.8;
+  box-shadow: 0 1px 5px rgba(0,0,0,.25);
   z-index: 1100;
-  min-width: 132px;
-}
-.legend-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-soft);
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  line-height: 1.9;
-}
-.legend-label { flex: 1; }
-.legend-count {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
 }
 #legend .dot {
+  display: inline-block;
   width: 10px; height: 10px;
   border-radius: 50%;
-  flex-shrink: 0;
+  margin-right: 6px;
 }
 
 /* ---------- overlay เริ่มใช้งาน ---------- */
 #start-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(12, 22, 28, .72);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,.65);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
 }
 .start-card {
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 32px 26px;
-  max-width: 380px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 24px;
+  max-width: 360px;
   margin: 16px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
 }
-.start-card h1 { font-size: 21px; line-height: 1.4; margin-bottom: 12px; }
-.start-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 20px; }
-.start-card .hint { font-size: 12px; color: #9aa4ac; margin: 14px 0 0; }
+.start-card h1 { font-size: 20px; margin-bottom: 12px; }
+.start-card p { font-size: 14px; color: #555; margin-bottom: 18px; }
+.start-card .hint { font-size: 12px; color: #999; margin: 12px 0 0; }
 #btn-start {
-  background: linear-gradient(135deg, #e53935, #b71c1c);
+  background: #c62828;
   color: #fff;
   border: none;
-  border-radius: 30px;
-  padding: 14px 46px;
+  border-radius: 28px;
+  padding: 14px 44px;
   font-size: 18px;
-  font-weight: 700;
-  font-family: inherit;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(183, 28, 28, .35);
 }
-#btn-start:hover { filter: brightness(1.06); }
-#btn-start:disabled {
-  background: #b9c1c6;
-  box-shadow: none;
-  cursor: not-allowed;
-}
+#btn-start:disabled { background: #aaa; cursor: not-allowed; }
 
-/* ---------- popup: กรอบ Leaflet ---------- */
-.risk-popup .leaflet-popup-content-wrapper {
-  padding: 0;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-.risk-popup .leaflet-popup-content {
-  margin: 0;
-  font-family: inherit;
-}
-.risk-popup a.leaflet-popup-close-button {
-  color: rgba(255, 255, 255, .85);
-  font-size: 22px;
-  width: 30px;
-  height: 30px;
-  padding: 4px 0 0;
-}
-.risk-popup a.leaflet-popup-close-button:hover { color: #fff; }
-
-/* ---------- popup: เนื้อหา ---------- */
+/* ---------- popup ---------- */
 .popup { font-size: 13px; line-height: 1.5; }
 
 .pp-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  color: #fff;
+  gap: 10px;
 }
-.pp-head-main { min-width: 0; }
-.pp-title {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.35;
-  padding-right: 18px;
-}
-.pp-sub-light {
-  font-size: 11.5px;
-  opacity: .85;
-  margin-top: 3px;
-}
-.pp-level {
-  display: inline-block;
-  margin-top: 7px;
-  background: rgba(255, 255, 255, .22);
-  border-radius: 20px;
-  padding: 2px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
+.pp-title { font-size: 14px; font-weight: 700; padding-top: 2px; }
 .pp-score {
-  background: rgba(255, 255, 255, .18);
-  border: 1.5px solid rgba(255, 255, 255, .4);
-  border-radius: 14px;
-  padding: 9px 12px;
-  font-size: 24px;
+  color: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.pp-score small { font-size: 11px; font-weight: 400; opacity: .8; }
+.pp-score small { font-size: 11px; font-weight: 400; opacity: .85; }
 
-.pp-body {
-  padding: 12px 16px 14px;
-  max-height: 58vh;
-  overflow-y: auto;
+.pp-sub { color: #666; font-size: 12px; margin: 2px 0 6px; }
+
+.pp-levelrow { margin-bottom: 8px; }
+.pp-level {
+  display: inline-block;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 10px;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .pp-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
+  gap: 4px;
   text-align: center;
-  background: #f4f6f7;
-  border-radius: 12px;
-  padding: 10px 4px;
+  background: #f5f5f2;
+  border-radius: 8px;
+  padding: 8px 4px;
+  margin-bottom: 8px;
 }
-.pp-stats b { display: block; font-size: 17px; font-variant-numeric: tabular-nums; }
-.pp-stats span { font-size: 10.5px; color: var(--ink-soft); }
-
-.pp-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 8px;
-}
-.pp-tile {
-  background: #f4f6f7;
-  border-radius: 12px;
-  padding: 9px 11px;
-}
-.pp-tile-label {
-  display: block;
-  font-size: 10.5px;
-  color: var(--ink-soft);
-  margin-bottom: 3px;
-}
-.pp-tile b { font-size: 12.5px; line-height: 1.35; }
+.pp-stats b { display: block; font-size: 16px; }
+.pp-stats span { font-size: 11px; color: #666; }
 
 .pp-section {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
-  color: #9aa4ac;
-  letter-spacing: .4px;
-  margin: 14px 0 6px;
+  color: #888;
+  text-transform: uppercase;
+  margin: 8px 0 4px;
 }
-.pp-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.pp-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .pp-chip {
-  background: #eef1f3;
-  border-radius: 12px;
-  padding: 3px 10px;
+  background: #f0efec;
+  border-radius: 10px;
+  padding: 2px 8px;
   font-size: 11.5px;
 }
 
 .pp-advice {
-  background: #e9f2fc;
-  border-left: 3px solid #1e88e5;
-  border-radius: 4px 12px 12px 4px;
-  padding: 9px 11px;
-  margin-top: 9px;
+  background: #e8f1fb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 8px;
   font-size: 12.5px;
   font-weight: 600;
-  line-height: 1.5;
-}
-.pp-advice--eng {
-  background: #eef7ee;
-  border-left-color: var(--risk-low);
-  font-weight: 500;
 }
 
 .pp-factor {
   display: grid;
-  grid-template-columns: 72px 1fr 34px;
+  grid-template-columns: 74px 1fr 44px;
   gap: 8px;
   align-items: center;
+  margin-bottom: 3px;
 }
-.pp-factor-name { font-size: 11.5px; color: var(--ink-soft); }
+.pp-factor-name { font-size: 11.5px; color: #666; }
 .pp-factor-track {
-  height: 7px;
-  background: #eef1f3;
+  height: 8px;
+  background: #f0efec;
   border-radius: 4px;
   overflow: hidden;
 }
-.pp-factor-fill {
-  display: block;
-  height: 100%;
-  border-radius: 4px;
-}
+.pp-factor-fill { display: block; height: 100%; border-radius: 0 4px 4px 0; }
 .pp-factor-val {
   font-size: 11px;
-  font-weight: 600;
-  color: var(--ink-soft);
+  color: #666;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+/* บรรทัดค่าดิบใต้แถบคะแนน (ใช้กับเกณฑ์รถคันเดียว) จัดให้ตรงกับหัวแถบ */
 .pp-factor-note {
   font-size: 10.5px;
-  color: #9aa4ac;
-  margin: 1px 0 8px 80px;
+  color: #999;
+  margin: 0 0 6px 82px;
   line-height: 1.4;
-}
-
-.pp-calib {
-  margin-top: 10px;
-  padding-top: 9px;
-  border-top: 1px solid var(--line);
-  font-size: 10.5px;
-  color: #9aa4ac;
 }
 
 .hidden { display: none !important; }
