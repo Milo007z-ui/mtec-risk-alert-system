@@ -6,7 +6,7 @@
   <title>ระบบแจ้งเตือนจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
   <div id="status-bar">
@@ -21,10 +21,12 @@
 
   <button id="btn-recenter" class="hidden">📍 กลับมาที่ตำแหน่งฉัน</button>
 
+  <!-- เนื้อหาถูกสร้างใหม่พร้อมจำนวนจุดแต่ละระดับใน RiskPoints.drawOnMap() -->
   <div id="legend">
-    <div><span class="dot" style="background:#c62828"></span> เสี่ยงสูง</div>
-    <div><span class="dot" style="background:#ef6c00"></span> ปานกลาง</div>
-    <div><span class="dot" style="background:#2e7d32"></span> ต่ำ</div>
+    <div class="legend-title">ระดับความเสี่ยง</div>
+    <div class="legend-row"><span class="dot" style="background:#c62828"></span><span class="legend-label">สูง</span></div>
+    <div class="legend-row"><span class="dot" style="background:#ef6c00"></span><span class="legend-label">ปานกลาง</span></div>
+    <div class="legend-row"><span class="dot" style="background:#2e7d32"></span><span class="legend-label">ต่ำ</span></div>
   </div>
 
   <div id="start-overlay">
@@ -41,8 +43,8 @@
   <script src="js/distance.js"></script>
   <script src="js/tts.js"></script>
   <script src="js/riskrules.js?v=6"></script>
-  <script src="js/riskpoints.js?v=5"></script>
-  <script src="js/map.js"></script>
+  <script src="js/riskpoints.js?v=6"></script>
+  <script src="js/map.js?v=6"></script>
   <script src="js/gps.js?v=5"></script>
   <script src="js/alert.js"></script>
   <script src="js/app.js?v=5"></script>

@@ -286,6 +286,8 @@ def cluster_zones(events, eps_meters, min_samples):
             "serious_injury": serious,
             "minor_injury": minor,
             "economic_loss": deaths * COST_DEATH + serious * COST_SERIOUS + minor * COST_MINOR,
+            "single_count": single_cnt,
+            "multi_count": n - single_cnt,
             "single_pct": round(single_cnt / n * 100, 1),
             "multi_pct": round((n - single_cnt) / n * 100, 1),
             "top_cause": mode_of([m["cause"] for m in members], exclude=("ไม่ระบุ",)),
