@@ -134,10 +134,10 @@
 
   // ระบุรอบ calibration ที่คะแนนชุดนี้ถูก "ล็อก" ไว้ (Fixed-Schedule Recalibration)
   if (calibration) {
-    const [b1, b2] = calibration.jenks_breaks || [];
+    const [b1, b2] = calibration.level_breaks || [];
     document.getElementById("calib-note").textContent =
       ` · รอบคำนวณ ${calibration.version}` +
-      (b1 != null ? ` (Jenks: ต่ำ ≤ ${b1} < ปานกลาง ≤ ${b2} < สูง)` : "");
+      (b1 != null ? ` (เกณฑ์คงที่: ต่ำ ≤ ${b1} < ปานกลาง ≤ ${b2} < สูง)` : "");
   }
 
   document.getElementById("loading").classList.add("hidden");

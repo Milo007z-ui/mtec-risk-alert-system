@@ -14,7 +14,7 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
        - มูลค่าความเสียหายเศรษฐกิจ    -> Percentile Rank (ต้นทุน/ราย: TDRI 2565)
        - Single-Vehicle Crash Ratio  -> Percentile Rank
        - Geometric Complexity        -> Percentile Rank (น้ำหนักจาก FI Rate ของข้อมูลเอง)
-  4. Risk Score = 0.25×(รวม 4 เกณฑ์) แล้วแบ่ง 3 ระดับด้วย Jenks Natural Breaks
+  4. Risk Score = 0.25×(รวม 4 เกณฑ์) แล้วแบ่ง 3 ระดับด้วยจุดตัดคงที่ (ต่ำ ≤40 / กลาง ≤60 / สูง >60)
   5. บันทึก GeoJSON + snapshot calibration (data/calibrations/<version>.json)
 
 ใช้: py scripts/build_risk_points.py            # สร้างไฟล์
@@ -33,8 +33,15 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r2"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r3"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
+
+# จุดตัดระดับต่ำ/กลาง/สูง — เลขกลมคงที่ (ตั้งแต่ v2568-r3)
+# เดิม (r1, r2) ใช้ Jenks Natural Breaks คำนวณจาก Risk Score จริงทุกรอบ (ยังเก็บฟังก์ชัน
+# jenks_breaks() ไว้อ้างอิง/self-test) แต่ผู้ใช้ต้องการเกณฑ์ที่อธิบายง่ายกว่าสำหรับพรีเซนต์
+# จึงเปลี่ยนมาใช้เลขกลมคงที่แทน — ข้อแลกเปลี่ยน: อธิบายง่าย ("ต่ำกว่า 40 คือต่ำ") แต่ไม่มี
+# หลักฐานทางสถิติรองรับตัวเลข 40/60 เจาะจง (ต่างจาก Jenks ที่หาจุดตัดจากความแปรปรวนจริง)
+LEVEL_BREAKS = [40.0, 60.0]
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
@@ -328,7 +335,7 @@ def score_zones(zones, fi_weights):
         + W_SINGLE * df["s_single"] + W_GEOM * df["s_geom"]
     ).round(1)
 
-    breaks = jenks_breaks(df["risk_score"].tolist(), n_classes=3)
+    breaks = LEVEL_BREAKS
 
     for z, (_, row) in zip(zones, df.iterrows()):
         z["score_breakdown"] = {
@@ -380,7 +387,7 @@ def main():
 
     zones, breaks = score_zones(zones, fi_weights)
     counts = {lv: sum(1 for z in zones if z["level"] == lv) for lv in ("high", "medium", "low")}
-    print(f"Jenks breaks: ต่ำ ≤ {breaks[0]} < ปานกลาง ≤ {breaks[1]} < สูง")
+    print(f"จุดตัดระดับ (คงที่): ต่ำ ≤ {breaks[0]} < ปานกลาง ≤ {breaks[1]} < สูง")
     print(f"  ระดับสูง {counts['high']} | ปานกลาง {counts['medium']} | ต่ำ {counts['low']}")
 
     top = sorted(zones, key=lambda z: z["risk_score"], reverse=True)[:5]
@@ -402,7 +409,8 @@ def main():
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
                                 "minor": COST_MINOR},
         "fi_weights": fi_table,
-        "jenks_breaks": breaks,
+        "level_breaks": breaks,
+        "level_break_method": "fixed",
         "zones": len(zones),
         "levels": counts,
     }

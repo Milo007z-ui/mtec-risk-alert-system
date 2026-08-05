@@ -1,8 +1,8 @@
 {
  "type": "FeatureCollection",
  "calibration": {
-  "version": "v2568-r2",
-  "generated_at": "2026-08-05T08:50:29+00:00",
+  "version": "v2568-r3",
+  "generated_at": "2026-08-05T17:51:36+00:00",
   "recalibration_policy": "ทุก 6 เดือน",
   "source": "accident2025_1.xlsx",
   "events_total": 4627,
@@ -44,15 +44,16 @@
     "weight": 1.356
    }
   },
-  "jenks_breaks": [
-   41.4,
-   58.2
+  "level_breaks": [
+   40.0,
+   60.0
   ],
+  "level_break_method": "fixed",
   "zones": 171,
   "levels": {
    "high": 40,
-   "medium": 78,
-   "low": 53
+   "medium": 86,
+   "low": 45
   }
  },
  "features": [
@@ -573,7 +574,7 @@
      "geometry": 40.6
     },
     "risk_score": 41.2,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -653,7 +654,7 @@
      "geometry": 40.6
     },
     "risk_score": 41.4,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -973,7 +974,7 @@
      "geometry": 40.6
     },
     "risk_score": 40.6,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -1653,7 +1654,7 @@
      "geometry": 40.6
     },
     "risk_score": 40.3,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -2053,7 +2054,7 @@
      "geometry": 4.1
     },
     "risk_score": 40.4,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -2933,7 +2934,7 @@
      "geometry": 40.6
     },
     "risk_score": 41.4,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -4253,7 +4254,7 @@
      "geometry": 40.6
     },
     "risk_score": 40.3,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
@@ -5293,7 +5294,7 @@
      "geometry": 40.6
     },
     "risk_score": 41.2,
-    "level": "low"
+    "level": "medium"
    }
   },
   {
