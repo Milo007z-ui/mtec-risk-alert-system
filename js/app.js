@@ -15,6 +15,7 @@
     await RiskPoints.load();
     if (GPS.isMockMode()) RiskPoints.remove(GPS.mockExcludes()); // ซ่อนจุดที่รถไม่ได้ขับผ่านจริง (เฉพาะจำลอง)
     RiskPoints.drawOnMap(map);
+    Filters.init(); // แผงตัวกรองต้องสร้างหลังวาดหมุด (ต้องใช้รายชื่อจังหวัดจากข้อมูล)
     await GPS.prepare(); // โหมดจำลอง: เตรียมเส้นทางถนนจริงไว้ล่วงหน้า
     statusEl.textContent = `โหลดจุดเสี่ยง ${RiskPoints.all().length} จุดแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
   } catch (err) {

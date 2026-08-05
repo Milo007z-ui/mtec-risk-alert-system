@@ -26,6 +26,15 @@ const RiskPoints = (() => {
 
   let points = []; // [{lat, lng, id, road, province, accident_count, ...}]
   let calibration = null; // เวอร์ชันรอบคำนวณจาก foreign member ใน GeoJSON
+  let markers = []; // [{point, layer}] เก็บไว้เพื่อซ่อน/แสดงตามตัวกรอง
+  let mapRef = null;
+
+  // ตัวกรองที่ใช้อยู่ — ค่าเริ่มต้นคือแสดงทุกจุด
+  let filter = {
+    province: "", // "" = ทุกจังหวัด
+    levels: new Set(["high", "medium", "low"]),
+    pattern: "", // "" = ทุกประเภทปัญหา
+  };
 
   /**
    * จำนวนเงินเป็นหน่วยไทยที่อ่านออกทันที — 58,000 -> "5.8 หมื่นบาท",
@@ -64,6 +73,8 @@ const RiskPoints = (() => {
   }
 
   function drawOnMap(map) {
+    mapRef = map;
+    markers = [];
     for (const p of points) {
       const style = LEVEL_STYLE[p.level] || LEVEL_STYLE.low;
       const marker = L.circleMarker([p.lat, p.lng], {
@@ -75,7 +86,49 @@ const RiskPoints = (() => {
       }).addTo(map);
 
       marker.bindPopup(buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
+      markers.push({ point: p, layer: marker });
     }
+  }
+
+  /** จุดนี้ผ่านเงื่อนไขตัวกรองปัจจุบันหรือไม่ */
+  function matchesFilter(p) {
+    if (filter.province && p.province !== filter.province) return false;
+    if (!filter.levels.has(p.level)) return false;
+    if (filter.pattern && p.pattern !== filter.pattern) return false;
+    return true;
+  }
+
+  /**
+   * ตั้งค่าตัวกรองแล้วซ่อน/แสดงหมุดให้ตรงกัน
+   * ตัวกรองมีผลกับการแจ้งเตือนด้วย (alert.js อ่านจาก visible()) เพื่อให้
+   * "เห็นอะไรบนแผนที่ = ได้ยินเตือนเรื่องนั้น" ไม่สับสน
+   */
+  function setFilter(next) {
+    filter = {
+      province: next.province || "",
+      levels: new Set(next.levels && next.levels.length ? next.levels : []),
+      pattern: next.pattern || "",
+    };
+
+    for (const { point, layer } of markers) {
+      const show = matchesFilter(point);
+      const on = mapRef.hasLayer(layer);
+      if (show && !on) layer.addTo(mapRef);
+      else if (!show && on) layer.remove();
+    }
+    return visible().length;
+  }
+
+  /** จุดที่ผ่านตัวกรอง (ใช้ทั้งวาดแผนที่และตรวจแจ้งเตือน) */
+  function visible() {
+    return points.filter(matchesFilter);
+  }
+
+  /** รายชื่อจังหวัดในข้อมูล เรียงตามพจนานุกรมไทย (ใช้เติม dropdown) */
+  function provinces() {
+    return [...new Set(points.map((p) => p.province))].sort((a, b) =>
+      a.localeCompare(b, "th")
+    );
   }
 
   /**
@@ -182,5 +235,8 @@ const RiskPoints = (() => {
     points = points.filter((p) => !drop.has(p.id));
   }
 
-  return { load, drawOnMap, all, remove, getCalibration, formatBaht, LEVEL_STYLE };
+  return {
+    load, drawOnMap, all, remove, getCalibration, formatBaht,
+    setFilter, visible, provinces, LEVEL_STYLE,
+  };
 })();

@@ -29,7 +29,8 @@ const AlertSystem = (() => {
   /** เรียกทุกครั้งที่ตำแหน่ง GPS อัปเดต */
   function onPositionUpdate(lat, lng) {
     const now = Date.now();
-    const nearby = findNearbyPoints(lat, lng, RiskPoints.all(), EXIT_RADIUS_M);
+    // visible() = จุดที่ผ่านตัวกรองบนแผนที่ — เตือนเฉพาะสิ่งที่ผู้ใช้เลือกดูอยู่
+    const nearby = findNearbyPoints(lat, lng, RiskPoints.visible(), EXIT_RADIUS_M);
     const nearbyIds = new Set(nearby.map((n) => n.point.id));
 
     // จุดที่เคยเตือนแล้วแต่ตอนนี้ออกนอกรัศมี EXIT ไปแล้ว -> รีเซ็ตให้เตือนใหม่ได้
@@ -60,16 +61,18 @@ const AlertSystem = (() => {
   function updateNearestInfo(lat, lng) {
     const el = document.getElementById("nearest-info");
     let best = null;
-    for (const p of RiskPoints.all()) {
+    for (const p of RiskPoints.visible()) {
       const d = haversineMeters(lat, lng, p.lat, p.lng);
       if (!best || d < best.d) best = { p, d };
     }
-    if (best) {
-      el.textContent =
-        best.d < 10000
-          ? `จุดเสี่ยงใกล้สุด: ${best.p.road} ${(best.d / 1000).toFixed(2)} กม.`
-          : "ไม่มีจุดเสี่ยงในระยะ 10 กม.";
+    if (!best) {
+      el.textContent = "ไม่มีจุดเสี่ยงตามตัวกรองที่เลือก";
+      return;
     }
+    el.textContent =
+      best.d < 10000
+        ? `จุดเสี่ยงใกล้สุด: ${best.p.road} ${(best.d / 1000).toFixed(2)} กม.`
+        : "ไม่มีจุดเสี่ยงในระยะ 10 กม.";
   }
 
   return { onPositionUpdate, ALERT_RADIUS_M };

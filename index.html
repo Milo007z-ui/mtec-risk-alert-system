@@ -6,7 +6,7 @@
   <title>ระบบแจ้งเตือนจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
   <div id="status-bar">
@@ -20,6 +20,39 @@
   <div id="alert-banner" class="alert-banner hidden"></div>
 
   <button id="btn-recenter" class="hidden">📍 กลับมาที่ตำแหน่งฉัน</button>
+
+  <!-- ตัวกรองจุดเสี่ยง — ตัวเลือกจังหวัด/ประเภทปัญหาเติมจากข้อมูลใน js/filters.js -->
+  <div id="filter-panel">
+    <div class="filter-head">
+      <span class="filter-title">ตัวกรองจุดเสี่ยง</span>
+      <button id="filter-toggle" type="button" title="ย่อ/ขยายแผงตัวกรอง">▾</button>
+    </div>
+
+    <div class="filter-body">
+      <label class="filter-label" for="f-province">จังหวัด</label>
+      <select id="f-province">
+        <option value="">ทุกจังหวัด</option>
+      </select>
+
+      <div class="filter-label">ระดับความเสี่ยง</div>
+      <div class="filter-levels">
+        <label><input type="checkbox" id="f-level-high" checked>
+          <span class="dot" style="background:#c62828"></span>เสี่ยงสูง</label>
+        <label><input type="checkbox" id="f-level-medium" checked>
+          <span class="dot" style="background:#ef6c00"></span>ปานกลาง</label>
+        <label><input type="checkbox" id="f-level-low" checked>
+          <span class="dot" style="background:#2e7d32"></span>ต่ำ</label>
+      </div>
+
+      <label class="filter-label" for="f-pattern">ประเภทปัญหาหลัก</label>
+      <select id="f-pattern"></select>
+
+      <div class="filter-foot">
+        <span id="filter-count"></span>
+        <button id="filter-reset" type="button">ล้างตัวกรอง</button>
+      </div>
+    </div>
+  </div>
 
   <div id="legend">
     <div><span class="dot" style="background:#c62828"></span> เสี่ยงสูง</div>
@@ -41,10 +74,11 @@
   <script src="js/distance.js"></script>
   <script src="js/tts.js"></script>
   <script src="js/riskrules.js?v=6"></script>
-  <script src="js/riskpoints.js?v=8"></script>
+  <script src="js/riskpoints.js?v=9"></script>
+  <script src="js/filters.js?v=9"></script>
   <script src="js/map.js?v=7"></script>
   <script src="js/gps.js?v=8"></script>
-  <script src="js/alert.js"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/alert.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>
