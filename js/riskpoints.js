@@ -147,8 +147,10 @@ const RiskPoints = (() => {
     const single = p.single_count ?? 0;
     const multi = p.multi_count ?? 0;
 
-    // แถบคะแนนย่อย 4 เกณฑ์ — ทุกเกณฑ์เป็น Percentile Rank 0-100 น้ำหนักเท่ากัน 25%
-    // เกณฑ์รถคันเดียวมีแถบเทียบสัดส่วนต่อท้าย เพราะคะแนน percentile อย่างเดียว
+    // แถบคะแนนย่อย 4 เกณฑ์ — เก็บเป็น Percentile Rank 0-100 น้ำหนักเท่ากัน 25%
+    // แต่โชว์ผลคูณน้ำหนักแล้ว (×0.25) เป็นคะแนนเต็มเกณฑ์ละ 25 เพื่อให้อ่านง่าย
+    // (ตัวเลขเดียวกัน แค่คูณ 0.25 ก่อนแสดง ไม่กระทบ Risk Score/Jenks breaks)
+    // เกณฑ์รถคันเดียวมีแถบเทียบสัดส่วนต่อท้าย เพราะคะแนนเกณฑ์อย่างเดียว
     // ไม่บอกว่าจุดนี้เป็นปัญหารถเสียหลักเดี่ยวหรือปัญหารถชนกัน
     const b = p.score_breakdown || {};
     const bars = [
@@ -157,15 +159,16 @@ const RiskPoints = (() => {
       ["รถคันเดียว", b.single_vehicle, buildSplitHtml(p, single, multi)],
       ["กายภาพถนน", b.geometry, ""],
     ]
-      .map(
-        ([name, val, extra]) => `
+      .map(([name, val, extra]) => {
+        const pts = val != null ? Math.round(val * 0.25) : null;
+        return `
         <div class="pp-factor">
           <span class="pp-factor-name">${name}</span>
           <span class="pp-factor-track"><span class="pp-factor-fill"
             style="width:${val || 0}%;background:${style.color}"></span></span>
-          <span class="pp-factor-val">${val ?? "-"}</span>
-        </div>${extra}`
-      )
+          <span class="pp-factor-val">${pts == null ? "-" : `${pts}<small>/25</small>`}</span>
+        </div>${extra}`;
+      })
       .join("");
 
     const engAdvice = ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed;
@@ -193,7 +196,7 @@ const RiskPoints = (() => {
         ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
         <div class="pp-advice">💡 ${advice}</div>
         <div class="pp-advice">🛠️ ${engAdvice}</div>
-        <div class="pp-section">องค์ประกอบคะแนน (Percentile 0-100 × 25%)</div>
+        <div class="pp-section">องค์ประกอบคะแนน (เกณฑ์ละ 25 คะแนนเต็ม)</div>
         ${bars}
       </div>`;
   }

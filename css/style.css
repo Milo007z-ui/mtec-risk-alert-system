@@ -292,7 +292,7 @@ html, body {
 
 .pp-factor {
   display: grid;
-  grid-template-columns: 74px 1fr 44px;
+  grid-template-columns: 74px 1fr 52px;
   gap: 8px;
   align-items: center;
   margin-bottom: 3px;
@@ -311,6 +311,7 @@ html, body {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.pp-factor-val small { font-size: 9px; opacity: .75; }
 /* แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคัน (ใต้แถบคะแนนเกณฑ์รถคันเดียว) */
 .pp-split { margin: 2px 0 8px 82px; }
 .pp-split-bar {
