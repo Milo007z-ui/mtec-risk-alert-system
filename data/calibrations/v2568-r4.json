@@ -1,0 +1,146 @@
+{
+  "version": "v2568-r4",
+  "generated_at": "2026-08-06T01:52:56+00:00",
+  "recalibration_policy": "ทุก 6 เดือน",
+  "source": "accident2025_1.xlsx",
+  "events_total": 4627,
+  "events_with_coords": 4460,
+  "dbscan": {
+    "eps_m": 400,
+    "min_samples": 3
+  },
+  "scoring_method": "banded_rubric",
+  "score_bands": {
+    "frequency": [
+      [
+        3,
+        5
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        10,
+        15
+      ],
+      [
+        20,
+        20
+      ]
+    ],
+    "economic_loss": [
+      [
+        100000,
+        5
+      ],
+      [
+        500000,
+        10
+      ],
+      [
+        2000000,
+        15
+      ],
+      [
+        10000000,
+        20
+      ]
+    ],
+    "single_vehicle": [
+      [
+        20,
+        5
+      ],
+      [
+        35,
+        10
+      ],
+      [
+        50,
+        15
+      ],
+      [
+        70,
+        20
+      ]
+    ],
+    "geometry": [
+      [
+        0,
+        5
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        15,
+        15
+      ],
+      [
+        30,
+        20
+      ]
+    ]
+  },
+  "band_top_score": 25,
+  "criteria_max_score": {
+    "frequency": 25,
+    "economic_loss": 25,
+    "single_vehicle": 25,
+    "geometry": 25
+  },
+  "cost_per_person_thb": {
+    "death": 6700000,
+    "serious": 2000000,
+    "minor": 58000
+  },
+  "fi_weights": {
+    "ncp": {
+      "n": 3948,
+      "fi_rate_pct": 42.1,
+      "weight": 1.0
+    },
+    "merging": {
+      "n": 230,
+      "fi_rate_pct": 42.6,
+      "weight": 1.011
+    },
+    "diverging": {
+      "n": 54,
+      "fi_rate_pct": 35.2,
+      "weight": 0.835
+    },
+    "crossing": {
+      "n": 35,
+      "fi_rate_pct": 57.1,
+      "weight": 1.356
+    }
+  },
+  "level_breaks": [
+    40.0,
+    60.0
+  ],
+  "level_break_method": "fixed",
+  "zones": 171,
+  "levels": {
+    "high": 32,
+    "medium": 78,
+    "low": 61
+  },
+  "score_distribution": {
+    "25.0": 5,
+    "30.0": 11,
+    "35.0": 18,
+    "40.0": 27,
+    "45.0": 20,
+    "50.0": 31,
+    "55.0": 10,
+    "60.0": 17,
+    "65.0": 16,
+    "70.0": 7,
+    "75.0": 5,
+    "80.0": 4
+  }
+}

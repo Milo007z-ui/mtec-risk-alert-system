@@ -1,8 +1,8 @@
 {
  "type": "FeatureCollection",
  "calibration": {
-  "version": "v2568-r3",
-  "generated_at": "2026-08-05T17:51:36+00:00",
+  "version": "v2568-r4",
+  "generated_at": "2026-08-06T01:52:56+00:00",
   "recalibration_policy": "ทุก 6 เดือน",
   "source": "accident2025_1.xlsx",
   "events_total": 4627,
@@ -11,11 +11,87 @@
    "eps_m": 400,
    "min_samples": 3
   },
-  "criteria_weights": {
-   "frequency": 0.25,
-   "economic_loss": 0.25,
-   "single_vehicle": 0.25,
-   "geometry": 0.25
+  "scoring_method": "banded_rubric",
+  "score_bands": {
+   "frequency": [
+    [
+     3,
+     5
+    ],
+    [
+     5,
+     10
+    ],
+    [
+     10,
+     15
+    ],
+    [
+     20,
+     20
+    ]
+   ],
+   "economic_loss": [
+    [
+     100000,
+     5
+    ],
+    [
+     500000,
+     10
+    ],
+    [
+     2000000,
+     15
+    ],
+    [
+     10000000,
+     20
+    ]
+   ],
+   "single_vehicle": [
+    [
+     20,
+     5
+    ],
+    [
+     35,
+     10
+    ],
+    [
+     50,
+     15
+    ],
+    [
+     70,
+     20
+    ]
+   ],
+   "geometry": [
+    [
+     0,
+     5
+    ],
+    [
+     5,
+     10
+    ],
+    [
+     15,
+     15
+    ],
+    [
+     30,
+     20
+    ]
+   ]
+  },
+  "band_top_score": 25,
+  "criteria_max_score": {
+   "frequency": 25,
+   "economic_loss": 25,
+   "single_vehicle": 25,
+   "geometry": 25
   },
   "cost_per_person_thb": {
    "death": 6700000,
@@ -51,9 +127,23 @@
   "level_break_method": "fixed",
   "zones": 171,
   "levels": {
-   "high": 40,
-   "medium": 86,
-   "low": 45
+   "high": 32,
+   "medium": 78,
+   "low": 61
+  },
+  "score_distribution": {
+   "25.0": 5,
+   "30.0": 11,
+   "35.0": 18,
+   "40.0": 27,
+   "45.0": 20,
+   "50.0": 31,
+   "55.0": 10,
+   "60.0": 17,
+   "65.0": 16,
+   "70.0": 7,
+   "75.0": 5,
+   "80.0": 4
   }
  },
  "features": [
@@ -79,6 +169,8 @@
     "multi_count": 775,
     "single_pct": 22.0,
     "multi_pct": 78.0,
+    "conflict_count": 18,
+    "conflict_pct": 1.8,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -88,12 +180,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 100.0,
-     "economic_loss": 98.8,
-     "single_vehicle": 29.2,
-     "geometry": 75.4
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 10
     },
-    "risk_score": 75.9,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -119,6 +211,8 @@
     "multi_count": 2,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 3,
+    "conflict_pct": 50.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -128,12 +222,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 26.3,
-     "single_vehicle": 74.0,
-     "geometry": 93.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 64.6,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -159,6 +253,8 @@
     "multi_count": 17,
     "single_pct": 39.3,
     "multi_pct": 60.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -168,12 +264,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 92.1,
-     "economic_loss": 81.9,
-     "single_vehicle": 53.2,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 67.0,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -199,6 +295,8 @@
     "multi_count": 232,
     "single_pct": 17.7,
     "multi_pct": 82.3,
+    "conflict_count": 7,
+    "conflict_pct": 2.5,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -208,12 +306,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 98.8,
-     "economic_loss": 99.4,
-     "single_vehicle": 24.6,
-     "geometry": 76.0
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 5,
+     "geometry": 10
     },
-    "risk_score": 74.7,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -239,6 +337,8 @@
     "multi_count": 671,
     "single_pct": 11.9,
     "multi_pct": 88.1,
+    "conflict_count": 45,
+    "conflict_pct": 5.9,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -248,12 +348,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 99.4,
-     "economic_loss": 100.0,
-     "single_vehicle": 17.5,
-     "geometry": 79.2
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 5,
+     "geometry": 15
     },
-    "risk_score": 74.0,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -279,6 +379,8 @@
     "multi_count": 29,
     "single_pct": 51.7,
     "multi_pct": 48.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -288,10 +390,10 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 95.9,
-     "economic_loss": 58.5,
-     "single_vehicle": 64.9,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 15,
+     "single_vehicle": 20,
+     "geometry": 5
     },
     "risk_score": 65.0,
     "level": "high"
@@ -319,6 +421,8 @@
     "multi_count": 80,
     "single_pct": 35.0,
     "multi_pct": 65.0,
+    "conflict_count": 6,
+    "conflict_pct": 4.9,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -328,12 +432,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 97.1,
-     "economic_loss": 97.1,
-     "single_vehicle": 50.3,
-     "geometry": 78.4
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 10
     },
-    "risk_score": 80.7,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -359,6 +463,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -368,12 +474,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 62.3,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 48.3,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -399,6 +505,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -408,12 +516,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 72.2,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 50.8,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -439,6 +547,8 @@
     "multi_count": 18,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 6,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -448,13 +558,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 88.6,
-     "economic_loss": 57.0,
-     "single_vehicle": 8.2,
-     "geometry": 2.3
+     "frequency": 20,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 39.0,
-    "level": "low"
+    "risk_score": 65.0,
+    "level": "high"
    }
   },
   {
@@ -479,6 +589,8 @@
     "multi_count": 7,
     "single_pct": 12.5,
     "multi_pct": 87.5,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -488,12 +600,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 72.8,
-     "economic_loss": 86.0,
-     "single_vehicle": 18.1,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 54.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -519,6 +631,8 @@
     "multi_count": 18,
     "single_pct": 28.0,
     "multi_pct": 72.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -528,12 +642,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 90.6,
-     "economic_loss": 65.2,
-     "single_vehicle": 36.3,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 58.2,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -559,6 +673,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -568,13 +684,13 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 33.9,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 41.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -599,6 +715,8 @@
     "multi_count": 6,
     "single_pct": 14.3,
     "multi_pct": 85.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -608,13 +726,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 50.0,
-     "single_vehicle": 19.6,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 45.0,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -639,6 +757,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -648,13 +768,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 50.0,
-     "single_vehicle": 33.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 41.4,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -679,6 +799,8 @@
     "multi_count": 1,
     "single_pct": 90.9,
     "multi_pct": 9.1,
+    "conflict_count": 1,
+    "conflict_pct": 9.1,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -688,12 +810,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 81.3,
-     "economic_loss": 63.7,
-     "single_vehicle": 87.7,
-     "geometry": 82.2
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 25,
+     "geometry": 15
     },
-    "risk_score": 78.7,
+    "risk_score": 80.0,
     "level": "high"
    }
   },
@@ -719,6 +841,8 @@
     "multi_count": 4,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -728,12 +852,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 8.2,
-     "geometry": 3.5
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 20
     },
-    "risk_score": 15.1,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -759,6 +883,8 @@
     "multi_count": 15,
     "single_pct": 16.7,
     "multi_pct": 83.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -768,12 +894,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 88.6,
-     "economic_loss": 76.0,
-     "single_vehicle": 21.9,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 56.8,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -799,6 +925,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 1,
+    "conflict_pct": 20.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -808,12 +936,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 80.7,
-     "single_vehicle": 8.2,
-     "geometry": 85.7
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 20
     },
-    "risk_score": 57.7,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -839,6 +967,8 @@
     "multi_count": 105,
     "single_pct": 32.7,
     "multi_pct": 67.3,
+    "conflict_count": 26,
+    "conflict_pct": 16.7,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนคนเดินเท้า",
@@ -848,12 +978,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 98.2,
-     "economic_loss": 98.2,
-     "single_vehicle": 41.5,
-     "geometry": 97.7
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 20
     },
-    "risk_score": 83.9,
+    "risk_score": 80.0,
     "level": "high"
    }
   },
@@ -879,6 +1009,8 @@
     "multi_count": 4,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 4,
+    "conflict_pct": 100.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางแยกต่างระดับ/Ramps",
     "crash_pattern": "ชนท้าย",
@@ -888,13 +1020,13 @@
     "geom_group": "diverging",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 41.2,
-     "single_vehicle": 8.2,
-     "geometry": 0.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 23.0,
-    "level": "low"
+    "risk_score": 50.0,
+    "level": "medium"
    }
   },
   {
@@ -919,6 +1051,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -928,12 +1062,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 55.3,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 30.1,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -959,6 +1093,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -968,13 +1104,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 46.8,
-     "single_vehicle": 33.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 40.6,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -999,6 +1135,8 @@
     "multi_count": 7,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 6,
+    "conflict_pct": 85.7,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางโค้งกว้าง",
     "crash_pattern": "ชนด้านข้าง",
@@ -1008,12 +1146,12 @@
     "geom_group": "merging",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 41.2,
-     "single_vehicle": 8.2,
-     "geometry": 97.1
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 54.0,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -1039,6 +1177,8 @@
     "multi_count": 23,
     "single_pct": 25.8,
     "multi_pct": 74.2,
+    "conflict_count": 1,
+    "conflict_pct": 3.2,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1048,12 +1188,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 93.0,
-     "economic_loss": 67.3,
-     "single_vehicle": 35.7,
-     "geometry": 77.2
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 10
     },
-    "risk_score": 68.3,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -1079,6 +1219,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -1088,13 +1230,13 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 74.0,
-     "geometry": 2.3
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 27.7,
-    "level": "low"
+    "risk_score": 55.0,
+    "level": "medium"
    }
   },
   {
@@ -1119,6 +1261,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1128,12 +1272,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 33.9,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 56.3,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -1159,6 +1303,8 @@
     "multi_count": 19,
     "single_pct": 32.1,
     "multi_pct": 67.9,
+    "conflict_count": 1,
+    "conflict_pct": 3.6,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1168,12 +1314,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 92.1,
-     "economic_loss": 82.5,
-     "single_vehicle": 40.9,
-     "geometry": 77.2
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 10
     },
-    "risk_score": 73.2,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -1199,6 +1345,8 @@
     "multi_count": 8,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 5,
+    "conflict_pct": 62.5,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางร่วม",
     "crash_pattern": "ชนด้านข้าง",
@@ -1208,12 +1356,12 @@
     "geom_group": "merging",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 72.8,
-     "economic_loss": 18.1,
-     "single_vehicle": 8.2,
-     "geometry": 98.2
+     "frequency": 15,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 49.3,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -1239,6 +1387,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -1248,12 +1398,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 49.6,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -1279,6 +1429,8 @@
     "multi_count": 4,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1288,12 +1440,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 77.5,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 57.2,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -1319,6 +1471,8 @@
     "multi_count": 14,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -1328,12 +1482,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 85.4,
-     "economic_loss": 59.1,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 48.3,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -1359,6 +1513,8 @@
     "multi_count": 6,
     "single_pct": 14.3,
     "multi_pct": 85.7,
+    "conflict_count": 1,
+    "conflict_pct": 14.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -1368,12 +1524,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 18.1,
-     "single_vehicle": 19.6,
-     "geometry": 5.8
+     "frequency": 15,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 15
     },
-    "risk_score": 28.3,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -1399,6 +1555,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1408,12 +1566,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 83.6,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 53.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -1439,6 +1597,8 @@
     "multi_count": 9,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 2,
+    "conflict_pct": 16.7,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1448,12 +1608,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 82.7,
-     "economic_loss": 94.2,
-     "single_vehicle": 33.0,
-     "geometry": 84.2
+     "frequency": 20,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 20
     },
-    "risk_score": 73.5,
+    "risk_score": 75.0,
     "level": "high"
    }
   },
@@ -1479,6 +1639,8 @@
     "multi_count": 8,
     "single_pct": 11.1,
     "multi_pct": 88.9,
+    "conflict_count": 7,
+    "conflict_pct": 77.8,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางโค้งกว้าง",
     "crash_pattern": "ชนท้าย",
@@ -1488,12 +1650,12 @@
     "geom_group": "merging",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 41.2,
-     "single_vehicle": 17.0,
-     "geometry": 95.9
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 57.5,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -1519,6 +1681,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1528,12 +1692,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 83.6,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 53.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -1559,6 +1723,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนด้านข้าง",
@@ -1568,12 +1734,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 83.0,
-     "geometry": 87.7
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 20
     },
-    "risk_score": 54.9,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -1599,6 +1765,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "อื่นๆ",
@@ -1608,12 +1776,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 33.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 30.6,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -1639,6 +1807,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -1648,13 +1818,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 18.1,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 40.3,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -1679,6 +1849,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -1688,13 +1860,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 45.9,
-     "geometry": 2.3
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 10,
+     "geometry": 25
     },
-    "risk_score": 20.7,
-    "level": "low"
+    "risk_score": 45.0,
+    "level": "medium"
    }
   },
   {
@@ -1719,6 +1891,8 @@
     "multi_count": 5,
     "single_pct": 37.5,
     "multi_pct": 62.5,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1728,12 +1902,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 72.8,
-     "economic_loss": 52.0,
-     "single_vehicle": 51.8,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 54.3,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -1759,6 +1933,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1768,12 +1944,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 91.2,
-     "single_vehicle": 83.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 25,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 64.2,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -1799,6 +1975,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -1808,12 +1986,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 26.3,
-     "single_vehicle": 60.5,
-     "geometry": 87.7
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 20
     },
-    "risk_score": 54.1,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -1839,6 +2017,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 2,
+    "conflict_pct": 66.7,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1848,12 +2028,12 @@
     "geom_group": "merging",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 67.8,
-     "single_vehicle": 94.2,
-     "geometry": 94.7
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 68.3,
+    "risk_score": 75.0,
     "level": "high"
    }
   },
@@ -1879,6 +2059,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1888,12 +2070,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 41.2,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 36.0,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -1919,6 +2101,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -1928,12 +2112,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 52.1,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -1959,6 +2143,8 @@
     "multi_count": 2,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 4,
+    "conflict_pct": 66.7,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางโค้งกว้าง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -1968,12 +2154,12 @@
     "geom_group": "merging",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 18.1,
-     "single_vehicle": 74.0,
-     "geometry": 94.7
+     "frequency": 15,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 62.9,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -1999,6 +2185,8 @@
     "multi_count": 3,
     "single_pct": 40.0,
     "multi_pct": 60.0,
+    "conflict_count": 1,
+    "conflict_pct": 20.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2008,12 +2196,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 64.3,
-     "single_vehicle": 54.4,
-     "geometry": 85.7
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 20
     },
-    "risk_score": 65.2,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -2039,6 +2227,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 1,
+    "conflict_pct": 20.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2048,12 +2238,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 4.1
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 20
     },
-    "risk_score": 40.4,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -2079,6 +2269,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 2,
+    "conflict_pct": 66.7,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางแยกต่างระดับ/Ramps",
     "crash_pattern": "ชนท้าย",
@@ -2088,13 +2280,13 @@
     "geom_group": "diverging",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 46.8,
-     "single_vehicle": 8.2,
-     "geometry": 1.2
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 18.1,
-    "level": "low"
+    "risk_score": 45.0,
+    "level": "medium"
    }
   },
   {
@@ -2119,6 +2311,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -2128,12 +2322,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 22.9,
+    "risk_score": 25.0,
     "level": "low"
    }
   },
@@ -2159,6 +2353,8 @@
     "multi_count": 9,
     "single_pct": 18.2,
     "multi_pct": 81.8,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -2168,13 +2364,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 81.3,
-     "economic_loss": 41.2,
-     "single_vehicle": 25.1,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 47.1,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -2199,6 +2395,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่คุ้นเคยเส้นทาง/ขับรถไม่ชำนาญ",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2208,12 +2406,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 72.2,
-     "single_vehicle": 94.2,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 68.4,
+    "risk_score": 75.0,
     "level": "high"
    }
   },
@@ -2239,6 +2437,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -2248,12 +2448,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 8.2,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 30.6,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -2279,6 +2479,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -2288,12 +2490,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 52.1,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -2319,6 +2521,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "อื่นๆ",
@@ -2328,12 +2532,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 33.9,
-     "single_vehicle": 74.0,
-     "geometry": 100.0
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 56.1,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -2359,6 +2563,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "อื่นๆ",
@@ -2368,12 +2574,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 33.0,
-     "geometry": 99.1
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 20
     },
-    "risk_score": 52.0,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -2399,6 +2605,8 @@
     "multi_count": 4,
     "single_pct": 20.0,
     "multi_pct": 80.0,
+    "conflict_count": 1,
+    "conflict_pct": 20.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -2408,13 +2616,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 27.5,
-     "geometry": 85.7
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 20
     },
-    "risk_score": 44.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -2439,6 +2647,8 @@
     "multi_count": 1,
     "single_pct": 85.7,
     "multi_pct": 14.3,
+    "conflict_count": 1,
+    "conflict_pct": 14.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -2448,13 +2658,13 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 18.1,
-     "single_vehicle": 87.1,
-     "geometry": 83.6
+     "frequency": 15,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 15
     },
-    "risk_score": 64.6,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -2479,6 +2689,8 @@
     "multi_count": 4,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -2488,12 +2700,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 24.4,
+    "risk_score": 25.0,
     "level": "low"
    }
   },
@@ -2519,6 +2731,8 @@
     "multi_count": 4,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -2528,12 +2742,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 24.4,
+    "risk_score": 25.0,
     "level": "low"
    }
   },
@@ -2559,6 +2773,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -2568,12 +2784,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 37.3,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -2599,6 +2815,8 @@
     "multi_count": 6,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนด้านข้าง",
@@ -2608,12 +2826,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 72.2,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 46.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -2639,6 +2857,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ขับรถคร่อมเส้นแบ่งทิศทาง",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ไม่ระบุ",
@@ -2648,12 +2868,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 70.2,
-     "single_vehicle": 45.9,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 25
     },
-    "risk_score": 55.8,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -2679,6 +2899,8 @@
     "multi_count": 1,
     "single_pct": 80.0,
     "multi_pct": 20.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2688,12 +2910,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 86.3,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 50.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -2719,6 +2941,8 @@
     "multi_count": 2,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2728,12 +2952,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 33.9,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 53.3,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -2759,6 +2983,8 @@
     "multi_count": 5,
     "single_pct": 16.7,
     "multi_pct": 83.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนด้านข้าง",
@@ -2768,12 +2994,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 26.3,
-     "single_vehicle": 21.9,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 38.4,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -2799,6 +3025,8 @@
     "multi_count": 1,
     "single_pct": 80.0,
     "multi_pct": 20.0,
+    "conflict_count": 4,
+    "conflict_pct": 80.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางโค้งกว้าง",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -2808,12 +3036,12 @@
     "geom_group": "merging",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 86.3,
-     "geometry": 96.5
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 61.5,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -2839,6 +3067,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2848,12 +3078,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 51.6,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -2879,6 +3109,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2888,12 +3120,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 37.3,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -2919,6 +3151,8 @@
     "multi_count": 4,
     "single_pct": 20.0,
     "multi_pct": 80.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนด้านข้าง",
@@ -2928,13 +3162,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 41.2,
-     "single_vehicle": 27.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 41.4,
-    "level": "medium"
+    "risk_score": 30.0,
+    "level": "low"
    }
   },
   {
@@ -2959,6 +3193,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 2,
+    "conflict_pct": 66.7,
     "top_cause": "ทางโค้งอันตราย",
     "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -2968,12 +3204,12 @@
     "geom_group": "merging",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 74.6,
-     "single_vehicle": 94.2,
-     "geometry": 94.7
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 70.0,
+    "risk_score": 75.0,
     "level": "high"
    }
   },
@@ -2999,6 +3235,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -3008,12 +3246,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 74.0,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 47.1,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -3039,6 +3277,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3048,12 +3288,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 61.1,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 53.1,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -3079,6 +3319,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3088,12 +3330,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 7.0,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 37.5,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -3119,6 +3361,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "สูญเสียการควบคุม",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3128,12 +3372,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 39.5,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -3159,6 +3403,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3168,12 +3414,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 46.8,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 37.4,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -3199,6 +3445,8 @@
     "multi_count": 48,
     "single_pct": 39.2,
     "multi_pct": 60.8,
+    "conflict_count": 3,
+    "conflict_pct": 3.8,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3208,12 +3456,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 96.5,
-     "economic_loss": 66.1,
-     "single_vehicle": 52.6,
-     "geometry": 77.2
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 10
     },
-    "risk_score": 73.1,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -3239,6 +3487,8 @@
     "multi_count": 35,
     "single_pct": 18.6,
     "multi_pct": 81.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3248,13 +3498,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 94.7,
-     "economic_loss": 84.8,
-     "single_vehicle": 25.7,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 61.5,
-    "level": "high"
+    "risk_score": 55.0,
+    "level": "medium"
    }
   },
   {
@@ -3279,6 +3529,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3288,12 +3540,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 77.5,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 55.1,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -3319,6 +3571,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3328,12 +3582,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 39.5,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -3359,6 +3613,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3368,12 +3624,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 41.2,
-     "single_vehicle": 83.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 51.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -3399,6 +3655,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "อื่นๆ",
@@ -3408,12 +3666,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 83.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 49.9,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -3439,6 +3697,8 @@
     "multi_count": 2,
     "single_pct": 77.8,
     "multi_pct": 22.2,
+    "conflict_count": 1,
+    "conflict_pct": 11.1,
     "top_cause": "สูญเสียการควบคุม",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3448,12 +3708,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 57.0,
-     "single_vehicle": 85.4,
-     "geometry": 83.0
+     "frequency": 15,
+     "economic_loss": 15,
+     "single_vehicle": 25,
+     "geometry": 15
     },
-    "risk_score": 75.3,
+    "risk_score": 70.0,
     "level": "high"
    }
   },
@@ -3479,6 +3739,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "อื่นๆ",
@@ -3488,12 +3750,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 44.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -3519,6 +3781,8 @@
     "multi_count": 7,
     "single_pct": 22.2,
     "multi_pct": 77.8,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3528,12 +3792,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 55.3,
-     "single_vehicle": 29.8,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 15,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 50.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -3559,6 +3823,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3568,13 +3834,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 41.2,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 46.1,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -3599,6 +3865,8 @@
     "multi_count": 4,
     "single_pct": 42.9,
     "multi_pct": 57.1,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3608,12 +3876,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 41.2,
-     "single_vehicle": 55.6,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 51.8,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -3639,6 +3907,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3648,12 +3918,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 39.5,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -3679,6 +3949,8 @@
     "multi_count": 5,
     "single_pct": 37.5,
     "multi_pct": 62.5,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3688,12 +3960,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 72.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 51.8,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 49.8,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -3719,6 +3991,8 @@
     "multi_count": 5,
     "single_pct": 16.7,
     "multi_pct": 83.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3728,12 +4002,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 69.6,
-     "single_vehicle": 21.9,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 49.2,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -3759,6 +4033,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3768,12 +4044,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 93.6,
-     "single_vehicle": 83.0,
-     "geometry": 99.1
+     "frequency": 10,
+     "economic_loss": 25,
+     "single_vehicle": 25,
+     "geometry": 20
     },
-    "risk_score": 79.4,
+    "risk_score": 80.0,
     "level": "high"
    }
   },
@@ -3799,6 +4075,8 @@
     "multi_count": 4,
     "single_pct": 55.6,
     "multi_pct": 44.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3808,12 +4086,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 46.8,
-     "single_vehicle": 65.8,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 57.2,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -3839,6 +4117,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3848,12 +4128,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 62.3,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 31.9,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -3879,6 +4159,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่คุ้นเคยเส้นทาง/ขับรถไม่ชำนาญ",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3888,13 +4170,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 74.6,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 44.4,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -3919,6 +4201,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -3928,12 +4212,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 34.5,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -3959,6 +4243,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -3968,12 +4254,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 87.1,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 25,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 54.5,
+    "risk_score": 55.0,
     "level": "medium"
    }
   },
@@ -3999,6 +4285,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4008,12 +4296,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 41.2,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 36.6,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -4039,6 +4327,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ไม่ระบุ",
@@ -4048,12 +4338,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 89.5,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 25,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 38.7,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -4079,6 +4369,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4088,12 +4380,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 69.0,
-     "single_vehicle": 33.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 46.1,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -4119,6 +4411,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4128,13 +4422,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 44.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -4159,6 +4453,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -4168,12 +4464,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 39.5,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -4199,6 +4495,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางโค้ง",
@@ -4208,12 +4506,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 94.2,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 25
     },
-    "risk_score": 54.9,
+    "risk_score": 60.0,
     "level": "medium"
    }
   },
@@ -4239,6 +4537,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4248,13 +4548,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 18.1,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 40.3,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -4279,6 +4579,8 @@
     "multi_count": 7,
     "single_pct": 36.4,
     "multi_pct": 63.6,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -4288,13 +4590,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 81.3,
-     "economic_loss": 79.5,
-     "single_vehicle": 50.9,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 63.1,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -4319,6 +4621,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -4328,13 +4632,13 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 41.2,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 43.1,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -4359,6 +4663,8 @@
     "multi_count": 4,
     "single_pct": 20.0,
     "multi_pct": 80.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4368,13 +4674,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 80.1,
-     "single_vehicle": 27.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 51.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -4399,6 +4705,8 @@
     "multi_count": 22,
     "single_pct": 31.2,
     "multi_pct": 68.8,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4408,12 +4716,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 93.6,
-     "economic_loss": 97.7,
-     "single_vehicle": 40.4,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 68.1,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -4439,6 +4747,8 @@
     "multi_count": 5,
     "single_pct": 28.6,
     "multi_pct": 71.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -4448,13 +4758,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 46.8,
-     "single_vehicle": 37.1,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 48.5,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -4479,6 +4789,8 @@
     "multi_count": 135,
     "single_pct": 12.9,
     "multi_pct": 87.1,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4488,12 +4800,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 97.7,
-     "economic_loss": 59.9,
-     "single_vehicle": 18.7,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 54.2,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -4519,6 +4831,8 @@
     "multi_count": 4,
     "single_pct": 60.0,
     "multi_pct": 40.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -4528,12 +4842,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 78.9,
-     "economic_loss": 96.5,
-     "single_vehicle": 66.7,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 25,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 70.7,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -4559,6 +4873,8 @@
     "multi_count": 9,
     "single_pct": 10.0,
     "multi_pct": 90.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4568,12 +4884,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 78.9,
-     "economic_loss": 91.8,
-     "single_vehicle": 16.4,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 25,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 56.9,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -4599,6 +4915,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -4608,12 +4926,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 89.5,
-     "single_vehicle": 83.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 25,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 63.7,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -4639,6 +4957,8 @@
     "multi_count": 3,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -4648,13 +4968,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 90.6,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 25,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 64.1,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -4679,6 +4999,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4688,12 +5010,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 81.3,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 36.6,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -4719,6 +5041,8 @@
     "multi_count": 10,
     "single_pct": 23.1,
     "multi_pct": 76.9,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4728,13 +5052,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 84.2,
-     "economic_loss": 95.3,
-     "single_vehicle": 30.4,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 62.6,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -4759,6 +5083,8 @@
     "multi_count": 4,
     "single_pct": 20.0,
     "multi_pct": 80.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4768,12 +5094,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 27.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 37.7,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -4799,6 +5125,8 @@
     "multi_count": 29,
     "single_pct": 17.1,
     "multi_pct": 82.9,
+    "conflict_count": 11,
+    "conflict_pct": 31.4,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -4808,13 +5136,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 94.2,
-     "economic_loss": 59.9,
-     "single_vehicle": 23.4,
-     "geometry": 4.7
+     "frequency": 25,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 25
     },
-    "risk_score": 45.5,
-    "level": "medium"
+    "risk_score": 70.0,
+    "level": "high"
    }
   },
   {
@@ -4839,6 +5167,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -4848,13 +5178,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 74.6,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 44.4,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -4879,6 +5209,8 @@
     "multi_count": 7,
     "single_pct": 30.0,
     "multi_pct": 70.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4888,12 +5220,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 78.9,
-     "economic_loss": 61.1,
-     "single_vehicle": 38.9,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 54.9,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -4919,6 +5251,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 1,
+    "conflict_pct": 20.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -4928,12 +5262,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 50.0,
-     "single_vehicle": 8.2,
-     "geometry": 85.7
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 20
     },
-    "risk_score": 50.1,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -4959,6 +5293,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -4968,12 +5304,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 68.4,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 52.9,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -4999,6 +5335,8 @@
     "multi_count": 12,
     "single_pct": 20.0,
     "multi_pct": 80.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5008,12 +5346,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 86.5,
-     "economic_loss": 66.7,
-     "single_vehicle": 27.5,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 55.3,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -5039,6 +5377,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5048,12 +5388,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 46.8,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 38.0,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -5079,6 +5419,8 @@
     "multi_count": 5,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -5088,13 +5430,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 78.9,
-     "economic_loss": 89.5,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 25,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 67.4,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -5119,6 +5461,8 @@
     "multi_count": 9,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5128,13 +5472,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 52.0,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 44.2,
-    "level": "medium"
+    "risk_score": 35.0,
+    "level": "low"
    }
   },
   {
@@ -5159,6 +5503,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5168,12 +5514,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 87.7,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 25,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 38.2,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -5199,6 +5545,8 @@
     "multi_count": 7,
     "single_pct": 30.0,
     "multi_pct": 70.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5208,13 +5556,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 78.9,
-     "economic_loss": 41.2,
-     "single_vehicle": 38.9,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 49.9,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -5239,6 +5587,8 @@
     "multi_count": 3,
     "single_pct": 40.0,
     "multi_pct": 60.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5248,12 +5598,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 54.4,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 39.6,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -5279,6 +5629,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5288,13 +5640,13 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 33.9,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 41.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -5319,6 +5671,8 @@
     "multi_count": 10,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5328,12 +5682,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 86.5,
-     "economic_loss": 57.9,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 15,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 57.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -5359,6 +5713,8 @@
     "multi_count": 11,
     "single_pct": 15.4,
     "multi_pct": 84.6,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5368,12 +5724,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 84.2,
-     "economic_loss": 65.2,
-     "single_vehicle": 20.5,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 52.6,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -5399,6 +5755,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5408,12 +5766,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 53.2,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 39.6,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -5439,6 +5797,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5448,12 +5808,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 34.5,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -5479,6 +5839,8 @@
     "multi_count": 8,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 1,
+    "conflict_pct": 8.3,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5488,13 +5850,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 82.7,
-     "economic_loss": 50.0,
-     "single_vehicle": 45.9,
-     "geometry": 81.3
+     "frequency": 20,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 15
     },
-    "risk_score": 65.0,
-    "level": "high"
+    "risk_score": 55.0,
+    "level": "medium"
    }
   },
   {
@@ -5519,6 +5881,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -5528,13 +5892,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 44.2,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -5559,6 +5923,8 @@
     "multi_count": 5,
     "single_pct": 28.6,
     "multi_pct": 71.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5568,12 +5934,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 69.6,
-     "economic_loss": 77.5,
-     "single_vehicle": 37.1,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 56.2,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -5599,6 +5965,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5608,13 +5976,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 46.8,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 47.4,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -5639,6 +6007,8 @@
     "multi_count": 4,
     "single_pct": 55.6,
     "multi_pct": 44.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -5648,13 +6018,13 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 75.7,
-     "economic_loss": 74.6,
-     "single_vehicle": 65.8,
-     "geometry": 40.6
+     "frequency": 15,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 64.2,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -5679,6 +6049,8 @@
     "multi_count": 5,
     "single_pct": 16.7,
     "multi_pct": 83.3,
+    "conflict_count": 1,
+    "conflict_pct": 16.7,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5688,13 +6060,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 64.6,
-     "economic_loss": 33.9,
-     "single_vehicle": 21.9,
-     "geometry": 5.3
+     "frequency": 15,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 20
     },
-    "risk_score": 31.4,
-    "level": "low"
+    "risk_score": 50.0,
+    "level": "medium"
    }
   },
   {
@@ -5719,6 +6091,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5728,12 +6102,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 22.9,
+    "risk_score": 25.0,
     "level": "low"
    }
   },
@@ -5759,6 +6133,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -5768,12 +6144,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 37.3,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -5799,6 +6175,8 @@
     "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5808,12 +6186,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 77.5,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 35.7,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -5839,6 +6217,8 @@
     "multi_count": 13,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 1,
+    "conflict_pct": 7.7,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5848,13 +6228,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 84.2,
-     "economic_loss": 86.5,
-     "single_vehicle": 8.2,
-     "geometry": 80.4
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 5,
+     "geometry": 15
     },
-    "risk_score": 64.8,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -5879,6 +6259,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5888,12 +6270,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 33.9,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 34.2,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -5919,6 +6301,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -5928,12 +6312,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 72.2,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 53.8,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -5959,6 +6343,8 @@
     "multi_count": 5,
     "single_pct": 0.0,
     "multi_pct": 100.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
@@ -5968,12 +6354,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 53.8,
-     "single_vehicle": 8.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 39.8,
+    "risk_score": 35.0,
     "level": "low"
    }
   },
@@ -5999,6 +6385,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนด้านข้าง",
@@ -6008,12 +6396,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 18.1,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 30.3,
+    "risk_score": 25.0,
     "level": "low"
    }
   },
@@ -6039,6 +6427,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6048,12 +6438,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 88.3,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 25,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 66.2,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -6079,6 +6469,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6088,12 +6480,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 39.3,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -6119,6 +6511,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "คน/รถ/สัตว์ตัดหน้ากระชั้นชิด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6128,13 +6522,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 83.6,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 46.6,
-    "level": "medium"
+    "risk_score": 40.0,
+    "level": "low"
    }
   },
   {
@@ -6159,6 +6553,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6168,12 +6564,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 95.9,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 49.7,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -6199,6 +6595,8 @@
     "multi_count": 2,
     "single_pct": 50.0,
     "multi_pct": 50.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6208,12 +6606,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 78.9,
-     "single_vehicle": 60.5,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 55.5,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -6239,6 +6637,8 @@
     "multi_count": 15,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 1,
+    "conflict_pct": 5.0,
     "top_cause": "คน/รถ/สัตว์ตัดหน้ากระชั้นชิด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6248,13 +6648,13 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 89.5,
-     "economic_loss": 70.8,
-     "single_vehicle": 33.0,
-     "geometry": 79.2
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 10,
+     "geometry": 10
     },
-    "risk_score": 68.1,
-    "level": "high"
+    "risk_score": 60.0,
+    "level": "medium"
    }
   },
   {
@@ -6279,6 +6679,8 @@
     "multi_count": 16,
     "single_pct": 30.4,
     "multi_pct": 69.6,
+    "conflict_count": 2,
+    "conflict_pct": 8.7,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6288,12 +6690,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 90.1,
-     "economic_loss": 92.4,
-     "single_vehicle": 39.8,
-     "geometry": 82.2
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 15
     },
-    "risk_score": 76.1,
+    "risk_score": 75.0,
     "level": "high"
    }
   },
@@ -6319,6 +6721,8 @@
     "multi_count": 32,
     "single_pct": 28.9,
     "multi_pct": 71.1,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6328,12 +6732,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 95.3,
-     "economic_loss": 94.7,
-     "single_vehicle": 38.0,
-     "geometry": 40.6
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 67.2,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -6359,6 +6763,8 @@
     "multi_count": 14,
     "single_pct": 17.6,
     "multi_pct": 82.4,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6368,12 +6774,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 87.7,
-     "economic_loss": 55.3,
-     "single_vehicle": 24.0,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 15,
+     "single_vehicle": 5,
+     "geometry": 5
     },
-    "risk_score": 51.9,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -6399,6 +6805,8 @@
     "multi_count": 1,
     "single_pct": 75.0,
     "multi_pct": 25.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6408,12 +6816,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 26.3,
-     "single_vehicle": 83.0,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 48.0,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -6439,6 +6847,8 @@
     "multi_count": 2,
     "single_pct": 33.3,
     "multi_pct": 66.7,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6448,12 +6858,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 45.9,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 5
     },
-    "risk_score": 32.3,
+    "risk_score": 30.0,
     "level": "low"
    }
   },
@@ -6479,6 +6889,8 @@
     "multi_count": 5,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6488,12 +6900,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 86.5,
-     "economic_loss": 85.4,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 20,
+     "economic_loss": 20,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 71.6,
+    "risk_score": 65.0,
     "level": "high"
    }
   },
@@ -6519,6 +6931,8 @@
     "multi_count": 15,
     "single_pct": 44.4,
     "multi_pct": 55.6,
+    "conflict_count": 2,
+    "conflict_pct": 7.4,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6528,12 +6942,12 @@
     "geom_group": "ncp",
     "pattern": "mixed",
     "score_breakdown": {
-     "frequency": 91.2,
-     "economic_loss": 93.0,
-     "single_vehicle": 56.1,
-     "geometry": 80.4
+     "frequency": 25,
+     "economic_loss": 25,
+     "single_vehicle": 15,
+     "geometry": 15
     },
-    "risk_score": 80.2,
+    "risk_score": 80.0,
     "level": "high"
    }
   },
@@ -6559,6 +6973,8 @@
     "multi_count": 3,
     "single_pct": 40.0,
     "multi_pct": 60.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6568,12 +6984,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 56.4,
-     "economic_loss": 63.2,
-     "single_vehicle": 54.4,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 20,
+     "single_vehicle": 15,
+     "geometry": 5
     },
-    "risk_score": 53.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -6599,6 +7015,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6608,12 +7026,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 33.9,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 52.6,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -6639,6 +7057,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6648,12 +7068,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 18.1,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 10,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 48.7,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -6679,6 +7099,8 @@
     "multi_count": 3,
     "single_pct": 25.0,
     "multi_pct": 75.0,
+    "conflict_count": 1,
+    "conflict_pct": 25.0,
     "top_cause": "บรรทุกเกินอัตรา",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -6688,12 +7110,12 @@
     "geom_group": "ncp",
     "pattern": "multiple",
     "score_breakdown": {
-     "frequency": 41.8,
-     "economic_loss": 52.0,
-     "single_vehicle": 33.0,
-     "geometry": 87.7
+     "frequency": 10,
+     "economic_loss": 10,
+     "single_vehicle": 10,
+     "geometry": 20
     },
-    "risk_score": 53.7,
+    "risk_score": 50.0,
     "level": "medium"
    }
   },
@@ -6719,6 +7141,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6728,12 +7152,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 39.3,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -6759,6 +7183,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6768,12 +7194,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 44.4,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -6799,6 +7225,8 @@
     "multi_count": 0,
     "single_pct": 100.0,
     "multi_pct": 0.0,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6808,12 +7236,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 7.0,
-     "single_vehicle": 94.2,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 5,
+     "single_vehicle": 25,
+     "geometry": 5
     },
-    "risk_score": 39.5,
+    "risk_score": 40.0,
     "level": "low"
    }
   },
@@ -6839,6 +7267,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 0,
+    "conflict_pct": 0.0,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6848,12 +7278,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 55.3,
-     "single_vehicle": 74.0,
-     "geometry": 40.6
+     "frequency": 5,
+     "economic_loss": 15,
+     "single_vehicle": 20,
+     "geometry": 5
     },
-    "risk_score": 46.6,
+    "risk_score": 45.0,
     "level": "medium"
    }
   },
@@ -6879,6 +7309,8 @@
     "multi_count": 1,
     "single_pct": 66.7,
     "multi_pct": 33.3,
+    "conflict_count": 1,
+    "conflict_pct": 33.3,
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -6888,12 +7320,12 @@
     "geom_group": "ncp",
     "pattern": "single",
     "score_breakdown": {
-     "frequency": 16.4,
-     "economic_loss": 26.3,
-     "single_vehicle": 74.0,
-     "geometry": 90.9
+     "frequency": 5,
+     "economic_loss": 10,
+     "single_vehicle": 20,
+     "geometry": 25
     },
-    "risk_score": 51.9,
+    "risk_score": 60.0,
     "level": "medium"
    }
   }

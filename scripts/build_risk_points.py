@@ -2,19 +2,20 @@
 build_risk_points.py — สร้างไฟล์จุดเสี่ยง data/risk_points_bkk_metro.geojson (โมเดล v2)
 
 Batch calibration job: รันตามรอบ Fixed-Schedule ที่กำหนดเท่านั้น (แนะนำทุก 6 เดือน)
-ห้ามรันใหม่ทุกครั้งที่มี request — ค่าอ้างอิง (Percentile Rank, Jenks breaks) ต้องถูก
-"ล็อก" เป็นเวอร์ชัน calibration เพื่อให้คะแนนเปรียบเทียบข้ามช่วงเวลาได้ ไม่ลอยขึ้นลง
+ห้ามรันใหม่ทุกครั้งที่มี request — ผลคะแนนต้องถูก "ล็อก" เป็นเวอร์ชัน calibration
+เพื่อให้เปรียบเทียบข้ามช่วงเวลาได้ ไม่ลอยขึ้นลง
 (หลักการ: Srinivasan & Carter 2011, NCDOT — Fixed-Schedule Recalibration หน้า 49-51)
 
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
-  2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันเป็น "จุดเสี่ยง" ด้วย DBSCAN (eps 150 ม., min 3)
-  3. คำนวณ 4 เกณฑ์ต่อจุด (น้ำหนักเท่ากัน 25%):
-       - ความถี่อุบัติเหตุ            -> Percentile Rank
-       - มูลค่าความเสียหายเศรษฐกิจ    -> Percentile Rank (ต้นทุน/ราย: TDRI 2565)
-       - Single-Vehicle Crash Ratio  -> Percentile Rank
-       - Geometric Complexity        -> Percentile Rank (น้ำหนักจาก FI Rate ของข้อมูลเอง)
-  4. Risk Score = 0.25×(รวม 4 เกณฑ์) แล้วแบ่ง 3 ระดับด้วยจุดตัดคงที่ (ต่ำ ≤40 / กลาง ≤60 / สูง >60)
+  2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันเป็น "จุดเสี่ยง" ด้วย DBSCAN (eps 400 ม., min 3)
+  3. ให้คะแนน 4 เกณฑ์ต่อจุดด้วย "ตารางเกณฑ์" (banded rubric) เกณฑ์ละ 5/10/15/20/25 คะแนน
+     — เทียบค่าดิบกับตารางแล้วอ่านคะแนนออกมาตรงๆ ไม่ต้องคำนวณเทียบจุดอื่น:
+       - ความถี่อุบัติเหตุ           (จำนวนครั้ง)
+       - มูลค่าความเสียหายเศรษฐกิจ   (บาท — ต้นทุน/ราย: TDRI 2565)
+       - Single-Vehicle Crash Ratio (% เหตุที่มีรถ ≤1 คัน)
+       - จุดตัดกระแสจราจร            (% เหตุที่เกิดบริเวณทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ)
+  4. Risk Score = ผลรวม 4 เกณฑ์ (เต็ม 100) แบ่ง 3 ระดับ: ต่ำ ≤40 / กลาง ≤60 / สูง >60
   5. บันทึก GeoJSON + snapshot calibration (data/calibrations/<version>.json)
 
 ใช้: py scripts/build_risk_points.py            # สร้างไฟล์
@@ -33,7 +34,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r3"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r4"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับต่ำ/กลาง/สูง — เลขกลมคงที่ (ตั้งแต่ v2568-r3)
@@ -42,6 +43,32 @@ RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำ�
 # จึงเปลี่ยนมาใช้เลขกลมคงที่แทน — ข้อแลกเปลี่ยน: อธิบายง่าย ("ต่ำกว่า 40 คือต่ำ") แต่ไม่มี
 # หลักฐานทางสถิติรองรับตัวเลข 40/60 เจาะจง (ต่างจาก Jenks ที่หาจุดตัดจากความแปรปรวนจริง)
 LEVEL_BREAKS = [40.0, 60.0]
+
+# ---- ตารางเกณฑ์ให้คะแนน (banded rubric) — ตั้งแต่ v2568-r4
+# รูปแบบ: (ค่าดิบสูงสุดของช่วง, คะแนน) เรียงจากน้อยไปมาก; ค่าที่เกินช่วงสุดท้าย = 25 คะแนน
+#
+# เดิม (r1-r3) normalize ด้วย Percentile Rank ซึ่งทนต่อ outlier ได้ดีมาก แต่ต้องอธิบายว่า
+# "คะแนนคืออันดับเทียบกับจุดอื่น" ซึ่งผู้ใช้เห็นว่าเข้าใจยากเกินไปสำหรับการนำเสนอ
+# ตารางเกณฑ์อ่านค่าดิบได้ตรงๆ ("156 ครั้ง เกิน 20 -> 25 คะแนน") และยังทนต่อ outlier
+# เพราะช่วงบนสุดเป็นปลายเปิด (จุดที่มี 994 ครั้ง กับ 25 ครั้ง ได้ 25 คะแนนเท่ากัน)
+#
+# ข้อแลกเปลี่ยนที่ต้องระบุในรายงาน: คะแนนหยาบกว่าเดิมมาก (รวมกันได้เพียง 13 ค่า)
+# จุดจำนวนมากจึงได้คะแนนเท่ากันเป๊ะ เรียงลำดับละเอียดไม่ได้เท่า Percentile Rank
+# และขีดแบ่งช่วงทั้ง 16 ตัวเป็นดุลพินิจผู้ออกแบบ (expert judgment) อิงการกระจายจริง
+# ของข้อมูลรอบนี้ ไม่ใช่ค่าที่มีทฤษฎีกำหนดตายตัว
+SCORE_BANDS = {
+    # จำนวนอุบัติเหตุ (ครั้ง) — ขั้นต่ำของจุดเสี่ยงคือ 3 ครั้งตามนิยาม Black Spot
+    "frequency": [(3, 5), (5, 10), (10, 15), (20, 20)],
+    # มูลค่าความเสียหาย (บาท) — 5 แสน ≈ ระดับบาดเจ็บเล็กน้อยหลายราย,
+    # 2 ล้าน = สาหัส 1 ราย, 10 ล้าน > เสียชีวิต 1 ราย (TDRI 6.7 ล้าน)
+    "economic_loss": [(100_000, 5), (500_000, 10), (2_000_000, 15), (10_000_000, 20)],
+    # สัดส่วนอุบัติเหตุรถคันเดียว (%) — สูง = ปัญหาไหล่ทาง/ทางโค้ง (FHWA Roadway Departure)
+    "single_vehicle": [(20, 5), (35, 10), (50, 15), (70, 20)],
+    # สัดส่วนเหตุที่เกิดบริเวณจุดตัดกระแสจราจร (%) — ทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ
+    # 0% = ทางตรงล้วน (TxDOT Conflict Points: ยิ่งมีจุดตัดกระแสมาก ยิ่งเสี่ยงชน)
+    "geometry": [(0, 5), (5, 10), (15, 15), (30, 20)],
+}
+BAND_TOP_SCORE = 25                 # คะแนนของช่วงบนสุด (ปลายเปิด) และคะแนนเต็มต่อเกณฑ์
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
@@ -65,8 +92,7 @@ COST_DEATH = 6_700_000
 COST_SERIOUS = 2_000_000
 COST_MINOR = 58_000
 
-# น้ำหนักรวมคะแนน: เท่ากัน 4 × 25% (OECD/JRC 2008 — equal weighting)
-W_FREQ = W_ECON = W_SINGLE = W_GEOM = 0.25
+# น้ำหนักรวมคะแนน: เท่ากัน 4 เกณฑ์ × 25 คะแนนเต็ม = 100 (OECD/JRC 2008 — equal weighting)
 
 # เพดานความเร็วโดยประเภทสายทาง (ใช้แสดงผล/คำแนะนำเท่านั้น ไม่อยู่ในสูตรคะแนน v2)
 SPEED_LIMIT_RULES = [("พิเศษ", 100), ("ชนบท", 80), ("ทางหลวง", 90)]
@@ -183,11 +209,25 @@ def compute_fi_weights(events):
     return weights, table
 
 
-# ---------------------------------------------------------------- Normalize + จัดระดับ
+# ---------------------------------------------------------------- ให้คะแนน + จัดระดับ
+
+
+def band_score(value, bands):
+    """
+    คะแนนจากตารางเกณฑ์: คืนคะแนนของช่วงแรกที่ value ไม่เกินขีดบน
+    ค่าที่เกินทุกช่วง = BAND_TOP_SCORE (ช่วงบนสุดเป็นปลายเปิด จึงทนต่อ outlier)
+    """
+    for upper, points in bands:
+        if value <= upper:
+            return points
+    return BAND_TOP_SCORE
 
 
 def percentile_rank(series):
-    """Percentile Rank 0-100, จัดการ tie ด้วย average rank (OECD/JRC 2008 — Ranking)"""
+    """
+    Percentile Rank 0-100, จัดการ tie ด้วย average rank (OECD/JRC 2008 — Ranking)
+    เก็บไว้อ้างอิง/เปรียบเทียบวิธี — ไม่ได้ใช้ใน pipeline แล้วตั้งแต่ v2568-r4
+    """
     return series.rank(pct=True, method="average") * 100
 
 
@@ -282,6 +322,11 @@ def cluster_zones(events, eps_meters, min_samples):
         minor = sum(m["minor"] for m in members)
         single_cnt = sum(1 for m in members if m["vehicles"] <= 1)
         road_type = mode_of([m["road_type"] for m in members], exclude=("ไม่ระบุ",))
+        # เหตุที่เกิดบริเวณ "จุดตัดกระแสจราจร" = ทุกกลุ่มที่ไม่ใช่ทางตรง
+        # (ทางแยก/ทางโค้ง/ทางร่วม/ทางเชื่อม/ต่างระดับ) — ค่าดิบของเกณฑ์ที่ 4
+        conflict_cnt = sum(
+            1 for m in members if conflict_group(m["location_type"])[0] != "ncp"
+        )
 
         zones.append({
             "id": f"zone_{cluster_id}",
@@ -298,6 +343,8 @@ def cluster_zones(events, eps_meters, min_samples):
             "multi_count": n - single_cnt,
             "single_pct": round(single_cnt / n * 100, 1),
             "multi_pct": round((n - single_cnt) / n * 100, 1),
+            "conflict_count": conflict_cnt,
+            "conflict_pct": round(conflict_cnt / n * 100, 1),
             "top_cause": mode_of([m["cause"] for m in members], exclude=("ไม่ระบุ",)),
             "road_feature": mode_of([m["location_type"] for m in members], exclude=("ไม่ระบุ",)),
             "crash_pattern": mode_of([m["crash_pattern"] for m in members], exclude=("ไม่ระบุ",)),
@@ -309,8 +356,10 @@ def cluster_zones(events, eps_meters, min_samples):
 
 
 def score_zones(zones, fi_weights):
-    """คำนวณ 4 เกณฑ์ -> Percentile Rank -> Risk Score -> Jenks 3 ระดับ"""
+    """ให้คะแนน 4 เกณฑ์จากตารางเกณฑ์ -> Risk Score (เต็ม 100) -> จัด 3 ระดับ"""
     for z in zones:
+        # gc_score/geom_group เก็บไว้เป็นข้อมูลประกอบ (FI Rate ของข้อมูลไทยเอง)
+        # ไม่ได้ใช้ในสูตรคะแนนแล้วตั้งแต่ v2568-r4 — เกณฑ์ที่ 4 ใช้ conflict_pct แทน
         weights = [fi_weights[conflict_group(m["location_type"])[0]] for m in z["_members"]]
         z["gc_score"] = round(sum(weights) / len(weights), 4)
         z["geom_group"] = mode_of(
@@ -325,28 +374,18 @@ def score_zones(zones, fi_weights):
             z["pattern"] = "mixed"
         del z["_members"]
 
-    df = pd.DataFrame(zones)
-    df["s_freq"] = percentile_rank(df["accident_count"])
-    df["s_econ"] = percentile_rank(df["economic_loss"])
-    df["s_single"] = percentile_rank(df["single_pct"])
-    df["s_geom"] = percentile_rank(df["gc_score"])
-    df["risk_score"] = (
-        W_FREQ * df["s_freq"] + W_ECON * df["s_econ"]
-        + W_SINGLE * df["s_single"] + W_GEOM * df["s_geom"]
-    ).round(1)
-
-    breaks = LEVEL_BREAKS
-
-    for z, (_, row) in zip(zones, df.iterrows()):
-        z["score_breakdown"] = {
-            "frequency": round(row["s_freq"], 1),
-            "economic_loss": round(row["s_econ"], 1),
-            "single_vehicle": round(row["s_single"], 1),
-            "geometry": round(row["s_geom"], 1),
+        # ค่าดิบของแต่ละเกณฑ์ -> คะแนนจากตารางเกณฑ์ (เกณฑ์ละเต็ม 25)
+        breakdown = {
+            "frequency": band_score(z["accident_count"], SCORE_BANDS["frequency"]),
+            "economic_loss": band_score(z["economic_loss"], SCORE_BANDS["economic_loss"]),
+            "single_vehicle": band_score(z["single_pct"], SCORE_BANDS["single_vehicle"]),
+            "geometry": band_score(z["conflict_pct"], SCORE_BANDS["geometry"]),
         }
-        z["risk_score"] = float(row["risk_score"])
-        z["level"] = classify(z["risk_score"], breaks)
-    return zones, breaks
+        z["score_breakdown"] = breakdown
+        z["risk_score"] = float(sum(breakdown.values()))
+        z["level"] = classify(z["risk_score"], LEVEL_BREAKS)
+
+    return zones, LEVEL_BREAKS
 
 
 # ---------------------------------------------------------------- ผลลัพธ์
@@ -373,7 +412,7 @@ def main():
     all_events = [_event_from_record(r) for r in records
                   if r.get("จังหวัด") in BANGKOK_METRO_PROVINCES]
     fi_weights, fi_table = compute_fi_weights(all_events)
-    print("น้ำหนัก Geometric Complexity จาก FI Rate ของข้อมูลเอง:")
+    print("FI Rate ของข้อมูลเอง (ข้อมูลประกอบ ไม่อยู่ในสูตรคะแนน v2568-r4):")
     for g, t in fi_table.items():
         print(f"  {GROUP_LABELS[g]:<40} n={t['n']:<5} FI {t['fi_rate_pct']}%  weight {t['weight']}")
 
@@ -404,8 +443,10 @@ def main():
         "events_total": len(records),
         "events_with_coords": len(events),
         "dbscan": {"eps_m": EPS_METERS, "min_samples": MIN_SAMPLES},
-        "criteria_weights": {"frequency": W_FREQ, "economic_loss": W_ECON,
-                             "single_vehicle": W_SINGLE, "geometry": W_GEOM},
+        "scoring_method": "banded_rubric",
+        "score_bands": SCORE_BANDS,
+        "band_top_score": BAND_TOP_SCORE,
+        "criteria_max_score": {k: BAND_TOP_SCORE for k in SCORE_BANDS},
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
                                 "minor": COST_MINOR},
         "fi_weights": fi_table,
@@ -413,6 +454,10 @@ def main():
         "level_break_method": "fixed",
         "zones": len(zones),
         "levels": counts,
+        "score_distribution": {
+            str(s): sum(1 for z in zones if z["risk_score"] == s)
+            for s in sorted({z["risk_score"] for z in zones})
+        },
     }
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -472,6 +517,30 @@ def _self_test():
     # 7) mode_of เว้นค่า 'ไม่ระบุ' เมื่อมีค่าจริงให้เลือก
     assert mode_of(["ไม่ระบุ", "ไม่ระบุ", "ถนน ก"], exclude=("ไม่ระบุ",)) == "ถนน ก"
     assert mode_of(["ไม่ระบุ"], exclude=("ไม่ระบุ",)) == "ไม่ระบุ"
+
+    # 8) ตารางเกณฑ์ — ค่าที่ขีดพอดีต้องอยู่ช่วงล่าง (ใช้ <=), เกินทุกช่วง = 25
+    fb = SCORE_BANDS["frequency"]           # [(3,5),(5,10),(10,15),(20,20)] -> เกิน 20 = 25
+    assert band_score(3, fb) == 5 and band_score(4, fb) == 10
+    assert band_score(5, fb) == 10 and band_score(6, fb) == 15
+    assert band_score(10, fb) == 15 and band_score(11, fb) == 20
+    assert band_score(20, fb) == 20 and band_score(21, fb) == 25
+    # ปลายเปิด: outlier สุดขั้วได้คะแนนเท่ากับจุดที่แค่เกินขีด (ทนต่อ outlier)
+    assert band_score(994, fb) == band_score(21, fb) == 25
+
+    gb = SCORE_BANDS["geometry"]            # [(0,5),(5,10),(15,15),(30,20)]
+    assert band_score(0, gb) == 5           # ทางตรงล้วน
+    assert band_score(0.1, gb) == 10 and band_score(100, gb) == 25
+
+    # 9) คะแนนรวมต้องอยู่ในช่วง 20-100 เสมอ (4 เกณฑ์ × 5..25)
+    lo = sum(band_score(-1, SCORE_BANDS[k]) for k in SCORE_BANDS)
+    hi = sum(band_score(10**12, SCORE_BANDS[k]) for k in SCORE_BANDS)
+    assert (lo, hi) == (20, 100), (lo, hi)
+
+    # 10) ทุกเกณฑ์ต้องมี 4 ขีด (= 5 ช่วง) และคะแนนเรียงขึ้น 5/10/15/20
+    for name, bands in SCORE_BANDS.items():
+        assert [p for _, p in bands] == [5, 10, 15, 20], (name, bands)
+        uppers = [u for u, _ in bands]
+        assert uppers == sorted(uppers), (name, uppers)
 
     print("self-test ผ่านทั้งหมด")
 
