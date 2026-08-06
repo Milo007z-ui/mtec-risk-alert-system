@@ -147,26 +147,28 @@ const RiskPoints = (() => {
     const single = p.single_count ?? 0;
     const multi = p.multi_count ?? 0;
 
-    // แถบคะแนนย่อย 4 เกณฑ์ — score_breakdown เก็บ "คะแนนจากตารางเกณฑ์" ตรงๆ
-    // (5/10/15/20/25 ต่อเกณฑ์) ตั้งแต่ calibration v2568-r4 ไม่ต้องแปลงหน่วยอีก
-    // บวก 4 ช่องได้ Risk Score เต็ม 100 พอดี · ความยาวแถบ = คะแนน/25
+    // แถบคะแนนย่อย 4 เกณฑ์ — score_breakdown เก็บ Percentile Rank 0-100
+    // เก็บเป็น Percentile Rank 0-100 แล้วคูณ 0.25 ตอนแสดงเป็นแต้ม/25 ให้อ่านง่าย
+    // บวก 4 ช่องได้ Risk Score เต็ม 100 พอดี · ความยาวแถบ = percentile
     // เกณฑ์รถคันเดียวมีแถบเทียบสัดส่วนต่อท้าย เพราะคะแนนเกณฑ์อย่างเดียว
     // ไม่บอกว่าจุดนี้เป็นปัญหารถเสียหลักเดี่ยวหรือปัญหารถชนกัน
     const b = p.score_breakdown || {};
-    const MAX = 25;
     const bars = [
       ["ความถี่", b.frequency, ""],
       ["ความเสียหาย ฿", b.economic_loss, ""],
       ["รถคันเดียว", b.single_vehicle, buildSplitHtml(p, single, multi)],
       ["จุดตัดกระแส", b.geometry, ""],
     ]
-      .map(([name, pts, extra]) => `
+      .map(([name, pct, extra]) => {
+        const pts = pct == null ? null : Math.round(pct * 0.25);
+        return `
         <div class="pp-factor">
           <span class="pp-factor-name">${name}</span>
           <span class="pp-factor-track"><span class="pp-factor-fill"
-            style="width:${((pts || 0) / MAX) * 100}%;background:${style.color}"></span></span>
-          <span class="pp-factor-val">${pts == null ? "-" : `${pts}<small>/${MAX}</small>`}</span>
-        </div>${extra}`)
+            style="width:${pct || 0}%;background:${style.color}"></span></span>
+          <span class="pp-factor-val">${pts == null ? "-" : `${pts}<small>/25</small>`}</span>
+        </div>${extra}`;
+      })
       .join("");
 
     const engAdvice = ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed;

@@ -9,13 +9,12 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
   2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันเป็น "จุดเสี่ยง" ด้วย DBSCAN (eps 400 ม., min 3)
-  3. ให้คะแนน 4 เกณฑ์ต่อจุดด้วย "ตารางเกณฑ์" (banded rubric) เกณฑ์ละ 5/10/15/20/25 คะแนน
-     — เทียบค่าดิบกับตารางแล้วอ่านคะแนนออกมาตรงๆ ไม่ต้องคำนวณเทียบจุดอื่น:
+  3. คำนวณ 4 เกณฑ์ต่อจุด แล้วแปลงเป็น Percentile Rank 0-100 (อันดับเทียบจุดอื่นในรอบ):
        - ความถี่อุบัติเหตุ           (จำนวนครั้ง)
        - มูลค่าความเสียหายเศรษฐกิจ   (บาท — ต้นทุน/ราย: TDRI 2565)
        - Single-Vehicle Crash Ratio (% เหตุที่มีรถ ≤1 คัน)
        - จุดตัดกระแสจราจร            (% เหตุที่เกิดบริเวณทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ)
-  4. Risk Score = ผลรวม 4 เกณฑ์ (เต็ม 100) แบ่ง 3 ระดับ: ต่ำ ≤40 / กลาง ≤60 / สูง >60
+  4. Risk Score = 0.25×(รวม 4 เกณฑ์) เต็ม 100 แบ่ง 3 ระดับ: ต่ำ ≤40 / กลาง ≤60 / สูง >60
   5. บันทึก GeoJSON + snapshot calibration (data/calibrations/<version>.json)
 
 ใช้: py scripts/build_risk_points.py            # สร้างไฟล์
@@ -34,7 +33,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r4"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r5"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับต่ำ/กลาง/สูง — เลขกลมคงที่ (ตั้งแต่ v2568-r3)
@@ -92,7 +91,8 @@ COST_DEATH = 6_700_000
 COST_SERIOUS = 2_000_000
 COST_MINOR = 58_000
 
-# น้ำหนักรวมคะแนน: เท่ากัน 4 เกณฑ์ × 25 คะแนนเต็ม = 100 (OECD/JRC 2008 — equal weighting)
+# น้ำหนักรวมคะแนน: เท่ากัน 4 × 25% (OECD/JRC 2008 — equal weighting)
+W_FREQ = W_ECON = W_SINGLE = W_GEOM = 0.25
 
 # เพดานความเร็วโดยประเภทสายทาง (ใช้แสดงผล/คำแนะนำเท่านั้น ไม่อยู่ในสูตรคะแนน v2)
 SPEED_LIMIT_RULES = [("พิเศษ", 100), ("ชนบท", 80), ("ทางหลวง", 90)]
@@ -374,15 +374,28 @@ def score_zones(zones, fi_weights):
             z["pattern"] = "mixed"
         del z["_members"]
 
-        # ค่าดิบของแต่ละเกณฑ์ -> คะแนนจากตารางเกณฑ์ (เกณฑ์ละเต็ม 25)
-        breakdown = {
-            "frequency": band_score(z["accident_count"], SCORE_BANDS["frequency"]),
-            "economic_loss": band_score(z["economic_loss"], SCORE_BANDS["economic_loss"]),
-            "single_vehicle": band_score(z["single_pct"], SCORE_BANDS["single_vehicle"]),
-            "geometry": band_score(z["conflict_pct"], SCORE_BANDS["geometry"]),
+    # Percentile Rank: แปลงค่าดิบทุกเกณฑ์เป็นอันดับเทียบกับจุดอื่นในรอบเดียวกัน (0-100)
+    # ทนต่อ outlier เพราะสนใจเฉพาะ "อันดับ" ไม่สนใจว่าค่าสูงสุดทิ้งห่างแค่ไหน
+    # (OECD/JRC 2008 — Ranking: "not affected by outliers")
+    df = pd.DataFrame(zones)
+    df["s_freq"] = percentile_rank(df["accident_count"])
+    df["s_econ"] = percentile_rank(df["economic_loss"])
+    df["s_single"] = percentile_rank(df["single_pct"])
+    df["s_geom"] = percentile_rank(df["conflict_pct"])
+    df["risk_score"] = (
+        W_FREQ * df["s_freq"] + W_ECON * df["s_econ"]
+        + W_SINGLE * df["s_single"] + W_GEOM * df["s_geom"]
+    ).round(1)
+
+    for z, (_, row) in zip(zones, df.iterrows()):
+        # เก็บเป็น Percentile Rank 0-100 (หน้าเว็บคูณ 0.25 เองตอนแสดงเป็นแต้ม/25)
+        z["score_breakdown"] = {
+            "frequency": round(row["s_freq"], 1),
+            "economic_loss": round(row["s_econ"], 1),
+            "single_vehicle": round(row["s_single"], 1),
+            "geometry": round(row["s_geom"], 1),
         }
-        z["score_breakdown"] = breakdown
-        z["risk_score"] = float(sum(breakdown.values()))
+        z["risk_score"] = float(row["risk_score"])
         z["level"] = classify(z["risk_score"], LEVEL_BREAKS)
 
     return zones, LEVEL_BREAKS
@@ -412,7 +425,7 @@ def main():
     all_events = [_event_from_record(r) for r in records
                   if r.get("จังหวัด") in BANGKOK_METRO_PROVINCES]
     fi_weights, fi_table = compute_fi_weights(all_events)
-    print("FI Rate ของข้อมูลเอง (ข้อมูลประกอบ ไม่อยู่ในสูตรคะแนน v2568-r4):")
+    print("FI Rate ของข้อมูลเอง (ข้อมูลประกอบ ไม่อยู่ในสูตรคะแนน):")
     for g, t in fi_table.items():
         print(f"  {GROUP_LABELS[g]:<40} n={t['n']:<5} FI {t['fi_rate_pct']}%  weight {t['weight']}")
 
@@ -443,10 +456,9 @@ def main():
         "events_total": len(records),
         "events_with_coords": len(events),
         "dbscan": {"eps_m": EPS_METERS, "min_samples": MIN_SAMPLES},
-        "scoring_method": "banded_rubric",
-        "score_bands": SCORE_BANDS,
-        "band_top_score": BAND_TOP_SCORE,
-        "criteria_max_score": {k: BAND_TOP_SCORE for k in SCORE_BANDS},
+        "scoring_method": "percentile_rank",
+        "criteria_weights": {"frequency": W_FREQ, "economic_loss": W_ECON,
+                             "single_vehicle": W_SINGLE, "geometry": W_GEOM},
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
                                 "minor": COST_MINOR},
         "fi_weights": fi_table,
