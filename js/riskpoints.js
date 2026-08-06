@@ -157,7 +157,7 @@ const RiskPoints = (() => {
       ["ความถี่", b.frequency, ""],
       ["ความเสียหาย ฿", b.economic_loss, ""],
       ["รถคันเดียว", b.single_vehicle, buildSplitHtml(p, single, multi)],
-      ["จุดตัดกระแส", b.geometry, ""],
+      ["ลักษณะถนน", b.geometry, ""],
     ]
       .map(([name, pct, extra]) => {
         const pts = pct == null ? null : Math.round(pct * 0.25);
