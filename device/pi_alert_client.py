@@ -167,6 +167,21 @@ def speak(message):
         print("   (ไม่พบ espeak-ng — ติดตั้งด้วย: sudo apt install espeak-ng)", file=sys.stderr)
 
 
+def beep():
+    """เสียงเตือนล่วงหน้าสั้นๆ (ไม่เกิน 1 วิ) ตอนเพิ่งเข้ารัศมี EXIT_RADIUS_M — ก่อนเสียงพูดเต็มที่ ALERT_RADIUS_M"""
+    print("\a🔔 เตือนล่วงหน้า")
+    if SPEAKER:
+        # -s 300 พูดเร็ว, -p 90 เสียงสูง ให้ฟังต่างจากเสียงพูดแจ้งเตือนเต็ม
+        # timeout=1 กันเสียงยาวเกิน 1 วิ (ตัดจบถ้ายังไม่จบ)
+        try:
+            subprocess.run(
+                [SPEAKER, "-v", "th", "-s", "300", "-p", "90", "ปี๊บ"],
+                check=False, timeout=1,
+            )
+        except subprocess.TimeoutExpired:
+            pass
+
+
 # ---------- เรียก API ----------
 
 def fetch_nearby(api_base, lat, lng):
@@ -182,7 +197,11 @@ def fetch_nearby(api_base, lat, lng):
 
 def run(api_base, position_source):
     alerted = {}  # point id -> เวลาที่เตือนล่าสุด (มี entry = ยังอยู่ในสถานะ "เตือนแล้ว")
-    print(f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ระยะ {ALERT_RADIUS_M} ม.)")
+    beeped = set()  # point id ที่ร้อง beep เตือนล่วงหน้าไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
+    print(
+        f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, "
+        f"beep ล่วงหน้าที่ {EXIT_RADIUS_M} ม., พูดเตือนเต็มที่ {ALERT_RADIUS_M} ม.)"
+    )
 
     while True:
         started = time.monotonic()
@@ -205,6 +224,13 @@ def run(api_base, position_source):
                 for pid in list(alerted):
                     if pid not in nearby_ids:
                         del alerted[pid]
+                beeped &= nearby_ids  # จุดที่ออกนอกรัศมีแล้ว -> รีเซ็ตให้ beep ใหม่ได้เมื่อเข้ามาอีกรอบ
+
+                # beep เตือนล่วงหน้าครั้งเดียวตอนเพิ่งเข้ารัศมี (nearby ถูกจำกัดที่ EXIT_RADIUS_M อยู่แล้ว)
+                for p in nearby:
+                    if p["id"] not in beeped:
+                        beeped.add(p["id"])
+                        beep()
 
                 # เตือนเฉพาะจุดใกล้สุดที่เข้าเงื่อนไข (API เรียงใกล้ -> ไกลให้แล้ว)
                 for p in nearby:
