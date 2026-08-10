@@ -24,6 +24,9 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 
   # จำลองการขับด้วยไฟล์เส้นทาง (บรรทัดละ "lat,lng")
   python3 pi_alert_client.py --api http://192.168.1.10:8000 --route route.csv
+
+  # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1
+  python3 pi_alert_client.py --api http://192.168.1.10:8000 --route ../data/mock_route.geojson
 """
 
 import argparse
@@ -61,20 +64,44 @@ class FixedPosition:
 
 
 class RoutePlayer:
-    """โหมดจำลอง: อ่านพิกัดจากไฟล์ทีละบรรทัด (lat,lng) วนเมื่อจบไฟล์"""
+    """โหมดจำลอง: อ่านพิกัดจากไฟล์ วนเมื่อจบไฟล์
+
+    รองรับ 2 ฟอร์แมต (เลือกอัตโนมัติจากนามสกุลไฟล์):
+      - .geojson/.json  เส้นทาง LineString เดียวกับที่เว็บใช้ตอน ?mock=1
+                         (data/mock_route.geojson) พิกัดเป็น [lng, lat]
+      - อื่นๆ (เช่น .csv) ไฟล์ข้อความบรรทัดละ "lat,lng"
+    """
 
     def __init__(self, path):
-        self.positions = []
+        if path.endswith((".geojson", ".json")):
+            self.positions = self._read_geojson(path)
+        else:
+            self.positions = self._read_csv(path)
+        if not self.positions:
+            sys.exit(f"ไฟล์เส้นทาง {path} ไม่มีพิกัดเลย")
+        self.index = 0
+
+    @staticmethod
+    def _read_csv(path):
+        positions = []
         with open(path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
                 lat, lng = line.split(",")
-                self.positions.append((float(lat), float(lng)))
-        if not self.positions:
-            sys.exit(f"ไฟล์เส้นทาง {path} ไม่มีพิกัดเลย")
-        self.index = 0
+                positions.append((float(lat), float(lng)))
+        return positions
+
+    @staticmethod
+    def _read_geojson(path):
+        with open(path, encoding="utf-8") as f:
+            gj = json.load(f)
+        for feat in gj.get("features", []):
+            geom = feat.get("geometry") or {}
+            if geom.get("type") == "LineString":
+                return [(lat, lng) for lng, lat in geom["coordinates"]]
+        return []
 
     def read(self):
         pos = self.positions[self.index]
@@ -209,7 +236,8 @@ def main():
     source.add_argument("--test", nargs=2, type=float, metavar=("LAT", "LNG"),
                         help="โหมดทดสอบ: ใช้พิกัดคงที่")
     source.add_argument("--route", metavar="FILE",
-                        help="โหมดจำลอง: อ่านพิกัดจากไฟล์ (บรรทัดละ lat,lng)")
+                        help="โหมดจำลอง: อ่านพิกัดจากไฟล์ (.geojson เส้นทางเดียวกับเว็บ ?mock=1 "
+                             "หรือ .csv บรรทัดละ lat,lng)")
     args = parser.parse_args()
 
     if args.gpsd:
