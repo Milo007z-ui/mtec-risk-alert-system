@@ -7,13 +7,15 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
   3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> พูดข้อความ alert_message
      ที่เซิร์ฟเวอร์สร้างให้ ผ่าน espeak-ng เสียงภาษาไทย
+     (ก่อนหน้านั้นที่ 600 ม. จะสั่ง buzzer ที่ต่อขา GPIO (pin 13 บนบอร์ด) ร้องเตือนล่วงหน้าสั้นๆ ก่อน)
 
 กติกา cooldown ต่อจุด (ตรงกับ js/alert.js ของหน้าเว็บ):
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
   - เตือนจุดเดิมซ้ำได้ต่อเมื่อ (ก) ออกไกลกว่า EXIT_RADIUS_M (600 ม.) แล้วกลับเข้ามาใหม่
     หรือ (ข) วนอยู่ในรัศมีนานเกิน REALERT_S (5 นาที)
 
-ใช้เฉพาะ Python standard library — ไม่ต้อง pip install อะไรเพิ่มบน Pi
+ใช้ Python standard library เป็นหลัก ยกเว้นส่วนคุม buzzer ที่ต้องมี RPi.GPIO
+(มากับ Raspberry Pi OS อยู่แล้ว ไม่ต้อง pip install เพิ่ม — ถ้าไม่มีจะแค่ข้ามการสั่ง buzzer เฉยๆ)
 
 ตัวอย่างการใช้งาน:
   # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS)
@@ -39,11 +41,18 @@ import time
 import urllib.parse
 import urllib.request
 
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    GPIO = None
+
 ALERT_RADIUS_M = 500
 EXIT_RADIUS_M = 600   # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
 REALERT_S = 5 * 60
 POLL_INTERVAL_S = 3
 HTTP_TIMEOUT_S = 5
+
+BUZZER_PIN = 13  # เลขขาแบบ BOARD (นับตามตำแหน่งจริงบนขาเข็ม ไม่ใช่เลข GPIO/BCM)
 
 GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
 
@@ -167,19 +176,23 @@ def speak(message):
         print("   (ไม่พบ espeak-ng — ติดตั้งด้วย: sudo apt install espeak-ng)", file=sys.stderr)
 
 
+def setup_buzzer():
+    """เตรียมขา GPIO ของ buzzer (เรียกครั้งเดียวตอนเริ่มโปรแกรม)"""
+    if GPIO is None:
+        print("   (ไม่พบ RPi.GPIO — buzzer จะไม่ทำงาน ติดตั้งด้วย: sudo apt install python3-rpi.gpio)", file=sys.stderr)
+        return
+    GPIO.setmode(GPIO.BOARD)  # เลขขาแบบนับตามตำแหน่งจริงบนบอร์ด (ตรงกับ BUZZER_PIN=13)
+    GPIO.setup(BUZZER_PIN, GPIO.OUT, initial=GPIO.LOW)
+
+
 def beep():
-    """เสียงเตือนล่วงหน้าสั้นๆ (ไม่เกิน 1 วิ) ตอนเพิ่งเข้ารัศมี EXIT_RADIUS_M — ก่อนเสียงพูดเต็มที่ ALERT_RADIUS_M"""
+    """เสียงเตือนล่วงหน้าสั้นๆ (1 วิ) ผ่าน buzzer ขา GPIO — ก่อนเสียงพูดเต็มที่ตอนเข้าใกล้ ALERT_RADIUS_M"""
     print("\a🔔 เตือนล่วงหน้า")
-    if SPEAKER:
-        # -s 300 พูดเร็ว, -p 90 เสียงสูง ให้ฟังต่างจากเสียงพูดแจ้งเตือนเต็ม
-        # timeout=1 กันเสียงยาวเกิน 1 วิ (ตัดจบถ้ายังไม่จบ)
-        try:
-            subprocess.run(
-                [SPEAKER, "-v", "th", "-s", "300", "-p", "90", "ปี๊บ"],
-                check=False, timeout=1,
-            )
-        except subprocess.TimeoutExpired:
-            pass
+    if GPIO is None:
+        return
+    GPIO.output(BUZZER_PIN, GPIO.HIGH)
+    time.sleep(1)
+    GPIO.output(BUZZER_PIN, GPIO.LOW)
 
 
 # ---------- เรียก API ----------
@@ -273,10 +286,14 @@ def main():
     else:
         position_source = RoutePlayer(args.route)
 
+    setup_buzzer()
     try:
         run(args.api.rstrip("/"), position_source)
     except KeyboardInterrupt:
         print("\nหยุดการทำงาน")
+    finally:
+        if GPIO is not None:
+            GPIO.cleanup()
 
 
 if __name__ == "__main__":
