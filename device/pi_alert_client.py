@@ -5,13 +5,11 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
   1. อ่านพิกัด GPS ปัจจุบันของรถ (จาก gpsd หรือโหมดจำลอง)
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
-  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM)
-     ร้อง 1 วิ พร้อมกับพูดข้อความ alert_message ที่เซิร์ฟเวอร์สร้างให้ ผ่าน espeak-ng เสียงภาษาไทย
+  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM) ร้อง 1 วิ
 
-กติกา cooldown ต่อจุด (ตรงกับ js/alert.js ของหน้าเว็บ):
+กติกา cooldown ต่อจุด:
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
-  - เตือนจุดเดิมซ้ำได้ต่อเมื่อ (ก) ออกไกลกว่า EXIT_RADIUS_M (600 ม.) แล้วกลับเข้ามาใหม่
-    หรือ (ข) วนอยู่ในรัศมีนานเกิน REALERT_S (5 นาที)
+  - เตือนจุดเดิมซ้ำได้ต่อเมื่อออกไกลกว่า EXIT_RADIUS_M (600 ม.) แล้วกลับเข้ามาใหม่
 
 ใช้ Python standard library เป็นหลัก ยกเว้นส่วนคุม buzzer ที่ต้องมี RPi.GPIO
 (มากับ Raspberry Pi OS อยู่แล้ว ไม่ต้อง pip install เพิ่ม — ถ้าไม่มีจะแค่ข้ามการสั่ง buzzer เฉยๆ)
@@ -20,7 +18,7 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS)
   python3 pi_alert_client.py --api http://192.168.1.10:8000 --test 13.665 100.534
 
-  # ใช้งานจริงกับ GPS ผ่าน gpsd (sudo apt install gpsd espeak-ng)
+  # ใช้งานจริงกับ GPS ผ่าน gpsd (sudo apt install gpsd)
   python3 pi_alert_client.py --api http://192.168.1.10:8000 --gpsd
 
   # จำลองการขับด้วยไฟล์เส้นทาง (บรรทัดละ "lat,lng")
@@ -32,9 +30,7 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 
 import argparse
 import json
-import shutil
 import socket
-import subprocess
 import sys
 import time
 import urllib.parse
@@ -47,7 +43,6 @@ except ImportError:
 
 ALERT_RADIUS_M = 500
 EXIT_RADIUS_M = 600   # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
-REALERT_S = 5 * 60
 POLL_INTERVAL_S = 3
 HTTP_TIMEOUT_S = 5
 
@@ -153,28 +148,6 @@ class GpsdReader:
         return self.last_fix
 
 
-# ---------- เสียงพูด ----------
-
-def find_speaker():
-    """หาโปรแกรม TTS ที่มีในเครื่อง: espeak-ng (มีเสียงไทย) > espeak"""
-    for cmd in ("espeak-ng", "espeak"):
-        if shutil.which(cmd):
-            return cmd
-    return None
-
-
-SPEAKER = find_speaker()
-
-
-def speak(message):
-    print(f"\a🔊 {message}")
-    if SPEAKER:
-        # -v th เสียงไทย, -s 140 ความเร็วพูดช้าลงให้ฟังชัดขณะขับรถ
-        subprocess.run([SPEAKER, "-v", "th", "-s", "140", message], check=False)
-    else:
-        print("   (ไม่พบ espeak-ng — ติดตั้งด้วย: sudo apt install espeak-ng)", file=sys.stderr)
-
-
 def setup_buzzer():
     """เตรียมขา GPIO ของ buzzer (เรียกครั้งเดียวตอนเริ่มโปรแกรม)"""
     if GPIO is None:
@@ -208,8 +181,7 @@ def fetch_nearby(api_base, lat, lng):
 # ---------- ลูปหลัก ----------
 
 def run(api_base, position_source):
-    alerted = {}  # point id -> เวลาที่เตือนล่าสุด (มี entry = ยังอยู่ในสถานะ "เตือนแล้ว")
-    beeped = set()  # point id ที่ร้อง beep เตือนล่วงหน้าไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
+    beeped = set()  # point id ที่ร้อง beep ไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, "
         f"buzzer ร้องที่ {ALERT_RADIUS_M} ม.)"
@@ -229,32 +201,17 @@ def run(api_base, position_source):
                 nearby = None
 
             if nearby is not None:
-                now = time.monotonic()
                 nearby_ids = {p["id"] for p in nearby}
 
-                # จุดที่เคยเตือนแต่ออกนอกรัศมี EXIT แล้ว -> รีเซ็ตให้เตือนใหม่ได้
-                for pid in list(alerted):
-                    if pid not in nearby_ids:
-                        del alerted[pid]
                 beeped &= nearby_ids  # จุดที่ออกนอกรัศมีแล้ว -> รีเซ็ตให้ beep ใหม่ได้เมื่อเข้ามาอีกรอบ
 
-                # beep ครั้งเดียวตอนเพิ่งเข้ารัศมี ALERT_RADIUS_M (ระยะเดียวกับที่พูดเตือนเต็ม)
+                # beep ครั้งเดียวตอนเพิ่งเข้ารัศมี ALERT_RADIUS_M
                 for p in nearby:
                     if p["distance_m"] > ALERT_RADIUS_M:
                         continue
                     if p["id"] not in beeped:
                         beeped.add(p["id"])
                         beep()
-
-                # เตือนเฉพาะจุดใกล้สุดที่เข้าเงื่อนไข (API เรียงใกล้ -> ไกลให้แล้ว)
-                for p in nearby:
-                    if p["distance_m"] > ALERT_RADIUS_M:
-                        continue
-                    if p["id"] in alerted and now - alerted[p["id"]] < REALERT_S:
-                        continue
-                    alerted[p["id"]] = now
-                    speak(p["alert_message"])
-                    break
 
                 nearest = nearby[0] if nearby else None
                 status = (
