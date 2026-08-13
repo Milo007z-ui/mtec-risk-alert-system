@@ -5,7 +5,7 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
   1. อ่านพิกัด GPS ปัจจุบันของรถ (จาก gpsd หรือโหมดจำลอง)
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
-  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO (pin 13 บนบอร์ด)
+  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM)
      ร้อง 1 วิ พร้อมกับพูดข้อความ alert_message ที่เซิร์ฟเวอร์สร้างให้ ผ่าน espeak-ng เสียงภาษาไทย
 
 กติกา cooldown ต่อจุด (ตรงกับ js/alert.js ของหน้าเว็บ):
@@ -51,7 +51,7 @@ REALERT_S = 5 * 60
 POLL_INTERVAL_S = 3
 HTTP_TIMEOUT_S = 5
 
-BUZZER_PIN = 13  # เลขขาแบบ BOARD (นับตามตำแหน่งจริงบนขาเข็ม ไม่ใช่เลข GPIO/BCM)
+BUZZER_PIN = 13  # เลข GPIO แบบ BCM (ไม่ใช่ตำแหน่งจริงบนขาเข็มแบบ BOARD — ทดสอบแล้วว่า BCM13 ตรงกับ buzzer ที่ต่อไว้)
 
 GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
 
@@ -180,7 +180,7 @@ def setup_buzzer():
     if GPIO is None:
         print("   (ไม่พบ RPi.GPIO — buzzer จะไม่ทำงาน ติดตั้งด้วย: sudo apt install python3-rpi.gpio)", file=sys.stderr)
         return
-    GPIO.setmode(GPIO.BOARD)  # เลขขาแบบนับตามตำแหน่งจริงบนบอร์ด (ตรงกับ BUZZER_PIN=13)
+    GPIO.setmode(GPIO.BCM)  # เลข GPIO แบบ BCM (ยืนยันจากการทดสอบจริงว่าตรงกับ buzzer ที่ต่อไว้ — BUZZER_PIN=13)
     GPIO.setup(BUZZER_PIN, GPIO.OUT, initial=GPIO.LOW)
 
 
