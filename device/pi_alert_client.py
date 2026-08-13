@@ -5,9 +5,8 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
   1. อ่านพิกัด GPS ปัจจุบันของรถ (จาก gpsd หรือโหมดจำลอง)
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
-  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> พูดข้อความ alert_message
-     ที่เซิร์ฟเวอร์สร้างให้ ผ่าน espeak-ng เสียงภาษาไทย
-     (ก่อนหน้านั้นที่ 600 ม. จะสั่ง buzzer ที่ต่อขา GPIO (pin 13 บนบอร์ด) ร้องเตือนล่วงหน้าสั้นๆ ก่อน)
+  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO (pin 13 บนบอร์ด)
+     ร้อง 1 วิ พร้อมกับพูดข้อความ alert_message ที่เซิร์ฟเวอร์สร้างให้ ผ่าน espeak-ng เสียงภาษาไทย
 
 กติกา cooldown ต่อจุด (ตรงกับ js/alert.js ของหน้าเว็บ):
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
@@ -186,8 +185,8 @@ def setup_buzzer():
 
 
 def beep():
-    """เสียงเตือนล่วงหน้าสั้นๆ (1 วิ) ผ่าน buzzer ขา GPIO — ก่อนเสียงพูดเต็มที่ตอนเข้าใกล้ ALERT_RADIUS_M"""
-    print("\a🔔 เตือนล่วงหน้า")
+    """buzzer ร้อง 1 วิ ผ่านขา GPIO — ตอนเข้าใกล้จุดเสี่ยงในระยะ ALERT_RADIUS_M"""
+    print("\a🔔 buzzer")
     if GPIO is None:
         return
     GPIO.output(BUZZER_PIN, GPIO.HIGH)
@@ -213,7 +212,7 @@ def run(api_base, position_source):
     beeped = set()  # point id ที่ร้อง beep เตือนล่วงหน้าไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, "
-        f"beep ล่วงหน้าที่ {EXIT_RADIUS_M} ม., พูดเตือนเต็มที่ {ALERT_RADIUS_M} ม.)"
+        f"buzzer ร้องที่ {ALERT_RADIUS_M} ม.)"
     )
 
     while True:
@@ -239,8 +238,10 @@ def run(api_base, position_source):
                         del alerted[pid]
                 beeped &= nearby_ids  # จุดที่ออกนอกรัศมีแล้ว -> รีเซ็ตให้ beep ใหม่ได้เมื่อเข้ามาอีกรอบ
 
-                # beep เตือนล่วงหน้าครั้งเดียวตอนเพิ่งเข้ารัศมี (nearby ถูกจำกัดที่ EXIT_RADIUS_M อยู่แล้ว)
+                # beep ครั้งเดียวตอนเพิ่งเข้ารัศมี ALERT_RADIUS_M (ระยะเดียวกับที่พูดเตือนเต็ม)
                 for p in nearby:
+                    if p["distance_m"] > ALERT_RADIUS_M:
+                        continue
                     if p["id"] not in beeped:
                         beeped.add(p["id"])
                         beep()
