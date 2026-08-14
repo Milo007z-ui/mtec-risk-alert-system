@@ -26,6 +26,9 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 
   # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1
   python3 pi_alert_client.py --api http://192.168.1.10:8000 --route ../data/mock_route.geojson
+
+  # วิ่งจบเส้นทางครั้งเดียวแล้วหยุด (ไม่วนซ้ำ)
+  python3 pi_alert_client.py --api http://192.168.1.10:8000 --route ../data/mock_route.geojson --once
 """
 
 import argparse
@@ -67,7 +70,7 @@ class FixedPosition:
 
 
 class RoutePlayer:
-    """โหมดจำลอง: อ่านพิกัดจากไฟล์ วนเมื่อจบไฟล์
+    """โหมดจำลอง: อ่านพิกัดจากไฟล์ วนซ้ำเมื่อจบไฟล์ (หรือหยุดครั้งเดียวถ้า loop=False)
 
     รองรับ 2 ฟอร์แมต (เลือกอัตโนมัติจากนามสกุลไฟล์):
       - .geojson/.json  เส้นทาง LineString เดียวกับที่เว็บใช้ตอน ?mock=1
@@ -75,7 +78,7 @@ class RoutePlayer:
       - อื่นๆ (เช่น .csv) ไฟล์ข้อความบรรทัดละ "lat,lng"
     """
 
-    def __init__(self, path):
+    def __init__(self, path, loop=True):
         if path.endswith((".geojson", ".json")):
             self.positions = self._read_geojson(path)
         else:
@@ -83,6 +86,8 @@ class RoutePlayer:
         if not self.positions:
             sys.exit(f"ไฟล์เส้นทาง {path} ไม่มีพิกัดเลย")
         self.index = 0
+        self.loop = loop
+        self.finished = False
 
     @staticmethod
     def _read_csv(path):
@@ -107,8 +112,15 @@ class RoutePlayer:
         return []
 
     def read(self):
+        if self.finished:
+            return None
         pos = self.positions[self.index]
-        self.index = (self.index + 1) % len(self.positions)
+        self.index += 1
+        if self.index >= len(self.positions):
+            if self.loop:
+                self.index = 0
+            else:
+                self.finished = True
         return pos
 
 
@@ -191,6 +203,9 @@ def run(api_base, position_source):
         started = time.monotonic()
         pos = position_source.read()
         if pos is None:
+            if getattr(position_source, "finished", False):
+                print("จบเส้นทางจำลองแล้ว — หยุดทำงาน")
+                break
             print("[gps] ยังไม่ได้ตำแหน่ง (รอสัญญาณดาวเทียม)...")
         else:
             lat, lng = pos
@@ -235,6 +250,8 @@ def main():
     source.add_argument("--route", metavar="FILE",
                         help="โหมดจำลอง: อ่านพิกัดจากไฟล์ (.geojson เส้นทางเดียวกับเว็บ ?mock=1 "
                              "หรือ .csv บรรทัดละ lat,lng)")
+    parser.add_argument("--once", action="store_true",
+                        help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
 
     if args.gpsd:
@@ -242,7 +259,7 @@ def main():
     elif args.test:
         position_source = FixedPosition(*args.test)
     else:
-        position_source = RoutePlayer(args.route)
+        position_source = RoutePlayer(args.route, loop=not args.once)
 
     setup_buzzer()
     try:
