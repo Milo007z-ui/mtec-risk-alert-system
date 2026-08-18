@@ -350,13 +350,14 @@ html, body {
   margin-left: 2px;
   margin-right: 8px;
 }
+/* ต้องหน้าตาเหมือนหมุดคลัสเตอร์จริง: ขอบหนา 2px + พื้นโปร่ง 50% */
 #legend .ring {
   display: inline-block;
   width: 11px;
   height: 11px;
   border: 2px solid #777;
   border-radius: 50%;
-  background: rgba(119,119,119,.12);
+  background: rgba(119,119,119,.5);
   margin-right: 6px;
   vertical-align: -1px;
 }
