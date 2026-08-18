@@ -33,16 +33,27 @@
   const byLevel = {};
   for (const lv of LEVELS) byLevel[lv.key] = zones.filter((z) => z.level === lv.key).length;
 
+  // KPI ผู้เสียชีวิต/บาดเจ็บ/จุดเสี่ยง ใช้ยอด "ทุกจุดเสี่ยง" จาก calibration.overall
+  // ไม่ใช่ผลรวมของคลัสเตอร์ เพราะตั้งแต่ v2568-r9 จุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ
+  // ถ้าบวกเฉพาะคลัสเตอร์ ผู้เสียชีวิต 104 คนของจุดเดี่ยวจะหายไปจากหน้าสรุป
+  const overall = (calibration && calibration.overall) || null;
+  const excluded = (calibration && calibration.excluded_noise) || null;
+  const totalAcc = overall ? overall.risk_points : sum("accident_count");
+  const totalDeaths = overall ? overall.deaths : sum("deaths");
+  const totalSerious = overall ? overall.serious_injury : sum("serious_injury");
+  const totalMinor = overall ? overall.minor_injury : sum("minor_injury");
+
   document.getElementById("kpi-zones").textContent = fmt(zones.length);
   document.getElementById("kpi-zones-sub").textContent =
     `สูง ${byLevel.high} · ปานกลาง ${byLevel.medium} · ต่ำ ${byLevel.low}`;
-  document.getElementById("kpi-accidents").textContent = fmt(sum("accident_count"));
-  document.getElementById("kpi-deaths").textContent = fmt(sum("deaths"));
-  document.getElementById("kpi-deaths-sub").textContent =
-    `ใน ${zones.filter((z) => z.deaths > 0).length} หน่วยที่มีผู้เสียชีวิต`;
-  document.getElementById("kpi-injured").textContent = fmt(sum("serious_injury") + sum("minor_injury"));
+  document.getElementById("kpi-accidents").textContent = fmt(totalAcc);
+  document.getElementById("kpi-deaths").textContent = fmt(totalDeaths);
+  document.getElementById("kpi-deaths-sub").textContent = excluded
+    ? `ในคลัสเตอร์ ${fmt(totalDeaths - excluded.deaths)} · จุดเสี่ยงเดี่ยว ${fmt(excluded.deaths)}`
+    : `ใน ${zones.filter((z) => z.deaths > 0).length} หน่วยที่มีผู้เสียชีวิต`;
+  document.getElementById("kpi-injured").textContent = fmt(totalSerious + totalMinor);
   document.getElementById("kpi-injured-sub").textContent =
-    `สาหัส ${fmt(sum("serious_injury"))} · เล็กน้อย ${fmt(sum("minor_injury"))}`;
+    `สาหัส ${fmt(totalSerious)} · เล็กน้อย ${fmt(totalMinor)}`;
 
   // ---------- แถบสัดส่วนระดับ ----------
   const levelBar = document.getElementById("level-bar");
@@ -137,6 +148,7 @@
     const [b1, b2] = calibration.level_breaks || [];
     document.getElementById("calib-note").textContent =
       ` · รอบคำนวณ ${calibration.version}` +
+      (excluded ? ` · จุดเสี่ยงเดี่ยว ${fmt(excluded.risk_points)} จุดไม่นำมาจัดระดับ` : "") +
       (b1 != null ? ` (เกณฑ์คงที่: ต่ำ SI < ${b1} · ปานกลาง ${b1}–${b2} · สูง SI ≥ ${b2})` : "");
   }
 

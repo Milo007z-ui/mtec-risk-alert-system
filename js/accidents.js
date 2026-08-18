@@ -14,7 +14,11 @@ const Accidents = (() => {
   const DATA_URL = "data/accident_points.geojson";
 
   // ใช้ชุดสีเดียวกับระดับความเสี่ยงของคลัสเตอร์ที่จุดนั้นสังกัด
+  // จุดเสี่ยงเดี่ยว (ไม่เข้าคลัสเตอร์) ไม่ถูกจัดระดับตั้งแต่ v2568-r9 -> เทา
   const LEVEL_COLOR = { high: "#c62828", medium: "#ef6c00", low: "#2e7d32" };
+  const UNCLASSIFIED_COLOR = "#9e9e9e";
+
+  const colorOf = (p) => LEVEL_COLOR[p.level] || UNCLASSIFIED_COLOR;
 
   let points = [];
   let layerGroup = null;
@@ -43,9 +47,9 @@ const Accidents = (() => {
       const marker = L.circleMarker([p.lat, p.lng], {
         renderer,
         radius: 3,
-        color: LEVEL_COLOR[p.level] || LEVEL_COLOR.low,
+        color: colorOf(p),
         weight: 1,
-        fillColor: LEVEL_COLOR[p.level] || LEVEL_COLOR.low,
+        fillColor: colorOf(p),
         fillOpacity: 0.75,
       });
       marker.bindPopup(() => buildPopupHtml(p), { maxWidth: 280 });
@@ -78,8 +82,10 @@ const Accidents = (() => {
     let shown = 0;
     layerGroup.eachLayer((layer) => {
       const p = layer.__point;
+      // จุดที่ไม่ถูกจัดระดับผ่านตัวกรองระดับเสมอ (ไม่มีระดับให้เทียบ)
       const ok =
-        (!province || p.province === province) && (!levels || levels.has(p.level));
+        (!province || p.province === province) &&
+        (!levels || !p.level || levels.has(p.level));
       layer.setStyle({ opacity: ok ? 1 : 0, fillOpacity: ok ? 0.75 : 0 });
       layer.options.interactive = ok;
       if (ok) shown++;
@@ -92,7 +98,7 @@ const Accidents = (() => {
     const unitLabel =
       p.unit_type === "cluster"
         ? `อยู่ในคลัสเตอร์ <b>${p.unit_id}</b>`
-        : "อุบัติเหตุเดี่ยว ไม่อยู่ในคลัสเตอร์ใด";
+        : "จุดเสี่ยงเดี่ยว ไม่เข้าเกณฑ์ Black Spot จึงไม่ถูกจัดระดับ";
 
     return `
       <div class="popup popup-acc">

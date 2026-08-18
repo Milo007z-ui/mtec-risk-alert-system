@@ -9,7 +9,9 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
   2. จัดกลุ่มจุดเสี่ยงที่เกิดใกล้กันด้วย DBSCAN (eps 400 ม., min 3)
-     หน่วยวิเคราะห์ = คลัสเตอร์ทุกวง + จุดเสี่ยงเดี่ยวที่ไม่เกาะกลุ่ม (noise)
+     หน่วยวิเคราะห์ = คลัสเตอร์เท่านั้น — จุดเสี่ยงเดี่ยว (noise) ไม่เข้านิยาม
+     Black Spot ที่ต้องเกิดซ้ำ >= 3 ครั้ง จึงไม่นำมาจัดระดับ แต่ยังนับใน
+     สถิติภาพรวม (calibration.overall) เพื่อไม่ให้ความสูญเสียหายไปจากรายงาน
   3. คำนวณดัชนีความรุนแรงอุบัติเหตุต่อจุด  SI = (F + PI) / Total Accident
        F  = จำนวน "ครั้ง" ของอุบัติเหตุที่มีผู้เสียชีวิต (ไม่ใช่จำนวนผู้เสียชีวิต)
        PI = จำนวน "คน" ที่บาดเจ็บรวม (สาหัส + เล็กน้อย)
@@ -37,7 +39,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r8"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r9"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
@@ -229,8 +231,11 @@ def accident_points_geojson(events, assignments, units, calibration):
     """
     จุดเสี่ยงรายอุบัติเหตุ — 1 feature : 1 อุบัติเหตุ (ทั้งชุด 4,460 จุด)
 
-    แต่ละจุดพ่วง `unit_id` และ `level` ของหน่วยวิเคราะห์ที่สังกัด เพื่อให้แผนที่
-    ระบายสีจุดตามระดับของคลัสเตอร์ที่จุดนั้นอยู่ได้ โดยไม่ต้องคำนวณซ้ำฝั่งเบราว์เซอร์
+    จุดที่อยู่ในคลัสเตอร์พ่วง `unit_id` และ `level` ของคลัสเตอร์นั้นมาด้วย เพื่อให้
+    แผนที่ระบายสีได้โดยไม่ต้องคำนวณซ้ำฝั่งเบราว์เซอร์
+
+    ส่วนจุดเสี่ยงเดี่ยว (noise) ได้ `level = null` และ `classified = false`
+    เพราะไม่เข้านิยาม Black Spot จึงไม่ถูกจัดระดับตั้งแต่ v2568-r9
     """
     by_id = {u["id"]: u for u in units}
     features = []
@@ -243,9 +248,11 @@ def accident_points_geojson(events, assignments, units, calibration):
             "geometry": {"type": "Point", "coordinates": [round(e["lng"], 6), round(e["lat"], 6)]},
             "properties": {
                 "id": f"acc_{i}",
-                "unit_id": uid,
+                "unit_id": uid if u["unit_type"] == "cluster" else None,
                 "unit_type": u["unit_type"],
-                "level": u["level"],            # ระดับของหน่วยวิเคราะห์ที่สังกัด
+                # ระดับของคลัสเตอร์ที่สังกัด — จุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ (null)
+                "level": u["level"] if u["unit_type"] == "cluster" else None,
+                "classified": u["unit_type"] == "cluster",
                 "province": e["province"],
                 "road": e["road"],
                 "cause": e["cause"],
@@ -346,16 +353,25 @@ def main():
     events = clean_points(records)
     print(f"มีพิกัดใช้ได้ {len(events)} เหตุการณ์")
 
-    units, assignments = cluster_units(events, EPS_METERS, MIN_SAMPLES)
-    clusters = [u for u in units if u["unit_type"] == "cluster"]
-    noise = [u for u in units if u["unit_type"] == "noise"]
+    all_units, assignments = cluster_units(events, EPS_METERS, MIN_SAMPLES)
+    clusters = [u for u in all_units if u["unit_type"] == "cluster"]
+    noise = [u for u in all_units if u["unit_type"] == "noise"]
     in_cluster = sum(u["accident_count"] for u in clusters)
+
+    # หน่วยวิเคราะห์ = เฉพาะคลัสเตอร์ (ตั้งแต่ v2568-r9)
+    # จุดเสี่ยงเดี่ยว (noise) ไม่เข้านิยาม Black Spot ที่ต้องเกิดซ้ำอย่างน้อย 3 ครั้ง
+    # จึงไม่นำมาจัดระดับ แต่ยังนับอยู่ในสถิติภาพรวม (ดู overall ใน calibration)
+    # ข้อแลกเปลี่ยนที่ต้องระบุในรายงาน: ผู้เสียชีวิตและความสูญเสียของ noise
+    # ไม่ปรากฏในผลจำแนกระดับ ต้องรายงานแยกไว้ไม่ให้หายไปจากข้อสรุป
+    units = clusters
+
     print(f"DBSCAN (eps {EPS_METERS} ม., min {MIN_SAMPLES})")
     print(f"  จุดเสี่ยง (1 จุด : 1 อุบัติเหตุ) {len(events)} จุด")
-    print(f"  หน่วยวิเคราะห์รวม {len(units)} หน่วย = คลัสเตอร์ {len(clusters)} กลุ่ม "
-          f"(ครอบคลุม {in_cluster} อุบัติเหตุ) + อุบัติเหตุเดี่ยว {len(noise)} จุด")
+    print(f"  คลัสเตอร์ {len(clusters)} วง (ครอบคลุม {in_cluster} จุดเสี่ยง "
+          f"{in_cluster / len(events) * 100:.1f}%)")
+    print(f"  จุดเสี่ยงเดี่ยวที่ไม่เข้าคลัสเตอร์ {len(noise)} จุด -> ไม่นำมาจัดระดับ")
     if clusters:
-        print(f"  กลุ่มใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} ครั้ง")
+        print(f"  คลัสเตอร์ใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} จุดเสี่ยง")
 
     si_values = np.array([u["severity_index"] for u in units])
     counts = {lv: sum(1 for u in units if u["level"] == lv) for lv in ("high", "medium", "low")}
@@ -379,7 +395,7 @@ def main():
         print(f"  {lv:<7} {len(group):>5} จุด · รวม {total:>9,.2f} ลบ. · "
               f"เฉลี่ย {total / len(group) if group else 0:.2f} ลบ./จุด")
 
-    print("Top 5 จุดเสี่ยงตาม SI:")
+    print("Top 5 คลัสเตอร์ตาม SI:")
     for u in sorted(units, key=lambda x: x["severity_index"], reverse=True)[:5]:
         print(f"  SI {u['severity_index']:>6.2f}  {u['road'][:40]:<40} ({u['province']}) "
               f"n={u['accident_count']} ตาย={u['deaths']} [{u['unit_type']}]")
@@ -413,10 +429,28 @@ def main():
         "level_break_method": "fixed_si_cutoff",
         # คำศัพท์: จุดเสี่ยง = 1 จุด : 1 อุบัติเหตุ (4,460) · หน่วยวิเคราะห์ = คลัสเตอร์ + เดี่ยว
         "risk_points": len(events),
-        "analysis_units": len(units),
-        "zones": len(units),          # ชื่อเดิม เก็บไว้ให้ของเก่าอ่านได้
+        "analysis_units": len(units),            # = คลัสเตอร์เท่านั้น
+        "zones": len(units),                     # ชื่อเดิม เก็บไว้ให้ของเก่าอ่านได้
         "core_clusters": len(clusters),
         "noise_points": len(noise),
+        "noise_excluded_from_levels": True,
+        # สถิติภาพรวมของ "ทุกจุดเสี่ยง" รวม noise — ไว้รายงานคู่กันไม่ให้ความสูญเสียหาย
+        "overall": {
+            "risk_points": len(events),
+            "deaths": sum(e["deaths"] for e in events),
+            "serious_injury": sum(e["serious"] for e in events),
+            "minor_injury": sum(e["minor"] for e in events),
+            "epdo_total_million": round(
+                sum(e["deaths"] * COST_DEATH + e["serious"] * COST_SERIOUS
+                    + e["minor"] * COST_MINOR for e in events) / 1_000_000, 2),
+        },
+        "excluded_noise": {
+            "risk_points": len(noise),
+            "deaths": sum(u["deaths"] for u in noise),
+            "serious_injury": sum(u["serious_injury"] for u in noise),
+            "minor_injury": sum(u["minor_injury"] for u in noise),
+            "epdo_total_million": round(sum(u["epdo_million"] for u in noise), 2),
+        },
         "events_in_clusters": in_cluster,
         "largest_cluster_events": max((u["accident_count"] for u in clusters), default=0),
         "levels": counts,
@@ -435,11 +469,11 @@ def main():
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(to_geojson(units, calibration), f, ensure_ascii=False, indent=1)
-    print(f"บันทึก {OUTPUT_FILE.relative_to(BASE_DIR)} ({len(units)} หน่วยวิเคราะห์)")
+    print(f"บันทึก {OUTPUT_FILE.relative_to(BASE_DIR)} ({len(units)} คลัสเตอร์)")
 
     # จุดเสี่ยงรายอุบัติเหตุ — ไฟล์นี้คือ "จุดเสี่ยง" ตามนิยาม 1 จุด : 1 อุบัติเหตุ
     with open(ACCIDENT_FILE, "w", encoding="utf-8") as f:
-        json.dump(accident_points_geojson(events, assignments, units, calibration),
+        json.dump(accident_points_geojson(events, assignments, all_units, calibration),
                   f, ensure_ascii=False, separators=(",", ":"))
     size_mb = ACCIDENT_FILE.stat().st_size / 1_048_576
     print(f"บันทึก {ACCIDENT_FILE.relative_to(BASE_DIR)} "

@@ -1,0 +1,119 @@
+{
+  "version": "v2568-r9",
+  "generated_at": "2026-08-18T15:32:48+00:00",
+  "recalibration_policy": "ทุก 6 เดือน",
+  "source": "accident2025_1.xlsx",
+  "events_total": 4627,
+  "events_with_coords": 4460,
+  "dbscan": {
+    "eps_m": 400,
+    "min_samples": 3
+  },
+  "scoring_method": "severity_index",
+  "si_formula": "(F + PI) / Total Accident",
+  "cost_per_person_thb": {
+    "death": 6700000,
+    "serious": 2000000,
+    "minor": 58000
+  },
+  "epdo_weights_million_per_person": {
+    "fatal": 6.7,
+    "serious": 2.0,
+    "minor": 0.058
+  },
+  "level_breaks": [
+    1.0,
+    2.0
+  ],
+  "level_break_method": "fixed_si_cutoff",
+  "risk_points": 4460,
+  "analysis_units": 171,
+  "zones": 171,
+  "core_clusters": 171,
+  "noise_points": 676,
+  "noise_excluded_from_levels": true,
+  "overall": {
+    "risk_points": 4460,
+    "deaths": 223,
+    "serious_injury": 180,
+    "minor_injury": 2475,
+    "epdo_total_million": 1997.65
+  },
+  "excluded_noise": {
+    "risk_points": 676,
+    "deaths": 104,
+    "serious_injury": 80,
+    "minor_injury": 414,
+    "epdo_total_million": 880.81
+  },
+  "events_in_clusters": 3784,
+  "largest_cluster_events": 994,
+  "levels": {
+    "high": 6,
+    "medium": 44,
+    "low": 121
+  },
+  "si_stats": {
+    "mean": 0.7209,
+    "median": 0.6667,
+    "sd": 0.5845,
+    "min": 0.0,
+    "max": 3.3333
+  },
+  "epdo_total_million": 1116.84,
+  "epdo_by_level": {
+    "low": {
+      "points": 121,
+      "epdo_total_million": 825.96,
+      "epdo_mean_million": 6.83
+    },
+    "medium": {
+      "points": 44,
+      "epdo_total_million": 233.43,
+      "epdo_mean_million": 5.31
+    },
+    "high": {
+      "points": 6,
+      "epdo_total_million": 57.45,
+      "epdo_mean_million": 9.58
+    }
+  },
+  "by_province": {
+    "กรุงเทพมหานคร": {
+      "points": 62,
+      "low_pct": 72.6,
+      "medium_pct": 24.2,
+      "high_pct": 3.2
+    },
+    "นนทบุรี": {
+      "points": 11,
+      "low_pct": 90.9,
+      "medium_pct": 9.1,
+      "high_pct": 0.0
+    },
+    "ปทุมธานี": {
+      "points": 28,
+      "low_pct": 60.7,
+      "medium_pct": 39.3,
+      "high_pct": 0.0
+    },
+    "สมุทรปราการ": {
+      "points": 48,
+      "low_pct": 64.6,
+      "medium_pct": 31.2,
+      "high_pct": 4.2
+    },
+    "นครปฐม": {
+      "points": 2,
+      "low_pct": 100.0,
+      "medium_pct": 0.0,
+      "high_pct": 0.0
+    },
+    "สมุทรสาคร": {
+      "points": 20,
+      "low_pct": 80.0,
+      "medium_pct": 10.0,
+      "high_pct": 10.0
+    }
+  }
+}
