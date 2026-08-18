@@ -8,12 +8,12 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
-  2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันด้วย DBSCAN (eps 200 ม., min 3)
-     หน่วยวิเคราะห์ = core cluster ทุกกลุ่ม + noise point ทุกจุด (นับเป็นจุดเสี่ยงเดี่ยว)
+  2. จัดกลุ่มจุดเสี่ยงที่เกิดใกล้กันด้วย DBSCAN (eps 400 ม., min 3)
+     หน่วยวิเคราะห์ = คลัสเตอร์ทุกวง + จุดเสี่ยงเดี่ยวที่ไม่เกาะกลุ่ม (noise)
   3. คำนวณดัชนีความรุนแรงอุบัติเหตุต่อจุด  SI = (F + PI) / Total Accident
        F  = จำนวน "ครั้ง" ของอุบัติเหตุที่มีผู้เสียชีวิต (ไม่ใช่จำนวนผู้เสียชีวิต)
        PI = จำนวน "คน" ที่บาดเจ็บรวม (สาหัส + เล็กน้อย)
-       Total Accident = จำนวนอุบัติเหตุทั้งหมดในจุดนั้น
+       Total Accident = จำนวนจุดเสี่ยงทั้งหมดในหน่วยนั้น
   4. จำแนก 3 ระดับด้วยจุดตัดคงที่: ต่ำ SI < 1 · ปานกลาง 1 ≤ SI < 2 · สูง SI ≥ 2
   5. บันทึก GeoJSON + snapshot calibration (data/calibrations/<version>.json)
 
@@ -37,7 +37,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r7"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r8"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
@@ -50,7 +50,7 @@ SI_BREAK_HIGH = 2.0
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
-OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro.geojson"   # หน่วยวิเคราะห์ 1,234
+OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro.geojson"   # หน่วยวิเคราะห์ 847
 ACCIDENT_FILE = BASE_DIR / "data" / "accident_points.geojson"       # จุดเสี่ยง 4,460
 CALIB_DIR = BASE_DIR / "data" / "calibrations"
 
@@ -59,11 +59,12 @@ BANGKOK_METRO_PROVINCES = [
     "สมุทรปราการ", "นครปฐม", "สมุทรสาคร",
 ]
 
-# DBSCAN: รัศมี 200 ม. — ค่าฐานจากข้อมูลจริงคือค่ามัธยฐานระยะเพื่อนบ้านลำดับที่ 3
-# เท่ากับ 97.08 ม. แล้วปรับกว้างขึ้นเป็น 200 ม. ตามตำแหน่งจุดข้อศอกของ sorted
-# k-distance graph (Ester, Kriegel, Sander & Xu 1996)
+# DBSCAN: รัศมี 400 ม. — ค่าฐานจากข้อมูลจริงคือค่ามัธยฐานระยะเพื่อนบ้านลำดับที่ 3
+# เท่ากับ 97.08 ม. แล้วปรับกว้างขึ้นตามตำแหน่งจุดข้อศอกของ sorted k-distance graph
+# (Ester, Kriegel, Sander & Xu 1996) — ผู้ใช้เลือก 400 ม. เพื่อให้หน่วยวิเคราะห์
+# ครอบคลุมช่วงถนนหนึ่งช่วง (ระดับ "ช่วงทาง" ไม่ใช่รายจุด)
 # ขั้นต่ำ 3 เหตุการณ์ตามนิยาม Black Spot
-EPS_METERS = 200
+EPS_METERS = 400
 MIN_SAMPLES = 3
 EARTH_RADIUS_M = 6371000
 
@@ -192,7 +193,7 @@ def cluster_units(events, eps_meters, min_samples):
 
     คำศัพท์ที่ต้องแยกให้ชัด (ผู้ใช้กำหนด):
       - **จุดเสี่ยง** = 1 จุด : 1 อุบัติเหตุ  -> ทั้งชุดมี 4,460 จุด
-      - **คลัสเตอร์** = วงที่ DBSCAN รวมอุบัติเหตุ >= min_samples ครั้งเข้าด้วยกัน
+      - **คลัสเตอร์** = วงที่ DBSCAN รวมจุดเสี่ยง >= min_samples จุดเข้าด้วยกัน
       - **หน่วยวิเคราะห์** = คลัสเตอร์ทุกกลุ่ม + อุบัติเหตุเดี่ยวที่ไม่เกาะกลุ่ม (noise)
         เป็นหน่วยที่ใช้คำนวณ SI และจัดระดับ ไม่ใช่ "จุดเสี่ยง"
 

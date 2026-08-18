@@ -10,20 +10,21 @@
   TTS.init();
   const map = MapView.init();
 
-  // โหลดข้อมูล 2 ชั้นก่อน — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้ ให้แจ้งชัดๆ
-  //   RiskPoints = หน่วยวิเคราะห์ (คลัสเตอร์ + อุบัติเหตุเดี่ยว) ใช้คำนวณระดับ + แจ้งเตือน
-  //   Accidents  = จุดเสี่ยงรายอุบัติเหตุ 1 จุด : 1 อุบัติเหตุ ใช้แสดงผลอย่างเดียว
+  // โหลดหน่วยวิเคราะห์ (คลัสเตอร์ + จุดเสี่ยงเดี่ยว) — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้
+  //
+  // ชั้นจุดเสี่ยงรายอุบัติเหตุ (accidents.js) ปิดไว้ตามที่ผู้ใช้ขอ ถ้าเปิดสคริปต์
+  // กลับมาใน index.html โค้ดตรงนี้จะโหลดและวาดให้เองโดยไม่ต้องแก้อะไรเพิ่ม
+  const hasAccidentLayer = typeof Accidents !== "undefined";
   try {
-    await Promise.all([RiskPoints.load(), Accidents.load()]);
-    if (GPS.isMockMode()) RiskPoints.remove(GPS.mockExcludes()); // ซ่อนจุดที่รถไม่ได้ขับผ่านจริง (เฉพาะจำลอง)
-    Accidents.drawOnMap(map);   // วาดชั้นจุดก่อน ให้วงคลัสเตอร์อยู่ทับด้านบน
+    await Promise.all([RiskPoints.load(), hasAccidentLayer ? Accidents.load() : null]);
+    if (GPS.isMockMode()) RiskPoints.remove(GPS.mockExcludes()); // ซ่อนวงที่รถไม่ได้ขับผ่านจริง (เฉพาะจำลอง)
+    if (hasAccidentLayer) Accidents.drawOnMap(map); // วาดชั้นจุดก่อน ให้คลัสเตอร์อยู่ทับด้านบน
     RiskPoints.drawOnMap(map);
     Filters.init(); // แผงตัวกรองต้องสร้างหลังวาดหมุด (ต้องใช้รายชื่อจังหวัดจากข้อมูล)
     await GPS.prepare(); // โหมดจำลอง: เตรียมเส้นทางถนนจริงไว้ล่วงหน้า
     const clusters = RiskPoints.all().filter((p) => p.unit_type === "cluster").length;
     statusEl.textContent =
-      `โหลดจุดเสี่ยง ${Accidents.all().length.toLocaleString("th-TH")} จุด ` +
-      `และคลัสเตอร์ ${clusters} วงแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
+      `โหลดคลัสเตอร์จุดเสี่ยง ${clusters} วงแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
   } catch (err) {
     statusEl.textContent = `❌ ${err.message} — ตรวจว่าเปิดผ่าน local server ไม่ใช่ file://`;
     startBtn.disabled = true;
