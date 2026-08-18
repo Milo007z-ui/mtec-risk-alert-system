@@ -28,7 +28,7 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 import json
 import sys
 from datetime import datetime, timezone
-from math import radians
+from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 
 import numpy as np
@@ -50,7 +50,8 @@ SI_BREAK_HIGH = 2.0
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
-OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro.geojson"
+OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro.geojson"   # หน่วยวิเคราะห์ 1,234
+ACCIDENT_FILE = BASE_DIR / "data" / "accident_points.geojson"       # จุดเสี่ยง 4,460
 CALIB_DIR = BASE_DIR / "data" / "calibrations"
 
 BANGKOK_METRO_PROVINCES = [
@@ -189,25 +190,81 @@ def cluster_units(events, eps_meters, min_samples):
     """
     DBSCAN บนพิกัด (haversine) -> หน่วยวิเคราะห์ทั้งหมด
 
-    หน่วยวิเคราะห์มี 2 ชนิด ตามที่นิยามไว้ในรายงาน:
-      - cluster : กลุ่มที่มีอุบัติเหตุ >= min_samples ครั้ง (core cluster)
-      - noise   : อุบัติเหตุที่ไม่เกาะกลุ่มกับจุดใด นับเป็นจุดเสี่ยงเดี่ยว 1 จุดต่อ 1 เหตุการณ์
-    ทั้งสองชนิดนับรวมเป็น "จุดเสี่ยง" เพื่อให้ครอบคลุมเหตุการณ์ทุกรายการในชุดข้อมูล
+    คำศัพท์ที่ต้องแยกให้ชัด (ผู้ใช้กำหนด):
+      - **จุดเสี่ยง** = 1 จุด : 1 อุบัติเหตุ  -> ทั้งชุดมี 4,460 จุด
+      - **คลัสเตอร์** = วงที่ DBSCAN รวมอุบัติเหตุ >= min_samples ครั้งเข้าด้วยกัน
+      - **หน่วยวิเคราะห์** = คลัสเตอร์ทุกกลุ่ม + อุบัติเหตุเดี่ยวที่ไม่เกาะกลุ่ม (noise)
+        เป็นหน่วยที่ใช้คำนวณ SI และจัดระดับ ไม่ใช่ "จุดเสี่ยง"
+
+    คืน (units, assignments) โดย assignments[i] = id ของหน่วยวิเคราะห์ที่อุบัติเหตุ
+    ลำดับที่ i สังกัดอยู่ ใช้ผูกจุดเสี่ยงรายอุบัติเหตุกลับเข้าหน่วยวิเคราะห์
     """
     coords = np.array([[radians(e["lat"]), radians(e["lng"])] for e in events])
     labels = DBSCAN(
         eps=eps_meters / EARTH_RADIUS_M, min_samples=min_samples, metric="haversine"
     ).fit(coords).labels_
 
+    assignments = [None] * len(events)
     groups = []
     for cluster_id in sorted(set(labels) - {-1}):
-        members = [events[i] for i, l in enumerate(labels) if l == cluster_id]
-        groups.append((f"zone_{cluster_id}", "cluster", members))
+        uid = f"zone_{cluster_id}"
+        members = []
+        for i, l in enumerate(labels):
+            if l == cluster_id:
+                members.append(events[i])
+                assignments[i] = uid
+        groups.append((uid, "cluster", members))
     for i, l in enumerate(labels):
         if l == -1:
-            groups.append((f"spot_{i}", "noise", [events[i]]))
+            uid = f"spot_{i}"
+            assignments[i] = uid
+            groups.append((uid, "noise", [events[i]]))
 
-    return [_unit_from_members(uid, kind, members) for uid, kind, members in groups]
+    units = [_unit_from_members(uid, kind, members) for uid, kind, members in groups]
+    return units, assignments
+
+
+def accident_points_geojson(events, assignments, units, calibration):
+    """
+    จุดเสี่ยงรายอุบัติเหตุ — 1 feature : 1 อุบัติเหตุ (ทั้งชุด 4,460 จุด)
+
+    แต่ละจุดพ่วง `unit_id` และ `level` ของหน่วยวิเคราะห์ที่สังกัด เพื่อให้แผนที่
+    ระบายสีจุดตามระดับของคลัสเตอร์ที่จุดนั้นอยู่ได้ โดยไม่ต้องคำนวณซ้ำฝั่งเบราว์เซอร์
+    """
+    by_id = {u["id"]: u for u in units}
+    features = []
+    for i, (e, uid) in enumerate(zip(events, assignments)):
+        u = by_id[uid]
+        epdo = (e["deaths"] * COST_DEATH + e["serious"] * COST_SERIOUS
+                + e["minor"] * COST_MINOR) / 1_000_000
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [round(e["lng"], 6), round(e["lat"], 6)]},
+            "properties": {
+                "id": f"acc_{i}",
+                "unit_id": uid,
+                "unit_type": u["unit_type"],
+                "level": u["level"],            # ระดับของหน่วยวิเคราะห์ที่สังกัด
+                "province": e["province"],
+                "road": e["road"],
+                "cause": e["cause"],
+                "road_feature": e["location_type"],
+                "crash_pattern": e["crash_pattern"],
+                "vehicles": e["vehicles"],
+                "deaths": e["deaths"],
+                "serious_injury": e["serious"],
+                "minor_injury": e["minor"],
+                "epdo_million": round(epdo, 4),
+            },
+        })
+    return {"type": "FeatureCollection", "calibration": calibration, "features": features}
+
+
+def haversine_m(lat1, lng1, lat2, lng2):
+    p1, p2 = radians(lat1), radians(lat2)
+    dp, dl = radians(lat2 - lat1), radians(lng2 - lng1)
+    a = sin(dp / 2) ** 2 + cos(p1) * cos(p2) * sin(dl / 2) ** 2
+    return 2 * EARTH_RADIUS_M * asin(sqrt(a))
 
 
 def _unit_from_members(uid, kind, members):
@@ -227,11 +284,18 @@ def _unit_from_members(uid, kind, members):
     else:
         pattern = "mixed"
 
+    lat_c = sum(m["lat"] for m in members) / n
+    lng_c = sum(m["lng"] for m in members) / n
+    # รัศมีจริงของคลัสเตอร์ = ระยะจากจุดกึ่งกลางถึงสมาชิกที่ไกลที่สุด
+    # ใช้วาด "วง" ครอบจุดอุบัติเหตุบนแผนที่ให้เห็นขอบเขตกลุ่มจริง ไม่ใช่หมุดขนาดคงที่
+    radius_m = round(max(haversine_m(lat_c, lng_c, m["lat"], m["lng"]) for m in members), 1)
+
     return {
         "id": uid,
         "unit_type": kind,
-        "lat": round(sum(m["lat"] for m in members) / n, 6),
-        "lng": round(sum(m["lng"] for m in members) / n, 6),
+        "lat": round(lat_c, 6),
+        "lng": round(lng_c, 6),
+        "radius_m": radius_m,
         "province": mode_of([m["province"] for m in members]),
         "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
         "accident_count": n,
@@ -281,13 +345,14 @@ def main():
     events = clean_points(records)
     print(f"มีพิกัดใช้ได้ {len(events)} เหตุการณ์")
 
-    units = cluster_units(events, EPS_METERS, MIN_SAMPLES)
+    units, assignments = cluster_units(events, EPS_METERS, MIN_SAMPLES)
     clusters = [u for u in units if u["unit_type"] == "cluster"]
     noise = [u for u in units if u["unit_type"] == "noise"]
     in_cluster = sum(u["accident_count"] for u in clusters)
-    print(f"DBSCAN (eps {EPS_METERS} ม., min {MIN_SAMPLES}) -> จุดเสี่ยงรวม {len(units)} จุด")
-    print(f"  core cluster {len(clusters)} กลุ่ม (ครอบคลุม {in_cluster} เหตุการณ์)"
-          f" · noise point {len(noise)} จุด")
+    print(f"DBSCAN (eps {EPS_METERS} ม., min {MIN_SAMPLES})")
+    print(f"  จุดเสี่ยง (1 จุด : 1 อุบัติเหตุ) {len(events)} จุด")
+    print(f"  หน่วยวิเคราะห์รวม {len(units)} หน่วย = คลัสเตอร์ {len(clusters)} กลุ่ม "
+          f"(ครอบคลุม {in_cluster} อุบัติเหตุ) + อุบัติเหตุเดี่ยว {len(noise)} จุด")
     if clusters:
         print(f"  กลุ่มใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} ครั้ง")
 
@@ -345,7 +410,10 @@ def main():
         "epdo_weights_million_per_person": {"fatal": 6.7, "serious": 2.0, "minor": 0.058},
         "level_breaks": [SI_BREAK_LOW, SI_BREAK_HIGH],
         "level_break_method": "fixed_si_cutoff",
-        "zones": len(units),
+        # คำศัพท์: จุดเสี่ยง = 1 จุด : 1 อุบัติเหตุ (4,460) · หน่วยวิเคราะห์ = คลัสเตอร์ + เดี่ยว
+        "risk_points": len(events),
+        "analysis_units": len(units),
+        "zones": len(units),          # ชื่อเดิม เก็บไว้ให้ของเก่าอ่านได้
         "core_clusters": len(clusters),
         "noise_points": len(noise),
         "events_in_clusters": in_cluster,
@@ -366,7 +434,15 @@ def main():
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(to_geojson(units, calibration), f, ensure_ascii=False, indent=1)
-    print(f"บันทึก {OUTPUT_FILE.relative_to(BASE_DIR)}")
+    print(f"บันทึก {OUTPUT_FILE.relative_to(BASE_DIR)} ({len(units)} หน่วยวิเคราะห์)")
+
+    # จุดเสี่ยงรายอุบัติเหตุ — ไฟล์นี้คือ "จุดเสี่ยง" ตามนิยาม 1 จุด : 1 อุบัติเหตุ
+    with open(ACCIDENT_FILE, "w", encoding="utf-8") as f:
+        json.dump(accident_points_geojson(events, assignments, units, calibration),
+                  f, ensure_ascii=False, separators=(",", ":"))
+    size_mb = ACCIDENT_FILE.stat().st_size / 1_048_576
+    print(f"บันทึก {ACCIDENT_FILE.relative_to(BASE_DIR)} "
+          f"({len(events)} จุดเสี่ยง, {size_mb:.1f} MB)")
 
     # เก็บ log ทุกเวอร์ชัน calibration ไว้ตรวจสอบย้อนหลัง
     CALIB_DIR.mkdir(parents=True, exist_ok=True)

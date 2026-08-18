@@ -29,6 +29,9 @@ const Filters = (() => {
     buildPatternOptions();
 
     panel.addEventListener("change", apply);
+    document.getElementById("f-show-accidents").addEventListener("change", (e) => {
+      Accidents.setVisible(e.target.checked);
+    });
     document.getElementById("filter-toggle").addEventListener("click", () => {
       panel.classList.toggle("collapsed");
     });
@@ -57,31 +60,55 @@ const Filters = (() => {
     }
   }
 
-  /** อ่านค่าจากฟอร์มแล้วสั่งกรอง + อัปเดตบรรทัดสรุปจำนวน */
+  /**
+   * อ่านค่าจากฟอร์มแล้วสั่งกรองทั้งสองชั้น + อัปเดตบรรทัดสรุปจำนวน
+   * บรรทัดสรุปรายงานแยกสองคำ: "จุดเสี่ยง" (รายอุบัติเหตุ) กับ "คลัสเตอร์" (วง)
+   */
   function apply() {
+    const province = document.getElementById("f-province").value;
     const levels = LEVELS.map(([key]) => key).filter(
       (key) => document.getElementById(`f-level-${key}`).checked
     );
-    const shown = RiskPoints.setFilter({
-      province: document.getElementById("f-province").value,
+
+    // ชั้นคลัสเตอร์ — ตัวเลขที่คืนมานับรวมหน่วย noise ที่ไม่ได้วาดวง
+    // จึงนับวงที่แสดงจริงจาก unit_type === "cluster" แทน
+    RiskPoints.setFilter({
+      province,
       levels,
       pattern: document.getElementById("f-pattern").value,
     });
+    const shownClusters = RiskPoints.visible().filter((p) => p.unit_type === "cluster").length;
+    const totalClusters = RiskPoints.all().filter((p) => p.unit_type === "cluster").length;
 
-    const total = RiskPoints.all().length;
+    // ชั้นจุดเสี่ยงรายอุบัติเหตุ (ไม่มีตัวกรองประเภทปัญหา)
+    const levelSet = new Set(levels);
+    const shownAcc = Accidents.applyFilter({ province, levels: levelSet });
+    const totalAcc = Accidents.all().length;
+
     const countEl = document.getElementById("filter-count");
-    countEl.textContent =
-      shown === total
-        ? `แสดงครบทั้ง ${total} จุด`
-        : `แสดง ${shown} จาก ${total} จุด`;
-    countEl.classList.toggle("filter-count--none", shown === 0);
-    if (shown === 0) countEl.textContent = "ไม่มีจุดที่ตรงกับตัวกรอง";
+    if (shownAcc === 0 && shownClusters === 0) {
+      countEl.textContent = "ไม่มีจุดที่ตรงกับตัวกรอง";
+      countEl.classList.add("filter-count--none");
+      return;
+    }
+    countEl.classList.remove("filter-count--none");
+    const accText =
+      shownAcc === totalAcc
+        ? `จุดเสี่ยงครบทั้ง ${totalAcc.toLocaleString("th-TH")} จุด`
+        : `จุดเสี่ยง ${shownAcc.toLocaleString("th-TH")} จาก ${totalAcc.toLocaleString("th-TH")} จุด`;
+    const clusterText =
+      shownClusters === totalClusters
+        ? `คลัสเตอร์ครบทั้ง ${totalClusters} วง`
+        : `คลัสเตอร์ ${shownClusters} จาก ${totalClusters} วง`;
+    countEl.textContent = `${accText} · ${clusterText}`;
   }
 
   function reset() {
     document.getElementById("f-province").value = "";
     document.getElementById("f-pattern").value = "";
     for (const [key] of LEVELS) document.getElementById(`f-level-${key}`).checked = true;
+    document.getElementById("f-show-accidents").checked = true;
+    Accidents.setVisible(true);
     apply();
   }
 

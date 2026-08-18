@@ -339,3 +339,27 @@ html, body {
 .pp-sw-multi { background: #26a69a; }
 
 .hidden { display: none !important; }
+
+/* ---- ชั้นข้อมูล 2 ชั้น: จุดเสี่ยงรายอุบัติเหตุ vs วงคลัสเตอร์ ---- */
+.filter-layers { margin-top: 10px; padding-top: 8px; border-top: 1px solid #e6e6e6; }
+#legend .legend-sep { margin-top: 5px; padding-top: 5px; border-top: 1px solid #e0e0e0; }
+#legend .dot-sm {
+  width: 6px;
+  height: 6px;
+  background: #777;
+  margin-left: 2px;
+  margin-right: 8px;
+}
+#legend .ring {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #777;
+  border-radius: 50%;
+  background: rgba(119,119,119,.12);
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+/* ป๊อปอัปจุดเสี่ยงรายอุบัติเหตุ — สั้นกว่าของคลัสเตอร์ ไม่มีคะแนน/คำแนะนำ */
+.popup-acc .pp-title { margin-bottom: 2px; }
+.popup-acc .pp-stats { margin: 6px 0; }

@@ -1,6 +1,6 @@
 {
   "version": "v2568-r7",
-  "generated_at": "2026-08-18T06:59:55+00:00",
+  "generated_at": "2026-08-18T07:23:11+00:00",
   "recalibration_policy": "ทุก 6 เดือน",
   "source": "accident2025_1.xlsx",
   "events_total": 4627,
@@ -26,6 +26,8 @@
     2.0
   ],
   "level_break_method": "fixed_si_cutoff",
+  "risk_points": 4460,
+  "analysis_units": 1234,
   "zones": 1234,
   "core_clusters": 234,
   "noise_points": 1000,

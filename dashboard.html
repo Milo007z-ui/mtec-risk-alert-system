@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>แดชบอร์ดจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
+  <title>แดชบอร์ดหน่วยวิเคราะห์จุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
   <header class="page-header">
     <div>
-      <h1>📊 แดชบอร์ดจุดเสี่ยงอุบัติเหตุ</h1>
+      <h1>📊 แดชบอร์ดหน่วยวิเคราะห์จุดเสี่ยงอุบัติเหตุ</h1>
       <p class="subtitle">กรุงเทพฯ และปริมณฑล · ข้อมูลอุบัติเหตุปี 2568 จาก MOT Data Catalog</p>
     </div>
     <a class="btn-map" href="index.html">🗺️ เปิดแผนที่แจ้งเตือน</a>
@@ -19,14 +19,14 @@
     <!-- แถว KPI -->
     <section class="kpi-row">
       <div class="stat-tile">
-        <div class="stat-label">จุดเสี่ยงทั้งหมด</div>
+        <div class="stat-label">หน่วยวิเคราะห์ทั้งหมด</div>
         <div class="stat-value" id="kpi-zones">–</div>
         <div class="stat-sub" id="kpi-zones-sub"></div>
       </div>
       <div class="stat-tile">
-        <div class="stat-label">อุบัติเหตุสะสมในจุดเสี่ยง</div>
+        <div class="stat-label">จุดเสี่ยงสะสม (1 จุด : 1 อุบัติเหตุ)</div>
         <div class="stat-value" id="kpi-accidents">–</div>
-        <div class="stat-sub">เฉพาะเหตุที่เกาะกลุ่มเป็นจุดเสี่ยง</div>
+        <div class="stat-sub">รวมทั้งที่อยู่ในคลัสเตอร์และอุบัติเหตุเดี่ยว</div>
       </div>
       <div class="stat-tile">
         <div class="stat-label">ผู้เสียชีวิต</div>
@@ -42,31 +42,31 @@
 
     <!-- สัดส่วนระดับความเสี่ยง -->
     <section class="card">
-      <h2>สัดส่วนจุดเสี่ยงตามระดับความรุนแรง</h2>
+      <h2>สัดส่วนหน่วยวิเคราะห์ตามระดับความรุนแรง</h2>
       <div class="level-bar" id="level-bar"></div>
       <div class="legend" id="level-legend"></div>
     </section>
 
     <div class="two-col">
-      <!-- จุดเสี่ยงรายจังหวัด -->
+      <!-- หน่วยวิเคราะห์รายจังหวัด -->
       <section class="card">
-        <h2>จุดเสี่ยงรายจังหวัด</h2>
-        <p class="card-note">จำนวนจุดเสี่ยง (ชี้ที่แท่งเพื่อดูรายละเอียดระดับ)</p>
+        <h2>หน่วยวิเคราะห์รายจังหวัด</h2>
+        <p class="card-note">จำนวนหน่วยวิเคราะห์ = คลัสเตอร์ + อุบัติเหตุเดี่ยว (ชี้ที่แท่งเพื่อดูรายละเอียดระดับ)</p>
         <div class="bar-chart" id="province-chart"></div>
       </section>
 
       <!-- สาเหตุยอดฮิต -->
       <section class="card">
         <h2>สาเหตุหลักของอุบัติเหตุ</h2>
-        <p class="card-note">จำนวนอุบัติเหตุสะสมในจุดเสี่ยงที่มีสาเหตุหลักนั้น</p>
+        <p class="card-note">จำนวนจุดเสี่ยงสะสมในหน่วยวิเคราะห์ที่มีสาเหตุหลักนั้น</p>
         <div class="bar-chart bar-chart--stacked-label" id="cause-chart"></div>
       </section>
     </div>
 
     <!-- ตาราง 10 อันดับ -->
     <section class="card">
-      <h2>10 จุดเสี่ยงอันตรายที่สุด</h2>
-      <p class="card-note">เรียงตามดัชนีความรุนแรงอุบัติเหตุ SI = (จำนวนครั้งที่มีผู้เสียชีวิต + จำนวนผู้บาดเจ็บ) ÷ จำนวนอุบัติเหตุทั้งหมดของจุดนั้น แบ่งระดับที่ ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</p>
+      <h2>10 หน่วยวิเคราะห์ที่รุนแรงที่สุด</h2>
+      <p class="card-note">เรียงตามดัชนีความรุนแรงอุบัติเหตุ SI = (จำนวนครั้งที่มีผู้เสียชีวิต + จำนวนผู้บาดเจ็บ) ÷ จำนวนจุดเสี่ยงทั้งหมดของหน่วยนั้น แบ่งระดับที่ ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</p>
       <div class="table-wrap">
         <table id="top-table">
           <thead>
@@ -83,8 +83,9 @@
 
     <footer class="page-footer">
       แหล่งข้อมูล: <a href="https://datagov.mot.go.th/dataset/roadaccident" target="_blank" rel="noopener">
-      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2568 รวม 4,627 เหตุการณ์ ·
-      จัดกลุ่มด้วย DBSCAN รัศมี 400 ม. ขั้นต่ำ 3 เหตุการณ์<span id="calib-note"></span>
+      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2568 รวม 4,627 เหตุการณ์
+      (มีพิกัดครบ 4,460 จุดเสี่ยง) · จัดกลุ่มด้วย DBSCAN รัศมี 200 ม. ขั้นต่ำ 3 เหตุการณ์
+      ได้คลัสเตอร์ 234 กลุ่ม + อุบัติเหตุเดี่ยว 1,000 จุด<span id="calib-note"></span>
     </footer>
   </main>
 
@@ -92,6 +93,6 @@
   <div id="loading" class="load-msg">กำลังโหลดข้อมูล...</div>
   <div id="tooltip" class="tooltip hidden" role="status"></div>
 
-  <script src="js/dashboard.js?v=2"></script>
+  <script src="js/dashboard.js?v=3"></script>
 </body>
 </html>

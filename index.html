@@ -47,6 +47,11 @@
       <label class="filter-label" for="f-pattern">ประเภทปัญหาหลัก</label>
       <select id="f-pattern"></select>
 
+      <div class="filter-levels filter-layers">
+        <label><input type="checkbox" id="f-show-accidents" checked>
+          แสดงจุดเสี่ยงรายอุบัติเหตุ</label>
+      </div>
+
       <div class="filter-foot">
         <span id="filter-count"></span>
         <button id="filter-reset" type="button">ล้างตัวกรอง</button>
@@ -58,6 +63,8 @@
     <div><span class="dot" style="background:#c62828"></span> เสี่ยงสูง</div>
     <div><span class="dot" style="background:#ef6c00"></span> ปานกลาง</div>
     <div><span class="dot" style="background:#2e7d32"></span> ต่ำ</div>
+    <div class="legend-sep"><span class="dot dot-sm"></span> จุดเสี่ยง = 1 อุบัติเหตุ</div>
+    <div><span class="ring"></span> คลัสเตอร์ = กลุ่มตั้งแต่ 3 ครั้ง</div>
   </div>
 
   <div id="start-overlay">
@@ -74,11 +81,12 @@
   <script src="js/distance.js"></script>
   <script src="js/tts.js"></script>
   <script src="js/riskrules.js?v=6"></script>
-  <script src="js/riskpoints.js?v=9"></script>
-  <script src="js/filters.js?v=9"></script>
+  <script src="js/riskpoints.js?v=10"></script>
+  <script src="js/accidents.js?v=1"></script>
+  <script src="js/filters.js?v=10"></script>
   <script src="js/map.js?v=7"></script>
-  <script src="js/gps.js?v=8"></script>
+  <script src="js/gps.js?v=9"></script>
   <script src="js/alert.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

@@ -10,14 +10,20 @@
   TTS.init();
   const map = MapView.init();
 
-  // โหลดจุดเสี่ยงก่อน — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้ ให้แจ้งชัดๆ
+  // โหลดข้อมูล 2 ชั้นก่อน — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้ ให้แจ้งชัดๆ
+  //   RiskPoints = หน่วยวิเคราะห์ (คลัสเตอร์ + อุบัติเหตุเดี่ยว) ใช้คำนวณระดับ + แจ้งเตือน
+  //   Accidents  = จุดเสี่ยงรายอุบัติเหตุ 1 จุด : 1 อุบัติเหตุ ใช้แสดงผลอย่างเดียว
   try {
-    await RiskPoints.load();
+    await Promise.all([RiskPoints.load(), Accidents.load()]);
     if (GPS.isMockMode()) RiskPoints.remove(GPS.mockExcludes()); // ซ่อนจุดที่รถไม่ได้ขับผ่านจริง (เฉพาะจำลอง)
+    Accidents.drawOnMap(map);   // วาดชั้นจุดก่อน ให้วงคลัสเตอร์อยู่ทับด้านบน
     RiskPoints.drawOnMap(map);
     Filters.init(); // แผงตัวกรองต้องสร้างหลังวาดหมุด (ต้องใช้รายชื่อจังหวัดจากข้อมูล)
     await GPS.prepare(); // โหมดจำลอง: เตรียมเส้นทางถนนจริงไว้ล่วงหน้า
-    statusEl.textContent = `โหลดจุดเสี่ยง ${RiskPoints.all().length} จุดแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
+    const clusters = RiskPoints.all().filter((p) => p.unit_type === "cluster").length;
+    statusEl.textContent =
+      `โหลดจุดเสี่ยง ${Accidents.all().length.toLocaleString("th-TH")} จุด ` +
+      `และคลัสเตอร์ ${clusters} วงแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
   } catch (err) {
     statusEl.textContent = `❌ ${err.message} — ตรวจว่าเปิดผ่าน local server ไม่ใช่ file://`;
     startBtn.disabled = true;

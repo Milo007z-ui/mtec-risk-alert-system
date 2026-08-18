@@ -39,7 +39,7 @@
   document.getElementById("kpi-accidents").textContent = fmt(sum("accident_count"));
   document.getElementById("kpi-deaths").textContent = fmt(sum("deaths"));
   document.getElementById("kpi-deaths-sub").textContent =
-    `ใน ${zones.filter((z) => z.deaths > 0).length} จุดที่มีผู้เสียชีวิต`;
+    `ใน ${zones.filter((z) => z.deaths > 0).length} หน่วยที่มีผู้เสียชีวิต`;
   document.getElementById("kpi-injured").textContent = fmt(sum("serious_injury") + sum("minor_injury"));
   document.getElementById("kpi-injured-sub").textContent =
     `สาหัส ${fmt(sum("serious_injury"))} · เล็กน้อย ${fmt(sum("minor_injury"))}`;
@@ -57,12 +57,12 @@
     seg.style.color = lv.ink;
     seg.style.flex = `${count} 0 0`;
     seg.textContent = count;
-    seg.title = `${lv.label} ${count} จุด (${pct.toFixed(1)}%)`;
+    seg.title = `${lv.label} ${count} หน่วย (${pct.toFixed(1)}%)`;
     levelBar.appendChild(seg);
 
     const item = document.createElement("span");
     item.innerHTML = `<span class="swatch" style="background:${lv.color}"></span>` +
-      `${lv.label} <strong>${count}</strong> จุด (${pct.toFixed(1)}%)`;
+      `${lv.label} <strong>${count}</strong> หน่วย (${pct.toFixed(1)}%)`;
     levelLegend.appendChild(item);
   }
   // ป้ายตัวเลขในท่อนต้องไม่ล้น — ถ้าท่อนแคบกว่าตัวเลข ให้ซ่อน (legend มีค่าครบอยู่แล้ว)
@@ -87,7 +87,7 @@
     rows: provinces.map(([name, p]) => ({
       label: name,
       value: p.total,
-      tooltip: `<strong>${name}</strong><br>จุดเสี่ยง ${p.total} จุด<br>` +
+      tooltip: `<strong>${name}</strong><br>หน่วยวิเคราะห์ ${p.total} หน่วย<br>` +
         `🔴 สูง ${p.high} · 🟠 ปานกลาง ${p.medium} · 🟡 ต่ำ ${p.low}`,
     })),
     color: "var(--series-1)",

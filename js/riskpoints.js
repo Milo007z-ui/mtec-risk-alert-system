@@ -72,23 +72,32 @@ const RiskPoints = (() => {
     return points;
   }
 
+  /**
+   * วาดเฉพาะ "คลัสเตอร์" (234 กลุ่ม) เป็นวงจริงที่ครอบจุดอุบัติเหตุของกลุ่มไว้
+   * รัศมีวง = ระยะจากจุดกึ่งกลางถึงสมาชิกที่ไกลที่สุด (`radius_m` คำนวณฝั่ง Python)
+   *
+   * หน่วยวิเคราะห์ชนิด noise (อุบัติเหตุเดี่ยว 1,000 จุด) ไม่วาดซ้ำที่ชั้นนี้
+   * เพราะถูกวาดเป็นจุดเสี่ยงอยู่แล้วใน accidents.js — แต่ยังอยู่ใน `points`
+   * เพื่อให้ระบบแจ้งเตือนตรวจครบทั้ง 1,234 หน่วย
+   */
   function drawOnMap(map) {
     mapRef = map;
     markers = [];
     for (const p of points) {
+      if (p.unit_type !== "cluster") continue;
       const style = LEVEL_STYLE[p.level] || LEVEL_STYLE.low;
-      const marker = L.circleMarker([p.lat, p.lng], {
-        radius: 9,
+      // วงเล็กสุดต้องยังกดติด — คลัสเตอร์ที่สมาชิกพิกัดซ้อนกันมี radius_m = 0
+      const layer = L.circle([p.lat, p.lng], {
+        radius: Math.max(p.radius_m || 0, 60),
         color: style.color,
         weight: 2,
         fillColor: style.color,
-        fillOpacity: 0.5,
+        fillOpacity: 0.12,
       }).addTo(map);
 
-      // สร้าง HTML ตอนคลิกเท่านั้น — ตั้งแต่รอบ v2568-r7 มีจุดเสี่ยง 1,234 จุด
-      // ถ้าสร้างล่วงหน้าทั้งหมดจะหน่วงตอนเปิดแผนที่โดยที่ผู้ใช้ดูแค่ไม่กี่จุด
-      marker.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
-      markers.push({ point: p, layer: marker });
+      // สร้าง HTML ตอนคลิกเท่านั้น ไม่ต้องสร้างล่วงหน้าทั้ง 234 วง
+      layer.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
+      markers.push({ point: p, layer });
     }
   }
 
@@ -165,6 +174,8 @@ const RiskPoints = (() => {
           </div>
         </div>
         <div class="pp-sub">${p.province} · ${p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
+        <div class="pp-sub">คลัสเตอร์ <b>${p.id}</b> · รวมจุดเสี่ยง ${p.accident_count} จุด
+          ในรัศมี ${Math.round(p.radius_m || 0)} ม.</div>
         <div class="pp-levelrow">ระดับความเสี่ยง:
           <span class="pp-level" style="background:${style.color}">${style.label}</span>
         </div>
