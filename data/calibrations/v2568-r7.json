@@ -1,0 +1,102 @@
+{
+  "version": "v2568-r7",
+  "generated_at": "2026-08-18T06:59:55+00:00",
+  "recalibration_policy": "ทุก 6 เดือน",
+  "source": "accident2025_1.xlsx",
+  "events_total": 4627,
+  "events_with_coords": 4460,
+  "dbscan": {
+    "eps_m": 200,
+    "min_samples": 3
+  },
+  "scoring_method": "severity_index",
+  "si_formula": "(F + PI) / Total Accident",
+  "cost_per_person_thb": {
+    "death": 6700000,
+    "serious": 2000000,
+    "minor": 58000
+  },
+  "epdo_weights_million_per_person": {
+    "fatal": 6.7,
+    "serious": 2.0,
+    "minor": 0.058
+  },
+  "level_breaks": [
+    1.0,
+    2.0
+  ],
+  "level_break_method": "fixed_si_cutoff",
+  "zones": 1234,
+  "core_clusters": 234,
+  "noise_points": 1000,
+  "events_in_clusters": 3460,
+  "largest_cluster_events": 455,
+  "levels": {
+    "high": 161,
+    "medium": 403,
+    "low": 670
+  },
+  "si_stats": {
+    "mean": 0.7698,
+    "median": 0.6667,
+    "sd": 1.7743,
+    "min": 0.0,
+    "max": 54.0
+  },
+  "epdo_total_million": 1997.65,
+  "epdo_by_level": {
+    "low": {
+      "points": 670,
+      "epdo_total_million": 662.97,
+      "epdo_mean_million": 0.99
+    },
+    "medium": {
+      "points": 403,
+      "epdo_total_million": 916.74,
+      "epdo_mean_million": 2.27
+    },
+    "high": {
+      "points": 161,
+      "epdo_total_million": 417.94,
+      "epdo_mean_million": 2.6
+    }
+  },
+  "by_province": {
+    "กรุงเทพมหานคร": {
+      "points": 360,
+      "low_pct": 64.7,
+      "medium_pct": 25.8,
+      "high_pct": 9.4
+    },
+    "นนทบุรี": {
+      "points": 125,
+      "low_pct": 51.2,
+      "medium_pct": 37.6,
+      "high_pct": 11.2
+    },
+    "ปทุมธานี": {
+      "points": 229,
+      "low_pct": 51.5,
+      "medium_pct": 36.2,
+      "high_pct": 12.2
+    },
+    "สมุทรปราการ": {
+      "points": 255,
+      "low_pct": 45.5,
+      "medium_pct": 37.3,
+      "high_pct": 17.3
+    },
+    "นครปฐม": {
+      "points": 140,
+      "low_pct": 51.4,
+      "medium_pct": 34.3,
+      "high_pct": 14.3
+    },
+    "สมุทรสาคร": {
+      "points": 125,
+      "low_pct": 53.6,
+      "medium_pct": 29.6,
+      "high_pct": 16.8
+    }
+  }
+}

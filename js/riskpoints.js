@@ -85,7 +85,9 @@ const RiskPoints = (() => {
         fillOpacity: 0.5,
       }).addTo(map);
 
-      marker.bindPopup(buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
+      // สร้าง HTML ตอนคลิกเท่านั้น — ตั้งแต่รอบ v2568-r7 มีจุดเสี่ยง 1,234 จุด
+      // ถ้าสร้างล่วงหน้าทั้งหมดจะหน่วงตอนเปิดแผนที่โดยที่ผู้ใช้ดูแค่ไม่กี่จุด
+      marker.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
       markers.push({ point: p, layer: marker });
     }
   }
@@ -132,8 +134,8 @@ const RiskPoints = (() => {
   }
 
   /**
-   * popup: Risk Score + ระดับ + สถิติ + มูลค่าความเสียหาย + Single/Multi
-   * + ปัจจัยเสี่ยง + คำแนะนำขับขี่ + คำแนะนำวิศวกรรม + คะแนนย่อย 4 เกณฑ์ (เกณฑ์ละ 25 คะแนน)
+   * popup: Severity Index + ระดับ + สถิติ + มูลค่าความเสียหาย + Single/Multi
+   * + ปัจจัยเสี่ยง + คำแนะนำขับขี่ + คำแนะนำวิศวกรรม + ที่มาของค่า SI
    */
   function buildPopupHtml(p, style) {
     const rules = RiskRules.evaluate(p);
@@ -146,39 +148,20 @@ const RiskPoints = (() => {
 
     const single = p.single_count ?? 0;
     const multi = p.multi_count ?? 0;
+    const si = p.severity_index ?? 0;
 
-    // แถบคะแนนย่อย 4 เกณฑ์ — score_breakdown เก็บ Percentile Rank 0-100
-    // เก็บเป็น Percentile Rank 0-100 แล้วคูณ 0.25 ตอนแสดงเป็นแต้ม/25 ให้อ่านง่าย
-    // บวก 4 ช่องได้ Risk Score เต็ม 100 พอดี · ความยาวแถบ = percentile
-    // เกณฑ์รถคันเดียวมีแถบเทียบสัดส่วนต่อท้าย เพราะคะแนนเกณฑ์อย่างเดียว
-    // ไม่บอกว่าจุดนี้เป็นปัญหารถเสียหลักเดี่ยวหรือปัญหารถชนกัน
-    const b = p.score_breakdown || {};
-    const bars = [
-      ["ความถี่", b.frequency, ""],
-      ["ความเสียหาย ฿", b.economic_loss, ""],
-      ["รถคันเดียว", b.single_vehicle, buildSplitHtml(p, single, multi)],
-      ["ลักษณะถนน", b.geometry, ""],
-    ]
-      .map(([name, pct, extra]) => {
-        const pts = pct == null ? null : Math.round(pct * 0.25);
-        return `
-        <div class="pp-factor">
-          <span class="pp-factor-name">${name}</span>
-          <span class="pp-factor-track"><span class="pp-factor-fill"
-            style="width:${pct || 0}%;background:${style.color}"></span></span>
-          <span class="pp-factor-val">${pts == null ? "-" : `${pts}<small>/25</small>`}</span>
-        </div>${extra}`;
-      })
-      .join("");
-
-    const engAdvice = ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed;
+    // ที่มาของค่า SI แบบกางสูตรให้เห็นตัวตั้งจริง เพราะ SI เป็นค่าเฉลี่ยต่อครั้ง
+    // ตัวเลขเดียวจึงไม่บอกว่ามาจากจุดที่เกิดถี่แต่เบา หรือเกิดน้อยครั้งแต่หนัก
+    const fatal = p.fatal_crashes ?? 0;
+    const injured = p.injured_total ?? 0;
+    const n = p.accident_count ?? 1;
 
     return `
       <div class="popup">
         <div class="pp-head">
           <div class="pp-title">${p.road}</div>
           <div class="pp-score" style="background:${style.color}">
-            ${Math.round(p.risk_score)}<small>/100</small>
+            ${si.toFixed(2)}<small>SI</small>
           </div>
         </div>
         <div class="pp-sub">${p.province} · ${p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
@@ -195,9 +178,14 @@ const RiskPoints = (() => {
           🚘 คันเดียว ${single} ครั้ง / หลายคัน ${multi} ครั้ง</div>
         ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
         <div class="pp-advice">💡 ${advice}</div>
-        <div class="pp-advice">🛠️ ${engAdvice}</div>
-        <div class="pp-section">องค์ประกอบคะแนน (เกณฑ์ละ 25 คะแนนเต็ม)</div>
-        ${bars}
+        <div class="pp-advice">🛠️ ${ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed}</div>
+        <div class="pp-section">ที่มาของดัชนีความรุนแรง</div>
+        <div class="pp-formula">
+          SI = (ครั้งที่มีผู้เสียชีวิต ${fatal} + ผู้บาดเจ็บ ${injured} คน) ÷ อุบัติเหตุ ${n} ครั้ง
+          = <b>${si.toFixed(2)}</b>
+        </div>
+        <div class="pp-sub">เกณฑ์: ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</div>
+        ${buildSplitHtml(p, single, multi)}
       </div>`;
   }
 

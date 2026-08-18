@@ -1,21 +1,25 @@
 """
-build_risk_points.py — สร้างไฟล์จุดเสี่ยง data/risk_points_bkk_metro.geojson (โมเดล v2)
+build_risk_points.py — สร้างไฟล์จุดเสี่ยง data/risk_points_bkk_metro.geojson (โมเดล v3)
 
 Batch calibration job: รันตามรอบ Fixed-Schedule ที่กำหนดเท่านั้น (แนะนำทุก 6 เดือน)
-ห้ามรันใหม่ทุกครั้งที่มี request — ผลคะแนนต้องถูก "ล็อก" เป็นเวอร์ชัน calibration
+ห้ามรันใหม่ทุกครั้งที่มี request — ผลต้องถูก "ล็อก" เป็นเวอร์ชัน calibration
 เพื่อให้เปรียบเทียบข้ามช่วงเวลาได้ ไม่ลอยขึ้นลง
 (หลักการ: Srinivasan & Carter 2011, NCDOT — Fixed-Schedule Recalibration หน้า 49-51)
 
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
-  2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันเป็น "จุดเสี่ยง" ด้วย DBSCAN (eps 400 ม., min 3)
-  3. คำนวณ 4 เกณฑ์ต่อจุด แล้วแปลงเป็น Percentile Rank 0-100 (อันดับเทียบจุดอื่นในรอบ):
-       - ความถี่อุบัติเหตุ           (จำนวนครั้ง)
-       - มูลค่าความเสียหายเศรษฐกิจ   (บาท — ต้นทุน/ราย: TDRI 2565)
-       - Single-Vehicle Crash Ratio (% เหตุที่มีรถ ≤1 คัน)
-       - ลักษณะถนน                   (% เหตุที่เกิดบริเวณทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ)
-  4. Risk Score = 0.25×(รวม 4 เกณฑ์) เต็ม 100 แบ่ง 3 ระดับ: ต่ำ ≤40 / กลาง ≤60 / สูง >60
+  2. จัดกลุ่มเหตุการณ์ที่เกิดใกล้กันด้วย DBSCAN (eps 200 ม., min 3)
+     หน่วยวิเคราะห์ = core cluster ทุกกลุ่ม + noise point ทุกจุด (นับเป็นจุดเสี่ยงเดี่ยว)
+  3. คำนวณดัชนีความรุนแรงอุบัติเหตุต่อจุด  SI = (F + PI) / Total Accident
+       F  = จำนวน "ครั้ง" ของอุบัติเหตุที่มีผู้เสียชีวิต (ไม่ใช่จำนวนผู้เสียชีวิต)
+       PI = จำนวน "คน" ที่บาดเจ็บรวม (สาหัส + เล็กน้อย)
+       Total Accident = จำนวนอุบัติเหตุทั้งหมดในจุดนั้น
+  4. จำแนก 3 ระดับด้วยจุดตัดคงที่: ต่ำ SI < 1 · ปานกลาง 1 ≤ SI < 2 · สูง SI ≥ 2
   5. บันทึก GeoJSON + snapshot calibration (data/calibrations/<version>.json)
+
+โมเดลนี้แทนที่โมเดล v2 (คะแนน 4 เกณฑ์ × 25% เต็ม 100) ทั้งหมดตั้งแต่ v2568-r7
+เพื่อให้ตรงกับรายงานโครงงานที่ใช้ Severity Index เป็นเกณฑ์จำแนกระดับ
+โค้ดและ snapshot ของโมเดล v2 ยังอยู่ใน git history และ data/calibrations/v2568-r1..r5
 
 ใช้: py scripts/build_risk_points.py            # สร้างไฟล์
      py scripts/build_risk_points.py --selftest # ตรวจสูตรทั้งหมด
@@ -33,41 +37,16 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r5"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r7"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
-# จุดตัดระดับต่ำ/กลาง/สูง — เลขกลมคงที่ (ตั้งแต่ v2568-r3)
-# เดิม (r1, r2) ใช้ Jenks Natural Breaks คำนวณจาก Risk Score จริงทุกรอบ (ยังเก็บฟังก์ชัน
-# jenks_breaks() ไว้อ้างอิง/self-test) แต่ผู้ใช้ต้องการเกณฑ์ที่อธิบายง่ายกว่าสำหรับพรีเซนต์
-# จึงเปลี่ยนมาใช้เลขกลมคงที่แทน — ข้อแลกเปลี่ยน: อธิบายง่าย ("ต่ำกว่า 40 คือต่ำ") แต่ไม่มี
-# หลักฐานทางสถิติรองรับตัวเลข 40/60 เจาะจง (ต่างจาก Jenks ที่หาจุดตัดจากความแปรปรวนจริง)
-LEVEL_BREAKS = [40.0, 60.0]
-
-# ---- ตารางเกณฑ์ให้คะแนน (banded rubric) — ตั้งแต่ v2568-r4
-# รูปแบบ: (ค่าดิบสูงสุดของช่วง, คะแนน) เรียงจากน้อยไปมาก; ค่าที่เกินช่วงสุดท้าย = 25 คะแนน
-#
-# เดิม (r1-r3) normalize ด้วย Percentile Rank ซึ่งทนต่อ outlier ได้ดีมาก แต่ต้องอธิบายว่า
-# "คะแนนคืออันดับเทียบกับจุดอื่น" ซึ่งผู้ใช้เห็นว่าเข้าใจยากเกินไปสำหรับการนำเสนอ
-# ตารางเกณฑ์อ่านค่าดิบได้ตรงๆ ("156 ครั้ง เกิน 20 -> 25 คะแนน") และยังทนต่อ outlier
-# เพราะช่วงบนสุดเป็นปลายเปิด (จุดที่มี 994 ครั้ง กับ 25 ครั้ง ได้ 25 คะแนนเท่ากัน)
-#
-# ข้อแลกเปลี่ยนที่ต้องระบุในรายงาน: คะแนนหยาบกว่าเดิมมาก (รวมกันได้เพียง 13 ค่า)
-# จุดจำนวนมากจึงได้คะแนนเท่ากันเป๊ะ เรียงลำดับละเอียดไม่ได้เท่า Percentile Rank
-# และขีดแบ่งช่วงทั้ง 16 ตัวเป็นดุลพินิจผู้ออกแบบ (expert judgment) อิงการกระจายจริง
-# ของข้อมูลรอบนี้ ไม่ใช่ค่าที่มีทฤษฎีกำหนดตายตัว
-SCORE_BANDS = {
-    # จำนวนอุบัติเหตุ (ครั้ง) — ขั้นต่ำของจุดเสี่ยงคือ 3 ครั้งตามนิยาม Black Spot
-    "frequency": [(3, 5), (5, 10), (10, 15), (20, 20)],
-    # มูลค่าความเสียหาย (บาท) — 5 แสน ≈ ระดับบาดเจ็บเล็กน้อยหลายราย,
-    # 2 ล้าน = สาหัส 1 ราย, 10 ล้าน > เสียชีวิต 1 ราย (TDRI 6.7 ล้าน)
-    "economic_loss": [(100_000, 5), (500_000, 10), (2_000_000, 15), (10_000_000, 20)],
-    # สัดส่วนอุบัติเหตุรถคันเดียว (%) — สูง = ปัญหาไหล่ทาง/ทางโค้ง (FHWA Roadway Departure)
-    "single_vehicle": [(20, 5), (35, 10), (50, 15), (70, 20)],
-    # เกณฑ์ 4 ลักษณะถนน: สัดส่วนเหตุที่เกิดบริเวณทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ (%)
-    # 0% = ทางตรงล้วน (TxDOT Conflict Points: ยิ่งมีจุดที่กระแสจราจรตัดกันมาก ยิ่งเสี่ยงชน)
-    "geometry": [(0, 5), (5, 10), (15, 15), (30, 20)],
-}
-BAND_TOP_SCORE = 25                 # คะแนนของช่วงบนสุด (ปลายเปิด) และคะแนนเต็มต่อเกณฑ์
+# จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
+# ที่มา: การกระจายของ SI มีค่าคงที่เป็นช่วงยาวรอบ SI=1 และ SI=2 (เปอร์เซ็นไทล์ P56-P84
+# ให้ค่า SI=1.000 เท่ากัน และ P88-P90 ให้ค่า SI=2.000 เท่ากัน) จุดตัดสองค่านี้จึงตรงกับ
+# รอยต่อธรรมชาติของข้อมูล ไม่ใช่เลขที่ตั้งขึ้นลอยๆ
+# ข้อแลกเปลี่ยนที่ต้องระบุในรายงาน: ยังเป็นเลขที่เลือกด้วยดุลพินิจ ไม่มีทฤษฎีกำหนดตายตัว
+SI_BREAK_LOW = 1.0
+SI_BREAK_HIGH = 2.0
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
@@ -79,22 +58,23 @@ BANGKOK_METRO_PROVINCES = [
     "สมุทรปราการ", "นครปฐม", "สมุทรสาคร",
 ]
 
-# DBSCAN: รัศมี 400 ม. ครอบคลุมช่วงถนนหนึ่งช่วง (จุดเสี่ยงระดับ "ช่วงทาง" ไม่ใช่รายจุด)
+# DBSCAN: รัศมี 200 ม. — ค่าฐานจากข้อมูลจริงคือค่ามัธยฐานระยะเพื่อนบ้านลำดับที่ 3
+# เท่ากับ 97.08 ม. แล้วปรับกว้างขึ้นเป็น 200 ม. ตามตำแหน่งจุดข้อศอกของ sorted
+# k-distance graph (Ester, Kriegel, Sander & Xu 1996)
 # ขั้นต่ำ 3 เหตุการณ์ตามนิยาม Black Spot
-EPS_METERS = 400
+EPS_METERS = 200
 MIN_SAMPLES = 3
 EARTH_RADIUS_M = 6371000
 
 # ต้นทุนความสูญเสียต่อราย (บาท) — TDRI, ความสูญเสียทางเศรษฐกิจของอุบัติเหตุทางถนน
 # ปีงบประมาณ 2565 (เผยแพร่โดยกรมควบคุมโรค กระทรวงสาธารณสุข)
+# ค่าชุดนี้คือน้ำหนัก EPDO 6.7 / 2.0 / 0.058 (ล้านบาทต่อคน) ในหน่วยบาท
+# EPDO = 6.7F + 2.0S + 0.058M (ล้านบาท) จึงเท่ากับ economic_loss หารด้วยหนึ่งล้านพอดี
 COST_DEATH = 6_700_000
 COST_SERIOUS = 2_000_000
 COST_MINOR = 58_000
 
-# น้ำหนักรวมคะแนน: เท่ากัน 4 × 25% (OECD/JRC 2008 — equal weighting)
-W_FREQ = W_ECON = W_SINGLE = W_GEOM = 0.25
-
-# เพดานความเร็วโดยประเภทสายทาง (ใช้แสดงผล/คำแนะนำเท่านั้น ไม่อยู่ในสูตรคะแนน v2)
+# เพดานความเร็วโดยประเภทสายทาง (ใช้แสดงผล/คำแนะนำเท่านั้น ไม่อยู่ในสูตร SI)
 SPEED_LIMIT_RULES = [("พิเศษ", 100), ("ชนบท", 80), ("ทางหลวง", 90)]
 SPEED_LIMIT_DEFAULT = 80
 
@@ -158,132 +138,33 @@ def _event_from_record(r, lat=None, lng=None):
     }
 
 
-# ---------------------------------------------------------------- เกณฑ์ 4: Geometric Complexity
-
-# จัดกลุ่ม "บริเวณที่เกิดเหตุ" เป็นกลุ่ม conflict ตามสเปก v2
-# (mapped=False คือค่าที่ไม่เข้าเงื่อนไข ใช้ fallback NCP อย่างระมัดระวัง
-#  และไม่ถูกนับตอนประมาณค่า FI Rate)
-GROUP_LABELS = {
-    "ncp": "ทางตรง (ไม่มีจุดที่กระแสจราจรตัดกัน)",
-    "merging": "ทางโค้ง/ทางร่วม/ทางเชื่อม (Merging)",
-    "diverging": "ทางต่างระดับ/Ramps (Diverging)",
-    "crossing": "ทางสามแยก/สี่แยก (Crossing)",
-}
+# ---------------------------------------------------------------- ดัชนีความรุนแรง + จัดระดับ
 
 
-def conflict_group(location_type):
-    """คืน (กลุ่ม, mapped) — ลำดับการเช็กสำคัญ: ต่างระดับ ต้องมาก่อน แยก"""
-    t = location_type or ""
-    if "ต่างระดับ" in t or "ramp" in t.lower():
-        return "diverging", True
-    if "สามแยก" in t or "สี่แยก" in t:
-        return "crossing", True
-    if "โค้ง" in t or "ทางร่วม" in t or "เชื่อม" in t:
-        return "merging", True
-    if "ทางตรง" in t:
-        return "ncp", True
-    return "ncp", False  # อื่นๆ / ไม่ระบุ -> fallback ระมัดระวัง
-
-
-def compute_fi_weights(events):
+def severity_index(members):
     """
-    น้ำหนักแต่ละกลุ่ม conflict จาก FI Rate ของข้อมูลจริงในไฟล์เอง
-    FI = เหตุที่มีผู้บาดเจ็บ/เสียชีวิตอย่างน้อย 1 ราย, weight = FI_rate กลุ่ม / FI_rate NCP
-    ประมาณจากเฉพาะเหตุที่ map กลุ่มได้จริง (ไม่รวม 'อื่นๆ/ไม่ระบุ' ที่เป็น fallback)
+    ดัชนีความรุนแรงอุบัติเหตุ (Severity Index)
+      SI = (F + PI) / Total Accident        — ณัฐพงศ์ ซื่อสัตย์ (2558)
+      F  = จำนวน "ครั้ง" ของอุบัติเหตุที่มีผู้เสียชีวิตอย่างน้อย 1 ราย
+      PI = จำนวน "คน" ที่บาดเจ็บรวม (สาหัส + เล็กน้อย)
+    จุดสำคัญที่มักสับสน: F นับเป็นครั้ง แต่ PI นับเป็นคน ตามนิยามต้นฉบับ
     """
-    tally = {g: {"n": 0, "fi": 0} for g in GROUP_LABELS}
-    for e in events:
-        group, mapped = conflict_group(e["location_type"])
-        if not mapped:
-            continue
-        tally[group]["n"] += 1
-        if e["deaths"] > 0 or e["serious"] > 0 or e["minor"] > 0:
-            tally[group]["fi"] += 1
-
-    base_rate = tally["ncp"]["fi"] / tally["ncp"]["n"]
-    weights, table = {}, {}
-    for g, t in tally.items():
-        rate = (t["fi"] / t["n"]) if t["n"] else base_rate
-        weights[g] = round(rate / base_rate, 3)
-        table[g] = {"n": t["n"], "fi_rate_pct": round(rate * 100, 1), "weight": weights[g]}
-    return weights, table
+    n = len(members)
+    fatal_crashes = sum(1 for m in members if m["deaths"] > 0)
+    injured = sum(m["serious"] + m["minor"] for m in members)
+    return (fatal_crashes + injured) / n, fatal_crashes, injured
 
 
-# ---------------------------------------------------------------- ให้คะแนน + จัดระดับ
-
-
-def band_score(value, bands):
-    """
-    คะแนนจากตารางเกณฑ์: คืนคะแนนของช่วงแรกที่ value ไม่เกินขีดบน
-    ค่าที่เกินทุกช่วง = BAND_TOP_SCORE (ช่วงบนสุดเป็นปลายเปิด จึงทนต่อ outlier)
-    """
-    for upper, points in bands:
-        if value <= upper:
-            return points
-    return BAND_TOP_SCORE
-
-
-def percentile_rank(series):
-    """
-    Percentile Rank 0-100, จัดการ tie ด้วย average rank (OECD/JRC 2008 — Ranking)
-    เก็บไว้อ้างอิง/เปรียบเทียบวิธี — ไม่ได้ใช้ใน pipeline แล้วตั้งแต่ v2568-r4
-    """
-    return series.rank(pct=True, method="average") * 100
-
-
-def jenks_breaks(values, n_classes=3):
-    """
-    Jenks Natural Breaks (Fisher's optimal partition แบบ dynamic programming)
-    คืนจุดตัด [b1, b2, ...] = ค่าสูงสุดของชั้นที่ 1..k-1 (คลาสเรียงจากค่าน้อยไปมาก)
-    """
-    v = sorted(float(x) for x in values)
-    n = len(v)
-    k = min(n_classes, n)
-    if k <= 1:
-        return []
-
-    csum = [0.0]
-    csum2 = [0.0]
-    for x in v:
-        csum.append(csum[-1] + x)
-        csum2.append(csum2[-1] + x * x)
-
-    def sse(i, j):  # ความแปรปรวนรวมของช่วง v[i:j]
-        m = j - i
-        s = csum[j] - csum[i]
-        return (csum2[j] - csum2[i]) - s * s / m
-
-    INF = float("inf")
-    dp = [[INF] * (n + 1) for _ in range(k + 1)]
-    cut = [[0] * (n + 1) for _ in range(k + 1)]
-    dp[0][0] = 0.0
-    for c in range(1, k + 1):
-        for j in range(c, n + 1):
-            for i in range(c - 1, j):
-                cand = dp[c - 1][i] + sse(i, j)
-                if cand < dp[c][j]:
-                    dp[c][j] = cand
-                    cut[c][j] = i
-
-    starts = []
-    j = n
-    for c in range(k, 0, -1):
-        starts.append(cut[c][j])
-        j = starts[-1]
-    starts = starts[::-1]  # [0, เริ่มชั้น2, เริ่มชั้น3, ...]
-    return [round(v[s - 1], 2) for s in starts[1:]]
-
-
-def classify(score, breaks):
-    """breaks = [b1, b2]: score<=b1 ต่ำ, <=b2 กลาง, มากกว่านั้น สูง"""
-    if score <= breaks[0]:
+def classify_si(si):
+    """ต่ำ SI < 1 · ปานกลาง 1 <= SI < 2 · สูง SI >= 2 (ขอบล่างรวมอยู่ในชั้นบน)"""
+    if si < SI_BREAK_LOW:
         return "low"
-    if score <= breaks[1]:
+    if si < SI_BREAK_HIGH:
         return "medium"
     return "high"
 
 
-# ---------------------------------------------------------------- จัดกลุ่ม + ให้คะแนน
+# ---------------------------------------------------------------- จัดกลุ่ม
 
 
 def mode_of(values, exclude=()):
@@ -304,115 +185,91 @@ def speed_limit_for(road_type):
     return SPEED_LIMIT_DEFAULT
 
 
-def cluster_zones(events, eps_meters, min_samples):
-    """DBSCAN บนพิกัด (haversine) -> รายการจุดเสี่ยงพร้อมสถิติดิบต่อจุด"""
+def cluster_units(events, eps_meters, min_samples):
+    """
+    DBSCAN บนพิกัด (haversine) -> หน่วยวิเคราะห์ทั้งหมด
+
+    หน่วยวิเคราะห์มี 2 ชนิด ตามที่นิยามไว้ในรายงาน:
+      - cluster : กลุ่มที่มีอุบัติเหตุ >= min_samples ครั้ง (core cluster)
+      - noise   : อุบัติเหตุที่ไม่เกาะกลุ่มกับจุดใด นับเป็นจุดเสี่ยงเดี่ยว 1 จุดต่อ 1 เหตุการณ์
+    ทั้งสองชนิดนับรวมเป็น "จุดเสี่ยง" เพื่อให้ครอบคลุมเหตุการณ์ทุกรายการในชุดข้อมูล
+    """
     coords = np.array([[radians(e["lat"]), radians(e["lng"])] for e in events])
     labels = DBSCAN(
         eps=eps_meters / EARTH_RADIUS_M, min_samples=min_samples, metric="haversine"
     ).fit(coords).labels_
 
-    zones = []
-    for cluster_id in sorted(set(labels)):
-        if cluster_id == -1:  # noise = เหตุกระจัดกระจาย ไม่เกาะกลุ่มเป็นจุดเสี่ยง
-            continue
+    groups = []
+    for cluster_id in sorted(set(labels) - {-1}):
         members = [events[i] for i, l in enumerate(labels) if l == cluster_id]
-        n = len(members)
-        deaths = sum(m["deaths"] for m in members)
-        serious = sum(m["serious"] for m in members)
-        minor = sum(m["minor"] for m in members)
-        single_cnt = sum(1 for m in members if m["vehicles"] <= 1)
-        road_type = mode_of([m["road_type"] for m in members], exclude=("ไม่ระบุ",))
-        # เกณฑ์ 4 ลักษณะถนน: เหตุที่เกิดบริเวณทางแยก/ทางโค้ง/ทางร่วม/ต่างระดับ
-        # (ทางแยก/ทางโค้ง/ทางร่วม/ทางเชื่อม/ต่างระดับ) — ค่าดิบของเกณฑ์ที่ 4
-        conflict_cnt = sum(
-            1 for m in members if conflict_group(m["location_type"])[0] != "ncp"
-        )
+        groups.append((f"zone_{cluster_id}", "cluster", members))
+    for i, l in enumerate(labels):
+        if l == -1:
+            groups.append((f"spot_{i}", "noise", [events[i]]))
 
-        zones.append({
-            "id": f"zone_{cluster_id}",
-            "lat": round(sum(m["lat"] for m in members) / n, 6),
-            "lng": round(sum(m["lng"] for m in members) / n, 6),
-            "province": mode_of([m["province"] for m in members]),
-            "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
-            "accident_count": n,
-            "deaths": deaths,
-            "serious_injury": serious,
-            "minor_injury": minor,
-            "economic_loss": deaths * COST_DEATH + serious * COST_SERIOUS + minor * COST_MINOR,
-            "single_count": single_cnt,
-            "multi_count": n - single_cnt,
-            "single_pct": round(single_cnt / n * 100, 1),
-            "multi_pct": round((n - single_cnt) / n * 100, 1),
-            "conflict_count": conflict_cnt,
-            "conflict_pct": round(conflict_cnt / n * 100, 1),
-            "top_cause": mode_of([m["cause"] for m in members], exclude=("ไม่ระบุ",)),
-            "road_feature": mode_of([m["location_type"] for m in members], exclude=("ไม่ระบุ",)),
-            "crash_pattern": mode_of([m["crash_pattern"] for m in members], exclude=("ไม่ระบุ",)),
-            "road_type": road_type,
-            "speed_limit": speed_limit_for(road_type),
-            "_members": members,
-        })
-    return zones
+    return [_unit_from_members(uid, kind, members) for uid, kind, members in groups]
 
 
-def score_zones(zones, fi_weights):
-    """ให้คะแนน 4 เกณฑ์จากตารางเกณฑ์ -> Risk Score (เต็ม 100) -> จัด 3 ระดับ"""
-    for z in zones:
-        # gc_score/geom_group เก็บไว้เป็นข้อมูลประกอบ (FI Rate ของข้อมูลไทยเอง)
-        # ไม่ได้ใช้ในสูตรคะแนนแล้วตั้งแต่ v2568-r4 — เกณฑ์ที่ 4 ใช้ conflict_pct แทน
-        weights = [fi_weights[conflict_group(m["location_type"])[0]] for m in z["_members"]]
-        z["gc_score"] = round(sum(weights) / len(weights), 4)
-        z["geom_group"] = mode_of(
-            [conflict_group(m["location_type"])[0] for m in z["_members"]]
-        )
-        # รูปแบบปัญหาเด่น ใช้เลือกคำแนะนำเชิงวิศวกรรม (สเปก: เก็บ Single/Multiple คู่กัน)
-        if z["single_pct"] >= 60:
-            z["pattern"] = "single"
-        elif z["multi_pct"] >= 60:
-            z["pattern"] = "multiple"
-        else:
-            z["pattern"] = "mixed"
-        del z["_members"]
+def _unit_from_members(uid, kind, members):
+    n = len(members)
+    deaths = sum(m["deaths"] for m in members)
+    serious = sum(m["serious"] for m in members)
+    minor = sum(m["minor"] for m in members)
+    single_cnt = sum(1 for m in members if m["vehicles"] <= 1)
+    road_type = mode_of([m["road_type"] for m in members], exclude=("ไม่ระบุ",))
+    si, fatal_crashes, injured = severity_index(members)
+    economic_loss = deaths * COST_DEATH + serious * COST_SERIOUS + minor * COST_MINOR
 
-    # Percentile Rank: แปลงค่าดิบทุกเกณฑ์เป็นอันดับเทียบกับจุดอื่นในรอบเดียวกัน (0-100)
-    # ทนต่อ outlier เพราะสนใจเฉพาะ "อันดับ" ไม่สนใจว่าค่าสูงสุดทิ้งห่างแค่ไหน
-    # (OECD/JRC 2008 — Ranking: "not affected by outliers")
-    df = pd.DataFrame(zones)
-    df["s_freq"] = percentile_rank(df["accident_count"])
-    df["s_econ"] = percentile_rank(df["economic_loss"])
-    df["s_single"] = percentile_rank(df["single_pct"])
-    df["s_geom"] = percentile_rank(df["conflict_pct"])
-    df["risk_score"] = (
-        W_FREQ * df["s_freq"] + W_ECON * df["s_econ"]
-        + W_SINGLE * df["s_single"] + W_GEOM * df["s_geom"]
-    ).round(1)
+    if single_cnt / n * 100 >= 60:
+        pattern = "single"
+    elif (n - single_cnt) / n * 100 >= 60:
+        pattern = "multiple"
+    else:
+        pattern = "mixed"
 
-    for z, (_, row) in zip(zones, df.iterrows()):
-        # เก็บเป็น Percentile Rank 0-100 (หน้าเว็บคูณ 0.25 เองตอนแสดงเป็นแต้ม/25)
-        z["score_breakdown"] = {
-            "frequency": round(row["s_freq"], 1),
-            "economic_loss": round(row["s_econ"], 1),
-            "single_vehicle": round(row["s_single"], 1),
-            "geometry": round(row["s_geom"], 1),
-        }
-        z["risk_score"] = float(row["risk_score"])
-        z["level"] = classify(z["risk_score"], LEVEL_BREAKS)
-
-    return zones, LEVEL_BREAKS
+    return {
+        "id": uid,
+        "unit_type": kind,
+        "lat": round(sum(m["lat"] for m in members) / n, 6),
+        "lng": round(sum(m["lng"] for m in members) / n, 6),
+        "province": mode_of([m["province"] for m in members]),
+        "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
+        "accident_count": n,
+        "deaths": deaths,
+        "serious_injury": serious,
+        "minor_injury": minor,
+        # ตัวตั้งของสูตร SI เก็บไว้ให้ตรวจย้อนได้ว่าคำนวณมาจากอะไร
+        "fatal_crashes": fatal_crashes,
+        "injured_total": injured,
+        "severity_index": round(si, 4),
+        "level": classify_si(si),
+        "economic_loss": economic_loss,
+        "epdo_million": round(economic_loss / 1_000_000, 4),
+        "single_count": single_cnt,
+        "multi_count": n - single_cnt,
+        "single_pct": round(single_cnt / n * 100, 1),
+        "multi_pct": round((n - single_cnt) / n * 100, 1),
+        "pattern": pattern,
+        "top_cause": mode_of([m["cause"] for m in members], exclude=("ไม่ระบุ",)),
+        "road_feature": mode_of([m["location_type"] for m in members], exclude=("ไม่ระบุ",)),
+        "crash_pattern": mode_of([m["crash_pattern"] for m in members], exclude=("ไม่ระบุ",)),
+        "road_type": road_type,
+        "speed_limit": speed_limit_for(road_type),
+    }
 
 
 # ---------------------------------------------------------------- ผลลัพธ์
 
 
-def to_geojson(zones, calibration):
+def to_geojson(units, calibration):
     return {
         "type": "FeatureCollection",
-        "calibration": calibration,  # foreign member: ระบุเวอร์ชันที่ใช้คำนวณคะแนนชุดนี้
+        "calibration": calibration,  # foreign member: ระบุเวอร์ชันที่ใช้คำนวณชุดนี้
         "features": [{
             "type": "Feature",
-            "geometry": {"type": "Point", "coordinates": [z["lng"], z["lat"]]},
-            "properties": {k: v for k, v in z.items() if k not in ("lat", "lng")},
-        } for z in zones],
+            "geometry": {"type": "Point", "coordinates": [u["lng"], u["lat"]]},
+            "properties": {k: v for k, v in u.items() if k not in ("lat", "lng")},
+        } for u in units],
     }
 
 
@@ -421,32 +278,57 @@ def main():
     records = load_excel_records(XLSX_FILE)
     print(f"  ทั้งหมด {len(records)} เหตุการณ์ (6 จังหวัด)")
 
-    # FI weights ประมาณจากทุกแถว (รวมแถวไม่มีพิกัด — ความรุนแรงยังเป็นข้อมูลจริง)
-    all_events = [_event_from_record(r) for r in records
-                  if r.get("จังหวัด") in BANGKOK_METRO_PROVINCES]
-    fi_weights, fi_table = compute_fi_weights(all_events)
-    print("FI Rate ของข้อมูลเอง (ข้อมูลประกอบ ไม่อยู่ในสูตรคะแนน):")
-    for g, t in fi_table.items():
-        print(f"  {GROUP_LABELS[g]:<40} n={t['n']:<5} FI {t['fi_rate_pct']}%  weight {t['weight']}")
-
     events = clean_points(records)
     print(f"มีพิกัดใช้ได้ {len(events)} เหตุการณ์")
 
-    zones = cluster_zones(events, EPS_METERS, MIN_SAMPLES)
-    clustered = sum(z["accident_count"] for z in zones)
-    print(f"DBSCAN (eps {EPS_METERS} ม., min {MIN_SAMPLES}) -> จุดเสี่ยง {len(zones)} จุด "
-          f"(ครอบคลุม {clustered} เหตุการณ์, noise {len(events) - clustered})")
+    units = cluster_units(events, EPS_METERS, MIN_SAMPLES)
+    clusters = [u for u in units if u["unit_type"] == "cluster"]
+    noise = [u for u in units if u["unit_type"] == "noise"]
+    in_cluster = sum(u["accident_count"] for u in clusters)
+    print(f"DBSCAN (eps {EPS_METERS} ม., min {MIN_SAMPLES}) -> จุดเสี่ยงรวม {len(units)} จุด")
+    print(f"  core cluster {len(clusters)} กลุ่ม (ครอบคลุม {in_cluster} เหตุการณ์)"
+          f" · noise point {len(noise)} จุด")
+    if clusters:
+        print(f"  กลุ่มใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} ครั้ง")
 
-    zones, breaks = score_zones(zones, fi_weights)
-    counts = {lv: sum(1 for z in zones if z["level"] == lv) for lv in ("high", "medium", "low")}
-    print(f"จุดตัดระดับ (คงที่): ต่ำ ≤ {breaks[0]} < ปานกลาง ≤ {breaks[1]} < สูง")
-    print(f"  ระดับสูง {counts['high']} | ปานกลาง {counts['medium']} | ต่ำ {counts['low']}")
+    si_values = np.array([u["severity_index"] for u in units])
+    counts = {lv: sum(1 for u in units if u["level"] == lv) for lv in ("high", "medium", "low")}
+    print(f"SI: mean {si_values.mean():.2f} · median {np.median(si_values):.2f} · "
+          f"SD {si_values.std(ddof=1):.2f} · min {si_values.min():.2f} · max {si_values.max():.2f}")
+    print(f"จุดตัด: ต่ำ SI<{SI_BREAK_LOW} · ปานกลาง {SI_BREAK_LOW}-{SI_BREAK_HIGH} · สูง SI>={SI_BREAK_HIGH}")
+    for lv, label in (("low", "ต่ำ"), ("medium", "ปานกลาง"), ("high", "สูง")):
+        print(f"  {label:<9} {counts[lv]:>5} จุด ({counts[lv] / len(units) * 100:.1f}%)")
 
-    top = sorted(zones, key=lambda z: z["risk_score"], reverse=True)[:5]
-    print("Top 5 จุดเสี่ยง:")
-    for z in top:
-        print(f"  {z['risk_score']:>5.1f}  {z['road'][:44]} ({z['province']}) "
-              f"n={z['accident_count']} ตาย={z['deaths']}")
+    epdo_total = sum(u["epdo_million"] for u in units)
+    print(f"EPDO รวม {epdo_total:,.2f} ล้านบาท")
+    epdo_by_level = {}
+    for lv in ("low", "medium", "high"):
+        group = [u for u in units if u["level"] == lv]
+        total = sum(u["epdo_million"] for u in group)
+        epdo_by_level[lv] = {
+            "points": len(group),
+            "epdo_total_million": round(total, 2),
+            "epdo_mean_million": round(total / len(group), 2) if group else 0.0,
+        }
+        print(f"  {lv:<7} {len(group):>5} จุด · รวม {total:>9,.2f} ลบ. · "
+              f"เฉลี่ย {total / len(group) if group else 0:.2f} ลบ./จุด")
+
+    print("Top 5 จุดเสี่ยงตาม SI:")
+    for u in sorted(units, key=lambda x: x["severity_index"], reverse=True)[:5]:
+        print(f"  SI {u['severity_index']:>6.2f}  {u['road'][:40]:<40} ({u['province']}) "
+              f"n={u['accident_count']} ตาย={u['deaths']} [{u['unit_type']}]")
+
+    by_province = {}
+    for p in BANGKOK_METRO_PROVINCES:
+        group = [u for u in units if u["province"] == p]
+        if not group:
+            continue
+        by_province[p] = {
+            "points": len(group),
+            "low_pct": round(100 * sum(1 for u in group if u["level"] == "low") / len(group), 1),
+            "medium_pct": round(100 * sum(1 for u in group if u["level"] == "medium") / len(group), 1),
+            "high_pct": round(100 * sum(1 for u in group if u["level"] == "high") / len(group), 1),
+        }
 
     calibration = {
         "version": CALIB_VERSION,
@@ -456,28 +338,37 @@ def main():
         "events_total": len(records),
         "events_with_coords": len(events),
         "dbscan": {"eps_m": EPS_METERS, "min_samples": MIN_SAMPLES},
-        "scoring_method": "percentile_rank",
-        "criteria_weights": {"frequency": W_FREQ, "economic_loss": W_ECON,
-                             "single_vehicle": W_SINGLE, "geometry": W_GEOM},
+        "scoring_method": "severity_index",
+        "si_formula": "(F + PI) / Total Accident",
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
                                 "minor": COST_MINOR},
-        "fi_weights": fi_table,
-        "level_breaks": breaks,
-        "level_break_method": "fixed",
-        "zones": len(zones),
+        "epdo_weights_million_per_person": {"fatal": 6.7, "serious": 2.0, "minor": 0.058},
+        "level_breaks": [SI_BREAK_LOW, SI_BREAK_HIGH],
+        "level_break_method": "fixed_si_cutoff",
+        "zones": len(units),
+        "core_clusters": len(clusters),
+        "noise_points": len(noise),
+        "events_in_clusters": in_cluster,
+        "largest_cluster_events": max((u["accident_count"] for u in clusters), default=0),
         "levels": counts,
-        "score_distribution": {
-            str(s): sum(1 for z in zones if z["risk_score"] == s)
-            for s in sorted({z["risk_score"] for z in zones})
+        "si_stats": {
+            "mean": round(float(si_values.mean()), 4),
+            "median": round(float(np.median(si_values)), 4),
+            "sd": round(float(si_values.std(ddof=1)), 4),
+            "min": round(float(si_values.min()), 4),
+            "max": round(float(si_values.max()), 4),
         },
+        "epdo_total_million": round(epdo_total, 2),
+        "epdo_by_level": epdo_by_level,
+        "by_province": by_province,
     }
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(to_geojson(zones, calibration), f, ensure_ascii=False, indent=1)
+        json.dump(to_geojson(units, calibration), f, ensure_ascii=False, indent=1)
     print(f"บันทึก {OUTPUT_FILE.relative_to(BASE_DIR)}")
 
-    # เก็บ log ทุกเวอร์ชัน calibration ไว้ตรวจสอบย้อนหลัง (สเปกข้อ 4)
+    # เก็บ log ทุกเวอร์ชัน calibration ไว้ตรวจสอบย้อนหลัง
     CALIB_DIR.mkdir(parents=True, exist_ok=True)
     snap = CALIB_DIR / f"{CALIB_VERSION}.json"
     with open(snap, "w", encoding="utf-8") as f:
@@ -489,70 +380,61 @@ def main():
 
 
 def _self_test():
-    # 1) การจัดกลุ่ม conflict — ลำดับเช็ก ต่างระดับ > แยก สำคัญ
-    assert conflict_group("ทางแยกต่างระดับ/Ramps") == ("diverging", True)
-    assert conflict_group("จุดกลับรถต่างระดับ") == ("diverging", True)
-    assert conflict_group("ทางสามแยก (Y)") == ("crossing", True)
-    assert conflict_group("ทางสี่แยก") == ("crossing", True)
-    assert conflict_group("ทางโค้งกว้าง+ที่ลาดชัน") == ("merging", True)
-    assert conflict_group("ทางร่วม") == ("merging", True)
-    assert conflict_group("ทางเชื่อมเข้าพื้นที่สาธารณะ/เชิงพาณิชย์") == ("merging", True)
-    assert conflict_group("ทางตรง+ไม่มีความลาดชัน") == ("ncp", True)
-    assert conflict_group("อื่นๆ") == ("ncp", False)
-    assert conflict_group(None) == ("ncp", False)
+    def ev(deaths=0, serious=0, minor=0, vehicles=2):
+        return {"lat": 13.7, "lng": 100.5, "province": "กรุงเทพมหานคร", "road": "ถนน ก",
+                "cause": "ขับเร็ว", "location_type": "ทางตรง", "road_type": "ทางหลวง",
+                "crash_pattern": "ชนท้าย", "vehicles": vehicles,
+                "deaths": deaths, "serious": serious, "minor": minor}
 
-    # 2) Percentile Rank — tie ใช้ average rank: [10,20,20,30] -> [25, 62.5, 62.5, 100]
-    got = percentile_rank(pd.Series([10, 20, 20, 30])).tolist()
-    assert got == [25.0, 62.5, 62.5, 100.0], got
+    # 1) SI — F นับเป็น "ครั้ง" ที่มีคนตาย ไม่ใช่จำนวนศพ
+    #    2 เหตุการณ์: (ตาย 3 คน) + (เจ็บสาหัส 1 เล็กน้อย 2) -> F=1, PI=3 -> SI=(1+3)/2=2.0
+    si, f, pi = severity_index([ev(deaths=3), ev(serious=1, minor=2)])
+    assert (si, f, pi) == (2.0, 1, 3), (si, f, pi)
 
-    # 3) Jenks — สามกลุ่มชัดเจน ต้องตัดที่ท้ายกลุ่ม 1 และ 2
-    assert jenks_breaks([1, 2, 3, 10, 11, 12, 100, 101, 102], 3) == [3.0, 12.0]
+    # 2) SI ของจุดที่ไม่มีใครบาดเจ็บหรือเสียชีวิตเลย = 0
+    assert severity_index([ev(), ev(), ev()])[0] == 0.0
 
-    # 4) จัดระดับจาก breaks
-    assert classify(40.0, [40.0, 57.0]) == "low"
-    assert classify(40.1, [40.0, 57.0]) == "medium"
-    assert classify(57.1, [40.0, 57.0]) == "high"
+    # 3) noise point (N=1) — SI เท่ากับจำนวนผู้บาดเจ็บในเหตุการณ์นั้นตรงๆ
+    #    เป็นที่มาของ SI=54 จากอุบัติเหตุรถโดยสารครั้งเดียวที่มีผู้บาดเจ็บ 54 คน
+    assert severity_index([ev(minor=54)])[0] == 54.0
+
+    # 4) จัดระดับ — ขอบล่างรวมอยู่ในชั้นบน (SI=1 คือปานกลาง ไม่ใช่ต่ำ)
+    assert classify_si(0.0) == "low"
+    assert classify_si(0.999) == "low"
+    assert classify_si(1.0) == "medium"
+    assert classify_si(1.999) == "medium"
+    assert classify_si(2.0) == "high"
+    assert classify_si(54.0) == "high"
 
     # 5) มูลค่าความเสียหาย TDRI: 1 ตาย + 1 สาหัส + 1 เล็กน้อย = 8,758,000 บาท
     assert COST_DEATH + COST_SERIOUS + COST_MINOR == 8_758_000
 
-    # 6) FI weights — กลุ่มที่ FI สูงกว่า NCP ต้องได้ weight > 1
-    ev = (
-        [{"location_type": "ทางตรง", "deaths": 0, "serious": 0, "minor": 0}] * 8
-        + [{"location_type": "ทางตรง", "deaths": 1, "serious": 0, "minor": 0}] * 2
-        + [{"location_type": "ทางสี่แยก", "deaths": 0, "serious": 1, "minor": 0}] * 3
-        + [{"location_type": "ทางสี่แยก", "deaths": 0, "serious": 0, "minor": 0}] * 1
-    )
-    w, _ = compute_fi_weights(ev)
-    assert w["ncp"] == 1.0 and w["crossing"] == round((3 / 4) / (2 / 10), 3), w
+    # 6) น้ำหนัก EPDO (ล้านบาท/คน) ต้องตรงกับต้นทุน TDRI ในหน่วยบาทพอดี
+    #    EPDO = 6.7F + 2.0S + 0.058M  <=>  economic_loss / 1,000,000
+    assert (COST_DEATH / 1e6, COST_SERIOUS / 1e6, COST_MINOR / 1e6) == (6.7, 2.0, 0.058)
 
-    # 7) mode_of เว้นค่า 'ไม่ระบุ' เมื่อมีค่าจริงให้เลือก
+    # 7) หน่วยวิเคราะห์ — ตรวจว่า epdo_million = economic_loss / 1e6 จริง
+    u = _unit_from_members("t", "cluster", [ev(deaths=1), ev(serious=1), ev(minor=10)])
+    assert u["accident_count"] == 3 and u["deaths"] == 1
+    assert u["epdo_million"] == round(u["economic_loss"] / 1e6, 4)
+    assert u["severity_index"] == round((1 + 11) / 3, 4)   # F=1, PI=1+10=11
+    assert u["level"] == "high"                            # SI=4.0
+
+    # 8) pattern จากสัดส่วนรถคันเดียว/หลายคัน
+    assert _unit_from_members("t", "noise", [ev(vehicles=1)])["pattern"] == "single"
+    assert _unit_from_members("t", "noise", [ev(vehicles=3)])["pattern"] == "multiple"
+    mixed = _unit_from_members("t", "cluster", [ev(vehicles=1), ev(vehicles=3)])
+    assert mixed["pattern"] == "mixed", mixed["pattern"]
+
+    # 9) mode_of เว้นค่า 'ไม่ระบุ' เมื่อมีค่าจริงให้เลือก
     assert mode_of(["ไม่ระบุ", "ไม่ระบุ", "ถนน ก"], exclude=("ไม่ระบุ",)) == "ถนน ก"
     assert mode_of(["ไม่ระบุ"], exclude=("ไม่ระบุ",)) == "ไม่ระบุ"
 
-    # 8) ตารางเกณฑ์ — ค่าที่ขีดพอดีต้องอยู่ช่วงล่าง (ใช้ <=), เกินทุกช่วง = 25
-    fb = SCORE_BANDS["frequency"]           # [(3,5),(5,10),(10,15),(20,20)] -> เกิน 20 = 25
-    assert band_score(3, fb) == 5 and band_score(4, fb) == 10
-    assert band_score(5, fb) == 10 and band_score(6, fb) == 15
-    assert band_score(10, fb) == 15 and band_score(11, fb) == 20
-    assert band_score(20, fb) == 20 and band_score(21, fb) == 25
-    # ปลายเปิด: outlier สุดขั้วได้คะแนนเท่ากับจุดที่แค่เกินขีด (ทนต่อ outlier)
-    assert band_score(994, fb) == band_score(21, fb) == 25
-
-    gb = SCORE_BANDS["geometry"]            # [(0,5),(5,10),(15,15),(30,20)]
-    assert band_score(0, gb) == 5           # ทางตรงล้วน
-    assert band_score(0.1, gb) == 10 and band_score(100, gb) == 25
-
-    # 9) คะแนนรวมต้องอยู่ในช่วง 20-100 เสมอ (4 เกณฑ์ × 5..25)
-    lo = sum(band_score(-1, SCORE_BANDS[k]) for k in SCORE_BANDS)
-    hi = sum(band_score(10**12, SCORE_BANDS[k]) for k in SCORE_BANDS)
-    assert (lo, hi) == (20, 100), (lo, hi)
-
-    # 10) ทุกเกณฑ์ต้องมี 4 ขีด (= 5 ช่วง) และคะแนนเรียงขึ้น 5/10/15/20
-    for name, bands in SCORE_BANDS.items():
-        assert [p for _, p in bands] == [5, 10, 15, 20], (name, bands)
-        uppers = [u for u, _ in bands]
-        assert uppers == sorted(uppers), (name, uppers)
+    # 10) เพดานความเร็วตามประเภทสายทาง
+    assert speed_limit_for("ทางหลวงพิเศษระหว่างเมือง") == 100   # 'พิเศษ' ต้องมาก่อน 'ทางหลวง'
+    assert speed_limit_for("ทางหลวงแผ่นดิน") == 90
+    assert speed_limit_for("ทางหลวงชนบท") == 80
+    assert speed_limit_for("ไม่ระบุ") == SPEED_LIMIT_DEFAULT
 
     print("self-test ผ่านทั้งหมด")
 

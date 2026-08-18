@@ -3,7 +3,7 @@ server.py — REST API สำหรับให้อุปกรณ์ (เช�
 
 Endpoints:
   GET /api/health                      สถานะเซิร์ฟเวอร์ + จำนวนจุดเสี่ยง
-  GET /api/risk-points                 จุดเสี่ยงทั้งหมด (กรอง level / province / min_score ได้)
+  GET /api/risk-points                 จุดเสี่ยงทั้งหมด (กรอง level / province / min_si ได้)
   GET /api/risk-points/nearby          จุดเสี่ยงในรัศมีจากพิกัดที่ส่งมา พร้อมระยะห่าง
                                        และข้อความเตือนภาษาไทยสำเร็จรูป (alert_message)
   GET /api/risk-points/{point_id}      รายละเอียดจุดเดียว
@@ -204,15 +204,15 @@ def health():
 def list_risk_points(
     level: str | None = Query(None, description="กรองระดับ: high / medium / low"),
     province: str | None = Query(None, description="กรองชื่อจังหวัด เช่น นนทบุรี"),
-    min_score: float | None = Query(None, ge=0, le=100, description="คะแนนความเสี่ยงขั้นต่ำ"),
+    min_si: float | None = Query(None, ge=0, description="ดัชนีความรุนแรง (SI) ขั้นต่ำ"),
 ):
     result = POINTS
     if level:
         result = [p for p in result if p["level"] == level]
     if province:
         result = [p for p in result if province in p["province"]]
-    if min_score is not None:
-        result = [p for p in result if p["risk_score"] >= min_score]
+    if min_si is not None:
+        result = [p for p in result if p["severity_index"] >= min_si]
     return {"count": len(result), "points": result}
 
 

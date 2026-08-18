@@ -26,7 +26,7 @@
   }
 
   const sum = (key) => zones.reduce((acc, z) => acc + (z[key] || 0), 0);
-  const score = (z) => z.risk_score ?? 0; // Risk Score จากโมเดล 4 ปัจจัย (คำนวณฝั่ง Python)
+  const score = (z) => z.severity_index ?? 0; // Severity Index (คำนวณฝั่ง Python)
   const fmt = (n) => n.toLocaleString("th-TH");
 
   // ---------- KPI ----------
@@ -128,16 +128,16 @@
       <td class="num">${z.deaths}</td>
       <td class="num">${z.serious_injury}</td>
       <td class="num">${z.minor_injury}</td>
-      <td class="num">${score(z)}</td>`;
+      <td class="num">${score(z).toFixed(2)}</td>`;
     tbody.appendChild(tr);
   });
 
-  // ระบุรอบ calibration ที่คะแนนชุดนี้ถูก "ล็อก" ไว้ (Fixed-Schedule Recalibration)
+  // ระบุรอบ calibration ที่ผลชุดนี้ถูก "ล็อก" ไว้ (Fixed-Schedule Recalibration)
   if (calibration) {
     const [b1, b2] = calibration.level_breaks || [];
     document.getElementById("calib-note").textContent =
       ` · รอบคำนวณ ${calibration.version}` +
-      (b1 != null ? ` (เกณฑ์คงที่: ต่ำ ≤ ${b1} < ปานกลาง ≤ ${b2} < สูง)` : "");
+      (b1 != null ? ` (เกณฑ์คงที่: ต่ำ SI < ${b1} · ปานกลาง ${b1}–${b2} · สูง SI ≥ ${b2})` : "");
   }
 
   document.getElementById("loading").classList.add("hidden");

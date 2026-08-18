@@ -66,14 +66,14 @@
     <!-- ตาราง 10 อันดับ -->
     <section class="card">
       <h2>10 จุดเสี่ยงอันตรายที่สุด</h2>
-      <p class="card-note">เรียงตาม Risk Score (โมเดล v2: 4 เกณฑ์ × 25% — ความถี่ · มูลค่าความเสียหายเศรษฐกิจ · Single-Vehicle Ratio · ลักษณะถนน — Normalize ด้วย Percentile Rank แบ่งระดับที่ ต่ำ ≤40 / กลาง ≤60 / สูง >60)</p>
+      <p class="card-note">เรียงตามดัชนีความรุนแรงอุบัติเหตุ SI = (จำนวนครั้งที่มีผู้เสียชีวิต + จำนวนผู้บาดเจ็บ) ÷ จำนวนอุบัติเหตุทั้งหมดของจุดนั้น แบ่งระดับที่ ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</p>
       <div class="table-wrap">
         <table id="top-table">
           <thead>
             <tr>
               <th>#</th><th>สายทาง</th><th>จังหวัด</th><th>ระดับ</th>
               <th class="num">อุบัติเหตุ</th><th class="num">เสียชีวิต</th>
-              <th class="num">สาหัส</th><th class="num">เล็กน้อย</th><th class="num">คะแนน</th>
+              <th class="num">สาหัส</th><th class="num">เล็กน้อย</th><th class="num">SI</th>
             </tr>
           </thead>
           <tbody></tbody>

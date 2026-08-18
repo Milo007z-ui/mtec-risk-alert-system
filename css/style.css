@@ -290,30 +290,18 @@ html, body {
   font-weight: 600;
 }
 
-.pp-factor {
-  display: grid;
-  grid-template-columns: 74px 1fr 52px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 3px;
+/* สูตร SI แบบกางตัวตั้งให้เห็น (แทนแถบคะแนน 4 เกณฑ์ของโมเดล v2) */
+.pp-formula {
+  background: #f7f6f3;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 11.5px;
+  color: #555;
+  line-height: 1.5;
 }
-.pp-factor-name { font-size: 11.5px; color: #666; }
-.pp-factor-track {
-  height: 8px;
-  background: #f0efec;
-  border-radius: 4px;
-  overflow: hidden;
-}
-.pp-factor-fill { display: block; height: 100%; border-radius: 0 4px 4px 0; }
-.pp-factor-val {
-  font-size: 11px;
-  color: #666;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.pp-factor-val small { font-size: 9px; opacity: .75; }
-/* แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคัน (ใต้แถบคะแนนเกณฑ์รถคันเดียว) */
-.pp-split { margin: 2px 0 8px 82px; }
+.pp-formula b { color: #333; font-variant-numeric: tabular-nums; }
+/* แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคัน */
+.pp-split { margin: 8px 0; }
 .pp-split-bar {
   display: flex;
   height: 16px;
