@@ -12,8 +12,9 @@
 
   // โหลดหน่วยวิเคราะห์ (คลัสเตอร์ + จุดเสี่ยงเดี่ยว) — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้
   //
-  // ชั้นจุดเสี่ยงรายอุบัติเหตุ (accidents.js) ปิดไว้ตามที่ผู้ใช้ขอ ถ้าเปิดสคริปต์
-  // กลับมาใน index.html โค้ดตรงนี้จะโหลดและวาดให้เองโดยไม่ต้องแก้อะไรเพิ่ม
+  // ชั้นจุดเสี่ยงรายอุบัติเหตุ (accidents.js) เป็นชั้นดูอย่างเดียว เริ่มต้นปิดไว้
+  // ผู้ใช้ติ๊กเปิดเองในแผงตัวกรอง — ไม่มีผลกับการแจ้งเตือน เพราะ alert.js
+  // อ่านจาก RiskPoints.visible() ซึ่งเป็นคลัสเตอร์ล้วน
   const hasAccidentLayer = typeof Accidents !== "undefined";
   try {
     await Promise.all([RiskPoints.load(), hasAccidentLayer ? Accidents.load() : null]);
@@ -23,8 +24,11 @@
     Filters.init(); // แผงตัวกรองต้องสร้างหลังวาดหมุด (ต้องใช้รายชื่อจังหวัดจากข้อมูล)
     await GPS.prepare(); // โหมดจำลอง: เตรียมเส้นทางถนนจริงไว้ล่วงหน้า
     const clusters = RiskPoints.all().filter((p) => p.unit_type === "cluster").length;
+    const accText = hasAccidentLayer
+      ? ` · จุดเสี่ยง ${Accidents.all().length.toLocaleString("th-TH")} จุดพร้อมให้เปิดดู`
+      : "";
     statusEl.textContent =
-      `โหลดคลัสเตอร์จุดเสี่ยง ${clusters} วงแล้ว — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
+      `โหลดคลัสเตอร์ ${clusters} วงแล้ว${accText} — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
   } catch (err) {
     statusEl.textContent = `❌ ${err.message} — ตรวจว่าเปิดผ่าน local server ไม่ใช่ file://`;
     startBtn.disabled = true;

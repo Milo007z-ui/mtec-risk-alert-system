@@ -5,6 +5,10 @@
  *   - จุดเสี่ยง   = อุบัติเหตุ 1 ครั้ง          -> ไฟล์นี้
  *   - คลัสเตอร์   = วงที่ DBSCAN รวมจุดเสี่ยงเข้าด้วยกัน -> riskpoints.js
  *
+ * ชั้นนี้เป็น "ชั้นดูอย่างเดียว" — เริ่มต้นปิดไว้ ต้องติ๊กเปิดเองในแผงตัวกรอง
+ * และ **ไม่มีผลกับการแจ้งเตือน** ระบบเตือนอ่านจาก RiskPoints.visible()
+ * ซึ่งเป็นคลัสเตอร์ล้วน เปิด/ปิดชั้นนี้จึงไม่ทำให้เสียงเตือนเปลี่ยนไปเลย
+ *
  * วาดด้วย Canvas renderer ไม่ใช่ SVG เพราะ 4,460 จุดเป็น element เกินกว่าที่
  * DOM จะรับไหวบนมือถือ — Canvas วาดทุกจุดลง bitmap เดียว เลื่อน/ซูมลื่นกว่ามาก
  * ข้อแลกเปลี่ยน: ไม่มี hover cursor รายจุด แต่คลิกเปิด popup ได้ตามปกติ
@@ -24,7 +28,7 @@ const Accidents = (() => {
   let layerGroup = null;
   let renderer = null;
   let mapRef = null;
-  let visibleOnMap = true;
+  let visibleOnMap = false; // เริ่มต้นปิด — ผู้ใช้ติ๊กเปิดเองเมื่ออยากดู
 
   async function load() {
     const resp = await fetch(DATA_URL);
@@ -57,7 +61,7 @@ const Accidents = (() => {
       layerGroup.addLayer(marker);
     }
 
-    layerGroup.addTo(map);
+    if (visibleOnMap) layerGroup.addTo(map);
     return points.length;
   }
 

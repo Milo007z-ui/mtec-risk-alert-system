@@ -99,11 +99,7 @@ const Filters = (() => {
     document.getElementById("f-province").value = "";
     document.getElementById("f-pattern").value = "";
     for (const [key] of LEVELS) document.getElementById(`f-level-${key}`).checked = true;
-    const accToggle = document.getElementById("f-show-accidents");
-    if (accToggle && typeof Accidents !== "undefined") {
-      accToggle.checked = true;
-      Accidents.setVisible(true);
-    }
+    // ไม่แตะกล่องติ๊กชั้นจุดเสี่ยง — เป็นการเลือกมุมมอง ไม่ใช่ตัวกรองข้อมูล
     apply();
   }
 
