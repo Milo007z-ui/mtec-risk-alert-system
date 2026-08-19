@@ -86,15 +86,11 @@ const Filters = (() => {
       Accidents.applyFilter({ province, levels: new Set(levels) });
     }
 
-    const markerCount = (arr) =>
-      arr.reduce((n, p) => n + (p.markers && p.markers.length ? p.markers.length : 1), 0);
-    const shownMarkers = markerCount(RiskPoints.visible().filter((p) => p.unit_type === "cluster"));
-
     const countEl = document.getElementById("filter-count");
     countEl.textContent =
       shownClusters === totalClusters
-        ? `แสดงครบทั้ง ${totalClusters} วง (${shownMarkers} หมุด)`
-        : `แสดง ${shownClusters} จาก ${totalClusters} วง (${shownMarkers} หมุด)`;
+        ? `แสดงครบทั้ง ${totalClusters} วง`
+        : `แสดง ${shownClusters} จาก ${totalClusters} วง`;
     countEl.classList.toggle("filter-count--none", shownClusters === 0);
     if (shownClusters === 0) countEl.textContent = "ไม่มีคลัสเตอร์ที่ตรงกับตัวกรอง";
   }

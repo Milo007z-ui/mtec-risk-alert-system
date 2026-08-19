@@ -91,25 +91,20 @@ const RiskPoints = (() => {
     for (const p of points) {
       if (p.unit_type !== "cluster") continue;
       const style = LEVEL_STYLE[p.level] || LEVEL_STYLE.low;
-      // คลัสเตอร์เดียวอาจมีหมุดหลายจุดตามความยาวของกลุ่ม (คำนวณฝั่ง Python)
-      // ทุกหมุดของกลุ่มเดียวกันใช้ข้อมูลชุดเดียวกัน กดอันไหนก็ได้ป๊อปอัปเดียวกัน
-      const spots = p.markers && p.markers.length ? p.markers : [[p.lat, p.lng]];
-      for (const [mlat, mlng] of spots) {
-        const layer = L.circleMarker([mlat, mlng], {
-          radius: 9,
-          color: style.color,
-          weight: 2,
-          fillColor: style.color,
-          fillOpacity: 0.5,
-        }).addTo(map);
+      const layer = L.circleMarker([p.lat, p.lng], {
+        radius: 9,
+        color: style.color,
+        weight: 2,
+        fillColor: style.color,
+        fillOpacity: 0.5,
+      }).addTo(map);
 
-        // สร้าง HTML ตอนคลิกเท่านั้น ไม่ต้องสร้างล่วงหน้าทุกหมุด
-        layer.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
-        // เปิดป๊อปอัป = เข้าโหมดตรวจสอบ: วาดขอบเขตจริงของคลัสเตอร์ + จุดสมาชิกทั้งหมด
-        layer.on("popupopen", () => showInspect(p, style));
-        layer.on("popupclose", clearInspect);
-        markers.push({ point: p, layer });
-      }
+      // สร้าง HTML ตอนคลิกเท่านั้น ไม่ต้องสร้างล่วงหน้าทั้ง 192 วง
+      layer.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
+      // เปิดป๊อปอัป = เข้าโหมดตรวจสอบ: วาดขอบเขตจริงของคลัสเตอร์ + จุดสมาชิกทั้งหมด
+      layer.on("popupopen", () => showInspect(p, style));
+      layer.on("popupclose", clearInspect);
+      markers.push({ point: p, layer });
     }
   }
 
@@ -142,26 +137,9 @@ const RiskPoints = (() => {
     return visible().length;
   }
 
-  /** คลัสเตอร์ที่ผ่านตัวกรอง — 1 รายการต่อ 1 คลัสเตอร์ (ใช้นับ/แสดงผล) */
+  /** จุดที่ผ่านตัวกรอง (ใช้ทั้งวาดแผนที่และตรวจแจ้งเตือน) */
   function visible() {
     return points.filter(matchesFilter);
-  }
-
-  /**
-   * เป้าหมายสำหรับระบบแจ้งเตือน — กระจายเป็น 1 รายการต่อ 1 หมุด
-   *
-   * คลัสเตอร์ที่ยืดยาวมีหลายหมุด จึงต้องวัดระยะกับทุกหมุด ไม่ใช่แค่จุดกึ่งกลาง
-   * ไม่งั้นสมาชิกส่วนใหญ่จะอยู่นอกรัศมี 500 ม. (รอบ r10 ครอบคลุมแค่ 37.9%)
-   * ทุกรายการยังใช้ `id` เดิมของคลัสเตอร์ alert.js จึงยังกันเตือนซ้ำได้ถูกต้อง
-   * — เข้าใกล้กลุ่มเดียวกันจากหมุดไหนก็นับเป็นการเตือนครั้งเดียว
-   */
-  function alertPoints() {
-    const out = [];
-    for (const p of visible()) {
-      const spots = p.markers && p.markers.length ? p.markers : [[p.lat, p.lng]];
-      for (const [lat, lng] of spots) out.push({ ...p, lat, lng });
-    }
-    return out;
   }
 
   /** รายชื่อจังหวัดในข้อมูล เรียงตามพจนานุกรมไทย (ใช้เติม dropdown) */
@@ -335,7 +313,6 @@ const RiskPoints = (() => {
 
   return {
     load, drawOnMap, all, remove, getCalibration, formatBaht, clearInspect,
-    alertPoints,
     setFilter, visible, provinces, LEVEL_STYLE,
   };
 })();
