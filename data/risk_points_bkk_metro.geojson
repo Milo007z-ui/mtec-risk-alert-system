@@ -1,15 +1,17 @@
 {
  "type": "FeatureCollection",
  "calibration": {
-  "version": "v2568-r9",
-  "generated_at": "2026-08-18T15:32:48+00:00",
+  "version": "v2568-r10",
+  "generated_at": "2026-08-19T03:34:55+00:00",
   "recalibration_policy": "ทุก 6 เดือน",
   "source": "accident2025_1.xlsx",
   "events_total": 4627,
   "events_with_coords": 4460,
   "dbscan": {
    "eps_m": 400,
-   "min_samples": 3
+   "min_samples": 3,
+   "passes": 2,
+   "second_pass_split_by": "road"
   },
   "scoring_method": "severity_index",
   "si_formula": "(F + PI) / Total Accident",
@@ -29,10 +31,10 @@
   ],
   "level_break_method": "fixed_si_cutoff",
   "risk_points": 4460,
-  "analysis_units": 171,
-  "zones": 171,
-  "core_clusters": 171,
-  "noise_points": 676,
+  "analysis_units": 192,
+  "zones": 192,
+  "core_clusters": 192,
+  "noise_points": 796,
   "noise_excluded_from_levels": true,
   "overall": {
    "risk_points": 4460,
@@ -42,68 +44,68 @@
    "epdo_total_million": 1997.65
   },
   "excluded_noise": {
-   "risk_points": 676,
-   "deaths": 104,
-   "serious_injury": 80,
-   "minor_injury": 414,
-   "epdo_total_million": 880.81
+   "risk_points": 796,
+   "deaths": 114,
+   "serious_injury": 88,
+   "minor_injury": 479,
+   "epdo_total_million": 967.58
   },
-  "events_in_clusters": 3784,
-  "largest_cluster_events": 994,
+  "events_in_clusters": 3664,
+  "largest_cluster_events": 712,
   "levels": {
-   "high": 6,
-   "medium": 44,
-   "low": 121
+   "high": 5,
+   "medium": 47,
+   "low": 140
   },
   "si_stats": {
-   "mean": 0.7209,
+   "mean": 0.6912,
    "median": 0.6667,
-   "sd": 0.5845,
+   "sd": 0.5597,
    "min": 0.0,
    "max": 3.3333
   },
-  "epdo_total_million": 1116.84,
+  "epdo_total_million": 1030.07,
   "epdo_by_level": {
    "low": {
-    "points": 121,
-    "epdo_total_million": 825.96,
-    "epdo_mean_million": 6.83
+    "points": 140,
+    "epdo_total_million": 759.37,
+    "epdo_mean_million": 5.42
    },
    "medium": {
-    "points": 44,
-    "epdo_total_million": 233.43,
-    "epdo_mean_million": 5.31
+    "points": 47,
+    "epdo_total_million": 220.41,
+    "epdo_mean_million": 4.69
    },
    "high": {
-    "points": 6,
-    "epdo_total_million": 57.45,
-    "epdo_mean_million": 9.58
+    "points": 5,
+    "epdo_total_million": 50.29,
+    "epdo_mean_million": 10.06
    }
   },
   "by_province": {
    "กรุงเทพมหานคร": {
-    "points": 62,
-    "low_pct": 72.6,
-    "medium_pct": 24.2,
-    "high_pct": 3.2
+    "points": 79,
+    "low_pct": 74.7,
+    "medium_pct": 22.8,
+    "high_pct": 2.5
    },
    "นนทบุรี": {
-    "points": 11,
-    "low_pct": 90.9,
-    "medium_pct": 9.1,
+    "points": 8,
+    "low_pct": 100.0,
+    "medium_pct": 0.0,
     "high_pct": 0.0
    },
    "ปทุมธานี": {
-    "points": 28,
-    "low_pct": 60.7,
-    "medium_pct": 39.3,
+    "points": 27,
+    "low_pct": 59.3,
+    "medium_pct": 40.7,
     "high_pct": 0.0
    },
    "สมุทรปราการ": {
-    "points": 48,
-    "low_pct": 64.6,
-    "medium_pct": 31.2,
-    "high_pct": 4.2
+    "points": 55,
+    "low_pct": 69.1,
+    "medium_pct": 29.1,
+    "high_pct": 1.8
    },
    "นครปฐม": {
     "points": 2,
@@ -112,10 +114,10 @@
     "high_pct": 0.0
    },
    "สมุทรสาคร": {
-    "points": 20,
-    "low_pct": 80.0,
-    "medium_pct": 10.0,
-    "high_pct": 10.0
+    "points": 21,
+    "low_pct": 81.0,
+    "medium_pct": 9.5,
+    "high_pct": 9.5
    }
   }
  },
@@ -125,30 +127,289 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.701811,
-     13.794622
+     100.684557,
+     13.817541
     ]
    },
    "properties": {
     "id": "zone_0",
     "unit_type": "cluster",
-    "radius_m": 21269.3,
+    "radius_m": 642.1,
+    "province": "กรุงเทพมหานคร",
+    "road": "คันนายาว - แยกเข้ามีนบุรี",
+    "accident_count": 8,
+    "deaths": 0,
+    "serious_injury": 1,
+    "minor_injury": 0,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.125,
+    "level": "low",
+    "economic_loss": 2000000,
+    "epdo_million": 2.0,
+    "single_count": 5,
+    "multi_count": 3,
+    "single_pct": 62.5,
+    "multi_pct": 37.5,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.680066,
+     13.735651
+    ]
+   },
+   "properties": {
+    "id": "zone_1",
+    "unit_type": "cluster",
+    "radius_m": 4266.2,
+    "province": "กรุงเทพมหานคร",
+    "road": "ถนนศรีนครินทร - แขวงคลองสองต้นนุ่น",
+    "accident_count": 168,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 47,
+    "fatal_crashes": 0,
+    "injured_total": 47,
+    "severity_index": 0.2798,
+    "level": "low",
+    "economic_loss": 2726000,
+    "epdo_million": 2.726,
+    "single_count": 35,
+    "multi_count": 133,
+    "single_pct": 20.8,
+    "multi_pct": 79.2,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.692012,
+     13.89414
+    ]
+   },
+   "properties": {
+    "id": "zone_2",
+    "unit_type": "cluster",
+    "radius_m": 10421.6,
     "province": "กรุงเทพมหานคร",
     "road": "บางปะอิน - แขวงรามอินทรา",
-    "accident_count": 994,
-    "deaths": 5,
-    "serious_injury": 8,
-    "minor_injury": 412,
-    "fatal_crashes": 5,
-    "injured_total": 420,
-    "severity_index": 0.4276,
+    "accident_count": 315,
+    "deaths": 2,
+    "serious_injury": 3,
+    "minor_injury": 153,
+    "fatal_crashes": 2,
+    "injured_total": 156,
+    "severity_index": 0.5016,
     "level": "low",
-    "economic_loss": 73396000,
-    "epdo_million": 73.396,
-    "single_count": 219,
-    "multi_count": 775,
-    "single_pct": 22.0,
-    "multi_pct": 78.0,
+    "economic_loss": 28274000,
+    "epdo_million": 28.274,
+    "single_count": 72,
+    "multi_count": 243,
+    "single_pct": 22.9,
+    "multi_pct": 77.1,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.680694,
+     13.819289
+    ]
+   },
+   "properties": {
+    "id": "zone_3",
+    "unit_type": "cluster",
+    "radius_m": 165.3,
+    "province": "กรุงเทพมหานคร",
+    "road": "รัชดาภิเษก - รามอินทรา",
+    "accident_count": 10,
+    "deaths": 1,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 1,
+    "injured_total": 2,
+    "severity_index": 0.3,
+    "level": "low",
+    "economic_loss": 6816000,
+    "epdo_million": 6.816,
+    "single_count": 5,
+    "multi_count": 5,
+    "single_pct": 50.0,
+    "multi_pct": 50.0,
+    "pattern": "mixed",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.738586,
+     13.730025
+    ]
+   },
+   "properties": {
+    "id": "zone_4",
+    "unit_type": "cluster",
+    "radius_m": 3959.5,
+    "province": "กรุงเทพมหานคร",
+    "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+    "accident_count": 258,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 78,
+    "fatal_crashes": 0,
+    "injured_total": 78,
+    "severity_index": 0.3023,
+    "level": "low",
+    "economic_loss": 4524000,
+    "epdo_million": 4.524,
+    "single_count": 32,
+    "multi_count": 226,
+    "single_pct": 12.4,
+    "multi_pct": 87.6,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.693983,
+     13.763739
+    ]
+   },
+   "properties": {
+    "id": "zone_5",
+    "unit_type": "cluster",
+    "radius_m": 4664.9,
+    "province": "กรุงเทพมหานคร",
+    "road": "แขวงรามอินทรา - บางพลี",
+    "accident_count": 176,
+    "deaths": 1,
+    "serious_injury": 2,
+    "minor_injury": 103,
+    "fatal_crashes": 1,
+    "injured_total": 105,
+    "severity_index": 0.6023,
+    "level": "low",
+    "economic_loss": 16674000,
+    "epdo_million": 16.674,
+    "single_count": 57,
+    "multi_count": 119,
+    "single_pct": 32.4,
+    "multi_pct": 67.6,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.677277,
+     13.813451
+    ]
+   },
+   "properties": {
+    "id": "zone_6",
+    "unit_type": "cluster",
+    "radius_m": 750.6,
+    "province": "กรุงเทพมหานคร",
+    "road": "แขวงรามอินทรา - บางพลี",
+    "accident_count": 34,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 22,
+    "fatal_crashes": 0,
+    "injured_total": 22,
+    "severity_index": 0.6471,
+    "level": "low",
+    "economic_loss": 1276000,
+    "epdo_million": 1.276,
+    "single_count": 3,
+    "multi_count": 31,
+    "single_pct": 8.8,
+    "multi_pct": 91.2,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.68271,
+     13.793368
+    ]
+   },
+   "properties": {
+    "id": "zone_7",
+    "unit_type": "cluster",
+    "radius_m": 236.7,
+    "province": "กรุงเทพมหานคร",
+    "road": "ไม่ระบุ",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 3,
+    "fatal_crashes": 0,
+    "injured_total": 3,
+    "severity_index": 1.0,
+    "level": "medium",
+    "economic_loss": 174000,
+    "epdo_million": 0.174,
+    "single_count": 0,
+    "multi_count": 3,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -167,7 +428,7 @@
     ]
    },
    "properties": {
-    "id": "zone_1",
+    "id": "zone_8",
     "unit_type": "cluster",
     "radius_m": 423.0,
     "province": "กรุงเทพมหานคร",
@@ -199,31 +460,31 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.468806,
-     13.679097
+     100.468706,
+     13.679051
     ]
    },
    "properties": {
-    "id": "zone_2",
+    "id": "zone_9",
     "unit_type": "cluster",
-    "radius_m": 987.6,
+    "radius_m": 999.5,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง - แสมดำ",
-    "accident_count": 28,
+    "accident_count": 27,
     "deaths": 0,
     "serious_injury": 3,
     "minor_injury": 22,
     "fatal_crashes": 0,
     "injured_total": 25,
-    "severity_index": 0.8929,
+    "severity_index": 0.9259,
     "level": "low",
     "economic_loss": 7276000,
     "epdo_million": 7.276,
     "single_count": 11,
-    "multi_count": 17,
-    "single_pct": 39.3,
-    "multi_pct": 60.7,
-    "pattern": "multiple",
+    "multi_count": 16,
+    "single_pct": 40.7,
+    "multi_pct": 59.3,
+    "pattern": "mixed",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -236,28 +497,28 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.420457,
-     13.648296
+     100.420599,
+     13.648405
     ]
    },
    "properties": {
-    "id": "zone_3",
+    "id": "zone_10",
     "unit_type": "cluster",
-    "radius_m": 5670.4,
+    "radius_m": 5689.9,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง - แสมดำ",
-    "accident_count": 282,
+    "accident_count": 277,
     "deaths": 10,
     "serious_injury": 2,
-    "minor_injury": 159,
+    "minor_injury": 155,
     "fatal_crashes": 10,
-    "injured_total": 161,
-    "severity_index": 0.6064,
+    "injured_total": 157,
+    "severity_index": 0.6029,
     "level": "low",
-    "economic_loss": 80222000,
-    "epdo_million": 80.222,
-    "single_count": 50,
-    "multi_count": 232,
+    "economic_loss": 79990000,
+    "epdo_million": 79.99,
+    "single_count": 49,
+    "multi_count": 228,
     "single_pct": 17.7,
     "multi_pct": 82.3,
     "pattern": "multiple",
@@ -273,30 +534,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.398227,
-     13.784683
+     100.412128,
+     13.639683
     ]
    },
    "properties": {
-    "id": "zone_4",
+    "id": "zone_11",
     "unit_type": "cluster",
-    "radius_m": 7910.8,
+    "radius_m": 16.8,
     "province": "กรุงเทพมหานคร",
-    "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
-    "accident_count": 762,
-    "deaths": 13,
-    "serious_injury": 25,
-    "minor_injury": 507,
-    "fatal_crashes": 13,
-    "injured_total": 532,
-    "severity_index": 0.7152,
+    "road": "พระประแดง - บางแค",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.6667,
     "level": "low",
-    "economic_loss": 166506000,
-    "epdo_million": 166.506,
-    "single_count": 91,
-    "multi_count": 671,
-    "single_pct": 11.9,
-    "multi_pct": 88.1,
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 0,
+    "multi_count": 3,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -310,30 +571,104 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.795037,
-     13.731683
+     100.451082,
+     13.782542
     ]
    },
    "properties": {
-    "id": "zone_5",
+    "id": "zone_12",
     "unit_type": "cluster",
-    "radius_m": 2174.6,
+    "radius_m": 325.0,
     "province": "กรุงเทพมหานคร",
-    "road": "แขวงคลองสองต้นนุ่น - พิมพา",
-    "accident_count": 60,
+    "road": "ทางยกระดับบางกอกน้อย - นครชัยศรี",
+    "accident_count": 4,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 15,
+    "minor_injury": 4,
     "fatal_crashes": 0,
-    "injured_total": 15,
-    "severity_index": 0.25,
+    "injured_total": 4,
+    "severity_index": 1.0,
+    "level": "medium",
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ไม่ระบุ",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.469838,
+     13.788117
+    ]
+   },
+   "properties": {
+    "id": "zone_13",
+    "unit_type": "cluster",
+    "radius_m": 171.6,
+    "province": "กรุงเทพมหานคร",
+    "road": "บางพลัด - บางบำหรุ",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 4,
+    "severity_index": 0.8,
     "level": "low",
-    "economic_loss": 870000,
-    "epdo_million": 0.87,
-    "single_count": 31,
-    "multi_count": 29,
-    "single_pct": 51.7,
-    "multi_pct": 48.3,
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.408374,
+     13.775372
+    ]
+   },
+   "properties": {
+    "id": "zone_14",
+    "unit_type": "cluster",
+    "radius_m": 927.3,
+    "province": "กรุงเทพมหานคร",
+    "road": "บางแค - คลองมหาสวัสดิ์",
+    "accident_count": 25,
+    "deaths": 2,
+    "serious_injury": 1,
+    "minor_injury": 12,
+    "fatal_crashes": 2,
+    "injured_total": 13,
+    "severity_index": 0.6,
+    "level": "low",
+    "economic_loss": 16096000,
+    "epdo_million": 16.096,
+    "single_count": 12,
+    "multi_count": 13,
+    "single_pct": 48.0,
+    "multi_pct": 52.0,
     "pattern": "mixed",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -347,30 +682,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.406411,
-     13.718417
+     100.409593,
+     13.787793
     ]
    },
    "properties": {
-    "id": "zone_6",
+    "id": "zone_15",
     "unit_type": "cluster",
-    "radius_m": 4976.4,
+    "radius_m": 183.6,
     "province": "กรุงเทพมหานคร",
     "road": "บางแค - คลองมหาสวัสดิ์",
-    "accident_count": 123,
-    "deaths": 6,
-    "serious_injury": 6,
-    "minor_injury": 83,
-    "fatal_crashes": 6,
-    "injured_total": 89,
-    "severity_index": 0.7724,
+    "accident_count": 7,
+    "deaths": 0,
+    "serious_injury": 1,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 5,
+    "severity_index": 0.7143,
     "level": "low",
-    "economic_loss": 57014000,
-    "epdo_million": 57.014,
-    "single_count": 43,
-    "multi_count": 80,
-    "single_pct": 35.0,
-    "multi_pct": 65.0,
+    "economic_loss": 2232000,
+    "epdo_million": 2.232,
+    "single_count": 2,
+    "multi_count": 5,
+    "single_pct": 28.6,
+    "multi_pct": 71.4,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -384,34 +719,108 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.4183,
-     13.629941
+     100.396798,
+     13.784973
     ]
    },
    "properties": {
-    "id": "zone_7",
+    "id": "zone_16",
     "unit_type": "cluster",
-    "radius_m": 74.5,
+    "radius_m": 7881.1,
     "province": "กรุงเทพมหานคร",
-    "road": "พระประแดง - บางแค",
-    "accident_count": 3,
-    "deaths": 0,
-    "serious_injury": 1,
-    "minor_injury": 2,
-    "fatal_crashes": 0,
-    "injured_total": 3,
-    "severity_index": 1.0,
-    "level": "medium",
-    "economic_loss": 2116000,
-    "epdo_million": 2.116,
-    "single_count": 2,
-    "multi_count": 1,
-    "single_pct": 66.7,
-    "multi_pct": 33.3,
-    "pattern": "single",
+    "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
+    "accident_count": 712,
+    "deaths": 11,
+    "serious_injury": 22,
+    "minor_injury": 476,
+    "fatal_crashes": 11,
+    "injured_total": 498,
+    "severity_index": 0.7149,
+    "level": "low",
+    "economic_loss": 145308000,
+    "epdo_million": 145.308,
+    "single_count": 69,
+    "multi_count": 643,
+    "single_pct": 9.7,
+    "multi_pct": 90.3,
+    "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.794864,
+     13.731764
+    ]
+   },
+   "properties": {
+    "id": "zone_17",
+    "unit_type": "cluster",
+    "radius_m": 2195.3,
+    "province": "กรุงเทพมหานคร",
+    "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+    "accident_count": 58,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 15,
+    "fatal_crashes": 0,
+    "injured_total": 15,
+    "severity_index": 0.2586,
+    "level": "low",
+    "economic_loss": 870000,
+    "epdo_million": 0.87,
+    "single_count": 31,
+    "multi_count": 27,
+    "single_pct": 53.4,
+    "multi_pct": 46.6,
+    "pattern": "mixed",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.406413,
+     13.719136
+    ]
+   },
+   "properties": {
+    "id": "zone_18",
+    "unit_type": "cluster",
+    "radius_m": 4831.6,
+    "province": "กรุงเทพมหานคร",
+    "road": "บางแค - คลองมหาสวัสดิ์",
+    "accident_count": 121,
+    "deaths": 6,
+    "serious_injury": 6,
+    "minor_injury": 80,
+    "fatal_crashes": 6,
+    "injured_total": 86,
+    "severity_index": 0.7603,
+    "level": "low",
+    "economic_loss": 56840000,
+    "epdo_million": 56.84,
+    "single_count": 43,
+    "multi_count": 78,
+    "single_pct": 35.5,
+    "multi_pct": 64.5,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
     "road_type": "ทางหลวง",
     "speed_limit": 90
    }
@@ -426,7 +835,7 @@
     ]
    },
    "properties": {
-    "id": "zone_8",
+    "id": "zone_19",
     "unit_type": "cluster",
     "radius_m": 175.9,
     "province": "กรุงเทพมหานคร",
@@ -463,7 +872,7 @@
     ]
    },
    "properties": {
-    "id": "zone_9",
+    "id": "zone_20",
     "unit_type": "cluster",
     "radius_m": 406.8,
     "province": "กรุงเทพมหานคร",
@@ -495,30 +904,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.449259,
-     13.626341
+     100.44858,
+     13.626365
     ]
    },
    "properties": {
-    "id": "zone_10",
+    "id": "zone_21",
     "unit_type": "cluster",
-    "radius_m": 514.1,
+    "radius_m": 404.3,
     "province": "กรุงเทพมหานคร",
     "road": "พระประแดง - บางแค",
-    "accident_count": 8,
+    "accident_count": 7,
     "deaths": 1,
     "serious_injury": 1,
-    "minor_injury": 10,
+    "minor_injury": 9,
     "fatal_crashes": 1,
-    "injured_total": 11,
-    "severity_index": 1.5,
+    "injured_total": 10,
+    "severity_index": 1.5714,
     "level": "medium",
-    "economic_loss": 9280000,
-    "epdo_million": 9.28,
+    "economic_loss": 9222000,
+    "epdo_million": 9.222,
     "single_count": 1,
-    "multi_count": 7,
-    "single_pct": 12.5,
-    "multi_pct": 87.5,
+    "multi_count": 6,
+    "single_pct": 14.3,
+    "multi_pct": 85.7,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -537,7 +946,7 @@
     ]
    },
    "properties": {
-    "id": "zone_11",
+    "id": "zone_22",
     "unit_type": "cluster",
     "radius_m": 1022.3,
     "province": "กรุงเทพมหานคร",
@@ -574,7 +983,7 @@
     ]
    },
    "properties": {
-    "id": "zone_12",
+    "id": "zone_23",
     "unit_type": "cluster",
     "radius_m": 67.7,
     "province": "กรุงเทพมหานคร",
@@ -606,30 +1015,67 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.598089,
-     13.751515
+     100.597372,
+     13.750432
     ]
    },
    "properties": {
-    "id": "zone_13",
+    "id": "zone_24",
     "unit_type": "cluster",
-    "radius_m": 480.8,
+    "radius_m": 424.4,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
-    "accident_count": 7,
+    "accident_count": 4,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 6,
     "fatal_crashes": 0,
     "injured_total": 6,
-    "severity_index": 0.8571,
-    "level": "low",
+    "severity_index": 1.5,
+    "level": "medium",
     "economic_loss": 348000,
     "epdo_million": 0.348,
+    "single_count": 0,
+    "multi_count": 4,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
+    "pattern": "multiple",
+    "top_cause": "ไม่ระบุ",
+    "road_feature": "ทางตรง",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "การทางพิเศษ",
+    "speed_limit": 100
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.599046,
+     13.752959
+    ]
+   },
+   "properties": {
+    "id": "zone_25",
+    "unit_type": "cluster",
+    "radius_m": 275.7,
+    "province": "กรุงเทพมหานคร",
+    "road": "รามอินทรา-อาจณรงค์",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 0,
+    "fatal_crashes": 0,
+    "injured_total": 0,
+    "severity_index": 0.0,
+    "level": "low",
+    "economic_loss": 0,
+    "epdo_million": 0.0,
     "single_count": 1,
-    "multi_count": 6,
-    "single_pct": 14.3,
-    "multi_pct": 85.7,
+    "multi_count": 2,
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
     "pattern": "multiple",
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
@@ -648,7 +1094,7 @@
     ]
    },
    "properties": {
-    "id": "zone_14",
+    "id": "zone_26",
     "unit_type": "cluster",
     "radius_m": 83.8,
     "province": "กรุงเทพมหานคร",
@@ -680,33 +1126,70 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.576154,
-     13.840089
+     100.576782,
+     13.840001
     ]
    },
    "properties": {
-    "id": "zone_15",
+    "id": "zone_27",
     "unit_type": "cluster",
-    "radius_m": 417.5,
+    "radius_m": 351.8,
     "province": "กรุงเทพมหานคร",
     "road": "มหาวิทยาลัยเกษตรศาสตร์ - คันนายาว",
-    "accident_count": 11,
+    "accident_count": 8,
     "deaths": 0,
     "serious_injury": 1,
-    "minor_injury": 4,
+    "minor_injury": 3,
     "fatal_crashes": 0,
-    "injured_total": 5,
-    "severity_index": 0.4545,
+    "injured_total": 4,
+    "severity_index": 0.5,
     "level": "low",
-    "economic_loss": 2232000,
-    "epdo_million": 2.232,
-    "single_count": 10,
+    "economic_loss": 2174000,
+    "epdo_million": 2.174,
+    "single_count": 7,
     "multi_count": 1,
-    "single_pct": 90.9,
-    "multi_pct": 9.1,
+    "single_pct": 87.5,
+    "multi_pct": 12.5,
     "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.574481,
+     13.840324
+    ]
+   },
+   "properties": {
+    "id": "zone_28",
+    "unit_type": "cluster",
+    "radius_m": 155.3,
+    "province": "กรุงเทพมหานคร",
+    "road": "แยกมหาวิทยาลัยเกษตรศาสตร์ - สี่แยกแคราย",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.3333,
+    "level": "low",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 3,
+    "multi_count": 0,
+    "single_pct": 100.0,
+    "multi_pct": 0.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
     "road_type": "ทางหลวง",
     "speed_limit": 90
@@ -722,7 +1205,7 @@
     ]
    },
    "properties": {
-    "id": "zone_16",
+    "id": "zone_29",
     "unit_type": "cluster",
     "radius_m": 224.1,
     "province": "กรุงเทพมหานคร",
@@ -754,30 +1237,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.699611,
-     13.694553
+     100.699606,
+     13.694604
     ]
    },
    "properties": {
-    "id": "zone_17",
+    "id": "zone_30",
     "unit_type": "cluster",
-    "radius_m": 822.2,
+    "radius_m": 816.5,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
-    "accident_count": 18,
+    "accident_count": 17,
     "deaths": 0,
     "serious_injury": 3,
     "minor_injury": 15,
     "fatal_crashes": 0,
     "injured_total": 18,
-    "severity_index": 1.0,
+    "severity_index": 1.0588,
     "level": "medium",
     "economic_loss": 6870000,
     "epdo_million": 6.87,
-    "single_count": 3,
+    "single_count": 2,
     "multi_count": 15,
-    "single_pct": 16.7,
-    "multi_pct": 83.3,
+    "single_pct": 11.8,
+    "multi_pct": 88.2,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -796,7 +1279,7 @@
     ]
    },
    "properties": {
-    "id": "zone_18",
+    "id": "zone_31",
     "unit_type": "cluster",
     "radius_m": 361.8,
     "province": "กรุงเทพมหานคร",
@@ -828,30 +1311,474 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.535229,
-     13.664595
+     100.530121,
+     13.664181
     ]
    },
    "properties": {
-    "id": "zone_19",
+    "id": "zone_32",
     "unit_type": "cluster",
-    "radius_m": 2549.9,
+    "radius_m": 894.5,
+    "province": "สมุทรปราการ",
+    "road": "ถนนวงแหวนอุตสาหกรรมเข้าสะพานภูมิพลที่ 1",
+    "accident_count": 24,
+    "deaths": 1,
+    "serious_injury": 0,
+    "minor_injury": 19,
+    "fatal_crashes": 1,
+    "injured_total": 19,
+    "severity_index": 0.8333,
+    "level": "low",
+    "economic_loss": 7802000,
+    "epdo_million": 7.802,
+    "single_count": 6,
+    "multi_count": 18,
+    "single_pct": 25.0,
+    "multi_pct": 75.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.540872,
+     13.650321
+    ]
+   },
+   "properties": {
+    "id": "zone_33",
+    "unit_type": "cluster",
+    "radius_m": 515.5,
+    "province": "สมุทรปราการ",
+    "road": "ทางออกจากถนนวงแหวนอุตสาหกรรมสู่ถนนปู่เจ้าสมิงพราย",
+    "accident_count": 12,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 4,
+    "severity_index": 0.3333,
+    "level": "low",
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
+    "single_count": 6,
+    "multi_count": 6,
+    "single_pct": 50.0,
+    "multi_pct": 50.0,
+    "pattern": "mixed",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.540598,
+     13.650285
+    ]
+   },
+   "properties": {
+    "id": "zone_34",
+    "unit_type": "cluster",
+    "radius_m": 520.1,
+    "province": "สมุทรปราการ",
+    "road": "ทางเข้าถนนปู่เจ้าสมิงพรายสู่ถนนวงแหวนอุตสาหกรรม",
+    "accident_count": 8,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 6,
+    "fatal_crashes": 0,
+    "injured_total": 6,
+    "severity_index": 0.75,
+    "level": "low",
+    "economic_loss": 348000,
+    "epdo_million": 0.348,
+    "single_count": 6,
+    "multi_count": 2,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.518235,
+     13.664705
+    ]
+   },
+   "properties": {
+    "id": "zone_35",
+    "unit_type": "cluster",
+    "radius_m": 281.9,
+    "province": "กรุงเทพมหานคร",
+    "road": "ทางเข้าถนนสุขสวัสดิ์สู่ถนนวงแหวนอุตสาหกรรม",
+    "accident_count": 6,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.1667,
+    "level": "low",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 1,
+    "multi_count": 5,
+    "single_pct": 16.7,
+    "multi_pct": 83.3,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางสามแยก (Y)",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.539677,
+     13.674122
+    ]
+   },
+   "properties": {
+    "id": "zone_36",
+    "unit_type": "cluster",
+    "radius_m": 1389.0,
+    "province": "กรุงเทพมหานคร",
+    "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
+    "accident_count": 39,
+    "deaths": 6,
+    "serious_injury": 2,
+    "minor_injury": 20,
+    "fatal_crashes": 6,
+    "injured_total": 22,
+    "severity_index": 0.7179,
+    "level": "low",
+    "economic_loss": 45360000,
+    "epdo_million": 45.36,
+    "single_count": 12,
+    "multi_count": 27,
+    "single_pct": 30.8,
+    "multi_pct": 69.2,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.54146,
+     13.649658
+    ]
+   },
+   "properties": {
+    "id": "zone_37",
+    "unit_type": "cluster",
+    "radius_m": 93.5,
     "province": "สมุทรปราการ",
     "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
-    "accident_count": 156,
-    "deaths": 9,
-    "serious_injury": 2,
-    "minor_injury": 100,
-    "fatal_crashes": 9,
-    "injured_total": 102,
-    "severity_index": 0.7115,
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.3333,
     "level": "low",
-    "economic_loss": 70100000,
-    "epdo_million": 70.1,
-    "single_count": 51,
-    "multi_count": 105,
-    "single_pct": 32.7,
-    "multi_pct": 67.3,
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 0,
+    "multi_count": 3,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.540808,
+     13.655128
+    ]
+   },
+   "properties": {
+    "id": "zone_38",
+    "unit_type": "cluster",
+    "radius_m": 162.5,
+    "province": "สมุทรปราการ",
+    "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
+    "accident_count": 6,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 4,
+    "severity_index": 0.6667,
+    "level": "low",
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
+    "single_count": 0,
+    "multi_count": 6,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.538415,
+     13.669022
+    ]
+   },
+   "properties": {
+    "id": "zone_39",
+    "unit_type": "cluster",
+    "radius_m": 423.4,
+    "province": "กรุงเทพมหานคร",
+    "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
+    "accident_count": 9,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 7,
+    "fatal_crashes": 0,
+    "injured_total": 7,
+    "severity_index": 0.7778,
+    "level": "low",
+    "economic_loss": 406000,
+    "epdo_million": 0.406,
+    "single_count": 2,
+    "multi_count": 7,
+    "single_pct": 22.2,
+    "multi_pct": 77.8,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนคนเดินเท้า",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.539473,
+     13.677702
+    ]
+   },
+   "properties": {
+    "id": "zone_40",
+    "unit_type": "cluster",
+    "radius_m": 340.5,
+    "province": "กรุงเทพมหานคร",
+    "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 5,
+    "fatal_crashes": 0,
+    "injured_total": 5,
+    "severity_index": 1.0,
+    "level": "medium",
+    "economic_loss": 290000,
+    "epdo_million": 0.29,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.541179,
+     13.651052
+    ]
+   },
+   "properties": {
+    "id": "zone_41",
+    "unit_type": "cluster",
+    "radius_m": 110.8,
+    "province": "สมุทรปราการ",
+    "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.3333,
+    "level": "low",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 1,
+    "multi_count": 2,
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.539881,
+     13.658255
+    ]
+   },
+   "properties": {
+    "id": "zone_42",
+    "unit_type": "cluster",
+    "radius_m": 253.1,
+    "province": "สมุทรปราการ",
+    "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
+    "accident_count": 7,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 7,
+    "fatal_crashes": 0,
+    "injured_total": 7,
+    "severity_index": 1.0,
+    "level": "medium",
+    "economic_loss": 406000,
+    "epdo_million": 0.406,
+    "single_count": 0,
+    "multi_count": 7,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.517923,
+     13.66422
+    ]
+   },
+   "properties": {
+    "id": "zone_43",
+    "unit_type": "cluster",
+    "radius_m": 270.2,
+    "province": "กรุงเทพมหานคร",
+    "road": "ออกจากสะพานภูมิพลที่ 2 ไปถนนวงแหวนอุตสาหกรรม",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 0,
+    "fatal_crashes": 0,
+    "injured_total": 0,
+    "severity_index": 0.0,
+    "level": "low",
+    "economic_loss": 0,
+    "epdo_million": 0.0,
+    "single_count": 2,
+    "multi_count": 2,
+    "single_pct": 50.0,
+    "multi_pct": 50.0,
+    "pattern": "mixed",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ไม่ระบุ",
+    "road_type": "ทางหลวงชนบท",
+    "speed_limit": 80
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.531447,
+     13.664196
+    ]
+   },
+   "properties": {
+    "id": "zone_44",
+    "unit_type": "cluster",
+    "radius_m": 785.6,
+    "province": "สมุทรปราการ",
+    "road": "ออกจากสะพานภูมิพลที่ 2 ไปถนนวงแหวนอุตสาหกรรม",
+    "accident_count": 18,
+    "deaths": 1,
+    "serious_injury": 0,
+    "minor_injury": 12,
+    "fatal_crashes": 1,
+    "injured_total": 12,
+    "severity_index": 0.7222,
+    "level": "low",
+    "economic_loss": 7396000,
+    "epdo_million": 7.396,
+    "single_count": 7,
+    "multi_count": 11,
+    "single_pct": 38.9,
+    "multi_pct": 61.1,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -870,7 +1797,7 @@
     ]
    },
    "properties": {
-    "id": "zone_20",
+    "id": "zone_45",
     "unit_type": "cluster",
     "radius_m": 55.6,
     "province": "กรุงเทพมหานคร",
@@ -907,7 +1834,7 @@
     ]
    },
    "properties": {
-    "id": "zone_21",
+    "id": "zone_46",
     "unit_type": "cluster",
     "radius_m": 77.4,
     "province": "กรุงเทพมหานคร",
@@ -944,7 +1871,7 @@
     ]
    },
    "properties": {
-    "id": "zone_22",
+    "id": "zone_47",
     "unit_type": "cluster",
     "radius_m": 141.5,
     "province": "กรุงเทพมหานคร",
@@ -981,7 +1908,7 @@
     ]
    },
    "properties": {
-    "id": "zone_23",
+    "id": "zone_48",
     "unit_type": "cluster",
     "radius_m": 74.5,
     "province": "กรุงเทพมหานคร",
@@ -1018,7 +1945,7 @@
     ]
    },
    "properties": {
-    "id": "zone_24",
+    "id": "zone_49",
     "unit_type": "cluster",
     "radius_m": 1222.3,
     "province": "สมุทรปราการ",
@@ -1055,7 +1982,7 @@
     ]
    },
    "properties": {
-    "id": "zone_25",
+    "id": "zone_50",
     "unit_type": "cluster",
     "radius_m": 293.3,
     "province": "กรุงเทพมหานคร",
@@ -1092,7 +2019,7 @@
     ]
    },
    "properties": {
-    "id": "zone_26",
+    "id": "zone_51",
     "unit_type": "cluster",
     "radius_m": 91.2,
     "province": "กรุงเทพมหานคร",
@@ -1129,7 +2056,7 @@
     ]
    },
    "properties": {
-    "id": "zone_27",
+    "id": "zone_52",
     "unit_type": "cluster",
     "radius_m": 1173.3,
     "province": "กรุงเทพมหานคร",
@@ -1166,7 +2093,7 @@
     ]
    },
    "properties": {
-    "id": "zone_28",
+    "id": "zone_53",
     "unit_type": "cluster",
     "radius_m": 319.7,
     "province": "กรุงเทพมหานคร",
@@ -1203,7 +2130,7 @@
     ]
    },
    "properties": {
-    "id": "zone_29",
+    "id": "zone_54",
     "unit_type": "cluster",
     "radius_m": 80.2,
     "province": "กรุงเทพมหานคร",
@@ -1240,7 +2167,7 @@
     ]
    },
    "properties": {
-    "id": "zone_30",
+    "id": "zone_55",
     "unit_type": "cluster",
     "radius_m": 174.1,
     "province": "กรุงเทพมหานคร",
@@ -1277,7 +2204,7 @@
     ]
    },
    "properties": {
-    "id": "zone_31",
+    "id": "zone_56",
     "unit_type": "cluster",
     "radius_m": 494.5,
     "province": "กรุงเทพมหานคร",
@@ -1309,30 +2236,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.605409,
-     13.746968
+     100.605118,
+     13.746326
     ]
    },
    "properties": {
-    "id": "zone_32",
+    "id": "zone_57",
     "unit_type": "cluster",
-    "radius_m": 349.5,
+    "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
-    "accident_count": 7,
+    "accident_count": 4,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 1,
+    "minor_injury": 0,
     "fatal_crashes": 0,
-    "injured_total": 1,
-    "severity_index": 0.1429,
+    "injured_total": 0,
+    "severity_index": 0.0,
     "level": "low",
-    "economic_loss": 58000,
-    "epdo_million": 0.058,
-    "single_count": 1,
-    "multi_count": 6,
-    "single_pct": 14.3,
-    "multi_pct": 85.7,
+    "economic_loss": 0,
+    "epdo_million": 0.0,
+    "single_count": 0,
+    "multi_count": 4,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
     "pattern": "multiple",
     "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
@@ -1351,7 +2278,7 @@
     ]
    },
    "properties": {
-    "id": "zone_33",
+    "id": "zone_58",
     "unit_type": "cluster",
     "radius_m": 113.4,
     "province": "กรุงเทพมหานคร",
@@ -1388,7 +2315,7 @@
     ]
    },
    "properties": {
-    "id": "zone_34",
+    "id": "zone_59",
     "unit_type": "cluster",
     "radius_m": 335.0,
     "province": "กรุงเทพมหานคร",
@@ -1425,7 +2352,7 @@
     ]
    },
    "properties": {
-    "id": "zone_35",
+    "id": "zone_60",
     "unit_type": "cluster",
     "radius_m": 617.3,
     "province": "กรุงเทพมหานคร",
@@ -1462,7 +2389,7 @@
     ]
    },
    "properties": {
-    "id": "zone_36",
+    "id": "zone_61",
     "unit_type": "cluster",
     "radius_m": 99.0,
     "province": "กรุงเทพมหานคร",
@@ -1499,7 +2426,7 @@
     ]
    },
    "properties": {
-    "id": "zone_37",
+    "id": "zone_62",
     "unit_type": "cluster",
     "radius_m": 296.6,
     "province": "กรุงเทพมหานคร",
@@ -1536,7 +2463,7 @@
     ]
    },
    "properties": {
-    "id": "zone_38",
+    "id": "zone_63",
     "unit_type": "cluster",
     "radius_m": 246.3,
     "province": "กรุงเทพมหานคร",
@@ -1573,7 +2500,7 @@
     ]
    },
    "properties": {
-    "id": "zone_39",
+    "id": "zone_64",
     "unit_type": "cluster",
     "radius_m": 60.8,
     "province": "กรุงเทพมหานคร",
@@ -1610,7 +2537,7 @@
     ]
    },
    "properties": {
-    "id": "zone_40",
+    "id": "zone_65",
     "unit_type": "cluster",
     "radius_m": 267.4,
     "province": "กรุงเทพมหานคร",
@@ -1642,30 +2569,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.643668,
-     13.666835
+     100.642382,
+     13.666252
     ]
    },
    "properties": {
-    "id": "zone_41",
+    "id": "zone_66",
     "unit_type": "cluster",
-    "radius_m": 529.8,
+    "radius_m": 394.8,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
-    "accident_count": 8,
+    "accident_count": 5,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 7,
+    "minor_injury": 2,
     "fatal_crashes": 0,
-    "injured_total": 7,
-    "severity_index": 0.875,
+    "injured_total": 2,
+    "severity_index": 0.4,
     "level": "low",
-    "economic_loss": 406000,
-    "epdo_million": 0.406,
-    "single_count": 3,
-    "multi_count": 5,
-    "single_pct": 37.5,
-    "multi_pct": 62.5,
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -1679,30 +2606,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.625729,
-     13.669478
+     100.625657,
+     13.669504
     ]
    },
    "properties": {
-    "id": "zone_42",
+    "id": "zone_67",
     "unit_type": "cluster",
-    "radius_m": 177.8,
+    "radius_m": 169.7,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
-    "accident_count": 4,
+    "accident_count": 3,
     "deaths": 2,
     "serious_injury": 1,
-    "minor_injury": 3,
+    "minor_injury": 2,
     "fatal_crashes": 1,
-    "injured_total": 4,
-    "severity_index": 1.25,
+    "injured_total": 3,
+    "severity_index": 1.3333,
     "level": "medium",
-    "economic_loss": 15574000,
-    "epdo_million": 15.574,
-    "single_count": 3,
+    "economic_loss": 15516000,
+    "epdo_million": 15.516,
+    "single_count": 2,
     "multi_count": 1,
-    "single_pct": 75.0,
-    "multi_pct": 25.0,
+    "single_pct": 66.7,
+    "multi_pct": 33.3,
     "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -1721,7 +2648,7 @@
     ]
    },
    "properties": {
-    "id": "zone_43",
+    "id": "zone_68",
     "unit_type": "cluster",
     "radius_m": 316.0,
     "province": "กรุงเทพมหานคร",
@@ -1758,7 +2685,7 @@
     ]
    },
    "properties": {
-    "id": "zone_44",
+    "id": "zone_69",
     "unit_type": "cluster",
     "radius_m": 216.7,
     "province": "กรุงเทพมหานคร",
@@ -1795,7 +2722,7 @@
     ]
    },
    "properties": {
-    "id": "zone_45",
+    "id": "zone_70",
     "unit_type": "cluster",
     "radius_m": 297.3,
     "province": "กรุงเทพมหานคร",
@@ -1832,7 +2759,7 @@
     ]
    },
    "properties": {
-    "id": "zone_46",
+    "id": "zone_71",
     "unit_type": "cluster",
     "radius_m": 143.5,
     "province": "กรุงเทพมหานคร",
@@ -1869,7 +2796,7 @@
     ]
    },
    "properties": {
-    "id": "zone_47",
+    "id": "zone_72",
     "unit_type": "cluster",
     "radius_m": 291.9,
     "province": "กรุงเทพมหานคร",
@@ -1906,7 +2833,7 @@
     ]
    },
    "properties": {
-    "id": "zone_48",
+    "id": "zone_73",
     "unit_type": "cluster",
     "radius_m": 315.5,
     "province": "กรุงเทพมหานคร",
@@ -1943,7 +2870,7 @@
     ]
    },
    "properties": {
-    "id": "zone_49",
+    "id": "zone_74",
     "unit_type": "cluster",
     "radius_m": 84.6,
     "province": "กรุงเทพมหานคร",
@@ -1980,7 +2907,7 @@
     ]
    },
    "properties": {
-    "id": "zone_50",
+    "id": "zone_75",
     "unit_type": "cluster",
     "radius_m": 340.8,
     "province": "กรุงเทพมหานคร",
@@ -2017,7 +2944,7 @@
     ]
    },
    "properties": {
-    "id": "zone_51",
+    "id": "zone_76",
     "unit_type": "cluster",
     "radius_m": 170.4,
     "province": "กรุงเทพมหานคร",
@@ -2054,7 +2981,7 @@
     ]
    },
    "properties": {
-    "id": "zone_52",
+    "id": "zone_77",
     "unit_type": "cluster",
     "radius_m": 677.9,
     "province": "กรุงเทพมหานคร",
@@ -2091,7 +3018,7 @@
     ]
    },
    "properties": {
-    "id": "zone_53",
+    "id": "zone_78",
     "unit_type": "cluster",
     "radius_m": 225.5,
     "province": "กรุงเทพมหานคร",
@@ -2128,7 +3055,7 @@
     ]
    },
    "properties": {
-    "id": "zone_54",
+    "id": "zone_79",
     "unit_type": "cluster",
     "radius_m": 235.5,
     "province": "กรุงเทพมหานคร",
@@ -2165,7 +3092,7 @@
     ]
    },
    "properties": {
-    "id": "zone_55",
+    "id": "zone_80",
     "unit_type": "cluster",
     "radius_m": 233.7,
     "province": "กรุงเทพมหานคร",
@@ -2202,7 +3129,7 @@
     ]
    },
    "properties": {
-    "id": "zone_56",
+    "id": "zone_81",
     "unit_type": "cluster",
     "radius_m": 160.6,
     "province": "กรุงเทพมหานคร",
@@ -2239,7 +3166,7 @@
     ]
    },
    "properties": {
-    "id": "zone_57",
+    "id": "zone_82",
     "unit_type": "cluster",
     "radius_m": 414.1,
     "province": "กรุงเทพมหานคร",
@@ -2276,7 +3203,7 @@
     ]
    },
    "properties": {
-    "id": "zone_58",
+    "id": "zone_83",
     "unit_type": "cluster",
     "radius_m": 246.8,
     "province": "กรุงเทพมหานคร",
@@ -2313,7 +3240,7 @@
     ]
    },
    "properties": {
-    "id": "zone_59",
+    "id": "zone_84",
     "unit_type": "cluster",
     "radius_m": 151.5,
     "province": "กรุงเทพมหานคร",
@@ -2350,7 +3277,7 @@
     ]
    },
    "properties": {
-    "id": "zone_60",
+    "id": "zone_85",
     "unit_type": "cluster",
     "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
@@ -2387,7 +3314,7 @@
     ]
    },
    "properties": {
-    "id": "zone_61",
+    "id": "zone_86",
     "unit_type": "cluster",
     "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
@@ -2419,49 +3346,12 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.582929,
-     13.88457
-    ]
-   },
-   "properties": {
-    "id": "zone_62",
-    "unit_type": "cluster",
-    "radius_m": 236.4,
-    "province": "กรุงเทพมหานคร",
-    "road": "งามวงศ์วาน - ดอนเมือง",
-    "accident_count": 3,
-    "deaths": 0,
-    "serious_injury": 0,
-    "minor_injury": 1,
-    "fatal_crashes": 0,
-    "injured_total": 1,
-    "severity_index": 0.3333,
-    "level": "low",
-    "economic_loss": 58000,
-    "epdo_million": 0.058,
-    "single_count": 2,
-    "multi_count": 1,
-    "single_pct": 66.7,
-    "multi_pct": 33.3,
-    "pattern": "single",
-    "top_cause": "หลับใน",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
-    "road_type": "ทางหลวง",
-    "speed_limit": 90
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
      100.5404,
      13.831845
     ]
    },
    "properties": {
-    "id": "zone_63",
+    "id": "zone_87",
     "unit_type": "cluster",
     "radius_m": 33.4,
     "province": "กรุงเทพมหานคร",
@@ -2493,49 +3383,12 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.453863,
-     13.927641
-    ]
-   },
-   "properties": {
-    "id": "zone_64",
-    "unit_type": "cluster",
-    "radius_m": 105.5,
-    "province": "นนทบุรี",
-    "road": "ถนนชัยพฤกษ์",
-    "accident_count": 3,
-    "deaths": 0,
-    "serious_injury": 3,
-    "minor_injury": 0,
-    "fatal_crashes": 0,
-    "injured_total": 3,
-    "severity_index": 1.0,
-    "level": "medium",
-    "economic_loss": 6000000,
-    "epdo_million": 6.0,
-    "single_count": 1,
-    "multi_count": 2,
-    "single_pct": 33.3,
-    "multi_pct": 66.7,
-    "pattern": "multiple",
-    "top_cause": "ขับรถคร่อมเส้นแบ่งทิศทาง",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ไม่ระบุ",
-    "road_type": "ทางหลวงชนบท",
-    "speed_limit": 80
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
      100.544328,
      13.94489
     ]
    },
    "properties": {
-    "id": "zone_65",
+    "id": "zone_88",
     "unit_type": "cluster",
     "radius_m": 248.0,
     "province": "นนทบุรี",
@@ -2567,30 +3420,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.414012,
-     13.926165
+     100.413795,
+     13.92652
     ]
    },
    "properties": {
-    "id": "zone_66",
+    "id": "zone_89",
     "unit_type": "cluster",
-    "radius_m": 543.3,
+    "radius_m": 573.3,
     "province": "นนทบุรี",
     "road": "คลองบางไผ่ - คลองบางหลวง",
-    "accident_count": 6,
+    "accident_count": 5,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 3,
     "fatal_crashes": 0,
     "injured_total": 3,
-    "severity_index": 0.5,
+    "severity_index": 0.6,
     "level": "low",
     "economic_loss": 174000,
     "epdo_million": 0.174,
     "single_count": 4,
-    "multi_count": 2,
-    "single_pct": 66.7,
-    "multi_pct": 33.3,
+    "multi_count": 1,
+    "single_pct": 80.0,
+    "multi_pct": 20.0,
     "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -2609,7 +3462,7 @@
     ]
    },
    "properties": {
-    "id": "zone_67",
+    "id": "zone_90",
     "unit_type": "cluster",
     "radius_m": 472.3,
     "province": "นนทบุรี",
@@ -2646,7 +3499,7 @@
     ]
    },
    "properties": {
-    "id": "zone_68",
+    "id": "zone_91",
     "unit_type": "cluster",
     "radius_m": 41.8,
     "province": "นนทบุรี",
@@ -2683,7 +3536,7 @@
     ]
    },
    "properties": {
-    "id": "zone_69",
+    "id": "zone_92",
     "unit_type": "cluster",
     "radius_m": 167.8,
     "province": "นนทบุรี",
@@ -2720,7 +3573,7 @@
     ]
    },
    "properties": {
-    "id": "zone_70",
+    "id": "zone_93",
     "unit_type": "cluster",
     "radius_m": 104.1,
     "province": "นนทบุรี",
@@ -2757,7 +3610,7 @@
     ]
    },
    "properties": {
-    "id": "zone_71",
+    "id": "zone_94",
     "unit_type": "cluster",
     "radius_m": 85.2,
     "province": "นนทบุรี",
@@ -2789,49 +3642,12 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.504303,
-     13.908177
-    ]
-   },
-   "properties": {
-    "id": "zone_72",
-    "unit_type": "cluster",
-    "radius_m": 179.8,
-    "province": "นนทบุรี",
-    "road": "ถนนชัยพฤกษ์",
-    "accident_count": 3,
-    "deaths": 1,
-    "serious_injury": 0,
-    "minor_injury": 1,
-    "fatal_crashes": 1,
-    "injured_total": 1,
-    "severity_index": 0.6667,
-    "level": "low",
-    "economic_loss": 6758000,
-    "epdo_million": 6.758,
-    "single_count": 3,
-    "multi_count": 0,
-    "single_pct": 100.0,
-    "multi_pct": 0.0,
-    "pattern": "single",
-    "top_cause": "ทางโค้งอันตราย",
-    "road_feature": "ทางโค้งกว้าง+ไม่มีความลาดชัน",
-    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
-    "road_type": "ทางหลวงชนบท",
-    "speed_limit": 80
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
      100.544116,
      13.908903
     ]
    },
    "properties": {
-    "id": "zone_73",
+    "id": "zone_95",
     "unit_type": "cluster",
     "radius_m": 271.0,
     "province": "นนทบุรี",
@@ -2863,54 +3679,17 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.421135,
-     13.948019
+     100.248669,
+     14.160692
     ]
    },
    "properties": {
-    "id": "zone_74",
+    "id": "zone_96",
     "unit_type": "cluster",
-    "radius_m": 252.0,
-    "province": "นนทบุรี",
-    "road": "คลองบางไผ่ - คลองบางหลวง",
-    "accident_count": 3,
-    "deaths": 0,
-    "serious_injury": 1,
-    "minor_injury": 1,
-    "fatal_crashes": 0,
-    "injured_total": 2,
-    "severity_index": 0.6667,
-    "level": "low",
-    "economic_loss": 2058000,
-    "epdo_million": 2.058,
-    "single_count": 3,
-    "multi_count": 0,
-    "single_pct": 100.0,
-    "multi_pct": 0.0,
-    "pattern": "single",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
-    "road_type": "ทางหลวง",
-    "speed_limit": 90
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     100.247747,
-     14.160659
-    ]
-   },
-   "properties": {
-    "id": "zone_75",
-    "unit_type": "cluster",
-    "radius_m": 298.5,
+    "radius_m": 0.0,
     "province": "นครปฐม",
     "road": "ลาดบัวหลวง - สองพี่น้อง",
-    "accident_count": 4,
+    "accident_count": 3,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 0,
@@ -2921,12 +3700,12 @@
     "economic_loss": 0,
     "epdo_million": 0.0,
     "single_count": 2,
-    "multi_count": 2,
-    "single_pct": 50.0,
-    "multi_pct": 50.0,
-    "pattern": "mixed",
+    "multi_count": 1,
+    "single_pct": 66.7,
+    "multi_pct": 33.3,
+    "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "road_feature": "ไม่ระบุ",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
     "road_type": "ทางหลวง",
     "speed_limit": 90
@@ -2942,7 +3721,7 @@
     ]
    },
    "properties": {
-    "id": "zone_76",
+    "id": "zone_97",
     "unit_type": "cluster",
     "radius_m": 175.3,
     "province": "นครปฐม",
@@ -2979,7 +3758,7 @@
     ]
    },
    "properties": {
-    "id": "zone_77",
+    "id": "zone_98",
     "unit_type": "cluster",
     "radius_m": 259.9,
     "province": "ปทุมธานี",
@@ -3011,30 +3790,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.703842,
-     14.012681
+     100.703773,
+     14.012723
     ]
    },
    "properties": {
-    "id": "zone_78",
+    "id": "zone_99",
     "unit_type": "cluster",
-    "radius_m": 2986.2,
+    "radius_m": 2980.2,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
-    "accident_count": 79,
+    "accident_count": 78,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 45,
     "fatal_crashes": 0,
     "injured_total": 45,
-    "severity_index": 0.5696,
+    "severity_index": 0.5769,
     "level": "low",
     "economic_loss": 2610000,
     "epdo_million": 2.61,
-    "single_count": 31,
+    "single_count": 30,
     "multi_count": 48,
-    "single_pct": 39.2,
-    "multi_pct": 60.8,
+    "single_pct": 38.5,
+    "multi_pct": 61.5,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -3053,7 +3832,7 @@
     ]
    },
    "properties": {
-    "id": "zone_79",
+    "id": "zone_100",
     "unit_type": "cluster",
     "radius_m": 1850.0,
     "province": "ปทุมธานี",
@@ -3090,7 +3869,7 @@
     ]
    },
    "properties": {
-    "id": "zone_80",
+    "id": "zone_101",
     "unit_type": "cluster",
     "radius_m": 136.7,
     "province": "ปทุมธานี",
@@ -3127,7 +3906,7 @@
     ]
    },
    "properties": {
-    "id": "zone_81",
+    "id": "zone_102",
     "unit_type": "cluster",
     "radius_m": 351.0,
     "province": "ปทุมธานี",
@@ -3164,7 +3943,7 @@
     ]
    },
    "properties": {
-    "id": "zone_82",
+    "id": "zone_103",
     "unit_type": "cluster",
     "radius_m": 425.8,
     "province": "ปทุมธานี",
@@ -3201,7 +3980,7 @@
     ]
    },
    "properties": {
-    "id": "zone_83",
+    "id": "zone_104",
     "unit_type": "cluster",
     "radius_m": 176.9,
     "province": "ปทุมธานี",
@@ -3238,7 +4017,7 @@
     ]
    },
    "properties": {
-    "id": "zone_84",
+    "id": "zone_105",
     "unit_type": "cluster",
     "radius_m": 492.2,
     "province": "ปทุมธานี",
@@ -3275,7 +4054,7 @@
     ]
    },
    "properties": {
-    "id": "zone_85",
+    "id": "zone_106",
     "unit_type": "cluster",
     "radius_m": 168.0,
     "province": "ปทุมธานี",
@@ -3312,7 +4091,7 @@
     ]
    },
    "properties": {
-    "id": "zone_86",
+    "id": "zone_107",
     "unit_type": "cluster",
     "radius_m": 646.9,
     "province": "ปทุมธานี",
@@ -3349,7 +4128,7 @@
     ]
    },
    "properties": {
-    "id": "zone_87",
+    "id": "zone_108",
     "unit_type": "cluster",
     "radius_m": 36.8,
     "province": "ปทุมธานี",
@@ -3381,31 +4160,31 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.69143,
-     14.092231
+     100.69162,
+     14.091928
     ]
    },
    "properties": {
-    "id": "zone_88",
+    "id": "zone_109",
     "unit_type": "cluster",
-    "radius_m": 330.2,
+    "radius_m": 301.1,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
-    "accident_count": 7,
+    "accident_count": 6,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 4,
     "fatal_crashes": 0,
     "injured_total": 4,
-    "severity_index": 0.5714,
+    "severity_index": 0.6667,
     "level": "low",
     "economic_loss": 232000,
     "epdo_million": 0.232,
-    "single_count": 3,
+    "single_count": 2,
     "multi_count": 4,
-    "single_pct": 42.9,
-    "multi_pct": 57.1,
-    "pattern": "mixed",
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
+    "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -3423,7 +4202,7 @@
     ]
    },
    "properties": {
-    "id": "zone_89",
+    "id": "zone_110",
     "unit_type": "cluster",
     "radius_m": 54.4,
     "province": "ปทุมธานี",
@@ -3460,7 +4239,7 @@
     ]
    },
    "properties": {
-    "id": "zone_90",
+    "id": "zone_111",
     "unit_type": "cluster",
     "radius_m": 383.2,
     "province": "ปทุมธานี",
@@ -3497,7 +4276,7 @@
     ]
    },
    "properties": {
-    "id": "zone_91",
+    "id": "zone_112",
     "unit_type": "cluster",
     "radius_m": 172.0,
     "province": "ปทุมธานี",
@@ -3529,30 +4308,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.873072,
-     14.069668
+     100.873533,
+     14.070027
     ]
    },
    "properties": {
-    "id": "zone_92",
+    "id": "zone_113",
     "unit_type": "cluster",
-    "radius_m": 191.4,
+    "radius_m": 97.2,
     "province": "ปทุมธานี",
     "road": "วัดนาบุญ - คลอง14",
-    "accident_count": 4,
-    "deaths": 3,
+    "accident_count": 3,
+    "deaths": 2,
     "serious_injury": 0,
     "minor_injury": 1,
-    "fatal_crashes": 3,
+    "fatal_crashes": 2,
     "injured_total": 1,
     "severity_index": 1.0,
     "level": "medium",
-    "economic_loss": 20158000,
-    "epdo_million": 20.158,
+    "economic_loss": 13458000,
+    "epdo_million": 13.458,
     "single_count": 3,
-    "multi_count": 1,
-    "single_pct": 75.0,
-    "multi_pct": 25.0,
+    "multi_count": 0,
+    "single_pct": 100.0,
+    "multi_pct": 0.0,
     "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -3571,7 +4350,7 @@
     ]
    },
    "properties": {
-    "id": "zone_93",
+    "id": "zone_114",
     "unit_type": "cluster",
     "radius_m": 609.0,
     "province": "ปทุมธานี",
@@ -3608,7 +4387,7 @@
     ]
    },
    "properties": {
-    "id": "zone_94",
+    "id": "zone_115",
     "unit_type": "cluster",
     "radius_m": 284.3,
     "province": "ปทุมธานี",
@@ -3640,49 +4419,12 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.77767,
-     14.035707
-    ]
-   },
-   "properties": {
-    "id": "zone_95",
-    "unit_type": "cluster",
-    "radius_m": 245.5,
-    "province": "ปทุมธานี",
-    "road": "วัดนาบุญ - คลอง14",
-    "accident_count": 3,
-    "deaths": 1,
-    "serious_injury": 0,
-    "minor_injury": 1,
-    "fatal_crashes": 1,
-    "injured_total": 1,
-    "severity_index": 0.6667,
-    "level": "low",
-    "economic_loss": 6758000,
-    "epdo_million": 6.758,
-    "single_count": 1,
-    "multi_count": 2,
-    "single_pct": 33.3,
-    "multi_pct": 66.7,
-    "pattern": "multiple",
-    "top_cause": "ไม่คุ้นเคยเส้นทาง/ขับรถไม่ชำนาญ",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนท้าย",
-    "road_type": "ทางหลวง",
-    "speed_limit": 90
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
      100.483758,
      13.954878
     ]
    },
    "properties": {
-    "id": "zone_96",
+    "id": "zone_116",
     "unit_type": "cluster",
     "radius_m": 279.2,
     "province": "ปทุมธานี",
@@ -3719,7 +4461,7 @@
     ]
    },
    "properties": {
-    "id": "zone_97",
+    "id": "zone_117",
     "unit_type": "cluster",
     "radius_m": 85.6,
     "province": "ปทุมธานี",
@@ -3756,7 +4498,7 @@
     ]
    },
    "properties": {
-    "id": "zone_98",
+    "id": "zone_118",
     "unit_type": "cluster",
     "radius_m": 214.9,
     "province": "ปทุมธานี",
@@ -3793,7 +4535,7 @@
     ]
    },
    "properties": {
-    "id": "zone_99",
+    "id": "zone_119",
     "unit_type": "cluster",
     "radius_m": 64.3,
     "province": "ปทุมธานี",
@@ -3830,7 +4572,7 @@
     ]
    },
    "properties": {
-    "id": "zone_100",
+    "id": "zone_120",
     "unit_type": "cluster",
     "radius_m": 336.7,
     "province": "ปทุมธานี",
@@ -3867,7 +4609,7 @@
     ]
    },
    "properties": {
-    "id": "zone_101",
+    "id": "zone_121",
     "unit_type": "cluster",
     "radius_m": 72.1,
     "province": "ปทุมธานี",
@@ -3904,7 +4646,7 @@
     ]
    },
    "properties": {
-    "id": "zone_102",
+    "id": "zone_122",
     "unit_type": "cluster",
     "radius_m": 184.0,
     "province": "ปทุมธานี",
@@ -3941,7 +4683,7 @@
     ]
    },
    "properties": {
-    "id": "zone_103",
+    "id": "zone_123",
     "unit_type": "cluster",
     "radius_m": 245.8,
     "province": "ปทุมธานี",
@@ -3978,7 +4720,7 @@
     ]
    },
    "properties": {
-    "id": "zone_104",
+    "id": "zone_124",
     "unit_type": "cluster",
     "radius_m": 461.9,
     "province": "ปทุมธานี",
@@ -4010,34 +4752,71 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.849841,
-     13.585236
+     100.849483,
+     13.585402
     ]
    },
    "properties": {
-    "id": "zone_105",
+    "id": "zone_125",
     "unit_type": "cluster",
-    "radius_m": 342.1,
+    "radius_m": 336.7,
     "province": "สมุทรปราการ",
-    "road": "บางนา-ชลบุรี",
-    "accident_count": 11,
-    "deaths": 1,
+    "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
+    "accident_count": 4,
+    "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 5,
-    "fatal_crashes": 1,
+    "fatal_crashes": 0,
     "injured_total": 5,
-    "severity_index": 0.5455,
-    "level": "low",
-    "economic_loss": 6990000,
-    "epdo_million": 6.99,
-    "single_count": 4,
-    "multi_count": 7,
-    "single_pct": 36.4,
-    "multi_pct": 63.6,
+    "severity_index": 1.25,
+    "level": "medium",
+    "economic_loss": 290000,
+    "epdo_million": 0.29,
+    "single_count": 0,
+    "multi_count": 4,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.850046,
+     13.585141
+    ]
+   },
+   "properties": {
+    "id": "zone_126",
+    "unit_type": "cluster",
+    "radius_m": 318.6,
+    "province": "สมุทรปราการ",
+    "road": "บางนา-ชลบุรี",
+    "accident_count": 7,
+    "deaths": 1,
+    "serious_injury": 0,
+    "minor_injury": 0,
+    "fatal_crashes": 1,
+    "injured_total": 0,
+    "severity_index": 0.1429,
+    "level": "low",
+    "economic_loss": 6700000,
+    "epdo_million": 6.7,
+    "single_count": 4,
+    "multi_count": 3,
+    "single_pct": 57.1,
+    "multi_pct": 42.9,
+    "pattern": "mixed",
+    "top_cause": "ไม่ระบุ",
+    "road_feature": "ทางตรง",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
     "road_type": "การทางพิเศษ",
     "speed_limit": 100
    }
@@ -4052,7 +4831,7 @@
     ]
    },
    "properties": {
-    "id": "zone_106",
+    "id": "zone_127",
     "unit_type": "cluster",
     "radius_m": 168.8,
     "province": "สมุทรปราการ",
@@ -4089,7 +4868,7 @@
     ]
    },
    "properties": {
-    "id": "zone_107",
+    "id": "zone_128",
     "unit_type": "cluster",
     "radius_m": 422.3,
     "province": "สมุทรปราการ",
@@ -4121,30 +4900,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.82937,
-     13.691402
+     100.829194,
+     13.691751
     ]
    },
    "properties": {
-    "id": "zone_108",
+    "id": "zone_129",
     "unit_type": "cluster",
-    "radius_m": 1440.3,
+    "radius_m": 1483.6,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
-    "accident_count": 32,
+    "accident_count": 31,
     "deaths": 9,
     "serious_injury": 4,
     "minor_injury": 6,
     "fatal_crashes": 2,
     "injured_total": 10,
-    "severity_index": 0.375,
+    "severity_index": 0.3871,
     "level": "low",
     "economic_loss": 68648000,
     "epdo_million": 68.648,
     "single_count": 10,
-    "multi_count": 22,
-    "single_pct": 31.2,
-    "multi_pct": 68.8,
+    "multi_count": 21,
+    "single_pct": 32.3,
+    "multi_pct": 67.7,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4158,32 +4937,32 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.695994,
-     13.642188
+     100.695713,
+     13.642277
     ]
    },
    "properties": {
-    "id": "zone_109",
+    "id": "zone_130",
     "unit_type": "cluster",
-    "radius_m": 194.5,
+    "radius_m": 176.5,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
-    "accident_count": 7,
+    "accident_count": 5,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 5,
+    "minor_injury": 4,
     "fatal_crashes": 0,
-    "injured_total": 5,
-    "severity_index": 0.7143,
+    "injured_total": 4,
+    "severity_index": 0.8,
     "level": "low",
-    "economic_loss": 290000,
-    "epdo_million": 0.29,
-    "single_count": 2,
-    "multi_count": 5,
-    "single_pct": 28.6,
-    "multi_pct": 71.4,
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
+    "single_count": 1,
+    "multi_count": 4,
+    "single_pct": 20.0,
+    "multi_pct": 80.0,
     "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
     "road_type": "การทางพิเศษ",
@@ -4195,30 +4974,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.850124,
+     100.850125,
      13.665902
     ]
    },
    "properties": {
-    "id": "zone_110",
+    "id": "zone_131",
     "unit_type": "cluster",
     "radius_m": 2654.9,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
-    "accident_count": 155,
+    "accident_count": 154,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 33,
     "fatal_crashes": 0,
     "injured_total": 33,
-    "severity_index": 0.2129,
+    "severity_index": 0.2143,
     "level": "low",
     "economic_loss": 1914000,
     "epdo_million": 1.914,
     "single_count": 20,
-    "multi_count": 135,
-    "single_pct": 12.9,
-    "multi_pct": 87.1,
+    "multi_count": 134,
+    "single_pct": 13.0,
+    "multi_pct": 87.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4237,7 +5016,7 @@
     ]
    },
    "properties": {
-    "id": "zone_111",
+    "id": "zone_132",
     "unit_type": "cluster",
     "radius_m": 725.5,
     "province": "สมุทรปราการ",
@@ -4269,30 +5048,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.884396,
-     13.577888
+     100.883974,
+     13.57796
     ]
    },
    "properties": {
-    "id": "zone_112",
+    "id": "zone_133",
     "unit_type": "cluster",
-    "radius_m": 416.4,
+    "radius_m": 170.0,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 10,
+    "accident_count": 9,
     "deaths": 2,
     "serious_injury": 1,
     "minor_injury": 7,
     "fatal_crashes": 2,
     "injured_total": 8,
-    "severity_index": 1.0,
+    "severity_index": 1.1111,
     "level": "medium",
     "economic_loss": 15806000,
     "epdo_million": 15.806,
     "single_count": 1,
-    "multi_count": 9,
-    "single_pct": 10.0,
-    "multi_pct": 90.0,
+    "multi_count": 8,
+    "single_pct": 11.1,
+    "multi_pct": 88.9,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4311,7 +5090,7 @@
     ]
    },
    "properties": {
-    "id": "zone_113",
+    "id": "zone_134",
     "unit_type": "cluster",
     "radius_m": 348.9,
     "province": "สมุทรปราการ",
@@ -4348,7 +5127,7 @@
     ]
    },
    "properties": {
-    "id": "zone_114",
+    "id": "zone_135",
     "unit_type": "cluster",
     "radius_m": 610.4,
     "province": "สมุทรปราการ",
@@ -4380,30 +5159,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.755806,
-     13.612804
+     100.765333,
+     13.608985
     ]
    },
    "properties": {
-    "id": "zone_115",
+    "id": "zone_136",
     "unit_type": "cluster",
-    "radius_m": 103.3,
+    "radius_m": 640.3,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 3,
-    "deaths": 1,
-    "serious_injury": 0,
-    "minor_injury": 8,
-    "fatal_crashes": 1,
-    "injured_total": 8,
-    "severity_index": 3.0,
-    "level": "high",
-    "economic_loss": 7164000,
-    "epdo_million": 7.164,
-    "single_count": 0,
-    "multi_count": 3,
-    "single_pct": 0.0,
-    "multi_pct": 100.0,
+    "accident_count": 9,
+    "deaths": 4,
+    "serious_injury": 1,
+    "minor_injury": 12,
+    "fatal_crashes": 4,
+    "injured_total": 13,
+    "severity_index": 1.8889,
+    "level": "medium",
+    "economic_loss": 29496000,
+    "epdo_million": 29.496,
+    "single_count": 1,
+    "multi_count": 8,
+    "single_pct": 11.1,
+    "multi_pct": 88.9,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4417,36 +5196,36 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.764566,
-     13.609278
+     100.762841,
+     13.609937
     ]
    },
    "properties": {
-    "id": "zone_116",
+    "id": "zone_137",
     "unit_type": "cluster",
-    "radius_m": 729.3,
+    "radius_m": 222.5,
     "province": "สมุทรปราการ",
-    "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 13,
-    "deaths": 4,
-    "serious_injury": 1,
-    "minor_injury": 14,
-    "fatal_crashes": 4,
-    "injured_total": 15,
-    "severity_index": 1.4615,
-    "level": "medium",
-    "economic_loss": 29612000,
-    "epdo_million": 29.612,
-    "single_count": 3,
-    "multi_count": 10,
-    "single_pct": 23.1,
-    "multi_pct": 76.9,
-    "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนท้าย",
-    "road_type": "ทางหลวง",
-    "speed_limit": 90
+    "road": "บางนา-ชลบุรี",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 2,
+    "multi_count": 2,
+    "single_pct": 50.0,
+    "multi_pct": 50.0,
+    "pattern": "mixed",
+    "top_cause": "ไม่ระบุ",
+    "road_feature": "ทางตรง",
+    "crash_pattern": "ชนด้านข้าง",
+    "road_type": "การทางพิเศษ",
+    "speed_limit": 100
    }
   },
   {
@@ -4459,7 +5238,7 @@
     ]
    },
    "properties": {
-    "id": "zone_117",
+    "id": "zone_138",
     "unit_type": "cluster",
     "radius_m": 179.8,
     "province": "สมุทรปราการ",
@@ -4491,32 +5270,32 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.542203,
-     13.634095
+     100.542505,
+     13.634201
     ]
    },
    "properties": {
-    "id": "zone_118",
+    "id": "zone_139",
     "unit_type": "cluster",
-    "radius_m": 2309.1,
+    "radius_m": 2343.7,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
-    "accident_count": 35,
+    "accident_count": 34,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 33,
+    "minor_injury": 32,
     "fatal_crashes": 0,
-    "injured_total": 33,
-    "severity_index": 0.9429,
+    "injured_total": 32,
+    "severity_index": 0.9412,
     "level": "low",
-    "economic_loss": 1914000,
-    "epdo_million": 1.914,
-    "single_count": 6,
+    "economic_loss": 1856000,
+    "epdo_million": 1.856,
+    "single_count": 5,
     "multi_count": 29,
-    "single_pct": 17.1,
-    "multi_pct": 82.9,
+    "single_pct": 14.7,
+    "multi_pct": 85.3,
     "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
     "road_type": "การทางพิเศษ",
@@ -4528,67 +5307,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.82251,
-     13.591159
+     100.898791,
+     13.634663
     ]
    },
    "properties": {
-    "id": "zone_119",
+    "id": "zone_140",
     "unit_type": "cluster",
-    "radius_m": 166.5,
-    "province": "สมุทรปราการ",
-    "road": "บางนา-ชลบุรี",
-    "accident_count": 3,
-    "deaths": 1,
-    "serious_injury": 0,
-    "minor_injury": 1,
-    "fatal_crashes": 1,
-    "injured_total": 1,
-    "severity_index": 0.6667,
-    "level": "low",
-    "economic_loss": 6758000,
-    "epdo_million": 6.758,
-    "single_count": 1,
-    "multi_count": 2,
-    "single_pct": 33.3,
-    "multi_pct": 66.7,
-    "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง",
-    "crash_pattern": "ชนท้าย",
-    "road_type": "การทางพิเศษ",
-    "speed_limit": 100
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     100.898603,
-     13.634799
-    ]
-   },
-   "properties": {
-    "id": "zone_120",
-    "unit_type": "cluster",
-    "radius_m": 364.9,
+    "radius_m": 339.5,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
-    "accident_count": 10,
+    "accident_count": 9,
     "deaths": 0,
     "serious_injury": 1,
     "minor_injury": 1,
     "fatal_crashes": 0,
     "injured_total": 2,
-    "severity_index": 0.2,
+    "severity_index": 0.2222,
     "level": "low",
     "economic_loss": 2058000,
     "epdo_million": 2.058,
     "single_count": 3,
-    "multi_count": 7,
-    "single_pct": 30.0,
-    "multi_pct": 70.0,
+    "multi_count": 6,
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4607,7 +5349,7 @@
     ]
    },
    "properties": {
-    "id": "zone_121",
+    "id": "zone_141",
     "unit_type": "cluster",
     "radius_m": 495.5,
     "province": "สมุทรปราการ",
@@ -4644,7 +5386,7 @@
     ]
    },
    "properties": {
-    "id": "zone_122",
+    "id": "zone_142",
     "unit_type": "cluster",
     "radius_m": 221.8,
     "province": "สมุทรปราการ",
@@ -4676,30 +5418,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.8362,
-     13.588163
+     100.836101,
+     13.588175
     ]
    },
    "properties": {
-    "id": "zone_123",
+    "id": "zone_143",
     "unit_type": "cluster",
-    "radius_m": 664.1,
+    "radius_m": 653.3,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 15,
+    "accident_count": 14,
     "deaths": 0,
     "serious_injury": 1,
     "minor_injury": 14,
     "fatal_crashes": 0,
     "injured_total": 15,
-    "severity_index": 1.0,
+    "severity_index": 1.0714,
     "level": "medium",
     "economic_loss": 2812000,
     "epdo_million": 2.812,
     "single_count": 3,
-    "multi_count": 12,
-    "single_pct": 20.0,
-    "multi_pct": 80.0,
+    "multi_count": 11,
+    "single_pct": 21.4,
+    "multi_pct": 78.6,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -4713,32 +5455,32 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.706045,
-     13.636725
+     100.705257,
+     13.637128
     ]
    },
    "properties": {
-    "id": "zone_124",
+    "id": "zone_144",
     "unit_type": "cluster",
-    "radius_m": 296.6,
+    "radius_m": 200.6,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
-    "accident_count": 5,
+    "accident_count": 3,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 5,
+    "minor_injury": 4,
     "fatal_crashes": 0,
-    "injured_total": 5,
-    "severity_index": 1.0,
+    "injured_total": 4,
+    "severity_index": 1.3333,
     "level": "medium",
-    "economic_loss": 290000,
-    "epdo_million": 0.29,
+    "economic_loss": 232000,
+    "epdo_million": 0.232,
     "single_count": 0,
-    "multi_count": 5,
+    "multi_count": 3,
     "single_pct": 0.0,
     "multi_pct": 100.0,
     "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "top_cause": "ไม่ระบุ",
     "road_feature": "ทางตรง",
     "crash_pattern": "ชนท้าย",
     "road_type": "การทางพิเศษ",
@@ -4750,34 +5492,34 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.746151,
-     13.617078
+     100.74605,
+     13.617123
     ]
    },
    "properties": {
-    "id": "zone_125",
+    "id": "zone_145",
     "unit_type": "cluster",
-    "radius_m": 668.4,
+    "radius_m": 656.3,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 10,
+    "accident_count": 8,
     "deaths": 2,
     "serious_injury": 0,
     "minor_injury": 2,
     "fatal_crashes": 2,
     "injured_total": 2,
-    "severity_index": 0.4,
+    "severity_index": 0.5,
     "level": "low",
     "economic_loss": 13516000,
     "epdo_million": 13.516,
-    "single_count": 5,
-    "multi_count": 5,
+    "single_count": 4,
+    "multi_count": 4,
     "single_pct": 50.0,
     "multi_pct": 50.0,
     "pattern": "mixed",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "crash_pattern": "ชนท้าย",
     "road_type": "ทางหลวง",
     "speed_limit": 90
    }
@@ -4792,7 +5534,7 @@
     ]
    },
    "properties": {
-    "id": "zone_126",
+    "id": "zone_146",
     "unit_type": "cluster",
     "radius_m": 532.5,
     "province": "สมุทรปราการ",
@@ -4829,7 +5571,7 @@
     ]
    },
    "properties": {
-    "id": "zone_127",
+    "id": "zone_147",
     "unit_type": "cluster",
     "radius_m": 273.6,
     "province": "สมุทรปราการ",
@@ -4866,7 +5608,7 @@
     ]
    },
    "properties": {
-    "id": "zone_128",
+    "id": "zone_148",
     "unit_type": "cluster",
     "radius_m": 379.3,
     "province": "สมุทรปราการ",
@@ -4903,7 +5645,7 @@
     ]
    },
    "properties": {
-    "id": "zone_129",
+    "id": "zone_149",
     "unit_type": "cluster",
     "radius_m": 307.0,
     "province": "สมุทรปราการ",
@@ -4935,31 +5677,31 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.736038,
-     13.621444
+     100.925063,
+     13.617839
     ]
    },
    "properties": {
-    "id": "zone_130",
+    "id": "zone_150",
     "unit_type": "cluster",
-    "radius_m": 66.4,
+    "radius_m": 417.6,
     "province": "สมุทรปราการ",
-    "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 3,
+    "road": "แขวงคลองสองต้นนุ่น - พิมพา",
+    "accident_count": 9,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 3,
+    "minor_injury": 12,
     "fatal_crashes": 0,
-    "injured_total": 3,
-    "severity_index": 1.0,
+    "injured_total": 12,
+    "severity_index": 1.3333,
     "level": "medium",
-    "economic_loss": 174000,
-    "epdo_million": 0.174,
+    "economic_loss": 696000,
+    "epdo_million": 0.696,
     "single_count": 2,
-    "multi_count": 1,
-    "single_pct": 66.7,
-    "multi_pct": 33.3,
-    "pattern": "single",
+    "multi_count": 7,
+    "single_pct": 22.2,
+    "multi_pct": 77.8,
+    "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -4972,30 +5714,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.922408,
-     13.619545
+     100.917704,
+     13.622605
     ]
    },
    "properties": {
-    "id": "zone_131",
+    "id": "zone_151",
     "unit_type": "cluster",
-    "radius_m": 832.2,
+    "radius_m": 252.1,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
-    "accident_count": 15,
+    "accident_count": 5,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 13,
+    "minor_injury": 1,
     "fatal_crashes": 0,
-    "injured_total": 13,
-    "severity_index": 0.8667,
+    "injured_total": 1,
+    "severity_index": 0.2,
     "level": "low",
-    "economic_loss": 754000,
-    "epdo_million": 0.754,
-    "single_count": 5,
-    "multi_count": 10,
-    "single_pct": 33.3,
-    "multi_pct": 66.7,
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -5014,7 +5756,7 @@
     ]
    },
    "properties": {
-    "id": "zone_132",
+    "id": "zone_152",
     "unit_type": "cluster",
     "radius_m": 781.1,
     "province": "สมุทรปราการ",
@@ -5051,7 +5793,7 @@
     ]
    },
    "properties": {
-    "id": "zone_133",
+    "id": "zone_153",
     "unit_type": "cluster",
     "radius_m": 208.7,
     "province": "สมุทรปราการ",
@@ -5088,7 +5830,7 @@
     ]
    },
    "properties": {
-    "id": "zone_134",
+    "id": "zone_154",
     "unit_type": "cluster",
     "radius_m": 165.0,
     "province": "สมุทรปราการ",
@@ -5125,7 +5867,7 @@
     ]
    },
    "properties": {
-    "id": "zone_135",
+    "id": "zone_155",
     "unit_type": "cluster",
     "radius_m": 606.1,
     "province": "สมุทรปราการ",
@@ -5157,31 +5899,31 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.786346,
-     13.601427
+     100.786454,
+     13.601417
     ]
    },
    "properties": {
-    "id": "zone_136",
+    "id": "zone_156",
     "unit_type": "cluster",
-    "radius_m": 47.2,
+    "radius_m": 35.6,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 4,
+    "accident_count": 3,
     "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 3,
+    "minor_injury": 2,
     "fatal_crashes": 0,
-    "injured_total": 3,
-    "severity_index": 0.75,
+    "injured_total": 2,
+    "severity_index": 0.6667,
     "level": "low",
-    "economic_loss": 174000,
-    "epdo_million": 0.174,
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
     "single_count": 2,
-    "multi_count": 2,
-    "single_pct": 50.0,
-    "multi_pct": 50.0,
-    "pattern": "mixed",
+    "multi_count": 1,
+    "single_pct": 66.7,
+    "multi_pct": 33.3,
+    "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
@@ -5194,34 +5936,34 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.727709,
-     13.625307
+     100.726207,
+     13.626054
     ]
    },
    "properties": {
-    "id": "zone_137",
+    "id": "zone_157",
     "unit_type": "cluster",
-    "radius_m": 528.1,
+    "radius_m": 254.0,
     "province": "สมุทรปราการ",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
-    "accident_count": 7,
-    "deaths": 1,
+    "accident_count": 3,
+    "deaths": 0,
     "serious_injury": 0,
-    "minor_injury": 3,
-    "fatal_crashes": 1,
-    "injured_total": 3,
-    "severity_index": 0.5714,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.6667,
     "level": "low",
-    "economic_loss": 6874000,
-    "epdo_million": 6.874,
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
     "single_count": 2,
-    "multi_count": 5,
-    "single_pct": 28.6,
-    "multi_pct": 71.4,
-    "pattern": "multiple",
+    "multi_count": 1,
+    "single_pct": 66.7,
+    "multi_pct": 33.3,
+    "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนท้าย",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
     "road_type": "ทางหลวง",
     "speed_limit": 90
    }
@@ -5231,31 +5973,68 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.8048,
-     13.594936
+     100.727755,
+     13.625271
     ]
    },
    "properties": {
-    "id": "zone_138",
+    "id": "zone_158",
     "unit_type": "cluster",
-    "radius_m": 151.8,
+    "radius_m": 267.5,
+    "province": "สมุทรปราการ",
+    "road": "บางนา-ชลบุรี",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.3333,
+    "level": "low",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 0,
+    "multi_count": 3,
+    "single_pct": 0.0,
+    "multi_pct": 100.0,
+    "pattern": "multiple",
+    "top_cause": "ไม่ระบุ",
+    "road_feature": "ทางตรง",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "การทางพิเศษ",
+    "speed_limit": 100
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.804379,
+     13.595105
+    ]
+   },
+   "properties": {
+    "id": "zone_159",
+    "unit_type": "cluster",
+    "radius_m": 200.1,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 4,
+    "accident_count": 3,
     "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 5,
     "fatal_crashes": 0,
     "injured_total": 5,
-    "severity_index": 1.25,
+    "severity_index": 1.6667,
     "level": "medium",
     "economic_loss": 290000,
     "epdo_million": 0.29,
-    "single_count": 2,
+    "single_count": 1,
     "multi_count": 2,
-    "single_pct": 50.0,
-    "multi_pct": 50.0,
-    "pattern": "mixed",
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
+    "pattern": "multiple",
     "top_cause": "หลับใน",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้าย",
@@ -5268,31 +6047,31 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.669896,
-     13.656585
+     100.673331,
+     13.654658
     ]
    },
    "properties": {
-    "id": "zone_139",
+    "id": "zone_160",
     "unit_type": "cluster",
-    "radius_m": 971.0,
+    "radius_m": 542.4,
     "province": "สมุทรปราการ",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
-    "accident_count": 9,
-    "deaths": 1,
+    "accident_count": 5,
+    "deaths": 0,
     "serious_injury": 0,
     "minor_injury": 1,
-    "fatal_crashes": 1,
+    "fatal_crashes": 0,
     "injured_total": 1,
-    "severity_index": 0.2222,
+    "severity_index": 0.2,
     "level": "low",
-    "economic_loss": 6758000,
-    "epdo_million": 6.758,
-    "single_count": 5,
-    "multi_count": 4,
-    "single_pct": 55.6,
-    "multi_pct": 44.4,
-    "pattern": "mixed",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 3,
+    "multi_count": 2,
+    "single_pct": 60.0,
+    "multi_pct": 40.0,
+    "pattern": "single",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนสิ่งกีดขวาง (บนผิวจราจร)",
@@ -5310,7 +6089,7 @@
     ]
    },
    "properties": {
-    "id": "zone_140",
+    "id": "zone_161",
     "unit_type": "cluster",
     "radius_m": 266.5,
     "province": "สมุทรปราการ",
@@ -5347,7 +6126,7 @@
     ]
    },
    "properties": {
-    "id": "zone_141",
+    "id": "zone_162",
     "unit_type": "cluster",
     "radius_m": 105.7,
     "province": "สมุทรปราการ",
@@ -5384,7 +6163,7 @@
     ]
    },
    "properties": {
-    "id": "zone_142",
+    "id": "zone_163",
     "unit_type": "cluster",
     "radius_m": 280.5,
     "province": "สมุทรปราการ",
@@ -5421,7 +6200,7 @@
     ]
    },
    "properties": {
-    "id": "zone_143",
+    "id": "zone_164",
     "unit_type": "cluster",
     "radius_m": 262.0,
     "province": "สมุทรปราการ",
@@ -5458,7 +6237,7 @@
     ]
    },
    "properties": {
-    "id": "zone_144",
+    "id": "zone_165",
     "unit_type": "cluster",
     "radius_m": 608.5,
     "province": "สมุทรปราการ",
@@ -5490,49 +6269,12 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.892661,
-     13.576224
-    ]
-   },
-   "properties": {
-    "id": "zone_145",
-    "unit_type": "cluster",
-    "radius_m": 7.0,
-    "province": "สมุทรปราการ",
-    "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
-    "accident_count": 3,
-    "deaths": 0,
-    "serious_injury": 0,
-    "minor_injury": 3,
-    "fatal_crashes": 0,
-    "injured_total": 3,
-    "severity_index": 1.0,
-    "level": "medium",
-    "economic_loss": 174000,
-    "epdo_million": 0.174,
-    "single_count": 1,
-    "multi_count": 2,
-    "single_pct": 33.3,
-    "multi_pct": 66.7,
-    "pattern": "multiple",
-    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนท้าย",
-    "road_type": "ทางหลวง",
-    "speed_limit": 90
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
      100.657848,
      13.521007
     ]
    },
    "properties": {
-    "id": "zone_146",
+    "id": "zone_166",
     "unit_type": "cluster",
     "radius_m": 88.0,
     "province": "สมุทรปราการ",
@@ -5569,7 +6311,7 @@
     ]
    },
    "properties": {
-    "id": "zone_147",
+    "id": "zone_167",
     "unit_type": "cluster",
     "radius_m": 79.2,
     "province": "สมุทรปราการ",
@@ -5606,7 +6348,7 @@
     ]
    },
    "properties": {
-    "id": "zone_148",
+    "id": "zone_168",
     "unit_type": "cluster",
     "radius_m": 271.6,
     "province": "สมุทรปราการ",
@@ -5643,7 +6385,7 @@
     ]
    },
    "properties": {
-    "id": "zone_149",
+    "id": "zone_169",
     "unit_type": "cluster",
     "radius_m": 528.9,
     "province": "สมุทรปราการ",
@@ -5680,7 +6422,7 @@
     ]
    },
    "properties": {
-    "id": "zone_150",
+    "id": "zone_170",
     "unit_type": "cluster",
     "radius_m": 240.0,
     "province": "สมุทรปราการ",
@@ -5717,7 +6459,7 @@
     ]
    },
    "properties": {
-    "id": "zone_151",
+    "id": "zone_171",
     "unit_type": "cluster",
     "radius_m": 112.8,
     "province": "สมุทรสาคร",
@@ -5754,7 +6496,7 @@
     ]
    },
    "properties": {
-    "id": "zone_152",
+    "id": "zone_172",
     "unit_type": "cluster",
     "radius_m": 96.6,
     "province": "สมุทรสาคร",
@@ -5791,7 +6533,7 @@
     ]
    },
    "properties": {
-    "id": "zone_153",
+    "id": "zone_173",
     "unit_type": "cluster",
     "radius_m": 127.7,
     "province": "สมุทรสาคร",
@@ -5828,7 +6570,7 @@
     ]
    },
    "properties": {
-    "id": "zone_154",
+    "id": "zone_174",
     "unit_type": "cluster",
     "radius_m": 756.6,
     "province": "สมุทรสาคร",
@@ -5860,30 +6602,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.274254,
-     13.560325
+     100.274344,
+     13.560403
     ]
    },
    "properties": {
-    "id": "zone_155",
+    "id": "zone_175",
     "unit_type": "cluster",
-    "radius_m": 832.3,
+    "radius_m": 845.2,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
-    "accident_count": 23,
+    "accident_count": 22,
     "deaths": 2,
     "serious_injury": 1,
     "minor_injury": 8,
     "fatal_crashes": 2,
     "injured_total": 9,
-    "severity_index": 0.4783,
+    "severity_index": 0.5,
     "level": "low",
     "economic_loss": 15864000,
     "epdo_million": 15.864,
     "single_count": 7,
-    "multi_count": 16,
-    "single_pct": 30.4,
-    "multi_pct": 69.6,
+    "multi_count": 15,
+    "single_pct": 31.8,
+    "multi_pct": 68.2,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -5897,30 +6639,30 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.214747,
-     13.534566
+     100.214333,
+     13.534463
     ]
    },
    "properties": {
-    "id": "zone_156",
+    "id": "zone_176",
     "unit_type": "cluster",
-    "radius_m": 3650.0,
+    "radius_m": 3341.6,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
-    "accident_count": 45,
-    "deaths": 3,
+    "accident_count": 42,
+    "deaths": 2,
     "serious_injury": 0,
-    "minor_injury": 20,
-    "fatal_crashes": 3,
-    "injured_total": 20,
-    "severity_index": 0.5111,
+    "minor_injury": 19,
+    "fatal_crashes": 2,
+    "injured_total": 19,
+    "severity_index": 0.5,
     "level": "low",
-    "economic_loss": 21260000,
-    "epdo_million": 21.26,
-    "single_count": 13,
-    "multi_count": 32,
-    "single_pct": 28.9,
-    "multi_pct": 71.1,
+    "economic_loss": 14502000,
+    "epdo_million": 14.502,
+    "single_count": 11,
+    "multi_count": 31,
+    "single_pct": 26.2,
+    "multi_pct": 73.8,
     "pattern": "multiple",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -5939,7 +6681,7 @@
     ]
    },
    "properties": {
-    "id": "zone_157",
+    "id": "zone_177",
     "unit_type": "cluster",
     "radius_m": 752.0,
     "province": "สมุทรสาคร",
@@ -5976,7 +6718,7 @@
     ]
    },
    "properties": {
-    "id": "zone_158",
+    "id": "zone_178",
     "unit_type": "cluster",
     "radius_m": 134.1,
     "province": "สมุทรสาคร",
@@ -6013,7 +6755,7 @@
     ]
    },
    "properties": {
-    "id": "zone_159",
+    "id": "zone_179",
     "unit_type": "cluster",
     "radius_m": 178.3,
     "province": "สมุทรสาคร",
@@ -6050,7 +6792,7 @@
     ]
    },
    "properties": {
-    "id": "zone_160",
+    "id": "zone_180",
     "unit_type": "cluster",
     "radius_m": 1149.3,
     "province": "สมุทรสาคร",
@@ -6082,30 +6824,67 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.32462,
-     13.587695
+     100.320124,
+     13.586036
     ]
    },
    "properties": {
-    "id": "zone_161",
+    "id": "zone_181",
     "unit_type": "cluster",
-    "radius_m": 1634.9,
+    "radius_m": 1116.9,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
-    "accident_count": 27,
-    "deaths": 2,
-    "serious_injury": 2,
-    "minor_injury": 10,
-    "fatal_crashes": 2,
-    "injured_total": 12,
-    "severity_index": 0.5185,
+    "accident_count": 16,
+    "deaths": 1,
+    "serious_injury": 0,
+    "minor_injury": 3,
+    "fatal_crashes": 1,
+    "injured_total": 3,
+    "severity_index": 0.25,
     "level": "low",
-    "economic_loss": 17980000,
-    "epdo_million": 17.98,
-    "single_count": 12,
-    "multi_count": 15,
-    "single_pct": 44.4,
-    "multi_pct": 55.6,
+    "economic_loss": 6874000,
+    "epdo_million": 6.874,
+    "single_count": 5,
+    "multi_count": 11,
+    "single_pct": 31.2,
+    "multi_pct": 68.8,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้าย",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.333539,
+     13.591179
+    ]
+   },
+   "properties": {
+    "id": "zone_182",
+    "unit_type": "cluster",
+    "radius_m": 510.3,
+    "province": "สมุทรสาคร",
+    "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
+    "accident_count": 9,
+    "deaths": 1,
+    "serious_injury": 2,
+    "minor_injury": 5,
+    "fatal_crashes": 1,
+    "injured_total": 7,
+    "severity_index": 0.8889,
+    "level": "low",
+    "economic_loss": 10990000,
+    "epdo_million": 10.99,
+    "single_count": 5,
+    "multi_count": 4,
+    "single_pct": 55.6,
+    "multi_pct": 44.4,
     "pattern": "mixed",
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
@@ -6124,7 +6903,7 @@
     ]
    },
    "properties": {
-    "id": "zone_162",
+    "id": "zone_183",
     "unit_type": "cluster",
     "radius_m": 274.1,
     "province": "สมุทรสาคร",
@@ -6161,7 +6940,7 @@
     ]
    },
    "properties": {
-    "id": "zone_163",
+    "id": "zone_184",
     "unit_type": "cluster",
     "radius_m": 180.4,
     "province": "สมุทรสาคร",
@@ -6198,7 +6977,7 @@
     ]
    },
    "properties": {
-    "id": "zone_164",
+    "id": "zone_185",
     "unit_type": "cluster",
     "radius_m": 359.7,
     "province": "สมุทรสาคร",
@@ -6235,7 +7014,7 @@
     ]
    },
    "properties": {
-    "id": "zone_165",
+    "id": "zone_186",
     "unit_type": "cluster",
     "radius_m": 101.7,
     "province": "สมุทรสาคร",
@@ -6272,7 +7051,7 @@
     ]
    },
    "properties": {
-    "id": "zone_166",
+    "id": "zone_187",
     "unit_type": "cluster",
     "radius_m": 310.9,
     "province": "สมุทรสาคร",
@@ -6309,7 +7088,7 @@
     ]
    },
    "properties": {
-    "id": "zone_167",
+    "id": "zone_188",
     "unit_type": "cluster",
     "radius_m": 285.0,
     "province": "สมุทรสาคร",
@@ -6346,7 +7125,7 @@
     ]
    },
    "properties": {
-    "id": "zone_168",
+    "id": "zone_189",
     "unit_type": "cluster",
     "radius_m": 267.0,
     "province": "สมุทรสาคร",
@@ -6383,7 +7162,7 @@
     ]
    },
    "properties": {
-    "id": "zone_169",
+    "id": "zone_190",
     "unit_type": "cluster",
     "radius_m": 306.2,
     "province": "สมุทรสาคร",
@@ -6420,7 +7199,7 @@
     ]
    },
    "properties": {
-    "id": "zone_170",
+    "id": "zone_191",
     "unit_type": "cluster",
     "radius_m": 384.8,
     "province": "สมุทรสาคร",

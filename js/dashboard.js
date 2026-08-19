@@ -34,7 +34,7 @@
   for (const lv of LEVELS) byLevel[lv.key] = zones.filter((z) => z.level === lv.key).length;
 
   // KPI ผู้เสียชีวิต/บาดเจ็บ/จุดเสี่ยง ใช้ยอด "ทุกจุดเสี่ยง" จาก calibration.overall
-  // ไม่ใช่ผลรวมของคลัสเตอร์ เพราะตั้งแต่ v2568-r9 จุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ
+  // ไม่ใช่ผลรวมของคลัสเตอร์ เพราะจุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ
   // ถ้าบวกเฉพาะคลัสเตอร์ ผู้เสียชีวิต 104 คนของจุดเดี่ยวจะหายไปจากหน้าสรุป
   const overall = (calibration && calibration.overall) || null;
   const excluded = (calibration && calibration.excluded_noise) || null;

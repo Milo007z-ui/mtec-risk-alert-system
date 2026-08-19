@@ -16,11 +16,11 @@ const GPS = (() => {
   const MOCK_ROUTE_URL = "data/mock_route.geojson";
 
   // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยคลัสเตอร์เป็นเส้นตรงแทน
-  // (id ตามรอบ calibration v2568-r8 eps 400 ม. — เรียงตามลำดับบนถนน)
-  const MOCK_ROUTE_IDS = ["zone_78", "zone_90", "zone_79"];
+  // (id ตามรอบ calibration v2568-r10 — เรียงตามลำดับบนถนน)
+  const MOCK_ROUTE_IDS = ["zone_99", "zone_111", "zone_100"];
 
   // คลัสเตอร์ที่ "ยกเว้นเฉพาะโหมดจำลอง" — ใส่ id วงที่อยู่คนละฝั่งเลน/แรมป์ ที่รถไม่ได้ขับผ่านจริง
-  // (รอบ v2568-r8 ยังไม่พบวงที่ต้องยกเว้น)
+  // (รอบ v2568-r10 ยังไม่พบวงที่ต้องยกเว้น)
   const MOCK_EXCLUDE_IDS = [];
 
   const ERROR_MESSAGES = {

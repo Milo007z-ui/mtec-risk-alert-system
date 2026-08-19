@@ -18,7 +18,7 @@ const Accidents = (() => {
   const DATA_URL = "data/accident_points.geojson";
 
   // ใช้ชุดสีเดียวกับระดับความเสี่ยงของคลัสเตอร์ที่จุดนั้นสังกัด
-  // จุดเสี่ยงเดี่ยว (ไม่เข้าคลัสเตอร์) ไม่ถูกจัดระดับตั้งแต่ v2568-r9 -> เทา
+  // จุดเสี่ยงเดี่ยว (ไม่เข้าคลัสเตอร์) ไม่ถูกจัดระดับ -> เทา
   const LEVEL_COLOR = { high: "#c62828", medium: "#ef6c00", low: "#2e7d32" };
   const UNCLASSIFIED_COLOR = "#9e9e9e";
 

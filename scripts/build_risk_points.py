@@ -8,7 +8,8 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 
 ขั้นตอน:
   1. อ่านข้อมูลอุบัติเหตุจาก Excel 6 ชีต (กรุงเทพฯ+ปริมณฑล ปี 2568, 1 ชีตต่อจังหวัด)
-  2. จัดกลุ่มจุดเสี่ยงที่เกิดใกล้กันด้วย DBSCAN (eps 400 ม., min 3)
+  2. จัดกลุ่มจุดเสี่ยงด้วย DBSCAN สองชั้น (eps 400 ม., min 3)
+     ชั้นแรกทั้งพื้นที่ ชั้นสองแยกตามสายทาง -> ทุกคลัสเตอร์อยู่บนสายทางเดียว
      หน่วยวิเคราะห์ = คลัสเตอร์เท่านั้น — จุดเสี่ยงเดี่ยว (noise) ไม่เข้านิยาม
      Black Spot ที่ต้องเกิดซ้ำ >= 3 ครั้ง จึงไม่นำมาจัดระดับ แต่ยังนับใน
      สถิติภาพรวม (calibration.overall) เพื่อไม่ให้ความสูญเสียหายไปจากรายงาน
@@ -39,7 +40,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r9"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r10"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
@@ -189,36 +190,75 @@ def speed_limit_for(road_type):
     return SPEED_LIMIT_DEFAULT
 
 
+def _dbscan_labels(events, idx, eps_meters, min_samples):
+    """รัน DBSCAN บนสมาชิกชุดย่อย คืน labels (-1 = noise)"""
+    coords = np.array([[radians(events[i]["lat"]), radians(events[i]["lng"])] for i in idx])
+    return DBSCAN(
+        eps=eps_meters / EARTH_RADIUS_M, min_samples=min_samples, metric="haversine"
+    ).fit(coords).labels_
+
+
 def cluster_units(events, eps_meters, min_samples):
     """
-    DBSCAN บนพิกัด (haversine) -> หน่วยวิเคราะห์ทั้งหมด
+    DBSCAN สองชั้น -> หน่วยวิเคราะห์ทั้งหมด
 
     คำศัพท์ที่ต้องแยกให้ชัด (ผู้ใช้กำหนด):
       - **จุดเสี่ยง** = 1 จุด : 1 อุบัติเหตุ  -> ทั้งชุดมี 4,460 จุด
       - **คลัสเตอร์** = วงที่ DBSCAN รวมจุดเสี่ยง >= min_samples จุดเข้าด้วยกัน
-      - **หน่วยวิเคราะห์** = คลัสเตอร์ทุกกลุ่ม + อุบัติเหตุเดี่ยวที่ไม่เกาะกลุ่ม (noise)
-        เป็นหน่วยที่ใช้คำนวณ SI และจัดระดับ ไม่ใช่ "จุดเสี่ยง"
+      - **หน่วยวิเคราะห์** = คลัสเตอร์เท่านั้น (จุดเสี่ยงเดี่ยวไม่นำมาจัดระดับ)
 
-    คืน (units, assignments) โดย assignments[i] = id ของหน่วยวิเคราะห์ที่อุบัติเหตุ
+    ทำไมต้องสองชั้น (ตั้งแต่ v2568-r10):
+      ชั้นเดียวทำให้เกิด chaining ข้ามถนน — DBSCAN ใช้ density-connectivity แบบส่งต่อ
+      ถ้า A ใกล้ B และ B ใกล้ C จะรวมเป็นกลุ่มเดียวแม้ A กับ C ห่างกันหลายสิบกิโลเมตร
+      ย่านที่ถนนขนาน/ตัดกันหนาแน่นจึงถูกรวมเป็นวงเดียวข้ามถนนได้ถึง 11 สายทาง
+      (รอบ r9 วงใหญ่สุดมี 994 จุดเสี่ยง รัศมี 21 กม. คร่อม 10 สายทาง และหมุดตัวแทน
+      ไปตกนอกแนวถนนของสมาชิกเอง ทำให้ระบบเตือนมีช่องโหว่ยาว 18 กม.)
+
+      ชั้นที่ 1: DBSCAN ทั้งพื้นที่ -> จับบริเวณที่จุดเสี่ยงหนาแน่น
+      ชั้นที่ 2: แยกสมาชิกของแต่ละกลุ่มตาม "สายทาง" แล้วรัน DBSCAN ซ้ำในแต่ละสายทาง
+                -> ทุกคลัสเตอร์อยู่บนสายทางเดียวเท่านั้น ชื่อถนนในป๊อปอัปจึงตรงกับ
+                   สมาชิกทุกจุด ไม่ใช่แค่ฐานนิยม และหมุดตัวแทนอยู่บนแนวถนนจริง
+
+    ข้อจำกัดที่ยังเหลือ: ถนนสายเดียวที่ยาวมากและมีเหตุต่อเนื่องยังลามเป็นโซ่ได้
+    (ดูหัวข้อข้อจำกัดใน docs/risk-score-criteria.md)
+
+    คืน (units, assignments) โดย assignments[i] = id ของหน่วยวิเคราะห์ที่จุดเสี่ยง
     ลำดับที่ i สังกัดอยู่ ใช้ผูกจุดเสี่ยงรายอุบัติเหตุกลับเข้าหน่วยวิเคราะห์
     """
-    coords = np.array([[radians(e["lat"]), radians(e["lng"])] for e in events])
-    labels = DBSCAN(
-        eps=eps_meters / EARTH_RADIUS_M, min_samples=min_samples, metric="haversine"
-    ).fit(coords).labels_
+    all_idx = list(range(len(events)))
+    first = _dbscan_labels(events, all_idx, eps_meters, min_samples)
 
     assignments = [None] * len(events)
     groups = []
-    for cluster_id in sorted(set(labels) - {-1}):
-        uid = f"zone_{cluster_id}"
-        members = []
-        for i, l in enumerate(labels):
-            if l == cluster_id:
-                members.append(events[i])
-                assignments[i] = uid
-        groups.append((uid, "cluster", members))
-    for i, l in enumerate(labels):
-        if l == -1:
+    seq = 0
+
+    for cluster_id in sorted(set(first) - {-1}):
+        member_idx = [i for i, l in enumerate(first) if l == cluster_id]
+
+        # ชั้นที่ 2 — แยกตามสายทางแล้วรัน DBSCAN ซ้ำในแต่ละสายทาง
+        by_road = {}
+        for i in member_idx:
+            by_road.setdefault(events[i]["road"], []).append(i)
+
+        for road in sorted(by_road):
+            idx = by_road[road]
+            if len(idx) < min_samples:
+                continue  # เหลือน้อยเกินนิยาม Black Spot -> ตกเป็นจุดเสี่ยงเดี่ยว
+            second = _dbscan_labels(events, idx, eps_meters, min_samples)
+            for sub_id in sorted(set(second) - {-1}):
+                uid = f"zone_{seq}"
+                seq += 1
+                members = []
+                for pos, l in enumerate(second):
+                    if l == sub_id:
+                        i = idx[pos]
+                        members.append(events[i])
+                        assignments[i] = uid
+                groups.append((uid, "cluster", members))
+
+    # จุดที่ไม่ได้เข้าคลัสเตอร์ใดเลย (noise ชั้นแรก หรือหลุดตอนแยกสายทาง/ชั้นสอง)
+    for i in all_idx:
+        if assignments[i] is None:
             uid = f"spot_{i}"
             assignments[i] = uid
             groups.append((uid, "noise", [events[i]]))
@@ -419,7 +459,8 @@ def main():
         "source": XLSX_FILE.name,
         "events_total": len(records),
         "events_with_coords": len(events),
-        "dbscan": {"eps_m": EPS_METERS, "min_samples": MIN_SAMPLES},
+        "dbscan": {"eps_m": EPS_METERS, "min_samples": MIN_SAMPLES,
+                   "passes": 2, "second_pass_split_by": "road"},
         "scoring_method": "severity_index",
         "si_formula": "(F + PI) / Total Accident",
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
