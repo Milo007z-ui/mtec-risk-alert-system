@@ -125,5 +125,17 @@ const Accidents = (() => {
     return points;
   }
 
-  return { load, drawOnMap, all, setVisible, isVisible, applyFilter, LEVEL_COLOR };
+  /**
+   * จุดเสี่ยงทุกจุดที่ DBSCAN จัดเข้าคลัสเตอร์นี้
+   * ใช้โดยโหมดตรวจสอบคลัสเตอร์ (riskpoints.js) เพื่อยืนยันว่าวงที่วาดบนแผนที่
+   * ประกอบด้วยจุดเสี่ยงจุดไหนบ้างจริง ๆ — ตรวจได้ด้วยตาว่า DBSCAN ทำงานถูกต้อง
+   */
+  function membersOf(unitId) {
+    return points.filter((p) => p.unit_id === unitId);
+  }
+
+  return {
+    load, drawOnMap, all, membersOf,
+    setVisible, isVisible, applyFilter, LEVEL_COLOR,
+  };
 })();

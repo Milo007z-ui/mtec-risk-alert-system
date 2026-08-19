@@ -24,6 +24,7 @@ const RiskPoints = (() => {
       "รูปแบบผสม: บังคับใช้กฎหมายความเร็ว · ทบทวนป้าย/เครื่องหมายจราจรและกายภาพถนนโดยรวม",
   };
 
+  let inspectLayer = null; // ชั้นชั่วคราวโชว์ขอบเขต+สมาชิกของคลัสเตอร์ที่กำลังเปิดดู
   let points = []; // [{lat, lng, id, road, province, accident_count, ...}]
   let calibration = null; // เวอร์ชันรอบคำนวณจาก foreign member ใน GeoJSON
   let markers = []; // [{point, layer}] เก็บไว้เพื่อซ่อน/แสดงตามตัวกรอง
@@ -100,6 +101,9 @@ const RiskPoints = (() => {
 
       // สร้าง HTML ตอนคลิกเท่านั้น ไม่ต้องสร้างล่วงหน้าทั้ง 171 วง
       layer.bindPopup(() => buildPopupHtml(p, style), { maxWidth: 310, minWidth: 270 });
+      // เปิดป๊อปอัป = เข้าโหมดตรวจสอบ: วาดขอบเขตจริงของคลัสเตอร์ + จุดสมาชิกทั้งหมด
+      layer.on("popupopen", () => showInspect(p, style));
+      layer.on("popupclose", clearInspect);
       markers.push({ point: p, layer });
     }
   }
@@ -143,6 +147,73 @@ const RiskPoints = (() => {
     return [...new Set(points.map((p) => p.province))].sort((a, b) =>
       a.localeCompare(b, "th")
     );
+  }
+
+  /**
+   * Convex hull ด้วย monotone chain (Andrew 1979) — คืนลำดับจุดขอบนอกสุด
+   * ใช้วาดขอบเขตจริงของคลัสเตอร์ ไม่ใช่วงกลมประมาณ เพื่อให้เห็นรูปร่างที่ DBSCAN
+   * จับได้จริง รวมถึงกรณีที่กลุ่มยืดยาวตามถนน (chaining) ซึ่งวงกลมจะซ่อนไว้
+   */
+  function convexHull(pts) {
+    if (pts.length < 3) return pts.slice();
+    const s = pts.slice().sort((a, b) => a.lng - b.lng || a.lat - b.lat);
+    const cross = (o, a, b) =>
+      (a.lng - o.lng) * (b.lat - o.lat) - (a.lat - o.lat) * (b.lng - o.lng);
+    const half = (arr) => {
+      const h = [];
+      for (const pt of arr) {
+        while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], pt) <= 0) h.pop();
+        h.push(pt);
+      }
+      h.pop();
+      return h;
+    };
+    return half(s).concat(half(s.slice().reverse()));
+  }
+
+  /**
+   * โหมดตรวจสอบคลัสเตอร์ — วาดสิ่งที่พิสูจน์ได้ด้วยตาว่า DBSCAN จัดกลุ่มถูกต้อง:
+   *   1. ขอบเขตจริง (convex hull) ของจุดเสี่ยงที่เป็นสมาชิกวงนี้
+   *   2. จุดเสี่ยงสมาชิกทุกจุด วาดทับให้เห็นชัดว่ามีจุดไหนอยู่ในวงบ้าง
+   * ต้องมี accidents.js โหลดอยู่ ถ้าไม่มีก็ข้ามไปเงียบ ๆ (แผนที่ยังใช้ได้ปกติ)
+   */
+  function showInspect(cluster, style) {
+    clearInspect();
+    if (typeof Accidents === "undefined" || !mapRef) return;
+    const members = Accidents.membersOf(cluster.id);
+    if (!members.length) return;
+
+    inspectLayer = L.layerGroup().addTo(mapRef);
+
+    const hull = convexHull(members);
+    if (hull.length >= 3) {
+      L.polygon(hull.map((m) => [m.lat, m.lng]), {
+        color: style.color,
+        weight: 2,
+        dashArray: "5,4",
+        fillColor: style.color,
+        fillOpacity: 0.08,
+        interactive: false,
+      }).addTo(inspectLayer);
+    }
+
+    const dots = L.canvas({ padding: 0.3 });
+    for (const m of members) {
+      L.circleMarker([m.lat, m.lng], {
+        renderer: dots,
+        radius: 4,
+        color: "#fff",
+        weight: 1,
+        fillColor: style.color,
+        fillOpacity: 0.95,
+        interactive: false,
+      }).addTo(inspectLayer);
+    }
+  }
+
+  function clearInspect() {
+    if (inspectLayer && mapRef) mapRef.removeLayer(inspectLayer);
+    inspectLayer = null;
   }
 
   /**
@@ -197,6 +268,8 @@ const RiskPoints = (() => {
           = <b>${si.toFixed(2)}</b>
         </div>
         <div class="pp-sub">เกณฑ์: ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</div>
+        <div class="pp-inspect">🔎 กำลังแสดงขอบเขตและจุดเสี่ยง
+          <b>${p.accident_count}</b> จุดที่ DBSCAN จัดเข้าวงนี้ (รัศมี ${Math.round(p.radius_m || 0)} ม.)</div>
         ${buildSplitHtml(p, single, multi)}
       </div>`;
   }
@@ -239,7 +312,7 @@ const RiskPoints = (() => {
   }
 
   return {
-    load, drawOnMap, all, remove, getCalibration, formatBaht,
+    load, drawOnMap, all, remove, getCalibration, formatBaht, clearInspect,
     setFilter, visible, provinces, LEVEL_STYLE,
   };
 })();
