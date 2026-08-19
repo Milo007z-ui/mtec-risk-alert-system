@@ -40,7 +40,7 @@ from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r10"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r12"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
@@ -332,17 +332,32 @@ def _unit_from_members(uid, kind, members):
     else:
         pattern = "mixed"
 
+    # ตำแหน่งหมุดของคลัสเตอร์ = medoid คือ "จุดอุบัติเหตุจริงที่อยู่ใกล้จุดกึ่งกลางที่สุด"
+    # ไม่ใช่จุดกึ่งกลางเลขคณิต (centroid) ตรง ๆ
+    #
+    # เหตุผล: centroid เป็นค่าเฉลี่ยของพิกัด เมื่อกลุ่มทอดยาวตามถนนที่โค้ง ค่าเฉลี่ย
+    # จะตกลงไปใน "ช่องว่างในเส้นโค้ง" ซึ่งไม่ใช่ตำแหน่งบนถนน (เหมือนหาจุดกึ่งกลาง
+    # ของเกือกม้าแล้วได้จุดที่ลอยอยู่กลางอากาศ) — คลัสเตอร์ ดาวคะนอง-แสมดำ ที่โค้ง
+    # 8.3 x 6.7 กม. เคยได้หมุดที่ห่างจากจุดอุบัติเหตุที่ใกล้ที่สุดถึง 134 เมตร
+    #
+    # medoid แก้ปัญหานี้เพราะเลือกจากจุดอุบัติเหตุจริง หมุดจึงอยู่บนถนนเสมอ
+    # (ระยะจากหมุดถึงสมาชิกที่ใกล้ที่สุด = 0 ม. ทุกคลัสเตอร์ตามนิยาม)
     lat_c = sum(m["lat"] for m in members) / n
     lng_c = sum(m["lng"] for m in members) / n
-    # รัศมีจริงของคลัสเตอร์ = ระยะจากจุดกึ่งกลางถึงสมาชิกที่ไกลที่สุด
-    # ใช้วาด "วง" ครอบจุดอุบัติเหตุบนแผนที่ให้เห็นขอบเขตกลุ่มจริง ไม่ใช่หมุดขนาดคงที่
-    radius_m = round(max(haversine_m(lat_c, lng_c, m["lat"], m["lng"]) for m in members), 1)
+    medoid = min(members, key=lambda m: haversine_m(lat_c, lng_c, m["lat"], m["lng"]))
+    lat_m, lng_m = medoid["lat"], medoid["lng"]
+
+    # รัศมีของคลัสเตอร์ = ระยะจากหมุดถึงสมาชิกที่ไกลที่สุด
+    # วัดจากหมุดจริงที่วาดบนแผนที่ ตัวเลขในป๊อปอัปจึงตรงกับสิ่งที่ผู้ใช้เห็น
+    radius_m = round(max(haversine_m(lat_m, lng_m, m["lat"], m["lng"]) for m in members), 1)
 
     return {
         "id": uid,
         "unit_type": kind,
-        "lat": round(lat_c, 6),
-        "lng": round(lng_c, 6),
+        "lat": round(lat_m, 6),
+        "lng": round(lng_m, 6),
+        # จุดกึ่งกลางเลขคณิตเก็บไว้เทียบ/ตรวจย้อนหลัง ไม่ได้ใช้วาดหรือแจ้งเตือน
+        "centroid": [round(lat_c, 6), round(lng_c, 6)],
         "radius_m": radius_m,
         "province": mode_of([m["province"] for m in members]),
         "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
@@ -468,6 +483,7 @@ def main():
         "epdo_weights_million_per_person": {"fatal": 6.7, "serious": 2.0, "minor": 0.058},
         "level_breaks": [SI_BREAK_LOW, SI_BREAK_HIGH],
         "level_break_method": "fixed_si_cutoff",
+        "marker_position": "medoid",
         # คำศัพท์: จุดเสี่ยง = 1 จุด : 1 อุบัติเหตุ (4,460) · หน่วยวิเคราะห์ = คลัสเตอร์ + เดี่ยว
         "risk_points": len(events),
         "analysis_units": len(units),            # = คลัสเตอร์เท่านั้น
@@ -582,7 +598,24 @@ def _self_test():
     assert mode_of(["ไม่ระบุ", "ไม่ระบุ", "ถนน ก"], exclude=("ไม่ระบุ",)) == "ถนน ก"
     assert mode_of(["ไม่ระบุ"], exclude=("ไม่ระบุ",)) == "ไม่ระบุ"
 
-    # 10) เพดานความเร็วตามประเภทสายทาง
+    # 10) หมุดต้องตรงกับพิกัดของสมาชิกจริงเสมอ (medoid ไม่ใช่ centroid)
+    def at(lat, lng):
+        e = ev()
+        e["lat"], e["lng"] = lat, lng
+        return e
+
+    # สามจุดวางเป็นมุมฉาก — centroid จะตกกลางช่องว่าง ไม่ตรงกับจุดใดเลย
+    corner = [at(13.700, 100.500), at(13.700, 100.520), at(13.720, 100.500)]
+    u2 = _unit_from_members("t", "cluster", corner)
+    coords = {(m["lat"], m["lng"]) for m in corner}
+    assert (u2["lat"], u2["lng"]) in coords, (u2["lat"], u2["lng"])
+    # centroid ที่เก็บไว้ต้องไม่ตรงกับหมุด (ยืนยันว่าสองค่านี้ต่างกันจริง)
+    assert u2["centroid"] != [u2["lat"], u2["lng"]]
+    # รัศมีต้องวัดจากหมุด ไม่ใช่จาก centroid
+    far = max(haversine_m(u2["lat"], u2["lng"], m["lat"], m["lng"]) for m in corner)
+    assert abs(u2["radius_m"] - round(far, 1)) < 0.2, (u2["radius_m"], far)
+
+    # 11) เพดานความเร็วตามประเภทสายทาง
     assert speed_limit_for("ทางหลวงพิเศษระหว่างเมือง") == 100   # 'พิเศษ' ต้องมาก่อน 'ทางหลวง'
     assert speed_limit_for("ทางหลวงแผ่นดิน") == 90
     assert speed_limit_for("ทางหลวงชนบท") == 80

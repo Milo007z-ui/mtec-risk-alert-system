@@ -1,8 +1,8 @@
 {
  "type": "FeatureCollection",
  "calibration": {
-  "version": "v2568-r10",
-  "generated_at": "2026-08-19T03:34:55+00:00",
+  "version": "v2568-r12",
+  "generated_at": "2026-08-19T04:33:17+00:00",
   "recalibration_policy": "ทุก 6 เดือน",
   "source": "accident2025_1.xlsx",
   "events_total": 4627,
@@ -30,6 +30,7 @@
    2.0
   ],
   "level_break_method": "fixed_si_cutoff",
+  "marker_position": "medoid",
   "risk_points": 4460,
   "analysis_units": 192,
   "zones": 192,
@@ -127,14 +128,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.684557,
-     13.817541
+     100.684129,
+     13.817909
     ]
    },
    "properties": {
     "id": "zone_0",
     "unit_type": "cluster",
-    "radius_m": 642.1,
+    "centroid": [
+     13.817541,
+     100.684557
+    ],
+    "radius_m": 587.6,
     "province": "กรุงเทพมหานคร",
     "road": "คันนายาว - แยกเข้ามีนบุรี",
     "accident_count": 8,
@@ -164,14 +169,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.680066,
-     13.735651
+     100.681126,
+     13.735072
     ]
    },
    "properties": {
     "id": "zone_1",
     "unit_type": "cluster",
-    "radius_m": 4266.2,
+    "centroid": [
+     13.735651,
+     100.680066
+    ],
+    "radius_m": 4389.8,
     "province": "กรุงเทพมหานคร",
     "road": "ถนนศรีนครินทร - แขวงคลองสองต้นนุ่น",
     "accident_count": 168,
@@ -201,14 +210,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.692012,
-     13.89414
+     100.691536,
+     13.893791
     ]
    },
    "properties": {
     "id": "zone_2",
     "unit_type": "cluster",
-    "radius_m": 10421.6,
+    "centroid": [
+     13.89414,
+     100.692012
+    ],
+    "radius_m": 10470.9,
     "province": "กรุงเทพมหานคร",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 315,
@@ -238,14 +251,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.680694,
-     13.819289
+     100.6805,
+     13.819336
     ]
    },
    "properties": {
     "id": "zone_3",
     "unit_type": "cluster",
-    "radius_m": 165.3,
+    "centroid": [
+     13.819289,
+     100.680694
+    ],
+    "radius_m": 160.6,
     "province": "กรุงเทพมหานคร",
     "road": "รัชดาภิเษก - รามอินทรา",
     "accident_count": 10,
@@ -275,14 +292,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.738586,
-     13.730025
+     100.739002,
+     13.729267
     ]
    },
    "properties": {
     "id": "zone_4",
     "unit_type": "cluster",
-    "radius_m": 3959.5,
+    "centroid": [
+     13.730025,
+     100.738586
+    ],
+    "radius_m": 3920.8,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 258,
@@ -312,14 +333,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.693983,
-     13.763739
+     100.694628,
+     13.764369
     ]
    },
    "properties": {
     "id": "zone_5",
     "unit_type": "cluster",
-    "radius_m": 4664.9,
+    "centroid": [
+     13.763739,
+     100.693983
+    ],
+    "radius_m": 4622.4,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 176,
@@ -349,14 +374,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.677277,
-     13.813451
+     100.677226,
+     13.8132
     ]
    },
    "properties": {
     "id": "zone_6",
     "unit_type": "cluster",
-    "radius_m": 750.6,
+    "centroid": [
+     13.813451,
+     100.677277
+    ],
+    "radius_m": 725.0,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 34,
@@ -386,14 +415,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.68271,
-     13.793368
+     100.682253,
+     13.794161
     ]
    },
    "properties": {
     "id": "zone_7",
     "unit_type": "cluster",
-    "radius_m": 236.7,
+    "centroid": [
+     13.793368,
+     100.68271
+    ],
+    "radius_m": 337.0,
     "province": "กรุงเทพมหานคร",
     "road": "ไม่ระบุ",
     "accident_count": 3,
@@ -423,14 +456,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.533215,
-     13.779015
+     100.53336,
+     13.779546
     ]
    },
    "properties": {
     "id": "zone_8",
     "unit_type": "cluster",
-    "radius_m": 423.0,
+    "centroid": [
+     13.779015,
+     100.533215
+    ],
+    "radius_m": 393.4,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 6,
@@ -460,14 +497,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.468706,
-     13.679051
+     100.46805,
+     13.679113
     ]
    },
    "properties": {
     "id": "zone_9",
     "unit_type": "cluster",
-    "radius_m": 999.5,
+    "centroid": [
+     13.679051,
+     100.468706
+    ],
+    "radius_m": 1065.1,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง - แสมดำ",
     "accident_count": 27,
@@ -497,14 +538,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.420599,
-     13.648405
+     100.420201,
+     13.649544
     ]
    },
    "properties": {
     "id": "zone_10",
     "unit_type": "cluster",
-    "radius_m": 5689.9,
+    "centroid": [
+     13.648405,
+     100.420599
+    ],
+    "radius_m": 5744.4,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง - แสมดำ",
     "accident_count": 277,
@@ -534,14 +579,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.412128,
-     13.639683
+     100.412158,
+     13.639648
     ]
    },
    "properties": {
     "id": "zone_11",
     "unit_type": "cluster",
-    "radius_m": 16.8,
+    "centroid": [
+     13.639683,
+     100.412128
+    ],
+    "radius_m": 20.3,
     "province": "กรุงเทพมหานคร",
     "road": "พระประแดง - บางแค",
     "accident_count": 3,
@@ -571,14 +620,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.451082,
-     13.782542
+     100.451679,
+     13.782714
     ]
    },
    "properties": {
     "id": "zone_12",
     "unit_type": "cluster",
-    "radius_m": 325.0,
+    "centroid": [
+     13.782542,
+     100.451082
+    ],
+    "radius_m": 388.8,
     "province": "กรุงเทพมหานคร",
     "road": "ทางยกระดับบางกอกน้อย - นครชัยศรี",
     "accident_count": 4,
@@ -608,14 +661,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.469838,
-     13.788117
+     100.469737,
+     13.788241
     ]
    },
    "properties": {
     "id": "zone_13",
     "unit_type": "cluster",
-    "radius_m": 171.6,
+    "centroid": [
+     13.788117,
+     100.469838
+    ],
+    "radius_m": 179.4,
     "province": "กรุงเทพมหานคร",
     "road": "บางพลัด - บางบำหรุ",
     "accident_count": 5,
@@ -645,14 +702,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.408374,
-     13.775372
+     100.408527,
+     13.776508
     ]
    },
    "properties": {
     "id": "zone_14",
     "unit_type": "cluster",
-    "radius_m": 927.3,
+    "centroid": [
+     13.775372,
+     100.408374
+    ],
+    "radius_m": 1054.7,
     "province": "กรุงเทพมหานคร",
     "road": "บางแค - คลองมหาสวัสดิ์",
     "accident_count": 25,
@@ -682,14 +743,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.409593,
-     13.787793
+     100.409841,
+     13.788182
     ]
    },
    "properties": {
     "id": "zone_15",
     "unit_type": "cluster",
-    "radius_m": 183.6,
+    "centroid": [
+     13.787793,
+     100.409593
+    ],
+    "radius_m": 228.1,
     "province": "กรุงเทพมหานคร",
     "road": "บางแค - คลองมหาสวัสดิ์",
     "accident_count": 7,
@@ -719,14 +784,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.396798,
-     13.784973
+     100.396779,
+     13.78452
     ]
    },
    "properties": {
     "id": "zone_16",
     "unit_type": "cluster",
-    "radius_m": 7881.1,
+    "centroid": [
+     13.784973,
+     100.396798
+    ],
+    "radius_m": 7884.4,
     "province": "กรุงเทพมหานคร",
     "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
     "accident_count": 712,
@@ -756,14 +825,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.794864,
-     13.731764
+     100.795135,
+     13.733356
     ]
    },
    "properties": {
     "id": "zone_17",
     "unit_type": "cluster",
-    "radius_m": 2195.3,
+    "centroid": [
+     13.731764,
+     100.794864
+    ],
+    "radius_m": 2246.5,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 58,
@@ -793,14 +866,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.406413,
-     13.719136
+     100.406152,
+     13.718925
     ]
    },
    "properties": {
     "id": "zone_18",
     "unit_type": "cluster",
-    "radius_m": 4831.6,
+    "centroid": [
+     13.719136,
+     100.406413
+    ],
+    "radius_m": 4855.4,
     "province": "กรุงเทพมหานคร",
     "road": "บางแค - คลองมหาสวัสดิ์",
     "accident_count": 121,
@@ -830,14 +907,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.552006,
-     13.77128
+     100.551754,
+     13.770879
     ]
    },
    "properties": {
     "id": "zone_19",
     "unit_type": "cluster",
-    "radius_m": 175.9,
+    "centroid": [
+     13.77128,
+     100.552006
+    ],
+    "radius_m": 228.1,
     "province": "กรุงเทพมหานคร",
     "road": "ดินแดง - งามวงศ์วาน",
     "accident_count": 3,
@@ -867,14 +948,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.550763,
-     13.739684
+     100.550765,
+     13.739617
     ]
    },
    "properties": {
     "id": "zone_20",
     "unit_type": "cluster",
-    "radius_m": 406.8,
+    "centroid": [
+     13.739684,
+     100.550763
+    ],
+    "radius_m": 399.3,
     "province": "กรุงเทพมหานคร",
     "road": "ดินแดง-ท่าเรือ",
     "accident_count": 18,
@@ -904,14 +989,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.44858,
-     13.626365
+     100.448094,
+     13.62636
     ]
    },
    "properties": {
     "id": "zone_21",
     "unit_type": "cluster",
-    "radius_m": 404.3,
+    "centroid": [
+     13.626365,
+     100.44858
+    ],
+    "radius_m": 456.7,
     "province": "กรุงเทพมหานคร",
     "road": "พระประแดง - บางแค",
     "accident_count": 7,
@@ -941,14 +1030,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.819088,
-     13.712223
+     100.819099,
+     13.71239
     ]
    },
    "properties": {
     "id": "zone_22",
     "unit_type": "cluster",
-    "radius_m": 1022.3,
+    "centroid": [
+     13.712223,
+     100.819088
+    ],
+    "radius_m": 1006.0,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 25,
@@ -978,14 +1071,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.40377,
-     13.661835
+     100.404039,
+     13.66199
     ]
    },
    "properties": {
     "id": "zone_23",
     "unit_type": "cluster",
-    "radius_m": 67.7,
+    "centroid": [
+     13.661835,
+     100.40377
+    ],
+    "radius_m": 101.6,
     "province": "กรุงเทพมหานคร",
     "road": "บางบอน - โรงพยาบาลบางปะกอก8",
     "accident_count": 3,
@@ -1015,14 +1112,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.597372,
-     13.750432
+     100.597159,
+     13.750551
     ]
    },
    "properties": {
     "id": "zone_24",
     "unit_type": "cluster",
-    "radius_m": 424.4,
+    "centroid": [
+     13.750432,
+     100.597372
+    ],
+    "radius_m": 398.6,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
     "accident_count": 4,
@@ -1052,14 +1153,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.599046,
-     13.752959
+     100.599266,
+     13.752639
     ]
    },
    "properties": {
     "id": "zone_25",
     "unit_type": "cluster",
-    "radius_m": 275.7,
+    "centroid": [
+     13.752959,
+     100.599046
+    ],
+    "radius_m": 316.8,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
     "accident_count": 3,
@@ -1089,14 +1194,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.399453,
-     13.659379
+     100.399019,
+     13.659132
     ]
    },
    "properties": {
     "id": "zone_26",
     "unit_type": "cluster",
-    "radius_m": 83.8,
+    "centroid": [
+     13.659379,
+     100.399453
+    ],
+    "radius_m": 125.9,
     "province": "กรุงเทพมหานคร",
     "road": "บางบอน - โรงพยาบาลบางปะกอก8",
     "accident_count": 4,
@@ -1126,14 +1235,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.576782,
-     13.840001
+     100.576555,
+     13.839942
     ]
    },
    "properties": {
     "id": "zone_27",
     "unit_type": "cluster",
-    "radius_m": 351.8,
+    "centroid": [
+     13.840001,
+     100.576782
+    ],
+    "radius_m": 377.0,
     "province": "กรุงเทพมหานคร",
     "road": "มหาวิทยาลัยเกษตรศาสตร์ - คันนายาว",
     "accident_count": 8,
@@ -1163,14 +1276,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.574481,
-     13.840324
+     100.574962,
+     13.840063
     ]
    },
    "properties": {
     "id": "zone_28",
     "unit_type": "cluster",
-    "radius_m": 155.3,
+    "centroid": [
+     13.840324,
+     100.574481
+    ],
+    "radius_m": 214.9,
     "province": "กรุงเทพมหานคร",
     "road": "แยกมหาวิทยาลัยเกษตรศาสตร์ - สี่แยกแคราย",
     "accident_count": 3,
@@ -1200,14 +1317,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.596269,
-     13.708245
+     100.596189,
+     13.708036
     ]
    },
    "properties": {
     "id": "zone_29",
     "unit_type": "cluster",
-    "radius_m": 224.1,
+    "centroid": [
+     13.708245,
+     100.596269
+    ],
+    "radius_m": 203.1,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
     "accident_count": 4,
@@ -1237,14 +1358,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.699606,
-     13.694604
+     100.699688,
+     13.694609
     ]
    },
    "properties": {
     "id": "zone_30",
     "unit_type": "cluster",
-    "radius_m": 816.5,
+    "centroid": [
+     13.694604,
+     100.699606
+    ],
+    "radius_m": 816.0,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 17,
@@ -1274,14 +1399,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.505526,
-     13.621078
+     100.505492,
+     13.62107
     ]
    },
    "properties": {
     "id": "zone_31",
     "unit_type": "cluster",
-    "radius_m": 361.8,
+    "centroid": [
+     13.621078,
+     100.505526
+    ],
+    "radius_m": 365.6,
     "province": "กรุงเทพมหานคร",
     "road": "พระประแดง - บางแค",
     "accident_count": 5,
@@ -1311,14 +1440,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.530121,
-     13.664181
+     100.530044,
+     13.663895
     ]
    },
    "properties": {
     "id": "zone_32",
     "unit_type": "cluster",
-    "radius_m": 894.5,
+    "centroid": [
+     13.664181,
+     100.530121
+    ],
+    "radius_m": 891.6,
     "province": "สมุทรปราการ",
     "road": "ถนนวงแหวนอุตสาหกรรมเข้าสะพานภูมิพลที่ 1",
     "accident_count": 24,
@@ -1348,14 +1481,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.540872,
-     13.650321
+     100.541136,
+     13.650864
     ]
    },
    "properties": {
     "id": "zone_33",
     "unit_type": "cluster",
-    "radius_m": 515.5,
+    "centroid": [
+     13.650321,
+     100.540872
+    ],
+    "radius_m": 518.2,
     "province": "สมุทรปราการ",
     "road": "ทางออกจากถนนวงแหวนอุตสาหกรรมสู่ถนนปู่เจ้าสมิงพราย",
     "accident_count": 12,
@@ -1385,14 +1522,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.540598,
-     13.650285
+     100.541409,
+     13.650622
     ]
    },
    "properties": {
     "id": "zone_34",
     "unit_type": "cluster",
-    "radius_m": 520.1,
+    "centroid": [
+     13.650285,
+     100.540598
+    ],
+    "radius_m": 467.5,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าถนนปู่เจ้าสมิงพรายสู่ถนนวงแหวนอุตสาหกรรม",
     "accident_count": 8,
@@ -1422,14 +1563,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.518235,
-     13.664705
+     100.517965,
+     13.6646
     ]
    },
    "properties": {
     "id": "zone_35",
     "unit_type": "cluster",
-    "radius_m": 281.9,
+    "centroid": [
+     13.664705,
+     100.518235
+    ],
+    "radius_m": 313.2,
     "province": "กรุงเทพมหานคร",
     "road": "ทางเข้าถนนสุขสวัสดิ์สู่ถนนวงแหวนอุตสาหกรรม",
     "accident_count": 6,
@@ -1459,14 +1604,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.539677,
-     13.674122
+     100.539015,
+     13.674207
     ]
    },
    "properties": {
     "id": "zone_36",
     "unit_type": "cluster",
-    "radius_m": 1389.0,
+    "centroid": [
+     13.674122,
+     100.539677
+    ],
+    "radius_m": 1411.3,
     "province": "กรุงเทพมหานคร",
     "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
     "accident_count": 39,
@@ -1496,14 +1645,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.54146,
-     13.649658
+     100.541395,
+     13.650074
     ]
    },
    "properties": {
     "id": "zone_37",
     "unit_type": "cluster",
-    "radius_m": 93.5,
+    "centroid": [
+     13.649658,
+     100.54146
+    ],
+    "radius_m": 140.3,
     "province": "สมุทรปราการ",
     "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
     "accident_count": 3,
@@ -1533,14 +1686,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.540808,
-     13.655128
+     100.540757,
+     13.65531
     ]
    },
    "properties": {
     "id": "zone_38",
     "unit_type": "cluster",
-    "radius_m": 162.5,
+    "centroid": [
+     13.655128,
+     100.540808
+    ],
+    "radius_m": 183.4,
     "province": "สมุทรปราการ",
     "road": "สะพานภูมิพลที่ 1 ไปสะพานภูมิพลที่ 2",
     "accident_count": 6,
@@ -1570,14 +1727,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.538415,
-     13.669022
+     100.538456,
+     13.669315
     ]
    },
    "properties": {
     "id": "zone_39",
     "unit_type": "cluster",
-    "radius_m": 423.4,
+    "centroid": [
+     13.669022,
+     100.538415
+    ],
+    "radius_m": 456.1,
     "province": "กรุงเทพมหานคร",
     "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
     "accident_count": 9,
@@ -1607,14 +1768,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.539473,
-     13.677702
+     100.539508,
+     13.678297
     ]
    },
    "properties": {
     "id": "zone_40",
     "unit_type": "cluster",
-    "radius_m": 340.5,
+    "centroid": [
+     13.677702,
+     100.539473
+    ],
+    "radius_m": 301.8,
     "province": "กรุงเทพมหานคร",
     "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
     "accident_count": 5,
@@ -1644,14 +1809,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.541179,
-     13.651052
+     100.54117,
+     13.651387
     ]
    },
    "properties": {
     "id": "zone_41",
     "unit_type": "cluster",
-    "radius_m": 110.8,
+    "centroid": [
+     13.651052,
+     100.541179
+    ],
+    "radius_m": 148.0,
     "province": "สมุทรปราการ",
     "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
     "accident_count": 3,
@@ -1681,14 +1850,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.539881,
-     13.658255
+     100.539758,
+     13.658715
     ]
    },
    "properties": {
     "id": "zone_42",
     "unit_type": "cluster",
-    "radius_m": 253.1,
+    "centroid": [
+     13.658255,
+     100.539881
+    ],
+    "radius_m": 306.0,
     "province": "สมุทรปราการ",
     "road": "สะพานภูมิพลที่ 2 ไปสะพานภูมิพลที่ 1",
     "accident_count": 7,
@@ -1718,14 +1891,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.517923,
-     13.66422
+     100.517963,
+     13.664305
     ]
    },
    "properties": {
     "id": "zone_43",
     "unit_type": "cluster",
-    "radius_m": 270.2,
+    "centroid": [
+     13.66422,
+     100.517923
+    ],
+    "radius_m": 262.7,
     "province": "กรุงเทพมหานคร",
     "road": "ออกจากสะพานภูมิพลที่ 2 ไปถนนวงแหวนอุตสาหกรรม",
     "accident_count": 4,
@@ -1755,14 +1932,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.531447,
-     13.664196
+     100.531484,
+     13.663768
     ]
    },
    "properties": {
     "id": "zone_44",
     "unit_type": "cluster",
-    "radius_m": 785.6,
+    "centroid": [
+     13.664196,
+     100.531447
+    ],
+    "radius_m": 794.6,
     "province": "สมุทรปราการ",
     "road": "ออกจากสะพานภูมิพลที่ 2 ไปถนนวงแหวนอุตสาหกรรม",
     "accident_count": 18,
@@ -1792,14 +1973,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.605127,
-     13.770458
+     100.605,
+     13.770604
     ]
    },
    "properties": {
     "id": "zone_45",
     "unit_type": "cluster",
-    "radius_m": 55.6,
+    "centroid": [
+     13.770458,
+     100.605127
+    ],
+    "radius_m": 67.5,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
     "accident_count": 4,
@@ -1829,14 +2014,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.378819,
-     13.644012
+     100.378971,
+     13.644091
     ]
    },
    "properties": {
     "id": "zone_46",
     "unit_type": "cluster",
-    "radius_m": 77.4,
+    "centroid": [
+     13.644012,
+     100.378819
+    ],
+    "radius_m": 95.9,
     "province": "กรุงเทพมหานคร",
     "road": "บางบอน - โรงพยาบาลบางปะกอก8",
     "accident_count": 3,
@@ -1866,14 +2055,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.393268,
-     13.655389
+     100.393095,
+     13.655251
     ]
    },
    "properties": {
     "id": "zone_47",
     "unit_type": "cluster",
-    "radius_m": 141.5,
+    "centroid": [
+     13.655389,
+     100.393268
+    ],
+    "radius_m": 130.5,
     "province": "กรุงเทพมหานคร",
     "road": "บางบอน - โรงพยาบาลบางปะกอก8",
     "accident_count": 4,
@@ -1903,14 +2096,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.538546,
-     13.767584
+     100.538664,
+     13.767386
     ]
    },
    "properties": {
     "id": "zone_48",
     "unit_type": "cluster",
-    "radius_m": 74.5,
+    "centroid": [
+     13.767584,
+     100.538546
+    ],
+    "radius_m": 99.5,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
     "accident_count": 7,
@@ -1940,14 +2137,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.691796,
-     13.656619
+     100.691773,
+     13.656633
     ]
    },
    "properties": {
     "id": "zone_49",
     "unit_type": "cluster",
-    "radius_m": 1222.3,
+    "centroid": [
+     13.656619,
+     100.691796
+    ],
+    "radius_m": 1222.4,
     "province": "สมุทรปราการ",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 31,
@@ -1977,14 +2178,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.51825,
-     13.734054
+     100.5182,
+     13.734886
     ]
    },
    "properties": {
     "id": "zone_50",
     "unit_type": "cluster",
-    "radius_m": 293.3,
+    "centroid": [
+     13.734054,
+     100.51825
+    ],
+    "radius_m": 383.8,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 3,
@@ -2014,14 +2219,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.599367,
-     13.839522
+     100.599184,
+     13.839624
     ]
    },
    "properties": {
     "id": "zone_51",
     "unit_type": "cluster",
-    "radius_m": 91.2,
+    "centroid": [
+     13.839522,
+     100.599367
+    ],
+    "radius_m": 114.0,
     "province": "กรุงเทพมหานคร",
     "road": "มหาวิทยาลัยเกษตรศาสตร์ - คันนายาว",
     "accident_count": 5,
@@ -2051,14 +2260,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.700599,
-     13.7197
+     100.700377,
+     13.720092
     ]
    },
    "properties": {
     "id": "zone_52",
     "unit_type": "cluster",
-    "radius_m": 1173.3,
+    "centroid": [
+     13.7197,
+     100.700599
+    ],
+    "radius_m": 1215.7,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 28,
@@ -2088,14 +2301,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.538096,
-     13.791459
+     100.538228,
+     13.79279
     ]
    },
    "properties": {
     "id": "zone_53",
     "unit_type": "cluster",
-    "radius_m": 319.7,
+    "centroid": [
+     13.791459,
+     100.538096
+    ],
+    "radius_m": 465.3,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 8,
@@ -2125,14 +2342,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.543467,
-     13.803141
+     100.543327,
+     13.803022
     ]
    },
    "properties": {
     "id": "zone_54",
     "unit_type": "cluster",
-    "radius_m": 80.2,
+    "centroid": [
+     13.803141,
+     100.543467
+    ],
+    "radius_m": 100.3,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 5,
@@ -2162,14 +2383,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.699495,
-     13.683963
+     100.699528,
+     13.683698
     ]
    },
    "properties": {
     "id": "zone_55",
     "unit_type": "cluster",
-    "radius_m": 174.1,
+    "centroid": [
+     13.683963,
+     100.699495
+    ],
+    "radius_m": 203.7,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 6,
@@ -2199,14 +2424,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.527631,
-     13.766711
+     100.527283,
+     13.765941
     ]
    },
    "properties": {
     "id": "zone_56",
     "unit_type": "cluster",
-    "radius_m": 494.5,
+    "centroid": [
+     13.766711,
+     100.527631
+    ],
+    "radius_m": 401.4,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 14,
@@ -2243,6 +2472,10 @@
    "properties": {
     "id": "zone_57",
     "unit_type": "cluster",
+    "centroid": [
+     13.746326,
+     100.605118
+    ],
     "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
@@ -2273,14 +2506,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.820187,
-     13.808653
+     100.819942,
+     13.808687
     ]
    },
    "properties": {
     "id": "zone_58",
     "unit_type": "cluster",
-    "radius_m": 113.4,
+    "centroid": [
+     13.808653,
+     100.820187
+    ],
+    "radius_m": 140.0,
     "province": "กรุงเทพมหานคร",
     "road": "แยกเข้ามีนบุรี - คลองหลวงแพ่ง",
     "accident_count": 3,
@@ -2310,14 +2547,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.484912,
-     13.68389
+     100.48462,
+     13.683698
     ]
    },
    "properties": {
     "id": "zone_59",
     "unit_type": "cluster",
-    "radius_m": 335.0,
+    "centroid": [
+     13.68389,
+     100.484912
+    ],
+    "radius_m": 344.7,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง - แสมดำ",
     "accident_count": 12,
@@ -2347,14 +2588,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.550046,
-     13.815761
+     100.55014,
+     13.815929
     ]
    },
    "properties": {
     "id": "zone_60",
     "unit_type": "cluster",
-    "radius_m": 617.3,
+    "centroid": [
+     13.815761,
+     100.550046
+    ],
+    "radius_m": 600.9,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 9,
@@ -2384,14 +2629,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.715848,
-     13.812732
+     100.71626,
+     13.812696
     ]
    },
    "properties": {
     "id": "zone_61",
     "unit_type": "cluster",
-    "radius_m": 99.0,
+    "centroid": [
+     13.812732,
+     100.715848
+    ],
+    "radius_m": 143.6,
     "province": "กรุงเทพมหานคร",
     "road": "คันนายาว - แยกเข้ามีนบุรี",
     "accident_count": 3,
@@ -2421,14 +2670,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.520879,
-     13.699156
+     100.521523,
+     13.698487
     ]
    },
    "properties": {
     "id": "zone_62",
     "unit_type": "cluster",
-    "radius_m": 296.6,
+    "centroid": [
+     13.699156,
+     100.520879
+    ],
+    "radius_m": 301.0,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 4,
@@ -2458,14 +2711,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.544884,
-     13.762119
+     100.545383,
+     13.76145
     ]
    },
    "properties": {
     "id": "zone_63",
     "unit_type": "cluster",
-    "radius_m": 246.3,
+    "centroid": [
+     13.762119,
+     100.544884
+    ],
+    "radius_m": 295.0,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
     "accident_count": 4,
@@ -2495,14 +2752,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.509351,
-     13.807569
+     100.509637,
+     13.807892
     ]
    },
    "properties": {
     "id": "zone_64",
     "unit_type": "cluster",
-    "radius_m": 60.8,
+    "centroid": [
+     13.807569,
+     100.509351
+    ],
+    "radius_m": 99.7,
     "province": "กรุงเทพมหานคร",
     "road": "หมอชิต-กาญจนาฯ",
     "accident_count": 4,
@@ -2532,14 +2793,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.551943,
-     13.72949
+     100.551735,
+     13.730663
     ]
    },
    "properties": {
     "id": "zone_65",
     "unit_type": "cluster",
-    "radius_m": 267.4,
+    "centroid": [
+     13.72949,
+     100.551943
+    ],
+    "radius_m": 399.4,
     "province": "กรุงเทพมหานคร",
     "road": "ดินแดง-ท่าเรือ",
     "accident_count": 3,
@@ -2569,14 +2834,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.642382,
-     13.666252
+     100.643024,
+     13.666401
     ]
    },
    "properties": {
     "id": "zone_66",
     "unit_type": "cluster",
-    "radius_m": 394.8,
+    "centroid": [
+     13.666252,
+     100.642382
+    ],
+    "radius_m": 461.9,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
     "accident_count": 5,
@@ -2606,14 +2875,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.625657,
-     13.669504
+     100.626014,
+     13.669606
     ]
    },
    "properties": {
     "id": "zone_67",
     "unit_type": "cluster",
-    "radius_m": 169.7,
+    "centroid": [
+     13.669504,
+     100.625657
+    ],
+    "radius_m": 207.2,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
     "accident_count": 3,
@@ -2643,14 +2916,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.611062,
-     13.93697
+     100.611512,
+     13.937231
     ]
    },
    "properties": {
     "id": "zone_68",
     "unit_type": "cluster",
-    "radius_m": 316.0,
+    "centroid": [
+     13.93697,
+     100.611062
+    ],
+    "radius_m": 297.8,
     "province": "กรุงเทพมหานคร",
     "road": "งามวงศ์วาน - ดอนเมือง",
     "accident_count": 4,
@@ -2680,14 +2957,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.725531,
-     13.81843
+     100.724533,
+     13.81833
     ]
    },
    "properties": {
     "id": "zone_69",
     "unit_type": "cluster",
-    "radius_m": 216.7,
+    "centroid": [
+     13.81843,
+     100.725531
+    ],
+    "radius_m": 325.0,
     "province": "กรุงเทพมหานคร",
     "road": "แยกเข้ามีนบุรี - คลองหลวงแพ่ง",
     "accident_count": 3,
@@ -2717,14 +2998,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.489338,
-     13.620593
+     100.488739,
+     13.62063
     ]
    },
    "properties": {
     "id": "zone_70",
     "unit_type": "cluster",
-    "radius_m": 297.3,
+    "centroid": [
+     13.620593,
+     100.489338
+    ],
+    "radius_m": 361.7,
     "province": "กรุงเทพมหานคร",
     "road": "พระประแดง - บางแค",
     "accident_count": 3,
@@ -2754,14 +3039,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.923101,
-     13.809884
+     100.923439,
+     13.809866
     ]
    },
    "properties": {
     "id": "zone_71",
     "unit_type": "cluster",
-    "radius_m": 143.5,
+    "centroid": [
+     13.809884,
+     100.923101
+    ],
+    "radius_m": 180.0,
     "province": "กรุงเทพมหานคร",
     "road": "แยกเข้ามีนบุรี - คลองหลวงแพ่ง",
     "accident_count": 3,
@@ -2791,14 +3080,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.604022,
-     13.721163
+     100.604537,
+     13.722105
     ]
    },
    "properties": {
     "id": "zone_72",
     "unit_type": "cluster",
-    "radius_m": 291.9,
+    "centroid": [
+     13.721163,
+     100.604022
+    ],
+    "radius_m": 410.5,
     "province": "กรุงเทพมหานคร",
     "road": "รามอินทรา-อาจณรงค์",
     "accident_count": 6,
@@ -2828,14 +3121,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.394515,
-     13.791208
+     100.394363,
+     13.791363
     ]
    },
    "properties": {
     "id": "zone_73",
     "unit_type": "cluster",
-    "radius_m": 315.5,
+    "centroid": [
+     13.791208,
+     100.394515
+    ],
+    "radius_m": 333.1,
     "province": "กรุงเทพมหานคร",
     "road": "อรุณอมรินทร์ - พุทธมณฑลสาย4",
     "accident_count": 5,
@@ -2865,14 +3162,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.536813,
-     13.821531
+     100.536621,
+     13.821571
     ]
    },
    "properties": {
     "id": "zone_74",
     "unit_type": "cluster",
-    "radius_m": 84.6,
+    "centroid": [
+     13.821531,
+     100.536813
+    ],
+    "radius_m": 105.8,
     "province": "กรุงเทพมหานคร",
     "road": "หมอชิต-กาญจนาฯ",
     "accident_count": 5,
@@ -2902,14 +3203,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.52068,
-     13.686156
+     100.520428,
+     13.685679
     ]
    },
    "properties": {
     "id": "zone_75",
     "unit_type": "cluster",
-    "radius_m": 340.8,
+    "centroid": [
+     13.686156,
+     100.52068
+    ],
+    "radius_m": 399.3,
     "province": "กรุงเทพมหานคร",
     "road": "ดาวคะนอง-ท่าเรือ",
     "accident_count": 3,
@@ -2939,14 +3244,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.520102,
-     13.740794
+     100.520218,
+     13.741102
     ]
    },
    "properties": {
     "id": "zone_76",
     "unit_type": "cluster",
-    "radius_m": 170.4,
+    "centroid": [
+     13.740794,
+     100.520102
+    ],
+    "radius_m": 206.5,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 3,
@@ -2976,14 +3285,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.699139,
-     13.672985
+     100.699349,
+     13.673613
     ]
    },
    "properties": {
     "id": "zone_77",
     "unit_type": "cluster",
-    "radius_m": 677.9,
+    "centroid": [
+     13.672985,
+     100.699139
+    ],
+    "radius_m": 716.2,
     "province": "กรุงเทพมหานคร",
     "road": "แขวงรามอินทรา - บางพลี",
     "accident_count": 11,
@@ -3013,14 +3326,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.591856,
-     13.9026
+     100.592288,
+     13.903444
     ]
    },
    "properties": {
     "id": "zone_78",
     "unit_type": "cluster",
-    "radius_m": 225.5,
+    "centroid": [
+     13.9026,
+     100.591856
+    ],
+    "radius_m": 330.3,
     "province": "กรุงเทพมหานคร",
     "road": "งามวงศ์วาน - ดอนเมือง",
     "accident_count": 3,
@@ -3050,14 +3367,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.548243,
-     13.807502
+     100.547968,
+     13.806944
     ]
    },
    "properties": {
     "id": "zone_79",
     "unit_type": "cluster",
-    "radius_m": 235.5,
+    "centroid": [
+     13.807502,
+     100.548243
+    ],
+    "radius_m": 303.9,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 3,
@@ -3087,14 +3408,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.522732,
-     13.752961
+     100.522644,
+     13.752365
     ]
    },
    "properties": {
     "id": "zone_80",
     "unit_type": "cluster",
-    "radius_m": 233.7,
+    "centroid": [
+     13.752961,
+     100.522732
+    ],
+    "radius_m": 300.5,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 3,
@@ -3124,14 +3449,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.590248,
-     13.702369
+     100.59022,
+     13.702035
     ]
    },
    "properties": {
     "id": "zone_81",
     "unit_type": "cluster",
-    "radius_m": 160.6,
+    "centroid": [
+     13.702369,
+     100.590248
+    ],
+    "radius_m": 195.1,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา-ท่าเรือ",
     "accident_count": 3,
@@ -3161,14 +3490,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.565726,
-     13.752913
+     100.566702,
+     13.752305
     ]
    },
    "properties": {
     "id": "zone_82",
     "unit_type": "cluster",
-    "radius_m": 414.1,
+    "centroid": [
+     13.752913,
+     100.565726
+    ],
+    "radius_m": 443.3,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
     "accident_count": 4,
@@ -3198,14 +3531,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.517701,
-     13.724567
+     100.517667,
+     13.725121
     ]
    },
    "properties": {
     "id": "zone_83",
     "unit_type": "cluster",
-    "radius_m": 246.8,
+    "centroid": [
+     13.724567,
+     100.517701
+    ],
+    "radius_m": 308.5,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-บางโคล่",
     "accident_count": 5,
@@ -3235,14 +3572,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.503237,
-     13.801946
+     100.502986,
+     13.801667
     ]
    },
    "properties": {
     "id": "zone_84",
     "unit_type": "cluster",
-    "radius_m": 151.5,
+    "centroid": [
+     13.801946,
+     100.503237
+    ],
+    "radius_m": 192.6,
     "province": "กรุงเทพมหานคร",
     "road": "หมอชิต-กาญจนาฯ",
     "accident_count": 7,
@@ -3279,6 +3620,10 @@
    "properties": {
     "id": "zone_85",
     "unit_type": "cluster",
+    "centroid": [
+     13.712847,
+     100.570724
+    ],
     "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
     "road": "บางนา-ท่าเรือ",
@@ -3316,6 +3661,10 @@
    "properties": {
     "id": "zone_86",
     "unit_type": "cluster",
+    "centroid": [
+     13.742199,
+     100.631529
+    ],
     "radius_m": 0.0,
     "province": "กรุงเทพมหานคร",
     "road": "พญาไท-ศรีนครินทร์",
@@ -3346,14 +3695,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.5404,
-     13.831845
+     100.540396,
+     13.831695
     ]
    },
    "properties": {
     "id": "zone_87",
     "unit_type": "cluster",
-    "radius_m": 33.4,
+    "centroid": [
+     13.831845,
+     100.5404
+    ],
+    "radius_m": 50.0,
     "province": "กรุงเทพมหานคร",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 6,
@@ -3383,14 +3736,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.544328,
-     13.94489
+     100.544716,
+     13.945681
     ]
    },
    "properties": {
     "id": "zone_88",
     "unit_type": "cluster",
-    "radius_m": 248.0,
+    "centroid": [
+     13.94489,
+     100.544328
+    ],
+    "radius_m": 345.4,
     "province": "นนทบุรี",
     "road": "แคราย - คลองบ้านใหม่",
     "accident_count": 5,
@@ -3420,14 +3777,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.413795,
-     13.92652
+     100.413961,
+     13.926756
     ]
    },
    "properties": {
     "id": "zone_89",
     "unit_type": "cluster",
-    "radius_m": 573.3,
+    "centroid": [
+     13.92652,
+     100.413795
+    ],
+    "radius_m": 603.6,
     "province": "นนทบุรี",
     "road": "คลองบางไผ่ - คลองบางหลวง",
     "accident_count": 5,
@@ -3457,14 +3818,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.533473,
-     13.847944
+     100.533475,
+     13.847348
     ]
    },
    "properties": {
     "id": "zone_90",
     "unit_type": "cluster",
-    "radius_m": 472.3,
+    "centroid": [
+     13.847944,
+     100.533473
+    ],
+    "radius_m": 406.2,
     "province": "นนทบุรี",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 6,
@@ -3494,14 +3859,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.536505,
-     13.878131
+     100.53647,
+     13.878219
     ]
    },
    "properties": {
     "id": "zone_91",
     "unit_type": "cluster",
-    "radius_m": 41.8,
+    "centroid": [
+     13.878131,
+     100.536505
+    ],
+    "radius_m": 52.2,
     "province": "นนทบุรี",
     "road": "แจ้งวัฒนะ-พญาไท",
     "accident_count": 5,
@@ -3531,14 +3900,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.514634,
-     13.859955
+     100.513734,
+     13.859945
     ]
    },
    "properties": {
     "id": "zone_92",
     "unit_type": "cluster",
-    "radius_m": 167.8,
+    "centroid": [
+     13.859955,
+     100.514634
+    ],
+    "radius_m": 228.3,
     "province": "นนทบุรี",
     "road": "แยกพงษ์เพชร - สะพานพระนั่งเกล้า",
     "accident_count": 6,
@@ -3568,14 +3941,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.408187,
-     13.893765
+     100.407967,
+     13.893601
     ]
    },
    "properties": {
     "id": "zone_93",
     "unit_type": "cluster",
-    "radius_m": 104.1,
+    "centroid": [
+     13.893765,
+     100.408187
+    ],
+    "radius_m": 125.7,
     "province": "นนทบุรี",
     "road": "คลองบางไผ่ - คลองบางหลวง",
     "accident_count": 3,
@@ -3605,14 +3982,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.552339,
-     13.926002
+     100.55224,
+     13.925836
     ]
    },
    "properties": {
     "id": "zone_94",
     "unit_type": "cluster",
-    "radius_m": 85.2,
+    "centroid": [
+     13.926002,
+     100.552339
+    ],
+    "radius_m": 106.4,
     "province": "นนทบุรี",
     "road": "บางปะอิน-แจ้งวัฒนะ",
     "accident_count": 5,
@@ -3642,14 +4023,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.544116,
-     13.908903
+     100.54385,
+     13.909288
     ]
    },
    "properties": {
     "id": "zone_95",
     "unit_type": "cluster",
-    "radius_m": 271.0,
+    "centroid": [
+     13.908903,
+     100.544116
+    ],
+    "radius_m": 313.6,
     "province": "นนทบุรี",
     "road": "บางปะอิน-แจ้งวัฒนะ",
     "accident_count": 3,
@@ -3686,6 +4071,10 @@
    "properties": {
     "id": "zone_96",
     "unit_type": "cluster",
+    "centroid": [
+     14.160692,
+     100.248669
+    ],
     "radius_m": 0.0,
     "province": "นครปฐม",
     "road": "ลาดบัวหลวง - สองพี่น้อง",
@@ -3716,14 +4105,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.203297,
-     13.770347
+     100.204121,
+     13.770415
     ]
    },
    "properties": {
     "id": "zone_97",
     "unit_type": "cluster",
-    "radius_m": 175.3,
+    "centroid": [
+     13.770347,
+     100.203297
+    ],
+    "radius_m": 263.4,
     "province": "นครปฐม",
     "road": "พุทธมณฑลสาย4 - นครชัยศรี",
     "accident_count": 3,
@@ -3753,14 +4146,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.903486,
-     14.080527
+     100.903816,
+     14.080659
     ]
    },
    "properties": {
     "id": "zone_98",
     "unit_type": "cluster",
-    "radius_m": 259.9,
+    "centroid": [
+     14.080527,
+     100.903486
+    ],
+    "radius_m": 298.4,
     "province": "ปทุมธานี",
     "road": "วัดนาบุญ - คลอง14",
     "accident_count": 3,
@@ -3790,14 +4187,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.703773,
-     14.012723
+     100.703024,
+     14.012669
     ]
    },
    "properties": {
     "id": "zone_99",
     "unit_type": "cluster",
-    "radius_m": 2980.2,
+    "centroid": [
+     14.012723,
+     100.703773
+    ],
+    "radius_m": 2971.6,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 78,
@@ -3827,14 +4228,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.696731,
-     14.065214
+     100.696643,
+     14.065404
     ]
    },
    "properties": {
     "id": "zone_100",
     "unit_type": "cluster",
-    "radius_m": 1850.0,
+    "centroid": [
+     14.065214,
+     100.696731
+    ],
+    "radius_m": 1828.2,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 43,
@@ -3864,14 +4269,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.766724,
-     13.941224
+     100.766551,
+     13.940923
     ]
    },
    "properties": {
     "id": "zone_101",
     "unit_type": "cluster",
-    "radius_m": 136.7,
+    "centroid": [
+     13.941224,
+     100.766724
+    ],
+    "radius_m": 145.2,
     "province": "ปทุมธานี",
     "road": "ลำลูกกา - คลอง16",
     "accident_count": 4,
@@ -3901,14 +4310,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.441613,
-     13.985297
+     100.441482,
+     13.985091
     ]
    },
    "properties": {
     "id": "zone_102",
     "unit_type": "cluster",
-    "radius_m": 351.0,
+    "centroid": [
+     13.985297,
+     100.441613
+    ],
+    "radius_m": 377.8,
     "province": "ปทุมธานี",
     "road": "คลองบางไผ่ - คลองบางหลวง",
     "accident_count": 3,
@@ -3938,14 +4351,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.754599,
-     13.936963
+     100.753788,
+     13.936708
     ]
    },
    "properties": {
     "id": "zone_103",
     "unit_type": "cluster",
-    "radius_m": 425.8,
+    "centroid": [
+     13.936963,
+     100.754599
+    ],
+    "radius_m": 350.1,
     "province": "ปทุมธานี",
     "road": "ลำลูกกา - คลอง16",
     "accident_count": 4,
@@ -3975,14 +4392,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.578422,
-     14.087134
+     100.578343,
+     14.086442
     ]
    },
    "properties": {
     "id": "zone_104",
     "unit_type": "cluster",
-    "radius_m": 176.9,
+    "centroid": [
+     14.087134,
+     100.578422
+    ],
+    "radius_m": 204.4,
     "province": "ปทุมธานี",
     "road": "บางปะอิน-แจ้งวัฒนะ",
     "accident_count": 4,
@@ -4012,14 +4433,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.458983,
-     14.047349
+     100.459185,
+     14.047405
     ]
    },
    "properties": {
     "id": "zone_105",
     "unit_type": "cluster",
-    "radius_m": 492.2,
+    "centroid": [
+     14.047349,
+     100.458983
+    ],
+    "radius_m": 476.8,
     "province": "ปทุมธานี",
     "road": "คลองบางหลวง - ต่างระดับเชียงรากน้อย",
     "accident_count": 9,
@@ -4049,14 +4474,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.580234,
-     14.055459
+     100.580214,
+     14.055761
     ]
    },
    "properties": {
     "id": "zone_106",
     "unit_type": "cluster",
-    "radius_m": 168.0,
+    "centroid": [
+     14.055459,
+     100.580234
+    ],
+    "radius_m": 201.6,
     "province": "ปทุมธานี",
     "road": "บางปะอิน-แจ้งวัฒนะ",
     "accident_count": 3,
@@ -4086,14 +4515,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.658556,
-     14.150381
+     100.658754,
+     14.149829
     ]
    },
    "properties": {
     "id": "zone_107",
     "unit_type": "cluster",
-    "radius_m": 646.9,
+    "centroid": [
+     14.150381,
+     100.658556
+    ],
+    "radius_m": 711.1,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 9,
@@ -4123,14 +4556,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.794067,
-     14.042432
+     100.794174,
+     14.042469
     ]
    },
    "properties": {
     "id": "zone_108",
     "unit_type": "cluster",
-    "radius_m": 36.8,
+    "centroid": [
+     14.042432,
+     100.794067
+    ],
+    "radius_m": 49.1,
     "province": "ปทุมธานี",
     "road": "วัดนาบุญ - คลอง14",
     "accident_count": 4,
@@ -4160,14 +4597,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.69162,
-     14.091928
+     100.692051,
+     14.091383
     ]
    },
    "properties": {
     "id": "zone_109",
     "unit_type": "cluster",
-    "radius_m": 301.1,
+    "centroid": [
+     14.091928,
+     100.69162
+    ],
+    "radius_m": 377.1,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 6,
@@ -4197,14 +4638,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.525405,
-     14.029798
+     100.52535,
+     14.029688
     ]
    },
    "properties": {
     "id": "zone_110",
     "unit_type": "cluster",
-    "radius_m": 54.4,
+    "centroid": [
+     14.029798,
+     100.525405
+    ],
+    "radius_m": 66.5,
     "province": "ปทุมธานี",
     "road": "ปทุมธานี - ท้ายเกาะ",
     "accident_count": 3,
@@ -4234,14 +4679,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.698249,
-     14.046074
+     100.69817,
+     14.045381
     ]
    },
    "properties": {
     "id": "zone_111",
     "unit_type": "cluster",
-    "radius_m": 383.2,
+    "centroid": [
+     14.046074,
+     100.698249
+    ],
+    "radius_m": 405.1,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 8,
@@ -4271,14 +4720,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.663082,
-     14.142486
+     100.663083,
+     14.142631
     ]
    },
    "properties": {
     "id": "zone_112",
     "unit_type": "cluster",
-    "radius_m": 172.0,
+    "centroid": [
+     14.142486,
+     100.663082
+    ],
+    "radius_m": 186.7,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 6,
@@ -4308,14 +4761,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.873533,
-     14.070027
+     100.873516,
+     14.070064
     ]
    },
    "properties": {
     "id": "zone_113",
     "unit_type": "cluster",
-    "radius_m": 97.2,
+    "centroid": [
+     14.070027,
+     100.873533
+    ],
+    "radius_m": 98.0,
     "province": "ปทุมธานี",
     "road": "วัดนาบุญ - คลอง14",
     "accident_count": 3,
@@ -4345,14 +4802,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.685332,
-     14.103219
+     100.685917,
+     14.102317
     ]
    },
    "properties": {
     "id": "zone_114",
     "unit_type": "cluster",
-    "radius_m": 609.0,
+    "centroid": [
+     14.103219,
+     100.685332
+    ],
+    "radius_m": 611.3,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 9,
@@ -4382,14 +4843,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.679834,
-     14.112843
+     100.679888,
+     14.112413
     ]
    },
    "properties": {
     "id": "zone_115",
     "unit_type": "cluster",
-    "radius_m": 284.3,
+    "centroid": [
+     14.112843,
+     100.679834
+    ],
+    "radius_m": 330.0,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 3,
@@ -4419,14 +4884,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.483758,
-     13.954878
+     100.48303,
+     13.954733
     ]
    },
    "properties": {
     "id": "zone_116",
     "unit_type": "cluster",
-    "radius_m": 279.2,
+    "centroid": [
+     13.954878,
+     100.483758
+    ],
+    "radius_m": 359.5,
     "province": "ปทุมธานี",
     "road": "บางบัวทอง - บางคูวัด",
     "accident_count": 3,
@@ -4456,14 +4925,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.616091,
-     14.036454
+     100.616052,
+     14.036552
     ]
    },
    "properties": {
     "id": "zone_117",
     "unit_type": "cluster",
-    "radius_m": 85.6,
+    "centroid": [
+     14.036454,
+     100.616091
+    ],
+    "radius_m": 96.9,
     "province": "ปทุมธานี",
     "road": "สนามกีฬาธูปะเตมีย์ - ต่างระดับคลองหลวง",
     "accident_count": 3,
@@ -4493,14 +4966,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.759914,
-     14.0307
+     100.759235,
+     14.030541
     ]
    },
    "properties": {
     "id": "zone_118",
     "unit_type": "cluster",
-    "radius_m": 214.9,
+    "centroid": [
+     14.0307,
+     100.759914
+    ],
+    "radius_m": 289.8,
     "province": "ปทุมธานี",
     "road": "วัดนาบุญ - คลอง14",
     "accident_count": 5,
@@ -4530,14 +5007,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.747919,
-     13.979357
+     100.747862,
+     13.979145
     ]
    },
    "properties": {
     "id": "zone_119",
     "unit_type": "cluster",
-    "radius_m": 64.3,
+    "centroid": [
+     13.979357,
+     100.747919
+    ],
+    "radius_m": 88.7,
     "province": "ปทุมธานี",
     "road": "แยกทางหลวงหมายเลข 305 (กม.ที่ 15+700) - บ้านลำลูกกา",
     "accident_count": 3,
@@ -4567,14 +5048,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.675286,
-     14.120949
+     100.675345,
+     14.120968
     ]
    },
    "properties": {
     "id": "zone_120",
     "unit_type": "cluster",
-    "radius_m": 336.7,
+    "centroid": [
+     14.120949,
+     100.675286
+    ],
+    "radius_m": 337.8,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 4,
@@ -4604,14 +5089,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.666562,
-     14.136617
+     100.666707,
+     14.136546
     ]
    },
    "properties": {
     "id": "zone_121",
     "unit_type": "cluster",
-    "radius_m": 72.1,
+    "centroid": [
+     14.136617,
+     100.666562
+    ],
+    "radius_m": 89.2,
     "province": "ปทุมธานี",
     "road": "บางปะอิน - แขวงรามอินทรา",
     "accident_count": 4,
@@ -4641,14 +5130,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.617657,
-     14.07252
+     100.617661,
+     14.072671
     ]
    },
    "properties": {
     "id": "zone_122",
     "unit_type": "cluster",
-    "radius_m": 184.0,
+    "centroid": [
+     14.07252,
+     100.617657
+    ],
+    "radius_m": 200.7,
     "province": "ปทุมธานี",
     "road": "ต่างระดับคลองหลวง - ประตูน้ำพระอินทร์",
     "accident_count": 3,
@@ -4678,14 +5171,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.63014,
-     13.95149
+     100.629235,
+     13.951799
     ]
    },
    "properties": {
     "id": "zone_123",
     "unit_type": "cluster",
-    "radius_m": 245.8,
+    "centroid": [
+     13.95149,
+     100.63014
+    ],
+    "radius_m": 348.6,
     "province": "ปทุมธานี",
     "road": "สนามกีฬาธูปเตมีย์ - ลำลูกกา",
     "accident_count": 3,
@@ -4715,14 +5212,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.533918,
-     14.114263
+     100.534124,
+     14.115222
     ]
    },
    "properties": {
     "id": "zone_124",
     "unit_type": "cluster",
-    "radius_m": 461.9,
+    "centroid": [
+     14.114263,
+     100.533918
+    ],
+    "radius_m": 481.0,
     "province": "ปทุมธานี",
     "road": "คลองบางหลวง - ต่างระดับเชียงรากน้อย",
     "accident_count": 4,
@@ -4752,14 +5253,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.849483,
-     13.585402
+     100.849333,
+     13.58567
     ]
    },
    "properties": {
     "id": "zone_125",
     "unit_type": "cluster",
-    "radius_m": 336.7,
+    "centroid": [
+     13.585402,
+     100.849483
+    ],
+    "radius_m": 360.5,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 4,
@@ -4789,14 +5294,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.850046,
-     13.585141
+     100.849412,
+     13.585244
     ]
    },
    "properties": {
     "id": "zone_126",
     "unit_type": "cluster",
-    "radius_m": 318.6,
+    "centroid": [
+     13.585141,
+     100.850046
+    ],
+    "radius_m": 388.0,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
     "accident_count": 7,
@@ -4826,14 +5335,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.632138,
-     13.636553
+     100.632215,
+     13.636891
     ]
    },
    "properties": {
     "id": "zone_127",
     "unit_type": "cluster",
-    "radius_m": 168.8,
+    "centroid": [
+     13.636553,
+     100.632138
+    ],
+    "radius_m": 206.5,
     "province": "สมุทรปราการ",
     "road": "อุดมสุข - สมุทรปราการ",
     "accident_count": 3,
@@ -4863,14 +5376,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.547262,
-     13.613713
+     100.546972,
+     13.614002
     ]
    },
    "properties": {
     "id": "zone_128",
     "unit_type": "cluster",
-    "radius_m": 422.3,
+    "centroid": [
+     13.613713,
+     100.547262
+    ],
+    "radius_m": 401.2,
     "province": "สมุทรปราการ",
     "road": "ราษฎร์บูรณะ - พระสมุทรเจดีย์",
     "accident_count": 5,
@@ -4900,14 +5417,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.829194,
-     13.691751
+     100.828958,
+     13.691901
     ]
    },
    "properties": {
     "id": "zone_129",
     "unit_type": "cluster",
-    "radius_m": 1483.6,
+    "centroid": [
+     13.691751,
+     100.829194
+    ],
+    "radius_m": 1509.8,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 31,
@@ -4937,14 +5458,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.695713,
-     13.642277
+     100.695533,
+     13.642327
     ]
    },
    "properties": {
     "id": "zone_130",
     "unit_type": "cluster",
-    "radius_m": 176.5,
+    "centroid": [
+     13.642277,
+     100.695713
+    ],
+    "radius_m": 196.6,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
     "accident_count": 5,
@@ -4974,13 +5499,17 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.850125,
-     13.665902
+     100.850088,
+     13.665846
     ]
    },
    "properties": {
     "id": "zone_131",
     "unit_type": "cluster",
+    "centroid": [
+     13.665902,
+     100.850125
+    ],
     "radius_m": 2654.9,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
@@ -5011,14 +5540,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.69733,
-     13.512251
+     100.697009,
+     13.512301
     ]
    },
    "properties": {
     "id": "zone_132",
     "unit_type": "cluster",
-    "radius_m": 725.5,
+    "centroid": [
+     13.512251,
+     100.69733
+    ],
+    "radius_m": 760.6,
     "province": "สมุทรปราการ",
     "road": "บางตำหรุ - คลองด่าน",
     "accident_count": 10,
@@ -5048,14 +5581,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.883974,
-     13.57796
+     100.88418,
+     13.577956
     ]
    },
    "properties": {
     "id": "zone_133",
     "unit_type": "cluster",
-    "radius_m": 170.0,
+    "centroid": [
+     13.57796,
+     100.883974
+    ],
+    "radius_m": 148.1,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 9,
@@ -5085,14 +5622,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.637531,
-     13.527228
+     100.638431,
+     13.526749
     ]
    },
    "properties": {
     "id": "zone_134",
     "unit_type": "cluster",
-    "radius_m": 348.9,
+    "centroid": [
+     13.527228,
+     100.637531
+    ],
+    "radius_m": 430.7,
     "province": "สมุทรปราการ",
     "road": "ท้ายบ้าน - บางตำหรุ",
     "accident_count": 4,
@@ -5122,14 +5663,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.668109,
-     13.518589
+     100.668347,
+     13.518434
     ]
    },
    "properties": {
     "id": "zone_135",
     "unit_type": "cluster",
-    "radius_m": 610.4,
+    "centroid": [
+     13.518589,
+     100.668109
+    ],
+    "radius_m": 639.6,
     "province": "สมุทรปราการ",
     "road": "ท้ายบ้าน - บางตำหรุ",
     "accident_count": 6,
@@ -5159,14 +5704,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.765333,
-     13.608985
+     100.764824,
+     13.609134
     ]
    },
    "properties": {
     "id": "zone_136",
     "unit_type": "cluster",
-    "radius_m": 640.3,
+    "centroid": [
+     13.608985,
+     100.765333
+    ],
+    "radius_m": 697.7,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 9,
@@ -5196,14 +5745,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.762841,
-     13.609937
+     100.762571,
+     13.609903
     ]
    },
    "properties": {
     "id": "zone_137",
     "unit_type": "cluster",
-    "radius_m": 222.5,
+    "centroid": [
+     13.609937,
+     100.762841
+    ],
+    "radius_m": 202.7,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
     "accident_count": 4,
@@ -5233,14 +5786,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.891627,
-     13.639258
+     100.890796,
+     13.639954
     ]
    },
    "properties": {
     "id": "zone_138",
     "unit_type": "cluster",
-    "radius_m": 179.8,
+    "centroid": [
+     13.639258,
+     100.891627
+    ],
+    "radius_m": 298.2,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 5,
@@ -5270,14 +5827,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.542505,
-     13.634201
+     100.54222,
+     13.634861
     ]
    },
    "properties": {
     "id": "zone_139",
     "unit_type": "cluster",
-    "radius_m": 2343.7,
+    "centroid": [
+     13.634201,
+     100.542505
+    ],
+    "radius_m": 2344.8,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 34,
@@ -5307,14 +5868,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.898791,
-     13.634663
+     100.899048,
+     13.634381
     ]
    },
    "properties": {
     "id": "zone_140",
     "unit_type": "cluster",
-    "radius_m": 339.5,
+    "centroid": [
+     13.634663,
+     100.898791
+    ],
+    "radius_m": 299.0,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 9,
@@ -5344,14 +5909,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.654743,
-     13.605613
+     100.65487,
+     13.605056
     ]
    },
    "properties": {
     "id": "zone_141",
     "unit_type": "cluster",
-    "radius_m": 495.5,
+    "centroid": [
+     13.605613,
+     100.654743
+    ],
+    "radius_m": 518.9,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 5,
@@ -5381,14 +5950,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.876821,
-     13.579533
+     100.877488,
+     13.579384
     ]
    },
    "properties": {
     "id": "zone_142",
     "unit_type": "cluster",
-    "radius_m": 221.8,
+    "centroid": [
+     13.579533,
+     100.876821
+    ],
+    "radius_m": 295.8,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 4,
@@ -5418,14 +5991,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.836101,
-     13.588175
+     100.836447,
+     13.588115
     ]
    },
    "properties": {
     "id": "zone_143",
     "unit_type": "cluster",
-    "radius_m": 653.3,
+    "centroid": [
+     13.588175,
+     100.836101
+    ],
+    "radius_m": 691.2,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 14,
@@ -5455,14 +6032,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.705257,
-     13.637128
+     100.70521,
+     13.636981
     ]
    },
    "properties": {
     "id": "zone_144",
     "unit_type": "cluster",
-    "radius_m": 200.6,
+    "centroid": [
+     13.637128,
+     100.705257
+    ],
+    "radius_m": 205.8,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
     "accident_count": 3,
@@ -5492,14 +6073,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.74605,
-     13.617123
+     100.745542,
+     13.617384
     ]
    },
    "properties": {
     "id": "zone_145",
     "unit_type": "cluster",
-    "radius_m": 656.3,
+    "centroid": [
+     13.617123,
+     100.74605
+    ],
+    "radius_m": 594.4,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 8,
@@ -5529,14 +6114,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.606047,
-     13.621801
+     100.605788,
+     13.62198
     ]
    },
    "properties": {
     "id": "zone_146",
     "unit_type": "cluster",
-    "radius_m": 532.5,
+    "centroid": [
+     13.621801,
+     100.606047
+    ],
+    "radius_m": 499.2,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 9,
@@ -5566,14 +6155,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.566035,
-     13.648598
+     100.565241,
+     13.648749
     ]
    },
    "properties": {
     "id": "zone_147",
     "unit_type": "cluster",
-    "radius_m": 273.6,
+    "centroid": [
+     13.648598,
+     100.566035
+    ],
+    "radius_m": 361.1,
     "province": "สมุทรปราการ",
     "road": "สำโรง - สะพานภูมิพล",
     "accident_count": 3,
@@ -5603,14 +6196,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.907958,
-     13.628786
+     100.908241,
+     13.628467
     ]
    },
    "properties": {
     "id": "zone_148",
     "unit_type": "cluster",
-    "radius_m": 379.3,
+    "centroid": [
+     13.628786,
+     100.907958
+    ],
+    "radius_m": 394.6,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 10,
@@ -5640,14 +6237,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.93385,
-     13.612267
+     100.933532,
+     13.612265
     ]
    },
    "properties": {
     "id": "zone_149",
     "unit_type": "cluster",
-    "radius_m": 307.0,
+    "centroid": [
+     13.612267,
+     100.93385
+    ],
+    "radius_m": 336.4,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 5,
@@ -5677,14 +6278,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.925063,
-     13.617839
+     100.92521,
+     13.617808
     ]
    },
    "properties": {
     "id": "zone_150",
     "unit_type": "cluster",
-    "radius_m": 417.6,
+    "centroid": [
+     13.617839,
+     100.925063
+    ],
+    "radius_m": 402.3,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 9,
@@ -5714,14 +6319,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.917704,
-     13.622605
+     100.916809,
+     13.623231
     ]
    },
    "properties": {
     "id": "zone_151",
     "unit_type": "cluster",
-    "radius_m": 252.1,
+    "centroid": [
+     13.622605,
+     100.917704
+    ],
+    "radius_m": 371.1,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 5,
@@ -5751,14 +6360,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.880093,
-     13.646641
+     100.880054,
+     13.646863
     ]
    },
    "properties": {
     "id": "zone_152",
     "unit_type": "cluster",
-    "radius_m": 781.1,
+    "centroid": [
+     13.646641,
+     100.880093
+    ],
+    "radius_m": 798.0,
     "province": "สมุทรปราการ",
     "road": "แขวงคลองสองต้นนุ่น - พิมพา",
     "accident_count": 13,
@@ -5788,14 +6401,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.866374,
-     13.581773
+     100.8659,
+     13.581864
     ]
    },
    "properties": {
     "id": "zone_153",
     "unit_type": "cluster",
-    "radius_m": 208.7,
+    "centroid": [
+     13.581773,
+     100.866374
+    ],
+    "radius_m": 260.9,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 5,
@@ -5825,14 +6442,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.613387,
-     13.617944
+     100.61318,
+     13.618198
     ]
    },
    "properties": {
     "id": "zone_154",
     "unit_type": "cluster",
-    "radius_m": 165.0,
+    "centroid": [
+     13.617944,
+     100.613387
+    ],
+    "radius_m": 199.1,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 3,
@@ -5862,14 +6483,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.581872,
-     13.631467
+     100.581049,
+     13.631738
     ]
    },
    "properties": {
     "id": "zone_155",
     "unit_type": "cluster",
-    "radius_m": 606.1,
+    "centroid": [
+     13.631467,
+     100.581872
+    ],
+    "radius_m": 699.4,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 12,
@@ -5899,14 +6524,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.786454,
-     13.601417
+     100.786297,
+     13.601463
     ]
    },
    "properties": {
     "id": "zone_156",
     "unit_type": "cluster",
-    "radius_m": 35.6,
+    "centroid": [
+     13.601417,
+     100.786454
+    ],
+    "radius_m": 53.3,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 3,
@@ -5936,14 +6565,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.726207,
-     13.626054
+     100.72704,
+     13.62563
     ]
    },
    "properties": {
     "id": "zone_157",
     "unit_type": "cluster",
-    "radius_m": 254.0,
+    "centroid": [
+     13.626054,
+     100.726207
+    ],
+    "radius_m": 355.6,
     "province": "สมุทรปราการ",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
     "accident_count": 3,
@@ -5973,14 +6606,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.727755,
-     13.625271
+     100.728017,
+     13.624968
     ]
    },
    "properties": {
     "id": "zone_158",
     "unit_type": "cluster",
-    "radius_m": 267.5,
+    "centroid": [
+     13.625271,
+     100.727755
+    ],
+    "radius_m": 308.5,
     "province": "สมุทรปราการ",
     "road": "บางนา-ชลบุรี",
     "accident_count": 3,
@@ -6010,14 +6647,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.804379,
-     13.595105
+     100.803475,
+     13.595302
     ]
    },
    "properties": {
     "id": "zone_159",
     "unit_type": "cluster",
-    "radius_m": 200.1,
+    "centroid": [
+     13.595105,
+     100.804379
+    ],
+    "radius_m": 300.2,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 3,
@@ -6047,14 +6688,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.673331,
-     13.654658
+     100.672394,
+     13.655512
     ]
    },
    "properties": {
     "id": "zone_160",
     "unit_type": "cluster",
-    "radius_m": 542.4,
+    "centroid": [
+     13.654658,
+     100.673331
+    ],
+    "radius_m": 678.2,
     "province": "สมุทรปราการ",
     "road": "บางนา - ทางเข้าท่าอากาศยานสุวรรณภูมิ",
     "accident_count": 5,
@@ -6084,14 +6729,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.680227,
-     13.641351
+     100.680002,
+     13.640948
     ]
    },
    "properties": {
     "id": "zone_161",
     "unit_type": "cluster",
-    "radius_m": 266.5,
+    "centroid": [
+     13.641351,
+     100.680227
+    ],
+    "radius_m": 215.7,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 6,
@@ -6121,14 +6770,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.624454,
-     13.608812
+     100.62436,
+     13.608701
     ]
    },
    "properties": {
     "id": "zone_162",
     "unit_type": "cluster",
-    "radius_m": 105.7,
+    "centroid": [
+     13.608812,
+     100.624454
+    ],
+    "radius_m": 112.2,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 3,
@@ -6158,14 +6811,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.776708,
-     13.503732
+     100.777449,
+     13.5043
     ]
    },
    "properties": {
     "id": "zone_163",
     "unit_type": "cluster",
-    "radius_m": 280.5,
+    "centroid": [
+     13.503732,
+     100.776708
+    ],
+    "radius_m": 382.5,
     "province": "สมุทรปราการ",
     "road": "บางตำหรุ - คลองด่าน",
     "accident_count": 3,
@@ -6195,14 +6852,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.908142,
-     13.572867
+     100.907833,
+     13.57293
     ]
    },
    "properties": {
     "id": "zone_164",
     "unit_type": "cluster",
-    "radius_m": 262.0,
+    "centroid": [
+     13.572867,
+     100.908142
+    ],
+    "radius_m": 296.3,
     "province": "สมุทรปราการ",
     "road": "ทางเข้าท่าอากาศยานสุวรรณภูมิ - บางวัว",
     "accident_count": 3,
@@ -6232,14 +6893,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.555612,
-     13.604491
+     100.555481,
+     13.604648
     ]
    },
    "properties": {
     "id": "zone_165",
     "unit_type": "cluster",
-    "radius_m": 608.5,
+    "centroid": [
+     13.604491,
+     100.555612
+    ],
+    "radius_m": 617.9,
     "province": "สมุทรปราการ",
     "road": "ราษฎร์บูรณะ - พระสมุทรเจดีย์",
     "accident_count": 13,
@@ -6269,14 +6934,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.657848,
-     13.521007
+     100.657847,
+     13.521044
     ]
    },
    "properties": {
     "id": "zone_166",
     "unit_type": "cluster",
-    "radius_m": 88.0,
+    "centroid": [
+     13.521007,
+     100.657848
+    ],
+    "radius_m": 89.0,
     "province": "สมุทรปราการ",
     "road": "ท้ายบ้าน - บางตำหรุ",
     "accident_count": 4,
@@ -6306,14 +6975,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.568581,
-     13.634472
+     100.56841,
+     13.634536
     ]
    },
    "properties": {
     "id": "zone_167",
     "unit_type": "cluster",
-    "radius_m": 79.2,
+    "centroid": [
+     13.634472,
+     100.568581
+    ],
+    "radius_m": 98.9,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 5,
@@ -6343,14 +7016,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.639337,
-     13.601228
+     100.638228,
+     13.601636
     ]
    },
    "properties": {
     "id": "zone_168",
     "unit_type": "cluster",
-    "radius_m": 271.6,
+    "centroid": [
+     13.601228,
+     100.639337
+    ],
+    "radius_m": 399.3,
     "province": "สมุทรปราการ",
     "road": "บางพลี-สุขสวัสดิ์",
     "accident_count": 3,
@@ -6380,14 +7057,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.615544,
-     13.633816
+     100.616655,
+     13.633222
     ]
    },
    "properties": {
     "id": "zone_169",
     "unit_type": "cluster",
-    "radius_m": 528.9,
+    "centroid": [
+     13.633816,
+     100.615544
+    ],
+    "radius_m": 579.9,
     "province": "สมุทรปราการ",
     "road": "สำโรง - บางเมือง",
     "accident_count": 4,
@@ -6417,14 +7098,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.650237,
-     13.522653
+     100.649912,
+     13.522728
     ]
    },
    "properties": {
     "id": "zone_170",
     "unit_type": "cluster",
-    "radius_m": 240.0,
+    "centroid": [
+     13.522653,
+     100.650237
+    ],
+    "radius_m": 276.1,
     "province": "สมุทรปราการ",
     "road": "ท้ายบ้าน - บางตำหรุ",
     "accident_count": 3,
@@ -6454,14 +7139,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.139591,
-     13.51034
+     100.139738,
+     13.510384
     ]
    },
    "properties": {
     "id": "zone_171",
     "unit_type": "cluster",
-    "radius_m": 112.8,
+    "centroid": [
+     13.51034,
+     100.139591
+    ],
+    "radius_m": 129.5,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
     "accident_count": 3,
@@ -6491,14 +7180,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.316633,
-     13.668472
+     100.316842,
+     13.668826
     ]
    },
    "properties": {
     "id": "zone_172",
     "unit_type": "cluster",
-    "radius_m": 96.6,
+    "centroid": [
+     13.668472,
+     100.316633
+    ],
+    "radius_m": 141.9,
     "province": "สมุทรสาคร",
     "road": "แยกสาครเกษม - คลองมะเดื่อ",
     "accident_count": 3,
@@ -6528,14 +7221,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.324457,
-     13.686987
+     100.324736,
+     13.687265
     ]
    },
    "properties": {
     "id": "zone_173",
     "unit_type": "cluster",
-    "radius_m": 127.7,
+    "centroid": [
+     13.686987,
+     100.324457
+    ],
+    "radius_m": 130.0,
     "province": "สมุทรสาคร",
     "road": "แยกสาครเกษม - คลองมะเดื่อ",
     "accident_count": 4,
@@ -6565,14 +7262,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.292819,
-     13.57245
+     100.292505,
+     13.572285
     ]
    },
    "properties": {
     "id": "zone_174",
     "unit_type": "cluster",
-    "radius_m": 756.6,
+    "centroid": [
+     13.57245,
+     100.292819
+    ],
+    "radius_m": 795.2,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 20,
@@ -6602,14 +7303,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.274344,
-     13.560403
+     100.274311,
+     13.560616
     ]
    },
    "properties": {
     "id": "zone_175",
     "unit_type": "cluster",
-    "radius_m": 845.2,
+    "centroid": [
+     13.560403,
+     100.274344
+    ],
+    "radius_m": 859.6,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 22,
@@ -6639,14 +7344,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.214333,
-     13.534463
+     100.21358,
+     13.534285
     ]
    },
    "properties": {
     "id": "zone_176",
     "unit_type": "cluster",
-    "radius_m": 3341.6,
+    "centroid": [
+     13.534463,
+     100.214333
+    ],
+    "radius_m": 3425.3,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
     "accident_count": 42,
@@ -6676,14 +7385,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.180504,
-     13.523131
+     100.180084,
+     13.523171
     ]
    },
    "properties": {
     "id": "zone_177",
     "unit_type": "cluster",
-    "radius_m": 752.0,
+    "centroid": [
+     13.523131,
+     100.180504
+    ],
+    "radius_m": 793.9,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
     "accident_count": 17,
@@ -6713,14 +7426,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.283449,
-     13.598762
+     100.28356,
+     13.599073
     ]
    },
    "properties": {
     "id": "zone_178",
     "unit_type": "cluster",
-    "radius_m": 134.1,
+    "centroid": [
+     13.598762,
+     100.283449
+    ],
+    "radius_m": 165.7,
     "province": "สมุทรสาคร",
     "road": "อ้อมน้อย - สมุทรสาคร",
     "accident_count": 4,
@@ -6750,14 +7467,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.119739,
-     13.482699
+     100.11996,
+     13.483352
     ]
    },
    "properties": {
     "id": "zone_179",
     "unit_type": "cluster",
-    "radius_m": 178.3,
+    "centroid": [
+     13.482699,
+     100.119739
+    ],
+    "radius_m": 254.7,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
     "accident_count": 3,
@@ -6787,14 +7508,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.347761,
-     13.616285
+     100.347434,
+     13.616032
     ]
    },
    "properties": {
     "id": "zone_180",
     "unit_type": "cluster",
-    "radius_m": 1149.3,
+    "centroid": [
+     13.616285,
+     100.347761
+    ],
+    "radius_m": 1105.8,
     "province": "สมุทรสาคร",
     "road": "สมุทรสาคร - บางบอน",
     "accident_count": 15,
@@ -6824,14 +7549,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.320124,
-     13.586036
+     100.320256,
+     13.586229
     ]
    },
    "properties": {
     "id": "zone_181",
     "unit_type": "cluster",
-    "radius_m": 1116.9,
+    "centroid": [
+     13.586036,
+     100.320124
+    ],
+    "radius_m": 1139.3,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 16,
@@ -6861,14 +7590,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.333539,
-     13.591179
+     100.333214,
+     13.591197
     ]
    },
    "properties": {
     "id": "zone_182",
     "unit_type": "cluster",
-    "radius_m": 510.3,
+    "centroid": [
+     13.591179,
+     100.333539
+    ],
+    "radius_m": 478.6,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 9,
@@ -6898,14 +7631,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.262108,
-     13.549045
+     100.261548,
+     13.54856
     ]
    },
    "properties": {
     "id": "zone_183",
     "unit_type": "cluster",
-    "radius_m": 274.1,
+    "centroid": [
+     13.549045,
+     100.262108
+    ],
+    "radius_m": 355.0,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 5,
@@ -6935,14 +7672,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.363007,
-     13.630899
+     100.362969,
+     13.630897
     ]
    },
    "properties": {
     "id": "zone_184",
     "unit_type": "cluster",
-    "radius_m": 180.4,
+    "centroid": [
+     13.630899,
+     100.363007
+    ],
+    "radius_m": 177.3,
     "province": "สมุทรสาคร",
     "road": "สมุทรสาคร - บางบอน",
     "accident_count": 4,
@@ -6972,14 +7713,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.328656,
-     13.694969
+     100.329261,
+     13.695952
     ]
    },
    "properties": {
     "id": "zone_185",
     "unit_type": "cluster",
-    "radius_m": 359.7,
+    "centroid": [
+     13.694969,
+     100.328656
+    ],
+    "radius_m": 387.7,
     "province": "สมุทรสาคร",
     "road": "แยกสาครเกษม - คลองมะเดื่อ",
     "accident_count": 4,
@@ -7009,14 +7754,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.283127,
-     13.567477
+     100.283175,
+     13.567451
     ]
    },
    "properties": {
     "id": "zone_186",
     "unit_type": "cluster",
-    "radius_m": 101.7,
+    "centroid": [
+     13.567477,
+     100.283127
+    ],
+    "radius_m": 98.4,
     "province": "สมุทรสาคร",
     "road": "แสมดำ - สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก",
     "accident_count": 4,
@@ -7046,14 +7795,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.337769,
-     13.602446
+     100.33748,
+     13.602003
     ]
    },
    "properties": {
     "id": "zone_187",
     "unit_type": "cluster",
-    "radius_m": 310.9,
+    "centroid": [
+     13.602446,
+     100.337769
+    ],
+    "radius_m": 369.1,
     "province": "สมุทรสาคร",
     "road": "สมุทรสาคร - บางบอน",
     "accident_count": 3,
@@ -7083,14 +7836,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.332138,
-     13.595492
+     100.33159,
+     13.594988
     ]
    },
    "properties": {
     "id": "zone_188",
     "unit_type": "cluster",
-    "radius_m": 285.0,
+    "centroid": [
+     13.595492,
+     100.332138
+    ],
+    "radius_m": 366.6,
     "province": "สมุทรสาคร",
     "road": "สมุทรสาคร - บางบอน",
     "accident_count": 3,
@@ -7120,14 +7877,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.321069,
-     13.680388
+     100.320709,
+     13.679673
     ]
    },
    "properties": {
     "id": "zone_189",
     "unit_type": "cluster",
-    "radius_m": 267.0,
+    "centroid": [
+     13.680388,
+     100.321069
+    ],
+    "radius_m": 355.5,
     "province": "สมุทรสาคร",
     "road": "แยกสาครเกษม - คลองมะเดื่อ",
     "accident_count": 3,
@@ -7157,14 +7918,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.115462,
-     13.474035
+     100.115621,
+     13.473836
     ]
    },
    "properties": {
     "id": "zone_190",
     "unit_type": "cluster",
-    "radius_m": 306.2,
+    "centroid": [
+     13.474035,
+     100.115462
+    ],
+    "radius_m": 312.8,
     "province": "สมุทรสาคร",
     "road": "สะพานข้ามแม่น้ำท่าจีนฝั่งตะวันตก - นาโคก",
     "accident_count": 3,
@@ -7194,14 +7959,18 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.174938,
-     13.538555
+     100.175322,
+     13.539052
     ]
    },
    "properties": {
     "id": "zone_191",
     "unit_type": "cluster",
-    "radius_m": 384.8,
+    "centroid": [
+     13.538555,
+     100.174938
+    ],
+    "radius_m": 397.7,
     "province": "สมุทรสาคร",
     "road": "บ้านบ่อ - พระประโทน",
     "accident_count": 3,
