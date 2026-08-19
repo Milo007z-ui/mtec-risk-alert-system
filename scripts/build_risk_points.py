@@ -31,16 +31,16 @@ Batch calibration job: รันตามรอบ Fixed-Schedule ที่ก�
 import json
 import sys
 from datetime import datetime, timezone
-from math import asin, cos, radians, sin, sqrt
+from math import asin, ceil, cos, radians, sin, sqrt
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, KMeans
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
 
-CALIB_VERSION = "v2568-r10"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r11"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
 # จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่
@@ -78,6 +78,16 @@ EARTH_RADIUS_M = 6371000
 COST_DEATH = 6_700_000
 COST_SERIOUS = 2_000_000
 COST_MINOR = 58_000
+
+# ระยะห่างระหว่างหมุดตัวแทนของคลัสเตอร์เดียวกัน (เมตร)
+# ไม่ใช่พารามิเตอร์ของ DBSCAN และไม่สร้างคลัสเตอร์ใหม่ — เป็นเรื่องการแสดงผลล้วน
+# ที่มา: ระบบแจ้งเตือนใช้รัศมี 500 ม. ถ้าปักหมุดห่างกัน 800 ม. วงเตือนของหมุด
+# ที่อยู่ติดกันจะต่อเนื่องกันพอดี ไม่เหลือช่องว่างให้รถแล่นผ่านโดยไม่ถูกเตือน
+#
+# เหตุผลที่ต้องมี: คลัสเตอร์ที่ยืดยาวตามถนน (chaining) มีหมุดจุดกึ่งกลางเพียงจุดเดียว
+# ทำให้สมาชิกส่วนใหญ่อยู่นอกรัศมีแจ้งเตือน — รอบ r10 ครอบคลุมเพียง 37.9%
+# ของจุดเสี่ยงในคลัสเตอร์ทั้งหมด
+MARKER_SPACING_M = 800
 
 # เพดานความเร็วโดยประเภทสายทาง (ใช้แสดงผล/คำแนะนำเท่านั้น ไม่อยู่ในสูตร SI)
 SPEED_LIMIT_RULES = [("พิเศษ", 100), ("ชนบท", 80), ("ทางหลวง", 90)]
@@ -315,6 +325,43 @@ def haversine_m(lat1, lng1, lat2, lng2):
     return 2 * EARTH_RADIUS_M * asin(sqrt(a))
 
 
+def place_markers(members, spacing_m=MARKER_SPACING_M):
+    """
+    ตำแหน่งหมุดตัวแทนของคลัสเตอร์ -> [[lat, lng], ...]
+
+    **ไม่ได้แบ่งคลัสเตอร์ใหม่** — คลัสเตอร์ยังเป็นหน่วยเดียว SI/ระดับ/EPDO คิดจาก
+    สมาชิกทั้งกลุ่มเหมือนเดิมทุกประการ ฟังก์ชันนี้ตอบแค่คำถามว่า "ควรวาดกลุ่มนี้
+    ลงแผนที่ที่ตำแหน่งไหนบ้าง" เพื่อให้ระยะแจ้งเตือนครอบคลุมทั้งกลุ่ม
+
+    กลุ่มที่กระชับ (ความยาวไม่เกิน spacing) ได้หมุดเดียวที่จุดกึ่งกลางเหมือนเดิม
+    กลุ่มที่ยืดยาวได้หมุดเพิ่มตามสัดส่วนความยาว โดยใช้ KMeans แบ่งสมาชิกเป็น k ส่วน
+    แล้ววางหมุดที่จุดกึ่งกลางของแต่ละส่วน — หมุดจึงเกาะกลุ่มก้อนจริงของอุบัติเหตุ
+    ไม่ใช่หารระยะเท่า ๆ กันแบบไม่สนใจการกระจายตัว
+    """
+    lat_c = sum(m["lat"] for m in members) / len(members)
+    lng_c = sum(m["lng"] for m in members) / len(members)
+    span = 2 * max(haversine_m(lat_c, lng_c, m["lat"], m["lng"]) for m in members)
+
+    k = max(1, min(len(members), int(ceil(span / spacing_m))))
+    if k == 1:
+        return [[round(lat_c, 6), round(lng_c, 6)]]
+
+    # แปลงเป็นระยะเมตรรอบจุดกึ่งกลางก่อน เพื่อให้ KMeans วัดระยะได้ถูกสัดส่วน
+    scale_lng = cos(radians(lat_c)) * 111_320
+    xy = np.array([[(m["lng"] - lng_c) * scale_lng, (m["lat"] - lat_c) * 110_540]
+                   for m in members])
+    labels = KMeans(n_clusters=k, n_init=4, random_state=0).fit_predict(xy)
+
+    spots = []
+    for c in range(k):
+        part = [m for m, l in zip(members, labels) if l == c]
+        if not part:
+            continue
+        spots.append([round(sum(m["lat"] for m in part) / len(part), 6),
+                      round(sum(m["lng"] for m in part) / len(part), 6)])
+    return spots
+
+
 def _unit_from_members(uid, kind, members):
     n = len(members)
     deaths = sum(m["deaths"] for m in members)
@@ -344,6 +391,8 @@ def _unit_from_members(uid, kind, members):
         "lat": round(lat_c, 6),
         "lng": round(lng_c, 6),
         "radius_m": radius_m,
+        # ตำแหน่งวาด/แจ้งเตือนของกลุ่มนี้ (1 กลุ่มอาจมีหลายหมุด) — ดู place_markers()
+        "markers": place_markers(members) if kind == "cluster" else [[round(lat_c, 6), round(lng_c, 6)]],
         "province": mode_of([m["province"] for m in members]),
         "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
         "accident_count": n,
@@ -413,6 +462,11 @@ def main():
     if clusters:
         print(f"  คลัสเตอร์ใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} จุดเสี่ยง")
 
+    n_markers = sum(len(u["markers"]) for u in units)
+    multi = sum(1 for u in units if len(u["markers"]) > 1)
+    print(f"  หมุดตัวแทนรวม {n_markers} จุด (ห่างกัน ~{MARKER_SPACING_M} ม.) "
+          f"— {multi} คลัสเตอร์ได้หมุดมากกว่า 1 จุด")
+
     si_values = np.array([u["severity_index"] for u in units])
     counts = {lv: sum(1 for u in units if u["level"] == lv) for lv in ("high", "medium", "low")}
     print(f"SI: mean {si_values.mean():.2f} · median {np.median(si_values):.2f} · "
@@ -466,6 +520,8 @@ def main():
         "cost_per_person_thb": {"death": COST_DEATH, "serious": COST_SERIOUS,
                                 "minor": COST_MINOR},
         "epdo_weights_million_per_person": {"fatal": 6.7, "serious": 2.0, "minor": 0.058},
+        "marker_spacing_m": MARKER_SPACING_M,
+        "markers_total": sum(len(u["markers"]) for u in units),
         "level_breaks": [SI_BREAK_LOW, SI_BREAK_HIGH],
         "level_break_method": "fixed_si_cutoff",
         # คำศัพท์: จุดเสี่ยง = 1 จุด : 1 อุบัติเหตุ (4,460) · หน่วยวิเคราะห์ = คลัสเตอร์ + เดี่ยว
@@ -582,7 +638,22 @@ def _self_test():
     assert mode_of(["ไม่ระบุ", "ไม่ระบุ", "ถนน ก"], exclude=("ไม่ระบุ",)) == "ถนน ก"
     assert mode_of(["ไม่ระบุ"], exclude=("ไม่ระบุ",)) == "ไม่ระบุ"
 
-    # 10) เพดานความเร็วตามประเภทสายทาง
+    # 10) หมุดตัวแทน — กลุ่มกระชับได้หมุดเดียว กลุ่มยืดยาวได้หลายหมุด
+    tight = [ev(), ev(), ev()]  # พิกัดเดียวกันหมด -> span = 0
+    assert len(place_markers(tight)) == 1
+
+    # กลุ่มยาว ~4 กม. (0.036 องศาละติจูด) ที่ spacing 800 ม. ต้องได้หลายหมุด
+    def at(dlat):
+        e = ev()
+        e["lat"] = 13.7 + dlat
+        return e
+    spread = [at(i * 0.004) for i in range(10)]   # ~0.036 องศา ≈ 4 กม.
+    spots = place_markers(spread)
+    assert len(spots) >= 4, len(spots)
+    # ทุกหมุดต้องอยู่ในช่วงพิกัดของสมาชิกจริง ไม่หลุดออกนอกกลุ่ม
+    assert all(13.7 <= la <= 13.7 + 0.036 + 1e-9 for la, _ in spots), spots
+
+    # 11) เพดานความเร็วตามประเภทสายทาง
     assert speed_limit_for("ทางหลวงพิเศษระหว่างเมือง") == 100   # 'พิเศษ' ต้องมาก่อน 'ทางหลวง'
     assert speed_limit_for("ทางหลวงแผ่นดิน") == 90
     assert speed_limit_for("ทางหลวงชนบท") == 80
