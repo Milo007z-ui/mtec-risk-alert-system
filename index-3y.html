@@ -3,18 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ระบบแจ้งเตือนจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
+  <title>จุดเสี่ยงอุบัติเหตุ ข้อมูล 3 ปี (2566–2568) — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css?v=8">
+  <!--
+    หน้าเปรียบเทียบ: หน้าตาและสคริปต์ชุดเดียวกับ index.html ทุกอย่าง
+    ต่างกันแค่ "ชุดข้อมูล" ที่ชี้ไปยังผลรอบ 3 ปี (v2569-r1-3y, 456 คลัสเตอร์)
+    แทนรอบใช้งานจริง 1 ปี (v2568-r12, 192 คลัสเตอร์)
+    ต้องตั้งค่าก่อนโหลด riskpoints.js / accidents.js
+  -->
+  <script>
+    window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
+    window.ACCIDENT_DATA_URL = "data/accident_points_3y.geojson";
+  </script>
 </head>
 <body>
   <div id="status-bar">
     <span id="gps-status">กำลังโหลด...</span>
     <span id="nearest-info"></span>
-    <a id="link-dashboard" href="dashboard.html" title="ดูสถิติ">📊 สถิติ</a>
-    <a id="link-3y" href="index-3y.html"
-       title="ดูผลรอบเปรียบเทียบที่รันโมเดลเดิมกับข้อมูล 3 ปี (2566–2568)">🕒 ชุด 3 ปี</a>
+    <a id="link-dashboard" href="dashboard-3y.html" title="ดูสถิติของชุด 3 ปี">📊 สถิติ</a>
+    <a id="link-1y" href="index.html" title="กลับไปชุดข้อมูล 1 ปี (รอบใช้งานจริง)">↩ ชุด 1 ปี</a>
   </div>
 
   <div id="map"></div>
@@ -23,7 +32,6 @@
 
   <button id="btn-recenter" class="hidden">📍 กลับมาที่ตำแหน่งฉัน</button>
 
-  <!-- ตัวกรองจุดเสี่ยง — ตัวเลือกจังหวัด/ประเภทปัญหาเติมจากข้อมูลใน js/filters.js -->
   <div id="filter-panel">
     <div class="filter-head">
       <span class="filter-title">ตัวกรองจุดเสี่ยง</span>
@@ -52,7 +60,7 @@
       <div class="filter-levels filter-layers">
         <label><input type="checkbox" id="f-show-accidents">
           <span class="dot dot-sm"></span>ดูจุดเสี่ยงรายอุบัติเหตุ</label>
-        <span class="filter-hint">4,460 จุด · ดูอย่างเดียว ไม่มีผลกับการแจ้งเตือน</span>
+        <span class="filter-hint">13,525 จุด · ดูอย่างเดียว ไม่มีผลกับการแจ้งเตือน</span>
       </div>
 
       <div class="filter-foot">
@@ -70,8 +78,9 @@
 
   <div id="start-overlay">
     <div class="start-card">
-      <h1>🚨 ระบบแจ้งเตือนจุดเสี่ยงอุบัติเหตุ</h1>
-      <p>กรุงเทพฯ และปริมณฑล — แจ้งเตือนด้วยเสียงเมื่อเข้าใกล้จุดเสี่ยงในระยะ 500 เมตร</p>
+      <h1>🚨 จุดเสี่ยงอุบัติเหตุ — ข้อมูล 3 ปี</h1>
+      <p>โมเดลเดิม (DBSCAN eps 400 ม. · min 3 · Severity Index) รันกับข้อมูลปี 2566–2568
+        ได้ <b>456 คลัสเตอร์</b> เทียบกับ <b>192 คลัสเตอร์</b> จากข้อมูล 1 ปี</p>
       <button id="btn-start">เริ่มใช้งาน</button>
       <p class="hint">ต้องอนุญาตให้เข้าถึงตำแหน่ง และเปิดเสียงเครื่อง</p>
     </div>
@@ -82,9 +91,8 @@
   <script src="js/distance.js"></script>
   <script src="js/tts.js"></script>
   <script src="js/riskrules.js?v=6"></script>
-  <script src="js/riskpoints.js?v=19"></script>
-  <!-- ชั้นดูจุดเสี่ยงรายอุบัติเหตุ 4,460 จุด (เริ่มต้นปิด ไม่มีผลกับการแจ้งเตือน) -->
-  <script src="js/accidents.js?v=6"></script>
+  <script src="js/riskpoints.js?v=20"></script>
+  <script src="js/accidents.js?v=7"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=7"></script>
   <script src="js/gps.js?v=11"></script>

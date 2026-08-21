@@ -9,10 +9,14 @@
     { key: "low", label: "ต่ำ", color: "var(--risk-low)", ink: "#fff" },
   ];
 
+  // หน้าเปรียบเทียบ (dashboard-3y.html) ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้
+  // เพื่อชี้ไปยังชุดข้อมูล 3 ปี — หน้าใช้งานจริงไม่ตั้ง จึงได้ชุดเดิมที่ล็อกไว้
+  const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro.geojson";
+
   let zones;
   let calibration = null;
   try {
-    const resp = await fetch("data/risk_points_bkk_metro.geojson");
+    const resp = await fetch(DATA_URL);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const geojson = await resp.json();
     calibration = geojson.calibration || null;
@@ -132,7 +136,7 @@
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${i + 1}</td>
-      <td>${z.road}</td>
+      <td>${z.road_label || z.road}</td>
       <td>${z.province}</td>
       <td><span class="level-chip ${z.level}" style="background:${lv.color}">${lv.label}</span></td>
       <td class="num">${z.accident_count}</td>
