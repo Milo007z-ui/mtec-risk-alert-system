@@ -15,7 +15,8 @@
  */
 
 const Accidents = (() => {
-  // ชี้ไปชุด 3 ปีได้ด้วย window.ACCIDENT_DATA_URL (ดู index-3y.html)
+  // หน้าเว็บตั้ง window.ACCIDENT_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
+  // (ปัจจุบันชี้ชุด 3 ปี) ค่า default ไว้เผื่อเปิดไฟล์ตรง ๆ โดยไม่ผ่านหน้าเว็บ
   const DATA_URL = window.ACCIDENT_DATA_URL || "data/accident_points.geojson";
 
   // ใช้ชุดสีเดียวกับระดับความเสี่ยงของคลัสเตอร์ที่จุดนั้นสังกัด

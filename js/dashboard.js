@@ -9,8 +9,8 @@
     { key: "low", label: "ต่ำ", color: "var(--risk-low)", ink: "#fff" },
   ];
 
-  // หน้าเปรียบเทียบ (dashboard-3y.html) ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้
-  // เพื่อชี้ไปยังชุดข้อมูล 3 ปี — หน้าใช้งานจริงไม่ตั้ง จึงได้ชุดเดิมที่ล็อกไว้
+  // dashboard.html ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
+  // (ปัจจุบันชี้รอบ 3 ปี v2569-r1-3y) ค่า default คือรอบ 1 ปีที่เลิกใช้แล้ว
   const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro.geojson";
 
   let zones;
@@ -39,7 +39,7 @@
 
   // KPI ผู้เสียชีวิต/บาดเจ็บ/จุดเสี่ยง ใช้ยอด "ทุกจุดเสี่ยง" จาก calibration.overall
   // ไม่ใช่ผลรวมของคลัสเตอร์ เพราะจุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ
-  // ถ้าบวกเฉพาะคลัสเตอร์ ผู้เสียชีวิต 104 คนของจุดเดี่ยวจะหายไปจากหน้าสรุป
+  // ถ้าบวกเฉพาะคลัสเตอร์ ผู้เสียชีวิต 312 คนของจุดเดี่ยวจะหายไปจากหน้าสรุป (รอบ 3 ปี)
   const overall = (calibration && calibration.overall) || null;
   const excluded = (calibration && calibration.excluded_noise) || null;
   const totalAcc = overall ? overall.risk_points : sum("accident_count");

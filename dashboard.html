@@ -5,12 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>แดชบอร์ดจุดคลัสเตอร์เสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="css/dashboard.css">
+  <!--
+    ชุดข้อมูลที่ใช้: รอบ 3 ปี 2566-2568 (v2569-r1-3y, 456 คลัสเตอร์)
+    ต้องตั้งค่าก่อนโหลด dashboard.js
+  -->
+  <script>
+    window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
+  </script>
 </head>
 <body>
   <header class="page-header">
     <div>
       <h1>📊 แดชบอร์ดจุดคลัสเตอร์เสี่ยงอุบัติเหตุ</h1>
-      <p class="subtitle">กรุงเทพฯ และปริมณฑล · ข้อมูลอุบัติเหตุปี 2568 จาก MOT Data Catalog</p>
+      <p class="subtitle">กรุงเทพฯ และปริมณฑล · ข้อมูลอุบัติเหตุปี 2566–2568 จาก MOT Data Catalog</p>
     </div>
     <a class="btn-map" href="index.html">🗺️ เปิดแผนที่แจ้งเตือน</a>
   </header>
@@ -83,11 +90,9 @@
 
     <footer class="page-footer">
       แหล่งข้อมูล: <a href="https://datagov.mot.go.th/dataset/roadaccident" target="_blank" rel="noopener">
-      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2568 รวม 4,627 เหตุการณ์
-      (มีพิกัดครบ 4,460 จุดเสี่ยง) · จัดกลุ่มด้วย DBSCAN รัศมี 400 ม. ขั้นต่ำ 3 จุด
-      จัดกลุ่มสองชั้น แยกตามสายทาง ได้คลัสเตอร์ 192 วง (จุดเสี่ยงเดี่ยว 796 จุดไม่นำมาจัดระดับ)<span id="calib-note"></span>
-      <br>มีรอบเปรียบเทียบที่รันโมเดลเดียวกันกับข้อมูล 3 ปี (2566–2568) ได้ 456 คลัสเตอร์ —
-      <a href="dashboard-3y.html">ดูแดชบอร์ดชุด 3 ปี</a>
+      อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2566–2568 รวม 14,101 เหตุการณ์
+      (มีพิกัดครบ 13,525 จุดเสี่ยง) · จัดกลุ่มด้วย DBSCAN รัศมี 400 ม. ขั้นต่ำ 3 จุด
+      จัดกลุ่มสองชั้น แยกตามสายทาง ได้คลัสเตอร์ 456 วง (จุดเสี่ยงเดี่ยว 1,508 จุดไม่นำมาจัดระดับ)<span id="calib-note"></span>
     </footer>
   </main>
 

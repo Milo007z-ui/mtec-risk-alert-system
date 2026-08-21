@@ -6,8 +6,9 @@
  */
 
 const RiskPoints = (() => {
-  // หน้าเปรียบเทียบ (index-3y.html) ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้
-  // เพื่อชี้ไปยังชุดข้อมูล 3 ปี — หน้าใช้งานจริงไม่ตั้ง จึงได้ชุดเดิมที่ล็อกไว้
+  // index.html ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
+  // (ปัจจุบันชี้รอบ 3 ปี v2569-r1-3y) ค่า default คือรอบ 1 ปีที่เลิกใช้แล้ว
+  // เก็บไว้เผื่อเปิดไฟล์ตรง ๆ และใช้เทียบย้อนหลัง
   const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro.geojson";
 
   const LEVEL_STYLE = {
