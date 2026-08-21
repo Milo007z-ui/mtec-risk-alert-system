@@ -16,8 +16,8 @@
 
 const Accidents = (() => {
   // หน้าเว็บตั้ง window.ACCIDENT_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
-  // (ปัจจุบันชี้ชุด 3 ปี) ค่า default ไว้เผื่อเปิดไฟล์ตรง ๆ โดยไม่ผ่านหน้าเว็บ
-  const DATA_URL = window.ACCIDENT_DATA_URL || "data/accident_points.geojson";
+  // ค่า default ต้องเป็นชุดที่ใช้งานจริง (รอบ 3 ปี) เสมอ ดูเหตุผลใน riskpoints.js
+  const DATA_URL = window.ACCIDENT_DATA_URL || "data/accident_points_3y.geojson";
 
   // ใช้ชุดสีเดียวกับระดับความเสี่ยงของคลัสเตอร์ที่จุดนั้นสังกัด
   // จุดเสี่ยงเดี่ยว (ไม่เข้าคลัสเตอร์) ไม่ถูกจัดระดับ -> เทา
