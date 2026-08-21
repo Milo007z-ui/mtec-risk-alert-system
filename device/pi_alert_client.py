@@ -230,7 +230,8 @@ def run(api_base, position_source):
 
                 nearest = nearby[0] if nearby else None
                 status = (
-                    f"ใกล้สุด: {nearest['road']} {nearest['distance_m']:.0f} ม. ({nearest['level']})"
+                    f"ใกล้สุด: {nearest.get('road_label') or nearest['road']} "
+                    f"{nearest['distance_m']:.0f} ม. ({nearest['level']})"
                     if nearest
                     else f"ไม่มีจุดเสี่ยงในรัศมี {EXIT_RADIUS_M} ม."
                 )

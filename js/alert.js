@@ -71,7 +71,7 @@ const AlertSystem = (() => {
     }
     el.textContent =
       best.d < 10000
-        ? `จุดเสี่ยงใกล้สุด: ${best.p.road} ${(best.d / 1000).toFixed(2)} กม.`
+        ? `จุดเสี่ยงใกล้สุด: ${best.p.road_label || best.p.road} ${(best.d / 1000).toFixed(2)} กม.`
         : "ไม่มีจุดเสี่ยงในระยะ 10 กม.";
   }
 

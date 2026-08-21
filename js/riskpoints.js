@@ -6,7 +6,9 @@
  */
 
 const RiskPoints = (() => {
-  const DATA_URL = "data/risk_points_bkk_metro.geojson";
+  // หน้าเปรียบเทียบ (index-3y.html) ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้
+  // เพื่อชี้ไปยังชุดข้อมูล 3 ปี — หน้าใช้งานจริงไม่ตั้ง จึงได้ชุดเดิมที่ล็อกไว้
+  const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro.geojson";
 
   const LEVEL_STYLE = {
     high: { color: "#c62828", label: "สูง" },
@@ -25,7 +27,7 @@ const RiskPoints = (() => {
   };
 
   let inspectLayer = null; // ชั้นชั่วคราวโชว์ขอบเขต+สมาชิกของคลัสเตอร์ที่กำลังเปิดดู
-  let points = []; // [{lat, lng, id, road, province, accident_count, ...}]
+  let points = []; // [{lat, lng, id, road, road_label, province, accident_count, ...}]
   let calibration = null; // เวอร์ชันรอบคำนวณจาก foreign member ใน GeoJSON
   let markers = []; // [{point, layer}] เก็บไว้เพื่อซ่อน/แสดงตามตัวกรอง
   let mapRef = null;
@@ -229,6 +231,15 @@ const RiskPoints = (() => {
       ? rules[0].advice
       : "ขับขี่ด้วยความระมัดระวังตามปกติ";
 
+    // ชื่อสายทาง: จุดที่ต้นทางไม่ได้กรอกคอลัมน์ "สายทาง" มา จะมี road = "ไม่ระบุ"
+    // แต่มี road_label ที่สคริปต์สร้างข้อมูลเติมให้จากรหัสสายทางของจุดข้างเคียง
+    // เครื่องหมาย ≈ บอกผู้ใช้ว่าชื่อนี้เป็นค่าอนุมาน ไม่ใช่ชื่อที่ต้นทางกรอกเอง
+    const inferred = p.road_label_source && p.road_label_source !== "record";
+    const roadName = `${inferred ? "≈ " : ""}${p.road_label || p.road}`;
+    const roadTip = inferred
+      ? ' title="ต้นทางไม่ได้กรอกชื่อสายทาง — ชื่อนี้อนุมานจากรหัสสายทางของจุดที่ใกล้ที่สุด"'
+      : "";
+
     const single = p.single_count ?? 0;
     const multi = p.multi_count ?? 0;
     const si = p.severity_index ?? 0;
@@ -242,12 +253,12 @@ const RiskPoints = (() => {
     return `
       <div class="popup">
         <div class="pp-head">
-          <div class="pp-title">${p.road}</div>
+          <div class="pp-title"${roadTip}>${roadName}</div>
           <div class="pp-score" style="background:${style.color}">
             ${si.toFixed(2)}<small>SI</small>
           </div>
         </div>
-        <div class="pp-sub">${p.province} · ${p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
+        <div class="pp-sub">${p.province} · ${p.road_ref || p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
         <div class="pp-levelrow">ระดับความเสี่ยง:
           <span class="pp-level" style="background:${style.color}">${style.label}</span>
         </div>

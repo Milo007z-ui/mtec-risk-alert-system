@@ -15,7 +15,8 @@
  */
 
 const Accidents = (() => {
-  const DATA_URL = "data/accident_points.geojson";
+  // ชี้ไปชุด 3 ปีได้ด้วย window.ACCIDENT_DATA_URL (ดู index-3y.html)
+  const DATA_URL = window.ACCIDENT_DATA_URL || "data/accident_points.geojson";
 
   // ใช้ชุดสีเดียวกับระดับความเสี่ยงของคลัสเตอร์ที่จุดนั้นสังกัด
   // จุดเสี่ยงเดี่ยว (ไม่เข้าคลัสเตอร์) ไม่ถูกจัดระดับ -> เทา
@@ -106,7 +107,7 @@ const Accidents = (() => {
 
     return `
       <div class="popup popup-acc">
-        <div class="pp-title">${p.road}</div>
+        <div class="pp-title">${p.road_label ? "≈ " + p.road_label : p.road}</div>
         <div class="pp-sub">${p.province} · ${p.road_feature}</div>
         <div class="pp-stats">
           <div><b>${p.deaths}</b><span>เสียชีวิต</span></div>

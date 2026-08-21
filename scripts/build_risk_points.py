@@ -128,10 +128,27 @@ def _event_from_record(r, lat=None, lng=None):
         s = str(v).strip()
         return s if s else default
 
+    def _code(v):
+        """รหัสสายทางมาเป็นตัวเลข — ตัด .0 ท้ายทิ้งให้จับคู่กันได้ ("9" ไม่ใช่ "9.0")"""
+        if isinstance(v, float) and not np.isnan(v) and v.is_integer():
+            v = int(v)
+        return _text(v)
+
+    def _km(v):
+        try:
+            km = float(v)
+        except (TypeError, ValueError):
+            return None
+        return None if np.isnan(km) else km
+
     return {
         "lat": lat, "lng": lng,
         "province": _text(r.get("จังหวัด")),
         "road": _text(r.get("สายทาง")),
+        # รหัสสายทาง + หลัก กม. เก็บไว้เติม "ชื่อสายทางสำหรับแสดงผล" ให้แถวที่ต้นทาง
+        # ไม่ได้กรอกคอลัมน์ "สายทาง" (ดู fill_road_labels) — ไม่ได้ใช้จัดกลุ่มหรือคิด SI
+        "route_code": _code(r.get("รหัสสายทาง")),
+        "km": _km(r.get("KM")),
         "cause": _text(r.get("มูลเหตุสันนิษฐาน")),
         "location_type": _text(r.get("บริเวณที่เกิดเหตุ")),
         "road_type": _text(r.get("สายทางหน่วยงาน")),
@@ -283,27 +300,34 @@ def accident_points_geojson(events, assignments, units, calibration):
         u = by_id[uid]
         epdo = (e["deaths"] * COST_DEATH + e["serious"] * COST_SERIOUS
                 + e["minor"] * COST_MINOR) / 1_000_000
+        props = {
+            "id": f"acc_{i}",
+            "unit_id": uid if u["unit_type"] == "cluster" else None,
+            "unit_type": u["unit_type"],
+            # ระดับของคลัสเตอร์ที่สังกัด — จุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ (null)
+            "level": u["level"] if u["unit_type"] == "cluster" else None,
+            "classified": u["unit_type"] == "cluster",
+            "province": e["province"],
+            "road": e["road"],
+            "cause": e["cause"],
+            "road_feature": e["location_type"],
+            "crash_pattern": e["crash_pattern"],
+            "vehicles": e["vehicles"],
+            "deaths": e["deaths"],
+            "serious_injury": e["serious"],
+            "minor_injury": e["minor"],
+            "epdo_million": round(epdo, 4),
+        }
+        # ชื่อที่เติมให้พ่วงมาเฉพาะจุดที่ต้นทางไม่ได้กรอก "สายทาง" มา — ไฟล์นี้มีหลักหมื่น
+        # ฟีเจอร์ ทุกฟิลด์ที่เพิ่มคือขนาดที่เบราว์เซอร์ต้องโหลด จึงไม่เขียนค่าที่ซ้ำกับ road
+        # (ฝั่งหน้าเว็บอ่านเป็น road_label ?? road)
+        if e["road_label_source"] != "record":
+            props["road_label"] = e["road_label"]
+            props["road_label_source"] = e["road_label_source"]
         features.append({
             "type": "Feature",
             "geometry": {"type": "Point", "coordinates": [round(e["lng"], 6), round(e["lat"], 6)]},
-            "properties": {
-                "id": f"acc_{i}",
-                "unit_id": uid if u["unit_type"] == "cluster" else None,
-                "unit_type": u["unit_type"],
-                # ระดับของคลัสเตอร์ที่สังกัด — จุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ (null)
-                "level": u["level"] if u["unit_type"] == "cluster" else None,
-                "classified": u["unit_type"] == "cluster",
-                "province": e["province"],
-                "road": e["road"],
-                "cause": e["cause"],
-                "road_feature": e["location_type"],
-                "crash_pattern": e["crash_pattern"],
-                "vehicles": e["vehicles"],
-                "deaths": e["deaths"],
-                "serious_injury": e["serious"],
-                "minor_injury": e["minor"],
-                "epdo_million": round(epdo, 4),
-            },
+            "properties": props,
         })
     return {"type": "FeatureCollection", "calibration": calibration, "features": features}
 
@@ -322,6 +346,7 @@ def _unit_from_members(uid, kind, members):
     minor = sum(m["minor"] for m in members)
     single_cnt = sum(1 for m in members if m["vehicles"] <= 1)
     road_type = mode_of([m["road_type"] for m in members], exclude=("ไม่ระบุ",))
+    kms = [m["km"] for m in members if m["km"] is not None]
     si, fatal_crashes, injured = severity_index(members)
     economic_loss = deaths * COST_DEATH + serious * COST_SERIOUS + minor * COST_MINOR
 
@@ -361,6 +386,11 @@ def _unit_from_members(uid, kind, members):
         "radius_m": radius_m,
         "province": mode_of([m["province"] for m in members]),
         "road": mode_of([m["road"] for m in members], exclude=("ไม่ระบุ",)),
+        # อ้างอิงตำแหน่งบนสายทางของสมาชิก — ใช้เติม road_label เมื่อ road = "ไม่ระบุ"
+        # และใช้บอกช่วง กม. ในป๊อปอัป
+        "route_code": mode_of([m["route_code"] for m in members], exclude=("ไม่ระบุ",)),
+        "km_min": round(min(kms), 3) if kms else None,
+        "km_max": round(max(kms), 3) if kms else None,
         "accident_count": n,
         "deaths": deaths,
         "serious_injury": serious,
@@ -383,6 +413,126 @@ def _unit_from_members(uid, kind, members):
         "road_type": road_type,
         "speed_limit": speed_limit_for(road_type),
     }
+
+
+# ---------------------------------------------------------------- ชื่อสายทางสำหรับแสดงผล
+
+# ข้อมูลต้นทางมีแถวที่คอลัมน์ "สายทาง" ว่าง (3 ปี 2566-2568: 3,938 จาก 13,525 แถว)
+# ทั้งที่แถวเดียวกันกรอก "รหัสสายทาง" กับ "KM" มาครบ คลัสเตอร์ที่สมาชิกเป็นแถวแบบนี้
+# ทั้งวงจึงขึ้นหัวป๊อปอัปว่า "ไม่ระบุ" ทั้งที่รู้อยู่ว่าอยู่บนสายทางไหน หลัก กม. เท่าไร
+#
+# วิธีเติม: ยืมชื่อจาก "จุดที่ใกล้ที่สุดซึ่งอยู่บนรหัสสายทางเดียวกันและมีชื่อกรอกไว้"
+# ในชุดข้อมูลเดียวกัน — ไม่ได้ดึงชื่อจากแหล่งภายนอกและไม่ได้ตั้งชื่อขึ้นเอง ชื่อที่ได้
+# จึงเป็นชื่อตอนของสายทางตามที่ต้นทางกรอกไว้ในระเบียนอื่นของสายทางเดียวกัน
+#
+# ทำไมต้องใช้ "จุดที่ใกล้ที่สุด" ไม่ใช่ฐานนิยมของรหัสสายทาง: หนึ่งรหัสมีหลายตอนและ
+# คนละชื่อ (ทล.9 มีทั้ง "บางปะอิน - แขวงรามอินทรา" และ "แขวงรามอินทรา - บางพลี")
+# ถ้าใช้ฐานนิยมจะติดชื่อตอนผิดให้ครึ่งหนึ่งของสายทาง
+#
+# ข้อจำกัดที่ต้องระบุในรายงาน: ชื่อที่เติมเป็นค่าอนุมาน ไม่ใช่ค่าที่ต้นทางกรอกมา
+# จึงแยกเก็บเป็น road_label (สำหรับแสดงผล) ต่างหากจาก road (ค่าดิบที่ใช้จัดกลุ่ม)
+# และติดที่มาไว้ใน road_label_source ทุกจุด
+
+# ระยะไกลสุดที่ยังยอมยืมชื่อจากจุดอื่นบนรหัสสายทางเดียวกัน
+# 2 กม. มาจากการกระจายจริงของข้อมูล 3 ปี: จุดที่ยืมชื่อได้มีระยะถึงจุดอ้างอิงมัธยฐาน
+# 63 ม. และเกือบทั้งหมดต่ำกว่า 300 ม. ไกลกว่านี้ถือว่าเป็นคนละตอนของสายทางเดียวกัน
+# จึงเลิกเดาชื่อแล้วถอยไปใช้ "รหัสสายทาง + หลัก กม." ซึ่งเป็นค่าที่ต้นทางกรอกมาจริง
+ROAD_LABEL_MAX_DIST_M = 2000
+
+# คำนำหน้ารหัสสายทางตามหน่วยงานเจ้าของทาง — เรียงจากคำที่เจาะจงกว่าไปหากว้างกว่า
+# ("ทางหลวงชนบท" ต้องมาก่อน "ทางหลวง" เหมือนกฎเพดานความเร็ว)
+ROUTE_PREFIX_RULES = [("ชนบท", "ทช."), ("พิเศษ", "ทางพิเศษสาย"), ("ทางหลวง", "ทล.")]
+
+
+def route_ref(route_code, road_type, km_min=None, km_max=None):
+    """ป้ายอ้างอิงตำแหน่งบนสายทาง เช่น "ทล.9 กม.9-35" — None เมื่อไม่มีรหัสสายทาง"""
+    if not route_code or route_code == "ไม่ระบุ":
+        return None
+    prefix = "สายทาง "
+    for keyword, p in ROUTE_PREFIX_RULES:
+        if keyword in (road_type or ""):
+            prefix = p
+            break
+    ref = f"{prefix}{route_code}"
+    if km_min is None:
+        return ref
+    # ทศนิยม 1 ตำแหน่งพอสำหรับบอกตำแหน่งบนสายทาง และตัด .0 ทิ้งให้อ่านง่าย
+    # (ปัดเป็นจำนวนเต็มจะทำให้ช่วงสั้น ๆ กลายเป็น "กม.1-1" ซึ่งไม่ได้บอกอะไร)
+    lo = f"{km_min:.1f}".rstrip("0").rstrip(".")
+    hi = lo if km_max is None else f"{km_max:.1f}".rstrip("0").rstrip(".")
+    return f"{ref} กม.{lo}" if lo == hi else f"{ref} กม.{lo}-{hi}"
+
+
+def build_road_name_index(events):
+    """
+    ดัชนี "รหัสสายทาง -> จุดที่มีชื่อสายทางกรอกไว้" สำหรับค้นจุดที่ใกล้ที่สุด
+
+    เก็บเป็น numpy array เพราะต้องวัดระยะจากทุกจุดที่ยังไม่มีชื่อไปยังทุกจุดอ้างอิง
+    ของรหัสเดียวกัน (หลักพันคู่ต่อรหัส) — วนทีละคู่ด้วย haversine_m จะช้าเกินไป
+    """
+    by_code = {}
+    for e in events:
+        if e["road"] != "ไม่ระบุ" and e["route_code"] != "ไม่ระบุ":
+            by_code.setdefault(e["route_code"], []).append(e)
+    return {
+        code: (np.array([m["lat"] for m in ms]), np.array([m["lng"] for m in ms]),
+               [m["road"] for m in ms])
+        for code, ms in by_code.items()
+    }
+
+
+def _nearest_named(index, route_code, lat, lng):
+    """(ชื่อสายทาง, ระยะเป็นเมตร) ของจุดที่มีชื่อซึ่งใกล้ที่สุดบนรหัสสายทางเดียวกัน"""
+    entry = index.get(route_code)
+    if entry is None:
+        return None, None
+    lats, lngs, names = entry
+    p1, p2 = radians(lat), np.radians(lats)
+    dp, dl = p2 - p1, np.radians(lngs - lng)
+    a = np.sin(dp / 2) ** 2 + cos(p1) * np.cos(p2) * np.sin(dl / 2) ** 2
+    dist = 2 * EARTH_RADIUS_M * np.arcsin(np.sqrt(a))
+    i = int(np.argmin(dist))
+    return names[i], float(dist[i])
+
+
+def road_label_for(index, item, km_min=None, km_max=None):
+    """
+    คืน (ชื่อสำหรับแสดงผล, ที่มา) ของจุดหนึ่ง ไล่ตามลำดับความน่าเชื่อถือ
+
+      record        - ต้นทางกรอกชื่อสายทางมาเอง (ใช้ตามนั้น ไม่แตะ)
+      nearest_road  - ยืมชื่อจากจุดที่ใกล้ที่สุดบนรหัสสายทางเดียวกัน (<= 2 กม.)
+      route_ref     - ไม่มีจุดอ้างอิงใกล้พอ ใช้ "รหัสสายทาง + หลัก กม." แทนชื่อ
+      unknown       - ไม่มีแม้แต่รหัสสายทาง -> คงคำว่า "ไม่ระบุ" ไว้ตามเดิม
+    """
+    if item["road"] != "ไม่ระบุ":
+        return item["road"], "record"
+    name, dist = _nearest_named(index, item["route_code"], item["lat"], item["lng"])
+    if name is not None and dist <= ROAD_LABEL_MAX_DIST_M:
+        return name, "nearest_road"
+    ref = route_ref(item["route_code"], item["road_type"], km_min, km_max)
+    if ref:
+        return ref, "route_ref"
+    return "ไม่ระบุ", "unknown"
+
+
+def fill_road_labels(events, units):
+    """
+    เติม road_label / road_label_source ให้ทุกเหตุการณ์และทุกหน่วยวิเคราะห์
+
+    ต้องเรียก **หลัง** cluster_units เสมอ — การจัดกลุ่มชั้นที่ 2 แยกกลุ่มด้วยค่าดิบ
+    road ถ้าเติมชื่อก่อนจัดกลุ่ม สมาชิกของแต่ละกลุ่มจะเปลี่ยน ผลทั้งชุด (จำนวน
+    คลัสเตอร์, SI, ระดับ) จะไม่ตรงกับ calibration ที่ล็อกไว้แล้ว ฟังก์ชันนี้จึงเป็น
+    การ "ติดป้ายชื่อ" อย่างเดียว ไม่แตะตัวเลขใด ๆ
+    """
+    index = build_road_name_index(events)
+
+    for e in events:
+        e["road_label"], e["road_label_source"] = road_label_for(index, e, e["km"], e["km"])
+
+    for u in units:
+        u["road_label"], u["road_label_source"] = road_label_for(
+            index, u, u["km_min"], u["km_max"])
+        u["road_ref"] = route_ref(u["route_code"], u["road_type"], u["km_min"], u["km_max"])
 
 
 # ---------------------------------------------------------------- ผลลัพธ์
@@ -409,6 +559,10 @@ def main():
     print(f"มีพิกัดใช้ได้ {len(events)} เหตุการณ์")
 
     all_units, assignments = cluster_units(events, EPS_METERS, MIN_SAMPLES)
+
+    # ติดป้ายชื่อสายทางหลังจัดกลุ่มเสร็จแล้วเท่านั้น (ดูเหตุผลใน fill_road_labels)
+    fill_road_labels(events, all_units)
+
     clusters = [u for u in all_units if u["unit_type"] == "cluster"]
     noise = [u for u in all_units if u["unit_type"] == "noise"]
     in_cluster = sum(u["accident_count"] for u in clusters)
@@ -425,6 +579,13 @@ def main():
     print(f"  คลัสเตอร์ {len(clusters)} วง (ครอบคลุม {in_cluster} จุดเสี่ยง "
           f"{in_cluster / len(events) * 100:.1f}%)")
     print(f"  จุดเสี่ยงเดี่ยวที่ไม่เข้าคลัสเตอร์ {len(noise)} จุด -> ไม่นำมาจัดระดับ")
+    unnamed = [u for u in clusters if u["road"] == "ไม่ระบุ"]
+    by_src = {k: sum(1 for u in unnamed if u["road_label_source"] == k)
+              for k in ("nearest_road", "route_ref", "unknown")}
+    print(f"ชื่อสายทาง: ต้นทางไม่ได้กรอก {len(unnamed)} คลัสเตอร์ -> "
+          f"ยืมชื่อจากจุดข้างเคียงรหัสเดียวกัน {by_src['nearest_road']} · "
+          f"ใช้รหัสสายทาง+กม. {by_src['route_ref']} · "
+          f"เหลือ 'ไม่ระบุ' {by_src['unknown']}")
     if clusters:
         print(f"  คลัสเตอร์ใหญ่ที่สุด {max(u['accident_count'] for u in clusters)} จุดเสี่ยง")
 
@@ -452,7 +613,7 @@ def main():
 
     print("Top 5 คลัสเตอร์ตาม SI:")
     for u in sorted(units, key=lambda x: x["severity_index"], reverse=True)[:5]:
-        print(f"  SI {u['severity_index']:>6.2f}  {u['road'][:40]:<40} ({u['province']}) "
+        print(f"  SI {u['severity_index']:>6.2f}  {u['road_label'][:40]:<40} ({u['province']}) "
               f"n={u['accident_count']} ตาย={u['deaths']} [{u['unit_type']}]")
 
     by_province = {}
@@ -484,6 +645,12 @@ def main():
         "level_breaks": [SI_BREAK_LOW, SI_BREAK_HIGH],
         "level_break_method": "fixed_si_cutoff",
         "marker_position": "medoid",
+        # การเติมชื่อสายทางเป็นขั้นตอนติดป้ายหลังจัดกลุ่ม ไม่กระทบตัวเลขชุดใดในนี้
+        "road_label_fill": {
+            "max_borrow_dist_m": ROAD_LABEL_MAX_DIST_M,
+            "by_source": {k: sum(1 for u in units if u["road_label_source"] == k)
+                          for k in ("record", "nearest_road", "route_ref", "unknown")},
+        },
         # คำศัพท์: จุดเสี่ยง = 1 จุด : 1 อุบัติเหตุ (4,460) · หน่วยวิเคราะห์ = คลัสเตอร์ + เดี่ยว
         "risk_points": len(events),
         "analysis_units": len(units),            # = คลัสเตอร์เท่านั้น
@@ -548,10 +715,11 @@ def main():
 
 
 def _self_test():
-    def ev(deaths=0, serious=0, minor=0, vehicles=2):
-        return {"lat": 13.7, "lng": 100.5, "province": "กรุงเทพมหานคร", "road": "ถนน ก",
+    def ev(deaths=0, serious=0, minor=0, vehicles=2, road="ถนน ก", code="9", km=10.0):
+        return {"lat": 13.7, "lng": 100.5, "province": "กรุงเทพมหานคร", "road": road,
                 "cause": "ขับเร็ว", "location_type": "ทางตรง", "road_type": "ทางหลวง",
                 "crash_pattern": "ชนท้าย", "vehicles": vehicles,
+                "route_code": code, "km": km,
                 "deaths": deaths, "serious": serious, "minor": minor}
 
     # 1) SI — F นับเป็น "ครั้ง" ที่มีคนตาย ไม่ใช่จำนวนศพ
@@ -620,6 +788,42 @@ def _self_test():
     assert speed_limit_for("ทางหลวงแผ่นดิน") == 90
     assert speed_limit_for("ทางหลวงชนบท") == 80
     assert speed_limit_for("ไม่ระบุ") == SPEED_LIMIT_DEFAULT
+
+    # 12) ช่วง กม. ของคลัสเตอร์มาจากสมาชิกจริง และรหัสสายทางใช้ฐานนิยม
+    u3 = _unit_from_members("t", "cluster", [ev(km=5.0), ev(km=9.5), ev(km=7.0)])
+    assert (u3["km_min"], u3["km_max"]) == (5.0, 9.5), (u3["km_min"], u3["km_max"])
+    assert u3["route_code"] == "9"
+
+    # 13) ป้ายอ้างอิงสายทาง — คำนำหน้าตามหน่วยงาน และย่อเมื่อเป็น กม. เดียว
+    assert route_ref("9", "ทางหลวง", 9.2, 35.4) == "ทล.9 กม.9.2-35.4"
+    assert route_ref("9", "ทางหลวงชนบท", 5.0, 5.0) == "ทช.9 กม.5"
+    assert route_ref("3481", "ทางหลวง", 1.031, 1.4) == "ทล.3481 กม.1-1.4"
+    assert route_ref("ไม่ระบุ", "ทางหลวง", 1.0, 2.0) is None
+
+    # 14) เติมชื่อสายทาง — จุดที่ต้นทางกรอกชื่อมาแล้วต้องไม่ถูกแตะ
+    def at(lat, lng, **kw):
+        e = ev(**kw)
+        e["lat"], e["lng"] = lat, lng
+        return e
+
+    named = at(13.700, 100.500, road="ทล.9 ตอนหนึ่ง")
+    near = at(13.7005, 100.500, road="ไม่ระบุ")          # ห่าง ~55 ม. รหัสเดียวกัน
+    far = at(13.900, 100.500, road="ไม่ระบุ")            # ห่าง ~22 กม. เกินเพดาน
+    other = at(13.7005, 100.500, road="ไม่ระบุ", code="ไม่ระบุ")
+    idx = build_road_name_index([named])
+    assert road_label_for(idx, named) == ("ทล.9 ตอนหนึ่ง", "record")
+    assert road_label_for(idx, near) == ("ทล.9 ตอนหนึ่ง", "nearest_road")
+    assert road_label_for(idx, far, 40.0, 41.25) == ("ทล.9 กม.40-41.2", "route_ref")
+    assert road_label_for(idx, other) == ("ไม่ระบุ", "unknown")
+
+    # 15) ติดป้ายแล้วต้องไม่แตะค่าดิบ road ที่ใช้จัดกลุ่ม
+    events = [named, near, far, other]
+    units = [_unit_from_members("t", "cluster", [near, near, near])]
+    fill_road_labels(events, units)
+    assert [e["road"] for e in events] == ["ทล.9 ตอนหนึ่ง", "ไม่ระบุ", "ไม่ระบุ", "ไม่ระบุ"]
+    assert near["road_label"] == "ทล.9 ตอนหนึ่ง"
+    assert units[0]["road"] == "ไม่ระบุ" and units[0]["road_label"] == "ทล.9 ตอนหนึ่ง"
+    assert units[0]["road_ref"] == "ทล.9 กม.10"
 
     print("self-test ผ่านทั้งหมด")
 
