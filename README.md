@@ -252,6 +252,20 @@ python -m uvicorn api.server:app --host 0.0.0.0 --port 8000
 | `GET /api/risk-points/nearby?lat=..&lng=..&radius=600` | จุดในรัศมี เรียงใกล้→ไกล พร้อม `distance_m` และ **`alert_message`** (ข้อความเตือนไทยสำเร็จรูป สร้างจากกติกา Dynamic Alert เดียวกับเว็บ) |
 | `GET /api/risk-points/{id}` | รายละเอียดจุดเดียว + ปัจจัยเสี่ยง |
 
+**ชุดข้อมูลที่ API แจกจ่าย** = `data/risk_points_bkk_metro_3y.geojson` (ชุด 3 ปี 456 คลัสเตอร์)
+ตรงกับที่หน้าเว็บตั้งไว้ใน `window.RISK_DATA_URL` — ต้องเป็นชุดเดียวกันเสมอ ไม่งั้นอุปกรณ์จะเตือน
+คนละคลัสเตอร์กับหมุดที่เห็นบนแผนที่ สลับไปชุด 1 ปีเพื่อเทียบผลได้ด้วย env var:
+
+```powershell
+$env:RISK_DATA_FILE = "data/risk_points_bkk_metro.geojson"
+python -m uvicorn api.server:app --host 0.0.0.0 --port 8000
+```
+
+`GET /api/health` บอกชื่อไฟล์ + เวอร์ชันรอบคำนวณที่กำลังใช้อยู่ ใช้ตรวจหลัง build ข้อมูลใหม่ได้
+
+> เซิร์ฟเวอร์อ่านไฟล์เข้าหน่วยความจำ**ครั้งเดียวตอนสตาร์ท** — สร้าง GeoJSON ใหม่แล้วต้องรีสตาร์ท
+> uvicorn ฝั่ง Pi ไม่ต้องทำอะไร เพราะไม่ได้เก็บข้อมูลไว้ในตัว จะได้ข้อมูลใหม่ในรอบ poll ถัดไป (3 วิ)
+
 ## ไคลเอนต์ Raspberry Pi (`device/pi_alert_client.py`)
 
 สคริปต์สำหรับติดบนรถ (เช่น รถเมล์): อ่านพิกัด GPS ของรถ ถาม API ว่ามีจุดเสี่ยงใกล้ๆ ไหม

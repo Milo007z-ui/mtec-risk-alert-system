@@ -25,7 +25,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_FILE = PROJECT_ROOT / "data" / "risk_points_bkk_metro.geojson"
+
+# ชุดข้อมูลที่ API แจกจ่าย — ต้องเป็นชุดเดียวกับที่หน้าเว็บตั้งไว้ใน window.RISK_DATA_URL
+# (index.html / dashboard.html) ไม่งั้น buzzer บน Pi จะเตือนคนละคลัสเตอร์กับหมุดบนแผนที่
+# สลับกลับไปชุด 1 ปีเพื่อเทียบผลได้โดยไม่ต้องแก้โค้ด:
+#   PowerShell:  $env:RISK_DATA_FILE = "data/risk_points_bkk_metro.geojson"
+#   bash:        RISK_DATA_FILE=data/risk_points_bkk_metro.geojson uvicorn api.server:app
+DEFAULT_DATA_FILE = "data/risk_points_bkk_metro_3y.geojson"  # ชุด 3 ปี (2566-2568) = ชุดหลักของระบบ
+DATA_FILE = PROJECT_ROOT / os.environ.get("RISK_DATA_FILE", DEFAULT_DATA_FILE)
 
 EARTH_RADIUS_M = 6371000
 
@@ -56,17 +63,20 @@ app.add_middleware(
 # ---------- โหลดข้อมูล ----------
 
 def load_points():
-    """อ่าน GeoJSON แล้ว flatten เป็น [{id, lat, lng, ...properties}] แบบเดียวกับ riskpoints.js"""
+    """อ่าน GeoJSON แล้ว flatten เป็น [{id, lat, lng, ...properties}] แบบเดียวกับ riskpoints.js
+
+    คืน (points, calibration) — calibration ใช้บอกเวอร์ชันรอบคำนวณผ่าน /api/health
+    """
     with open(DATA_FILE, encoding="utf-8") as f:
         geojson = json.load(f)
     points = []
     for feat in geojson["features"]:
         lng, lat = feat["geometry"]["coordinates"]
         points.append({"lat": lat, "lng": lng, **feat["properties"]})
-    return points
+    return points, geojson.get("calibration") or {}
 
 
-POINTS = load_points()
+POINTS, CALIBRATION = load_points()
 POINTS_BY_ID = {p["id"]: p for p in POINTS}
 
 
@@ -197,7 +207,14 @@ def build_alert_message(point, distance_m):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "total_points": len(POINTS)}
+    """ใช้ตรวจว่าเซิร์ฟเวอร์กำลังแจกข้อมูลชุดไหน/รอบคำนวณอะไร หลัง build ข้อมูลใหม่"""
+    return {
+        "status": "ok",
+        "total_points": len(POINTS),
+        "dataset": DATA_FILE.name,
+        "version": CALIBRATION.get("version"),
+        "generated_at": CALIBRATION.get("generated_at"),
+    }
 
 
 @app.get("/api/risk-points")
