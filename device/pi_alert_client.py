@@ -193,6 +193,10 @@ def beep():
 
 CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
 
+# อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a) — Pi มีทั้ง HDMI และแจ็ค 3.5 มม.
+# ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น hw:1,0
+AUDIO_DEVICE = None
+
 # ตารางนี้ต้องตรงกับ VOICE_CLIPS ใน js/tts.js ทุกตัวอักษร (สร้างมาจากไฟล์นั้นโดยตรง)
 # match ข้อความแบบตรงตัว ประโยคที่ระยะไม่ใช่ 500 เมตรจะไม่มีไฟล์ตรงแล้วตกไปชั้นถัดไปเอง
 # — จงใจไม่บิดระยะให้เป็น 500 เพื่อไม่ให้บอกระยะผิดกับคนขับ พฤติกรรมเดียวกับเว็บ
@@ -241,9 +245,10 @@ def _play_mp3(data, label):
     exe = _player_cmd()
     if exe is None or not data:
         return False
+    dev = ["-a", AUDIO_DEVICE] if AUDIO_DEVICE and exe in ("mpg123", "mpg321") else []
     cmd = {
-        "mpg123": [exe, "-q", "-"],
-        "mpg321": [exe, "-q", "-"],
+        "mpg123": [exe, "-q", *dev, "-"],
+        "mpg321": [exe, "-q", *dev, "-"],
         "ffplay": [exe, "-nodisp", "-autoexit", "-loglevel", "quiet", "-"],
     }[exe]
     try:
@@ -392,11 +397,71 @@ def run(api_base, position_source, speak_enabled=True):
         time.sleep(max(0, POLL_INTERVAL_S - (time.monotonic() - started)))
 
 
+SAMPLE_TEXT = "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ"
+
+
+def check_voice(api_base):
+    """ตรวจว่าทำไมเสียงพูดไม่ออก — ไล่ทีละชั้นแล้วบอกว่าติดที่อะไร
+
+    ใช้ตอนอุปกรณ์ร้องแต่ buzzer แล้วไม่พูด:
+        python3 device/pi_alert_client.py --checkvoice
+    """
+    print("=" * 62)
+    print("ตรวจระบบเสียงพูดแจ้งเตือน")
+    print("=" * 62)
+
+    print()
+    print("1) ไฟล์เสียงที่อัดไว้")
+    print("   โฟลเดอร์:", CLIP_DIR)
+    if not CLIP_DIR.is_dir():
+        print("   [ไม่ผ่าน] ไม่มีโฟลเดอร์นี้ — ยังไม่ได้ git pull ใช่ไหม")
+    else:
+        clips = sorted(set(VOICE_CLIPS.values()))
+        missing = [c for c in clips if not (CLIP_DIR / c).exists()]
+        if missing:
+            print("   [ไม่ผ่าน] ขาด", len(missing), "ไฟล์:", ", ".join(missing))
+        else:
+            print("   [ผ่าน] ครบทั้ง", len(clips), "ไฟล์")
+
+    print()
+    print("2) โปรแกรมเล่นเสียงในเครื่อง")
+    for exe in ("mpg123", "mpg321", "ffplay", "espeak-ng"):
+        path = shutil.which(exe)
+        print("  ", "[มี]  " if path else "[ไม่มี]", exe.ljust(10), path or "")
+    if _player_cmd() is None:
+        print()
+        print("   >>> ไม่มีตัวเล่น mp3 เลย นี่คือสาเหตุที่ได้ยินแต่ buzzer")
+        print("   >>> แก้ด้วย:  sudo apt install -y mpg123")
+    if AUDIO_DEVICE:
+        print("   อุปกรณ์เสียงที่บังคับใช้:", AUDIO_DEVICE)
+
+    print()
+    print("3) ทดลองพูดประโยคตัวอย่าง (ระดับสูง)")
+    print("-" * 62)
+    ok = speak(SAMPLE_TEXT, api_base)
+    print("-" * 62)
+
+    print()
+    if ok:
+        print("โปรแกรมเล่นเสียงสำเร็จ — ถ้ายังไม่ได้ยินเสียงจากลำโพง ให้ตรวจต่อที่:")
+        print("   amixer sset Master 90%       เร่งเสียงให้สุด")
+        print("   aplay -l                     ดูว่ามีการ์ดเสียงอะไรบ้าง")
+        print("   sudo raspi-config            System Options > Audio เลือกช่องที่ต่อลำโพง")
+        print("   ถ้าต้องเจาะจงการ์ด ให้เพิ่ม  --audio-device hw:1,0")
+    else:
+        print("ไม่มีชั้นไหนเล่นได้เลย — ดูบรรทัด [เสียง] ด้านบนว่าติดที่อะไร")
+    return ok
+
+
 def main():
     parser = argparse.ArgumentParser(description="ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi")
     parser.add_argument("--api", default="http://localhost:8000",
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
+    parser.add_argument("--audio-device", metavar="DEV",
+                        help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น hw:1,0 — ปกติไม่ต้องใส่")
     source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--checkvoice", action="store_true",
+                        help="ตรวจว่าทำไมเสียงพูดไม่ออก แล้วลองพูดประโยคตัวอย่างหนึ่งครั้ง")
     source.add_argument("--gpsd", action="store_true", help="อ่านพิกัดจริงจาก gpsd")
     source.add_argument("--test", nargs=2, type=float, metavar=("LAT", "LNG"),
                         help="โหมดทดสอบ: ใช้พิกัดคงที่")
@@ -408,6 +473,12 @@ def main():
     parser.add_argument("--once", action="store_true",
                         help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
+
+    global AUDIO_DEVICE
+    AUDIO_DEVICE = args.audio_device
+
+    if args.checkvoice:
+        sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
 
     if args.gpsd:
         position_source = GpsdReader()
