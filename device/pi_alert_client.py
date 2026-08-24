@@ -41,6 +41,7 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -213,6 +214,10 @@ CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
 # ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น hw:1,0
 AUDIO_DEVICE = None
 
+# ชั้น 1 (Botnoi สด) ใช้ได้ไหม — ถ้าเซิร์ฟเวอร์ตอบ 503 แปลว่าไม่ได้ตั้ง BOTNOI_TOKEN
+# ปิดชั้นนี้ทิ้งทั้งรอบเลย ไม่ต้องเสียเวลายิงซ้ำแล้วพ่น error ทุกครั้งที่เตือน
+BOTNOI_ENABLED = True
+
 # ตารางนี้ต้องตรงกับ VOICE_CLIPS ใน js/tts.js ทุกตัวอักษร (สร้างมาจากไฟล์นั้นโดยตรง)
 # match ข้อความแบบตรงตัว ประโยคที่ระยะไม่ใช่ 500 เมตรจะไม่มีไฟล์ตรงแล้วตกไปชั้นถัดไปเอง
 # — จงใจไม่บิดระยะให้เป็น 500 เพื่อไม่ให้บอกระยะผิดกับคนขับ พฤติกรรมเดียวกับเว็บ
@@ -290,10 +295,22 @@ def _speak_clip(text):
 
 def _speak_botnoi(text, api_base):
     """ชั้น 1 — Botnoi สดผ่าน proxy /api/tts ของเซิร์ฟเวอร์เรา"""
+    global BOTNOI_ENABLED
+    if not BOTNOI_ENABLED:
+        return False
     url = f"{api_base}/api/tts?" + urllib.parse.urlencode({"text": text})
     try:
         with urllib.request.urlopen(url, timeout=30) as resp:
             data = resp.read()
+    except urllib.error.HTTPError as e:
+        if e.code == 503:
+            # เซิร์ฟเวอร์ไม่ได้ตั้ง BOTNOI_TOKEN — ยิงกี่ครั้งก็ได้ 503 เหมือนเดิม
+            # ปิดชั้นนี้ทิ้งเลย ประหยัดเวลาและไม่ทำให้ log ดูเหมือนมี error ทุกครั้ง
+            BOTNOI_ENABLED = False
+            print("   [เสียง] ข้ามชั้น 1 ทั้งรอบ: เซิร์ฟเวอร์ยังไม่ได้ตั้ง BOTNOI_TOKEN")
+        else:
+            print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
+        return False
     except Exception as e:  # noqa: BLE001 — ทุก error ให้ตกไปชั้นถัดไป
         print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
         return False
