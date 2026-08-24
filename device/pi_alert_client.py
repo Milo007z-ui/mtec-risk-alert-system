@@ -208,7 +208,24 @@ def beep():
 #   ชั้น 2  Google translate_tts — ฟรี ไม่ต้องสมัคร แต่ต้องมีเน็ต
 #   ชั้น 3  espeak-ng ในเครื่อง — เสียงแข็งกว่ามาก แต่ยังพูดได้ตอนเน็ตหลุด
 
-CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
+_AUDIO_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
+
+
+def _pick_clip_dir():
+    """เลือกชุดไฟล์เสียง — ชุด "ดัง" ใน audio/loud/ มาก่อนถ้ามี
+
+    audio/loud/ สร้างด้วย scripts/boost_voice_clips.py เป็นชุดที่บีบช่วงไดนามิก
+    มาแล้วให้ดังขึ้นราว 6-8 dB สำหรับลำโพงจิ๋วบนอุปกรณ์ ส่วน audio/ ต้นฉบับ
+    ปล่อยไว้ให้เว็บใช้ เพราะระดับเสียงนำ (chime) บนเว็บคำนวณจาก RMS ของชุดนั้น
+    ลบโฟลเดอร์ loud ทิ้งเมื่อไหร่ก็กลับไปใช้ต้นฉบับเองอัตโนมัติ
+    """
+    loud = _AUDIO_DIR / "loud"
+    if loud.is_dir() and any(loud.glob("alert_*.mp3")):
+        return loud
+    return _AUDIO_DIR
+
+
+CLIP_DIR = _pick_clip_dir()
 
 # อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a) — Pi มีทั้ง HDMI และแจ็ค 3.5 มม.
 # ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น plughw:2,0
@@ -459,6 +476,8 @@ def check_voice(api_base):
     print()
     print("1) ไฟล์เสียงที่อัดไว้")
     print("   โฟลเดอร์:", CLIP_DIR)
+    print("   ชุดที่ใช้:", "ดัง (audio/loud)" if CLIP_DIR.name == "loud"
+          else "ต้นฉบับ — สร้างชุดดังได้ด้วย scripts/boost_voice_clips.py")
     if not CLIP_DIR.is_dir():
         print("   [ไม่ผ่าน] ไม่มีโฟลเดอร์นี้ — ยังไม่ได้ git pull ใช่ไหม")
     else:
