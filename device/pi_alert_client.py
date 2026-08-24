@@ -5,7 +5,9 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
   1. อ่านพิกัด GPS ปัจจุบันของรถ (จาก gpsd หรือโหมดจำลอง)
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
-  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM) ร้อง 1 วิ
+  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM)
+     ร้อง 1 วิ เป็นเสียงนำ แล้วพูดประโยคเตือนภาษาไทยที่ได้จาก alert_message ของ API
+     (เสียงพูดมี 4 ชั้น ดูหัวข้อ "เสียงพูดแจ้งเตือน" ด้านล่าง ปิดด้วย --no-speak ได้)
 
 กติกา cooldown ต่อจุด:
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
@@ -33,7 +35,10 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 
 import argparse
 import json
+import pathlib
+import shutil
 import socket
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -179,6 +184,149 @@ def beep():
     GPIO.output(BUZZER_PIN, GPIO.LOW)
 
 
+# ---------- เสียงพูดแจ้งเตือน (พอร์ตจาก js/tts.js) ----------
+# ลำดับชั้นเดียวกับบนเว็บ ไล่ลงทีละชั้นจนกว่าจะมีชั้นไหนเล่นได้:
+#   ชั้น 0  ไฟล์ Botnoi ที่อัดไว้ล่วงหน้าใน audio/ — ไม่ต้องมีเน็ต ไม่เสียพอยท์ เล่นทันที
+#   ชั้น 1  Botnoi สดผ่าน /api/tts ของเซิร์ฟเวอร์เอง (ต้องตั้ง BOTNOI_TOKEN ฝั่งเซิร์ฟเวอร์)
+#   ชั้น 2  Google translate_tts — ฟรี ไม่ต้องสมัคร แต่ต้องมีเน็ต
+#   ชั้น 3  espeak-ng ในเครื่อง — เสียงแข็งกว่ามาก แต่ยังพูดได้ตอนเน็ตหลุด
+
+CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
+
+# ตารางนี้ต้องตรงกับ VOICE_CLIPS ใน js/tts.js ทุกตัวอักษร (สร้างมาจากไฟล์นั้นโดยตรง)
+# match ข้อความแบบตรงตัว ประโยคที่ระยะไม่ใช่ 500 เมตรจะไม่มีไฟล์ตรงแล้วตกไปชั้นถัดไปเอง
+# — จงใจไม่บิดระยะให้เป็น 500 เพื่อไม่ให้บอกระยะผิดกับคนขับ พฤติกรรมเดียวกับเว็บ
+VOICE_CLIPS = {
+    "ข้างหน้าอีกประมาณ 500 เมตร ขอให้ขับขี่ด้วยความระมัดระวัง":
+        "alert_01.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาลดความเร็ว และใช้ความระมัดระวัง":
+        "alert_02.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาลดความเร็ว และประคองพวงมาลัยให้มั่นคง":
+        "alert_03.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาเว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง":
+        "alert_04.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ":
+        "alert_05.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาเว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง":
+        "alert_06.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาชะลอความเร็ว และระวังรถตัดผ่านทางแยก":
+        "alert_07.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาลดความเร็ว และประคองพวงมาลัยให้มั่นคง":
+        "alert_08.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาใช้ความเร็วไม่เกิน 90 กิโลเมตรต่อชั่วโมง":
+        "alert_09.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาลดความเร็วก่อนเข้าโค้ง และงดแซงในช่วงนี้":
+        "alert_10.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาลดความเร็วก่อนเข้าโค้ง และงดแซงในช่วงนี้":
+        "alert_11.mp3",
+    "ข้างหน้าอีกประมาณ 500 เมตร กรุณาเว้นระยะห่าง และระวังรถชะลอตัวเพื่อกลับรถ":
+        "alert_12.mp3",
+}
+
+
+def _player_cmd():
+    """หาโปรแกรมเล่น mp3 ที่มีในเครื่อง — คืน None ถ้าไม่มีเลย"""
+    for exe in ("mpg123", "mpg321", "ffplay"):
+        if shutil.which(exe):
+            return exe
+    return None
+
+
+def _play_mp3(data, label):
+    """เล่น mp3 จาก bytes ผ่าน stdin — คืน True ถ้าเล่นจบปกติ
+
+    label คือชื่อชั้นที่จะ log ต่อเมื่อเล่นสำเร็จจริง ไม่ log ตอนแค่เริ่มลอง
+    ไม่งั้นบรรทัด log จะบอกว่าใช้ชั้นนั้นแล้วทั้งที่ยังเล่นไม่ออก
+    """
+    exe = _player_cmd()
+    if exe is None or not data:
+        return False
+    cmd = {
+        "mpg123": [exe, "-q", "-"],
+        "mpg321": [exe, "-q", "-"],
+        "ffplay": [exe, "-nodisp", "-autoexit", "-loglevel", "quiet", "-"],
+    }[exe]
+    try:
+        if subprocess.run(cmd, input=data, timeout=30).returncode != 0:
+            return False
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(f"   [เสียง] เล่นไฟล์ไม่สำเร็จ: {e}", file=sys.stderr)
+        return False
+    print(f"   [เสียง] {label}")
+    return True
+
+
+def _speak_clip(text):
+    """ชั้น 0 — ไฟล์เสียง Botnoi ที่อัดไว้ล่วงหน้า"""
+    name = VOICE_CLIPS.get(text)
+    if name is None:
+        return False
+    path = CLIP_DIR / name
+    if not path.exists():
+        return False
+    return _play_mp3(path.read_bytes(), f"ชั้น 0 ไฟล์ที่อัดไว้ {name}")
+
+
+def _speak_botnoi(text, api_base):
+    """ชั้น 1 — Botnoi สดผ่าน proxy /api/tts ของเซิร์ฟเวอร์เรา"""
+    url = f"{api_base}/api/tts?" + urllib.parse.urlencode({"text": text})
+    try:
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            data = resp.read()
+    except Exception as e:  # noqa: BLE001 — ทุก error ให้ตกไปชั้นถัดไป
+        print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
+        return False
+    return _play_mp3(data, "ชั้น 1 Botnoi สด")
+
+
+def _speak_google(text):
+    """ชั้น 2 — Google translate_tts (ต้องมีเน็ต)"""
+    if len(text) > 190:  # translate_tts รับได้จำกัดต่อครั้ง
+        return False
+    url = "https://translate.google.com/translate_tts?" + urllib.parse.urlencode(
+        {"ie": "UTF-8", "q": text, "tl": "th", "client": "tw-ob"}
+    )
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = resp.read()
+    except Exception as e:  # noqa: BLE001
+        print(f"   [เสียง] Google ไม่สำเร็จ: {e}", file=sys.stderr)
+        return False
+    return _play_mp3(data, "ชั้น 2 Google")
+
+
+def _speak_espeak(text):
+    """ชั้น 3 — espeak-ng ในเครื่อง ใช้ตอนไม่มีเน็ต (เสียงแข็ง ใช้เป็นตัวสำรองเท่านั้น)"""
+    if not shutil.which("espeak-ng"):
+        return False
+    try:
+        # -s 150 คำ/นาที ช้ากว่าค่าเริ่มต้นเล็กน้อย ให้คนขับฟังทัน
+        if subprocess.run(
+            ["espeak-ng", "-v", "th", "-s", "150", text], timeout=30
+        ).returncode != 0:
+            return False
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    print("   [เสียง] ชั้น 3 espeak-ng (สำรอง)")
+    return True
+
+
+def speak(text, api_base):
+    """พูดข้อความเตือน ไล่ลงทีละชั้นจนกว่าจะมีชั้นไหนสำเร็จ"""
+    print(f"   >> {text}")
+    for layer in (
+        lambda: _speak_clip(text),
+        lambda: _speak_botnoi(text, api_base),
+        lambda: _speak_google(text),
+        lambda: _speak_espeak(text),
+    ):
+        if layer():
+            return True
+    print("   [เสียง] ไม่มีชั้นไหนพูดได้ — เหลือแค่ buzzer", file=sys.stderr)
+    return False
+
+
 # ---------- เรียก API ----------
 
 def fetch_nearby(api_base, lat, lng):
@@ -192,11 +340,13 @@ def fetch_nearby(api_base, lat, lng):
 
 # ---------- ลูปหลัก ----------
 
-def run(api_base, position_source):
+def run(api_base, position_source, speak_enabled=True):
     beeped = set()  # point id ที่ร้อง beep ไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
+    voice = "เปิด" if speak_enabled else "ปิด"
+    player = _player_cmd() or "ไม่พบโปรแกรมเล่น mp3"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, "
-        f"buzzer ร้องที่ {ALERT_RADIUS_M} ม.)"
+        f"เตือนที่ {ALERT_RADIUS_M} ม., เสียงพูด: {voice}, ตัวเล่นเสียง: {player})"
     )
 
     while True:
@@ -226,7 +376,9 @@ def run(api_base, position_source):
                         continue
                     if p["id"] not in beeped:
                         beeped.add(p["id"])
-                        beep()
+                        beep()  # เสียงนำ แล้วค่อยพูดประโยคเตือน
+                        if speak_enabled:
+                            speak(p["alert_message"], api_base)
 
                 nearest = nearby[0] if nearby else None
                 status = (
@@ -251,6 +403,8 @@ def main():
     source.add_argument("--route", metavar="FILE",
                         help="โหมดจำลอง: อ่านพิกัดจากไฟล์ (.geojson เส้นทางเดียวกับเว็บ ?mock=1 "
                              "หรือ .csv บรรทัดละ lat,lng)")
+    parser.add_argument("--no-speak", action="store_true",
+                        help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
     parser.add_argument("--once", action="store_true",
                         help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
@@ -264,7 +418,7 @@ def main():
 
     setup_buzzer()
     try:
-        run(args.api.rstrip("/"), position_source)
+        run(args.api.rstrip("/"), position_source, speak_enabled=not args.no_speak)
     except KeyboardInterrupt:
         print("\nหยุดการทำงาน")
     finally:

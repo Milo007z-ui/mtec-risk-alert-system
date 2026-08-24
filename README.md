@@ -269,18 +269,40 @@ python -m uvicorn api.server:app --host 0.0.0.0 --port 8000
 ## ไคลเอนต์ Raspberry Pi (`device/pi_alert_client.py`)
 
 สคริปต์สำหรับติดบนรถ (เช่น รถเมล์): อ่านพิกัด GPS ของรถ ถาม API ว่ามีจุดเสี่ยงใกล้ๆ ไหม
-เมื่อเข้าใกล้กว่า 500 ม. จะพูดเตือนคนขับเป็นภาษาไทยผ่านลำโพง (espeak-ng)
+เมื่อเข้าใกล้กว่า 500 ม. จะสั่ง **buzzer ที่ GPIO13 ร้อง 1 วิเป็นเสียงนำ แล้วพูดประโยคเตือน
+ภาษาไทย** ที่ได้จากฟิลด์ `alert_message` ของ API
 ใช้กติกา cooldown ชุดเดียวกับหน้าเว็บ ใช้เฉพาะ Python standard library ไม่ต้อง pip install
 
 ```bash
-# บน Raspberry Pi (ต่อ GPS USB + ลำโพง)
-sudo apt install gpsd espeak-ng
+# ติดตั้งครั้งแรก — mpg123 คือตัวเล่น mp3, espeak-ng เป็นเสียงสำรองตอนเน็ตหลุด
+sudo apt install mpg123 espeak-ng gpsd
+
+# ใช้งานจริงกับ GPS (ต่อ GPS USB + ลำโพง)
 python3 device/pi_alert_client.py --api http://<IP-เซิร์ฟเวอร์>:8000 --gpsd
 
-# ทดสอบโดยไม่มี GPS: พิกัดคงที่ หรือจำลองเส้นทางจากไฟล์ (บรรทัดละ lat,lng)
+# จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1 (เตือน 7 ครั้ง ครบทั้งสามระดับ)
+python3 device/pi_alert_client.py --api http://localhost:8000 --route data/mock_route.geojson --once
+
+# ทดสอบโดยไม่มี GPS: พิกัดคงที่ / ปิดเสียงพูดเหลือแค่ buzzer
 python3 device/pi_alert_client.py --api http://localhost:8000 --test 13.665 100.534
-python3 device/pi_alert_client.py --api http://localhost:8000 --route route.csv
+python3 device/pi_alert_client.py --api http://localhost:8000 --route data/mock_route.geojson --no-speak
 ```
+
+### เสียงพูดบนอุปกรณ์ — 4 ชั้นเหมือนเว็บ
+
+`speak()` ใน `pi_alert_client.py` ไล่ลงทีละชั้นจนกว่าจะมีชั้นไหนเล่นออก:
+
+| ชั้น | แหล่งเสียง | ต้องมีเน็ต | หมายเหตุ |
+|---|---|---|---|
+| 0 | ไฟล์ Botnoi ใน `audio/` | ไม่ต้อง | เร็วสุด ไม่เสียพอยท์ — ใช้ตาราง `VOICE_CLIPS` ชุดเดียวกับ `js/tts.js` |
+| 1 | Botnoi สดผ่าน `/api/tts` | ต้อง | ต้องตั้ง `BOTNOI_TOKEN` ฝั่งเซิร์ฟเวอร์ |
+| 2 | Google `translate_tts` | ต้อง | ฟรี ไม่ต้องสมัคร |
+| 3 | `espeak-ng` ในเครื่อง | ไม่ต้อง | เสียงแข็ง ใช้เป็นตัวสำรองสุดท้าย |
+
+ชั้น 0 match ข้อความ**แบบตรงตัว** ประโยคที่ระยะไม่ลงตัวที่ 500 เมตร (เช่น 400 หรือ 450)
+จะไม่มีไฟล์ตรงแล้วตกไปชั้นถัดไปเอง — จงใจไม่บิดระยะให้เป็น 500 เพราะจะบอกระยะผิดกับคนขับ
+เป็นพฤติกรรมเดียวกับเว็บ **ถ้าแก้ข้อความเตือนใน `riskrules.js`/`server.py` ต้องอัดไฟล์เสียงใหม่
+และแก้ตาราง `VOICE_CLIPS` ทั้งใน `js/tts.js` และ `device/pi_alert_client.py` ให้ตรงกัน**
 
 ## กติกาการแจ้งเตือน (ปรับได้ใน `js/alert.js`)
 
