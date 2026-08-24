@@ -505,7 +505,7 @@ def main():
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
     parser.add_argument("--volume", type=int, default=100, metavar="PCT",
                         help="ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = เดิม, 200 = ดังขึ้นเท่าตัว) "
-                             "เกิน 150 เสียงอาจแตก")
+                             "หาเพดานที่ปลอดภัยด้วย scripts/measure_audio_headroom.py")
     parser.add_argument("--audio-device", metavar="DEV",
                         help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น plughw:2,0 — ปกติไม่ต้องใส่")
     source = parser.add_mutually_exclusive_group(required=True)
@@ -525,7 +525,7 @@ def main():
 
     global AUDIO_DEVICE, VOLUME_PCT
     AUDIO_DEVICE = args.audio_device
-    VOLUME_PCT = max(10, min(400, args.volume))
+    VOLUME_PCT = max(10, min(1000, args.volume))
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
