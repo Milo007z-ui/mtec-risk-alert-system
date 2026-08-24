@@ -217,6 +217,11 @@ CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
 # ไฟล์ที่ rate ไม่ตรงจะเปิดไม่ผ่าน
 AUDIO_DEVICE = None
 
+# ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = ระดับเดิมของไฟล์) ตั้งด้วย --volume
+# จำเป็นเพราะ DAC แบบ MAX98357A ไม่มีตัวคุมระดับเสียงในตัว amixer จึงไม่มีอะไรให้เร่ง
+# เกิน 100 = ขยายสัญญาณด้วยซอฟต์แวร์ ดังขึ้นแลกกับความเสี่ยงที่เสียงจะแตกเมื่อ clip
+VOLUME_PCT = 100
+
 # ชั้น 1 (Botnoi สด) ใช้ได้ไหม — ถ้าเซิร์ฟเวอร์ตอบ 503 แปลว่าไม่ได้ตั้ง BOTNOI_TOKEN
 # ปิดชั้นนี้ทิ้งทั้งรอบเลย ไม่ต้องเสียเวลายิงซ้ำแล้วพ่น error ทุกครั้งที่เตือน
 BOTNOI_ENABLED = True
@@ -270,8 +275,10 @@ def _play_mp3(data, label):
     if exe is None or not data:
         return False
     dev = ["-a", AUDIO_DEVICE] if AUDIO_DEVICE and exe in ("mpg123", "mpg321") else []
+    # mpg123 คุมความดังด้วย scale factor ฐาน 32768 = 100% (mpg321 ไม่รองรับแบบเดียวกัน)
+    vol = ["-f", str(int(32768 * VOLUME_PCT / 100))] if exe == "mpg123" and VOLUME_PCT != 100 else []
     cmd = {
-        "mpg123": [exe, "-q", *dev, "-"],
+        "mpg123": [exe, "-q", *dev, *vol, "-"],
         "mpg321": [exe, "-q", *dev, "-"],
         "ffplay": [exe, "-nodisp", "-autoexit", "-loglevel", "quiet", "-"],
     }[exe]
@@ -343,8 +350,10 @@ def _speak_espeak(text):
         return False
     try:
         # -s 150 คำ/นาที ช้ากว่าค่าเริ่มต้นเล็กน้อย ให้คนขับฟังทัน
+        # espeak-ng: -a คือ amplitude 0-200 (ค่าเริ่มต้น 100) เพดานตามที่โปรแกรมรับได้
+        amp = str(min(200, max(0, VOLUME_PCT)))
         if subprocess.run(
-            ["espeak-ng", "-v", "th", "-s", "150", text], timeout=30
+            ["espeak-ng", "-v", "th", "-s", "150", "-a", amp, text], timeout=30
         ).returncode != 0:
             return False
     except (OSError, subprocess.TimeoutExpired):
@@ -388,7 +397,7 @@ def run(api_base, position_source, speak_enabled=True):
     buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม., "
-        f"เสียงพูด: {voice} [{player}], buzzer: {buzzer})"
+        f"เสียงพูด: {voice} [{player} {VOLUME_PCT}%], buzzer: {buzzer})"
     )
 
     while True:
@@ -494,6 +503,9 @@ def main():
     parser = argparse.ArgumentParser(description="ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi")
     parser.add_argument("--api", default="http://localhost:8000",
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
+    parser.add_argument("--volume", type=int, default=100, metavar="PCT",
+                        help="ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = เดิม, 200 = ดังขึ้นเท่าตัว) "
+                             "เกิน 150 เสียงอาจแตก")
     parser.add_argument("--audio-device", metavar="DEV",
                         help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น plughw:2,0 — ปกติไม่ต้องใส่")
     source = parser.add_mutually_exclusive_group(required=True)
@@ -511,8 +523,9 @@ def main():
                         help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
 
-    global AUDIO_DEVICE
+    global AUDIO_DEVICE, VOLUME_PCT
     AUDIO_DEVICE = args.audio_device
+    VOLUME_PCT = max(10, min(400, args.volume))
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
