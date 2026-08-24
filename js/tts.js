@@ -290,13 +290,20 @@ const TTS = (() => {
       const from = el.volume;
       const steps = Math.max(1, Math.round(ms / STEP_MS));
       let i = 0;
+
+      // ยกเลิกการไล่ระดับครั้งก่อน — ต้อง resolve ตัวเก่าทิ้งด้วย ไม่งั้น promise
+      // ของมันจะค้างตลอดกาล ทำให้ speak() ที่ await อยู่ไม่เดินต่อ และล็อกเสียงไม่ถูกปลด
       clearInterval(el._volTimer);
+      if (el._volResolve) el._volResolve();
+      el._volResolve = resolve;
+
       el._volTimer = setInterval(() => {
         i++;
         const v = from + (target - from) * (i / steps);
         el.volume = Math.min(1, Math.max(0, v));
         if (i >= steps) {
           clearInterval(el._volTimer);
+          el._volResolve = null;
           resolve();
         }
       }, STEP_MS);
@@ -318,15 +325,26 @@ const TTS = (() => {
   function playUrl(url) {
     return new Promise((resolve) => {
       const done = once(resolve, MAX_SPEAK_MS);
+
+      // ยกเลิกการไล่ระดับที่ค้างอยู่ พร้อมปลด promise ของมันด้วย
       clearInterval(audioEl._volTimer);
+      if (audioEl._volResolve) {
+        audioEl._volResolve();
+        audioEl._volResolve = null;
+      }
+
       audioEl.onerror = () => done(false); // โหลด/ถอดรหัสไฟล์ไม่ได้ (เช่น 502/404)
       audioEl.onended = () => done(true);
       audioEl.volume = 0;
       audioEl.src = url;
+
+      // ไล่ความดังขึ้นเมื่อเสียงเริ่มเล่นจริง — ดักไว้สองทาง (event playing และ promise
+      // ของ play()) เพราะถ้าพลาดทั้งคู่ volume จะค้างที่ 0 กลายเป็นเตือนแล้วไม่มีเสียง
+      // เรียกซ้ำได้ไม่มีปัญหา ครั้งหลังจะแทนที่ครั้งแรกเอง
+      const fadeIn = () => rampVolume(audioEl, 1, FADE_IN_MS);
+      audioEl.onplaying = fadeIn;
       const p = audioEl.play();
-      if (p && p.catch) p.catch(() => done(false)); // เบราว์เซอร์บล็อก/เล่นไม่ขึ้น
-      // ไล่ความดังขึ้นหลังเสียงเริ่มเล่นจริง (ถ้าโหลดไม่ได้ onerror จะจบให้เอง)
-      audioEl.onplaying = () => rampVolume(audioEl, 1, FADE_IN_MS);
+      if (p && p.then) p.then(fadeIn).catch(() => done(false)); // เบราว์เซอร์บล็อก/เล่นไม่ขึ้น
     });
   }
 

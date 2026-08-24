@@ -75,7 +75,9 @@ const AlertSystem = (() => {
       speakingLevel = point.level;
       const seq = ++speakSeq;
       TTS.playChime(point.level)
-        .then(() => TTS.speak(msg))
+        // ถ้าระหว่างเล่นเสียงนำมีจุดที่เร่งด่วนกว่าตัดเข้ามา ให้ทิ้งประโยคนี้ไปเลย
+        // ไม่งั้นชุดเก่าจะพูดออกมาทับตอนเสียงนำของชุดใหม่ยังไม่จบ แล้วค่อยโดนตัดกลางคำ
+        .then(() => (seq === speakSeq ? TTS.speak(msg) : true))
         .then((spoken) => {
           if (!spoken) showBanner("⚠️ " + msg, point.level);
         })
