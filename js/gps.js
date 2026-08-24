@@ -9,15 +9,15 @@ const GPS = (() => {
   let plannedRoute = null; // เส้นทางจำลอง (memoized) — [{lat,lng}] รวมจุดตั้งต้น/สิ้นสุด
 
   // เส้นทางถนนจริง (สร้างจาก OSRM) ให้รถวิ่งตามเลนถนนตลอด ไม่ตัดข้ามอาคาร
-  // วิ่งบนถนน "บางปะอิน - แขวงรามอินทรา" (~10.5 กม.) ผ่านคลัสเตอร์ 3 วงในรัศมี 600 ม.
-  // ตั้งแต่จำแนกระดับด้วย Severity Index ทั้งสามวงเป็นระดับต่ำ
-  // ทั้งหมด — ต่างจากโมเดล v2 เดิมที่เส้นทางนี้ผ่านครบ 3 ระดับ เพราะหน่วยที่ SI สูง
-  // อยู่คนละบริเวณกับหน่วยที่เกิดเหตุถี่
+  // วิ่งบนถนน "แยกสาครเกษม - คลองมะเดื่อ" (สมุทรสาคร ~6.2 กม.) ทิศทางเดียวไม่สวนเลน
+  // ผ่านคลัสเตอร์ 7 วงในรัศมีเตือน ครบทั้งสามระดับ: ต่ำ -> ปานกลาง -> สูง (zone_455)
+  // เส้นทางเดิม "บางปะอิน - แขวงรามอินทรา" เก็บไว้ที่ data/mock_route_bangpain.geojson
+  // (เส้นนั้นเหลือแค่ระดับต่ำกับปานกลางหลังเปลี่ยนมาใช้ชุดข้อมูล 3 ปี)
   const MOCK_ROUTE_URL = "data/mock_route.geojson";
 
   // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยคลัสเตอร์เป็นเส้นตรงแทน
-  // (id ตามรอบ calibration v2568-r10 — เรียงตามลำดับบนถนน)
-  const MOCK_ROUTE_IDS = ["zone_99", "zone_111", "zone_100"];
+  // (id ตามรอบ calibration v2569-r1-3y — เรียงตามลำดับบนถนน)
+  const MOCK_ROUTE_IDS = ["zone_431", "zone_440", "zone_455"];
 
   // คลัสเตอร์ที่ "ยกเว้นเฉพาะโหมดจำลอง" — ใส่ id วงที่อยู่คนละฝั่งเลน/แรมป์ ที่รถไม่ได้ขับผ่านจริง
   // (รอบ v2568-r10 ยังไม่พบวงที่ต้องยกเว้น)
@@ -155,9 +155,31 @@ const GPS = (() => {
   }
 
   /**
-   * โหมดจำลอง: ขับตามเส้นทางที่ร้อยจากจุดเสี่ยงจริงหลายจุด
-   * เลื่อนตำแหน่งตามเวลาที่ผ่านไปจริง (interpolate) จึงลื่นไหลและจบภายในเวลาที่กำหนด
-   * ปรับจังหวะได้ด้วย ?mockpace=<วินาที/กม.> (ค่าเริ่มต้น 6 → ~15 กม. ราว 90 วิ)
+   * ระยะทางที่วิ่งได้ ณ วินาทีที่ t — ออกตัวและเบรกจริงแบบรถยนต์ ไม่ใช่ความเร็วคงที่ทันที
+   * ช่วงออกตัวเร่งด้วย ACCEL_MS2 จนถึงความเร็วเดินทาง แล้วคงที่ และชะลอลงก่อนถึงปลายทาง
+   * (ทำให้หมุดไม่กระโดดจากนิ่งเป็นความเร็วเต็มในเฟรมเดียว ดูเป็นการขับจริง)
+   */
+  function distanceAtTime(t, cruise, accel, total) {
+    const rampS = cruise / accel; // เวลาที่ใช้เร่ง/เบรก
+    const rampM = (cruise * cruise) / (2 * accel); // ระยะที่ใช้เร่ง/เบรก
+    // เส้นทางสั้นเกินกว่าจะเร่งถึงความเร็วเดินทาง — เร่งครึ่งทางแล้วเบรกครึ่งทาง
+    if (2 * rampM >= total) {
+      const halfT = Math.sqrt(total / accel);
+      if (t <= halfT) return 0.5 * accel * t * t;
+      const td = Math.min(t - halfT, halfT);
+      return total / 2 + accel * halfT * td - 0.5 * accel * td * td;
+    }
+    const cruiseS = (total - 2 * rampM) / cruise;
+    if (t <= rampS) return 0.5 * accel * t * t;
+    if (t <= rampS + cruiseS) return rampM + cruise * (t - rampS);
+    const td = Math.min(t - rampS - cruiseS, rampS);
+    return total - rampM + cruise * td - 0.5 * accel * td * td;
+  }
+
+  /**
+   * โหมดจำลอง: ขับตามเส้นทางถนนจริงด้วยความเร็วสมจริง
+   * ค่าเริ่มต้น 80 กม./ชม. (เท่าเพดานความเร็วที่โมเดลใช้กับสายทางประเภทนี้)
+   * ปรับได้ด้วย ?kmh=<ความเร็ว> เช่น ?kmh=100 ขับเร็วขึ้น หรือ ?kmh=40 ดูจังหวะเตือนแบบช้าๆ
    */
   function startMock(onUpdate) {
     const verts = getMockRoute();
@@ -171,19 +193,23 @@ const GPS = (() => {
       total += d;
     }
 
-    const pace = Number(param("mockpace", 6)); // วินาทีต่อกิโลเมตร
-    const durationS = Math.max(45, Math.min(150, (total / 1000) * pace));
-    const speed = total / durationS; // m/s (เร่งเวลาให้ดูจบไว แต่ยังลื่น)
-    const TICK_MS = 120;
+    const kmh = Math.max(10, Math.min(160, Number(param("kmh", 80)) || 80));
+    const cruise = kmh / 3.6; // m/s
+    const ACCEL_MS2 = 2.0; // อัตราเร่ง/หน่วงของรถยนต์ทั่วไป (0-100 กม./ชม. ราว 14 วิ)
+    const TICK_MS = 200; // ใกล้เคียงจังหวะที่ GPS จริงส่งตำแหน่ง (1-5 ครั้งต่อวินาที)
 
+    // เวลารวมโดยประมาณ (ช่วงเร่ง+เบรกทำให้ช้ากว่าวิ่งความเร็วคงที่เล็กน้อย)
+    const durationS = total / cruise + cruise / ACCEL_MS2;
     console.log(
-      `[MOCK] เส้นทางจำลอง ${verts.length - 2} จุดเสี่ยง · ${(total / 1000).toFixed(1)} กม. · ~${durationS.toFixed(0)} วิ`
+      `[MOCK] เส้นทางจำลอง ${(total / 1000).toFixed(2)} กม. · ${kmh} กม./ชม. · ~${Math.round(durationS)} วิ` +
+        ` (ปรับด้วย ?kmh=)`
     );
 
     const startedAt = performance.now();
     onUpdate(verts[0].lat, verts[0].lng, 8);
     mockTimer = setInterval(() => {
-      let dist = (speed * (performance.now() - startedAt)) / 1000;
+      const elapsedS = (performance.now() - startedAt) / 1000;
+      let dist = distanceAtTime(elapsedS, cruise, ACCEL_MS2, total);
       if (dist >= total) {
         onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8);
         clearInterval(mockTimer);

@@ -118,56 +118,68 @@ RULES = [
     (
         "fatal-history",
         lambda p: p.get("deaths", 0) >= 1,
-        lambda p: f"เคยมีผู้เสียชีวิต {p['deaths']} ราย",
-        lambda p: "ลดความเร็วและใช้ความระมัดระวังสูงสุด",
+        lambda p: f"จุดนี้เคยมีผู้เสียชีวิต {p['deaths']} ราย",
+        lambda p: "ลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ",
     ),
     (
         "junction",
         lambda p: re.search(r"แยก|ทางร่วม", p.get("road_feature") or ""),
-        lambda p: "บริเวณทางแยก/ทางร่วม",
-        lambda p: "ชะลอความเร็ว ระวังรถตัดกระแสจราจร",
+        lambda p: "เป็นบริเวณทางแยกทางร่วม",
+        lambda p: "ชะลอความเร็ว และระวังรถตัดผ่านทางแยก",
     ),
     (
         "u-turn",
         lambda p: re.search(r"กลับรถ", p.get("road_feature") or ""),
-        lambda p: "บริเวณจุดกลับรถ",
-        lambda p: "ระวังรถชะลอเพื่อกลับรถ เว้นระยะห่าง",
+        lambda p: "เป็นบริเวณจุดกลับรถ",
+        lambda p: "เว้นระยะห่าง และระวังรถชะลอตัวเพื่อกลับรถ",
     ),
     (
         "curve",
         lambda p: re.search(r"โค้ง", p.get("road_feature") or ""),
-        lambda p: "บริเวณทางโค้ง",
-        lambda p: "ลดความเร็วก่อนเข้าโค้ง งดแซง",
+        lambda p: "เป็นช่วงทางโค้ง",
+        lambda p: "ลดความเร็วก่อนเข้าโค้ง และงดแซงในช่วงนี้",
     ),
     (
         "access-road",
         lambda p: re.search(r"เชื่อมเข้า", p.get("road_feature") or ""),
-        lambda p: "ทางเชื่อมเข้าพื้นที่ข้างทาง",
-        lambda p: "ระวังรถเข้า-ออกกะทันหัน",
+        lambda p: "มีทางเชื่อมเข้าออกพื้นที่ข้างทาง",
+        lambda p: "ระวังรถเข้าออกพื้นที่ข้างทาง",
+    ),
+    (
+        "single-vehicle",
+        lambda p: p.get("pattern") == "single",
+        lambda p: "จุดนี้มักเกิดเหตุรถเสียหลักออกนอกเส้นทาง",
+        lambda p: "ลดความเร็ว และประคองพวงมาลัยให้มั่นคง",
+    ),
+    (
+        "multi-vehicle",
+        lambda p: p.get("pattern") == "multiple",
+        lambda p: "จุดนี้มักเกิดเหตุรถหลายคันชนกัน",
+        lambda p: "เว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง",
     ),
     (
         "speeding-cause",
         lambda p: re.search(r"เร็ว", p.get("top_cause") or ""),
-        lambda p: "สถิติชี้ว่าสาเหตุหลักคือการขับเร็วเกินกำหนด",
+        lambda p: "สาเหตุหลักมาจากการใช้ความเร็วเกินกำหนด",
         lambda p: f"ใช้ความเร็วไม่เกิน {p['speed_limit']} กิโลเมตรต่อชั่วโมง",
     ),
     (
         "rear-end",
         lambda p: re.search(r"ชนท้าย", p.get("crash_pattern") or ""),
-        lambda p: "จุดนี้เกิดเหตุชนท้ายบ่อย",
+        lambda p: "จุดนี้เกิดเหตุชนท้ายบ่อยครั้ง",
         lambda p: "เว้นระยะห่างจากรถคันหน้าให้มากขึ้น",
     ),
     (
         "rollover",
         lambda p: re.search(r"พลิกคว่ำ|ตกถนน", p.get("crash_pattern") or ""),
-        lambda p: "จุดนี้เกิดเหตุรถเสียหลัก/พลิกคว่ำบ่อย",
-        lambda p: "ลดความเร็ว จับพวงมาลัยให้มั่นคง",
+        lambda p: "จุดนี้เกิดเหตุรถพลิกคว่ำบ่อยครั้ง",
+        lambda p: "ลดความเร็ว และประคองพวงมาลัยให้มั่นคง",
     ),
     (
         "high-speed-road",
         lambda p: (p.get("speed_limit") or 0) >= 90,
-        lambda p: f"ถนนความเร็วสูง (จำกัด {p['speed_limit']} กม./ชม.)",
-        lambda p: "เว้นระยะห่างและไม่เปลี่ยนช่องทางกะทันหัน",
+        lambda p: "เป็นถนนที่ใช้ความเร็วสูง",
+        lambda p: "เว้นระยะห่าง และหลีกเลี่ยงการเปลี่ยนช่องทางกะทันหัน",
     ),
 ]
 
@@ -187,20 +199,12 @@ def build_alert_message(point, distance_m):
     top = matched[0] if matched else None
 
     if point["level"] == "high":
-        tail = (
-            f" {top['cause']} โปรด{top['advice']}"
-            if top
-            else " โปรดลดความเร็วและใช้ความระมัดระวังสูงสุด"
-        )
-        return f"โปรดทราบ ข้างหน้าประมาณ {dist} เมตร เป็นจุดเสี่ยงอุบัติเหตุระดับสูง{tail}"
+        advice = top["advice"] if top else "ลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ"
+        return f"ข้างหน้าอีกประมาณ {dist} เมตร มีจุดอันตราย กรุณา{advice}"
     if point["level"] == "medium":
-        tail = (
-            f" {top['cause']} โปรด{top['advice']}"
-            if top
-            else " โปรดขับขี่ด้วยความระมัดระวัง"
-        )
-        return f"ข้างหน้าประมาณ {dist} เมตร เป็นจุดเสี่ยงอุบัติเหตุระดับปานกลาง{tail}"
-    return f"ข้างหน้าประมาณ {dist} เมตร มีจุดเฝ้าระวังอุบัติเหตุ โปรดขับขี่ด้วยความระมัดระวัง"
+        advice = top["advice"] if top else "ชะลอความเร็ว และขับขี่ด้วยความระมัดระวัง"
+        return f"ข้างหน้าอีกประมาณ {dist} เมตร กรุณา{advice}"
+    return f"ข้างหน้าอีกประมาณ {dist} เมตร ขอให้ขับขี่ด้วยความระมัดระวัง"
 
 
 # ---------- Endpoints ----------
