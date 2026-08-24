@@ -58,6 +58,9 @@ BUZZER_PIN = 13  # เลข GPIO แบบ BCM (ไม่ใช่ตำแห�
 
 GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
 
+# จอง GPIO ของ buzzer สำเร็จหรือยัง — ถ้าไม่สำเร็จยังเดินต่อได้ เหลือแต่เสียงพูด
+BUZZER_READY = False
+
 # ให้ log ขึ้นทันทีแม้ stdout ถูก redirect (เช่น รันผ่าน systemd/journald บน Pi)
 sys.stdout.reconfigure(line_buffering=True)
 
@@ -166,18 +169,31 @@ class GpsdReader:
 
 
 def setup_buzzer():
-    """เตรียมขา GPIO ของ buzzer (เรียกครั้งเดียวตอนเริ่มโปรแกรม)"""
+    """เตรียมขา GPIO ของ buzzer (เรียกครั้งเดียวตอนเริ่มโปรแกรม)
+
+    จองขาไม่ได้ไม่ถือว่าโปรแกรมพัง — ข้ามแค่ buzzer แล้วเตือนด้วยเสียงพูดต่อไป
+    เคสที่เจอบ่อยคือ "GPIO busy": ไคลเอนต์รอบก่อนยังไม่ตาย หรือถูก kill -9
+    จนไม่ได้เรียก GPIO.cleanup() ขาเลยค้างว่าถูกจองอยู่
+    """
+    global BUZZER_READY
     if GPIO is None:
         print("   (ไม่พบ RPi.GPIO — buzzer จะไม่ทำงาน ติดตั้งด้วย: sudo apt install python3-rpi.gpio)", file=sys.stderr)
         return
-    GPIO.setmode(GPIO.BCM)  # เลข GPIO แบบ BCM (ยืนยันจากการทดสอบจริงว่าตรงกับ buzzer ที่ต่อไว้ — BUZZER_PIN=13)
-    GPIO.setup(BUZZER_PIN, GPIO.OUT, initial=GPIO.LOW)
+    try:
+        GPIO.setmode(GPIO.BCM)  # เลข GPIO แบบ BCM (ยืนยันจากการทดสอบจริงว่าตรงกับ buzzer ที่ต่อไว้ — BUZZER_PIN=13)
+        GPIO.setup(BUZZER_PIN, GPIO.OUT, initial=GPIO.LOW)
+    except Exception as e:  # noqa: BLE001 — lgpio.error/RuntimeError แล้วแต่เวอร์ชัน
+        print(f"   [buzzer] จองขา GPIO{BUZZER_PIN} ไม่ได้: {e}", file=sys.stderr)
+        print("   [buzzer] ข้ามเสียง buzzer ใช้เสียงพูดอย่างเดียวต่อไป", file=sys.stderr)
+        print("   [buzzer] ถ้าอยากได้ buzzer ด้วย ให้ปิดโปรเซสเก่าก่อน:  pkill -f pi_alert_client.py", file=sys.stderr)
+        return
+    BUZZER_READY = True
 
 
 def beep():
     """buzzer ร้อง 1 วิ ผ่านขา GPIO — ตอนเข้าใกล้จุดเสี่ยงในระยะ ALERT_RADIUS_M"""
     print("\a🔔 buzzer")
-    if GPIO is None:
+    if not BUZZER_READY:
         return
     GPIO.output(BUZZER_PIN, GPIO.HIGH)
     time.sleep(1)
@@ -349,9 +365,10 @@ def run(api_base, position_source, speak_enabled=True):
     beeped = set()  # point id ที่ร้อง beep ไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
     voice = "เปิด" if speak_enabled else "ปิด"
     player = _player_cmd() or "ไม่พบโปรแกรมเล่น mp3"
+    buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
     print(
-        f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, "
-        f"เตือนที่ {ALERT_RADIUS_M} ม., เสียงพูด: {voice}, ตัวเล่นเสียง: {player})"
+        f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม., "
+        f"เสียงพูด: {voice} [{player}], buzzer: {buzzer})"
     )
 
     while True:
@@ -493,7 +510,7 @@ def main():
     except KeyboardInterrupt:
         print("\nหยุดการทำงาน")
     finally:
-        if GPIO is not None:
+        if BUZZER_READY:
             GPIO.cleanup()
 
 
