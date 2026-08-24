@@ -211,7 +211,10 @@ def beep():
 CLIP_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
 
 # อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a) — Pi มีทั้ง HDMI และแจ็ค 3.5 มม.
-# ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น hw:1,0
+# ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น plughw:2,0
+# ใช้ plughw: ไม่ใช่ hw: เพราะ plug ให้ ALSA แปลง sample rate/ช่องสัญญาณให้อัตโนมัติ
+# DAC แบบ I2S (เช่น MAX98357A) เป็นโมโนและรับบาง sample rate เท่านั้น ถ้าใช้ hw: ตรงๆ
+# ไฟล์ที่ rate ไม่ตรงจะเปิดไม่ผ่าน
 AUDIO_DEVICE = None
 
 # ชั้น 1 (Botnoi สด) ใช้ได้ไหม — ถ้าเซิร์ฟเวอร์ตอบ 503 แปลว่าไม่ได้ตั้ง BOTNOI_TOKEN
@@ -481,7 +484,7 @@ def check_voice(api_base):
         print("   amixer sset Master 90%       เร่งเสียงให้สุด")
         print("   aplay -l                     ดูว่ามีการ์ดเสียงอะไรบ้าง")
         print("   sudo raspi-config            System Options > Audio เลือกช่องที่ต่อลำโพง")
-        print("   ถ้าต้องเจาะจงการ์ด ให้เพิ่ม  --audio-device hw:1,0")
+        print("   ถ้าต้องเจาะจงการ์ด ให้เพิ่ม  --audio-device plughw:2,0 (ดูเลขการ์ดจาก aplay -l)")
     else:
         print("ไม่มีชั้นไหนเล่นได้เลย — ดูบรรทัด [เสียง] ด้านบนว่าติดที่อะไร")
     return ok
@@ -492,7 +495,7 @@ def main():
     parser.add_argument("--api", default="http://localhost:8000",
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
     parser.add_argument("--audio-device", metavar="DEV",
-                        help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น hw:1,0 — ปกติไม่ต้องใส่")
+                        help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น plughw:2,0 — ปกติไม่ต้องใส่")
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--checkvoice", action="store_true",
                         help="ตรวจว่าทำไมเสียงพูดไม่ออก แล้วลองพูดประโยคตัวอย่างหนึ่งครั้ง")
