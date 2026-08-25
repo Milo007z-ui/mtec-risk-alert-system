@@ -209,11 +209,11 @@ def build_alert_message(point, distance_m):
 
     if point["level"] == "high":
         advice = top["advice"] if top else "ลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ"
-        return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับสูง กรุณา{advice}"
+        return f"ข้างหน้าอีก {dist} เมตร ใกล้จุดเสี่ยงสูง โปรด{advice}"
     if point["level"] == "medium":
         advice = top["advice"] if top else "ชะลอความเร็ว และขับขี่ด้วยความระมัดระวัง"
-        return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับปานกลาง กรุณา{advice}"
-    return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับต่ำ ขอให้ขับขี่ด้วยความระมัดระวัง"
+        return f"ข้างหน้าอีก {dist} เมตร ใกล้จุดเสี่ยงปานกลาง โปรด{advice}"
+    return f"ข้างหน้าอีก {dist} เมตร ใกล้จุดเสี่ยงต่ำ โปรดขับขี่ด้วยความระมัดระวัง"
 
 
 # ---------- Endpoints ----------
