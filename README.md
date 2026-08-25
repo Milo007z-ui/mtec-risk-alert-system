@@ -245,6 +245,50 @@ python -m uvicorn api.server:app --host 0.0.0.0 --port 8000
 # API docs:  http://localhost:8000/docs   (Swagger UI อัตโนมัติ)
 ```
 
+### รันแบบไม่ต้องเปิดหน้าจอ/เทอร์มินัลค้างไว้ (systemd)
+
+คำสั่งข้างบนต้องมีเทอร์มินัลเปิดค้างตลอด ปิดหน้าต่างหรือปิด SSH เมื่อไหร่โปรแกรมก็หยุด
+ถ้าจะติดตั้งใช้งานจริงบนรถ (ไม่มีจอ ไม่มีคนเปิดเทอร์มินัลให้) ให้ตั้งเป็น **systemd service**
+แทน — เริ่มทำงานเองตอนเปิดเครื่อง รันอยู่เบื้องหลังตลอด และรีสตาร์ทเองถ้าโปรแกรมพัง
+
+ไฟล์ตั้งต้นอยู่ที่ `systemd/mtec-api.service` (เซิร์ฟเวอร์) และ
+`systemd/mtec-alert-client.service` (ไคลเอนต์บนอุปกรณ์ ใช้กับ GPS จริง ไม่ใช่โหมด `--route`)
+
+```bash
+cd ~/mtec-risk-alert-system
+
+# คัดลอกไฟล์ตั้งค่าเข้าระบบ (ทำครั้งเดียว)
+sudo cp systemd/mtec-api.service /etc/systemd/system/
+sudo cp systemd/mtec-alert-client.service /etc/systemd/system/
+
+# ถ้า user ไม่ใช่ pi หรือโฟลเดอร์โปรเจกต์อยู่คนละที่ ให้แก้ User=/WorkingDirectory
+# ในไฟล์ /etc/systemd/system/*.service ก่อนขั้นตอนถัดไป
+sudo nano /etc/systemd/system/mtec-alert-client.service   # เช็ค --audio-device ให้ตรงเลขการ์ด
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now mtec-api.service
+sudo systemctl enable --now mtec-alert-client.service
+```
+
+`enable --now` สั่งสองอย่างพร้อมกัน: เริ่มทำงานทันที และให้เริ่มเองทุกครั้งที่ Pi บูต
+หลังจากนี้**ปิดหน้าจอ ถอด SSH หรือปิด-เปิดเครื่องใหม่ได้เลย ระบบทำงานต่อเนื่อง**
+
+คำสั่งที่ใช้บ่อยหลังตั้งเป็น service แล้ว:
+
+```bash
+sudo systemctl status mtec-api.service           # เช็คว่ากำลังรันอยู่ไหม
+sudo journalctl -u mtec-api.service -f            # ดู log สด (Ctrl+C ออก)
+sudo journalctl -u mtec-alert-client.service -f   # log ของไคลเอนต์ เห็นบรรทัด [ALERT]/[เสียง]
+sudo systemctl restart mtec-api.service           # รีสตาร์ท เช่นหลัง build ข้อมูลใหม่
+sudo systemctl stop mtec-alert-client.service      # หยุดชั่วคราว
+sudo systemctl disable mtec-api.service           # เลิกให้เริ่มเองตอนบูต (ยังรันอยู่จนกว่าจะ stop)
+```
+
+⚠️ `mtec-alert-client.service` ตั้งค่าไว้ให้ใช้ `--gpsd` (โหมด GPS จริง) เพราะเป็นค่าที่เหมาะกับ
+การติดตั้งถาวรบนรถ ถ้าจะทดสอบด้วยเส้นทางจำลองให้รันคำสั่งมือแบบเดิมแทน ไม่ต้องผ่าน service
+(ปกติจะมี `mtec-alert-client.service` รันเงียบ ๆ อยู่แล้ว ให้ `sudo systemctl stop
+mtec-alert-client.service` ก่อน ไม่งั้นจะมีสองโปรเซสแย่งกันคุยกับ GPIO เดียวกัน)
+
 | Endpoint | ความหมาย |
 |---|---|
 | `GET /api/health` | สถานะเซิร์ฟเวอร์ + จำนวนจุดเสี่ยง |

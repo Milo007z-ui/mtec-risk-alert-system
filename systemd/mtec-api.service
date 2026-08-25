@@ -1,0 +1,20 @@
+[Unit]
+Description=EMMA Risk Point API (mtec-risk-alert-system)
+# ต้องรอให้เครือข่ายพร้อมก่อน ไม่งั้นบางทีบูตเสร็จเร็วกว่า network-online
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/mtec-risk-alert-system
+ExecStart=/usr/bin/python3 -m uvicorn api.server:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=3
+
+# ตั้ง BOTNOI_TOKEN ที่นี่ถ้าต้องการเสียง Botnoi สด (ชั้น 1) — ไม่ตั้งไว้ก็ใช้งานได้ปกติ
+# แค่ตกไปชั้น 0/2/3 แทน ดู README หัวข้อ "เสียงพูดบนอุปกรณ์"
+# Environment=BOTNOI_TOKEN=xxxxxxxx
+
+[Install]
+WantedBy=multi-user.target

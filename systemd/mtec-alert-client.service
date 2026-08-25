@@ -1,0 +1,18 @@
+[Unit]
+Description=EMMA Pi Alert Client (mtec-risk-alert-system) - ใช้งานจริงกับ GPS
+# ต้องรอ mtec-api.service ให้เปิดพอร์ต 8000 เสร็จก่อน ไม่งั้นเชื่อมต่อไม่ติดตั้งแต่ต้น
+After=mtec-api.service
+Requires=mtec-api.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/mtec-risk-alert-system
+# --gpsd = โหมดใช้งานจริงกับ GPS จริง ไม่ใช่โหมดจำลอง (--route)
+# ปรับ --audio-device ให้ตรงกับเลขการ์ดของเครื่อง เช็คด้วย aplay -l
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --gpsd --audio-device plughw:2,0
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
