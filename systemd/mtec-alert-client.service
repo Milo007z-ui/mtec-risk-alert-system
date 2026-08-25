@@ -10,7 +10,13 @@ User=pi
 WorkingDirectory=/home/pi/mtec-risk-alert-system
 # --gpsd = โหมดใช้งานจริงกับ GPS จริง ไม่ใช่โหมดจำลอง (--route)
 # ปรับ --audio-device ให้ตรงกับเลขการ์ดของเครื่อง เช็คด้วย aplay -l
-ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --gpsd --audio-device plughw:2,0
+#
+# --volume 300 คู่กับไฟล์เสียงใน audio/loud/ ที่สร้างจาก Botnoi ตั้ง 300% มาแล้ว
+# (peak=1.000 rms=0.159 วัดจริง) การซ้อน --volume 300 เพิ่มอีกชั้นทำให้พยางค์ที่ดัง
+# กว่าค่าเฉลี่ยมาก ๆ เกิด clipping จริง แต่ผู้ใช้ฟังเทียบบนลำโพงจริงแล้วยืนยันว่า
+# ยังฟังโอเค (2026-08-25) — ถ้าเปลี่ยนไฟล์เสียงชุดใหม่ที่ Botnoi ระดับอื่น (ไม่ใช่ 300%)
+# ต้องวัด peak/rms ใหม่แล้วทบทวนค่านี้ ไม่งั้นอาจดังเกินจนแตกหนักกว่านี้มาก
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --gpsd --audio-device plughw:2,0 --volume 300
 Restart=on-failure
 RestartSec=5
 
