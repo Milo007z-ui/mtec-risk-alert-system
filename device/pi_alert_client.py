@@ -15,22 +15,33 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 
 ใช้ Python standard library เป็นหลัก ยกเว้นส่วนคุม buzzer ที่ต้องมี RPi.GPIO
 (มากับ Raspberry Pi OS อยู่แล้ว ไม่ต้อง pip install เพิ่ม — ถ้าไม่มีจะแค่ข้ามการสั่ง buzzer เฉยๆ)
+ส่วนเสียงพูดไม่ได้ใช้ audio library ของ Python เลย — สั่ง mpg123/espeak-ng ผ่าน subprocess
 
-ตัวอย่างการใช้งาน:
-  # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS)
-  python3 pi_alert_client.py --api http://192.168.1.10:8000 --test 13.665 100.534
+ฮาร์ดแวร์ที่ใช้จริง (Raspberry Pi 5):
+  - เสียงพูด  MAX98357A (I2S DAC + แอมป์ Class-D 3W ในตัว) -> ลำโพง 8Ω 2W
+              Vin ขา2(5V) · GND ขา6 · BCLK ขา12 · LRC ขา35 · DIN ขา40
+              SD/GAIN ปล่อยลอย · ต้องมี dtoverlay=max98357a,no-sdmode ใน config.txt
+              ** Pi 5 ไม่มีแจ็ค 3.5 มม. และจอ HDMI ที่ใช้ไม่รับเสียง จึงต้องมีโมดูลนี้ **
+  - buzzer    GPIO13 (ขา 33) — ไม่ชนกับ I2S ที่ใช้ GPIO18/19/21
+  รายละเอียดการต่อสายทั้งหมดอยู่ใน README หัวข้อ "ต่อลำโพงกับ Raspberry Pi 5"
+
+ตัวอย่างการใช้งาน (ค่า --audio-device/--volume ตั้ง default ให้ตรงกับชุดข้างบนแล้ว
+ไม่ต้องพิมพ์เองถ้าใช้ฮาร์ดแวร์ชุดนี้):
+  # ตรวจว่าเสียงพูดออกลำโพงไหม พร้อมบอกว่าติดตรงไหนถ้าไม่ออก
+  python3 device/pi_alert_client.py --checkvoice
+
+  # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1 (เตือน 7 ครั้ง ครบสามระดับ)
+  python3 device/pi_alert_client.py --route data/mock_route.geojson --once
 
   # ใช้งานจริงกับ GPS ผ่าน gpsd (sudo apt install gpsd)
-  python3 pi_alert_client.py --api http://192.168.1.10:8000 --gpsd
+  python3 device/pi_alert_client.py --gpsd
 
-  # จำลองการขับด้วยไฟล์เส้นทาง (บรรทัดละ "lat,lng")
-  python3 pi_alert_client.py --api http://192.168.1.10:8000 --route route.csv
+  # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS) / ปิดเสียงพูดเหลือแค่ buzzer
+  python3 device/pi_alert_client.py --test 13.665 100.534
+  python3 device/pi_alert_client.py --route data/mock_route.geojson --no-speak
 
-  # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1
-  python3 pi_alert_client.py --api http://192.168.1.10:8000 --route ../data/mock_route.geojson
-
-  # วิ่งจบเส้นทางครั้งเดียวแล้วหยุด (ไม่วนซ้ำ)
-  python3 pi_alert_client.py --api http://192.168.1.10:8000 --route ../data/mock_route.geojson --once
+  # เครื่องอื่นที่การ์ดเสียงคนละเลข หรืออยากลองความดังอื่น
+  python3 device/pi_alert_client.py --gpsd --audio-device plughw:1,0 --volume 400
 """
 
 import argparse
@@ -227,17 +238,27 @@ def _pick_clip_dir():
 
 CLIP_DIR = _pick_clip_dir()
 
-# อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a) — Pi มีทั้ง HDMI และแจ็ค 3.5 มม.
-# ปกติปล่อย None ให้ใช้ค่า default ของระบบ ตั้งได้ด้วย --audio-device เช่น plughw:2,0
+# อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a)
 # ใช้ plughw: ไม่ใช่ hw: เพราะ plug ให้ ALSA แปลง sample rate/ช่องสัญญาณให้อัตโนมัติ
-# DAC แบบ I2S (เช่น MAX98357A) เป็นโมโนและรับบาง sample rate เท่านั้น ถ้าใช้ hw: ตรงๆ
+# DAC แบบ I2S (MAX98357A) เป็นโมโนและรับบาง sample rate เท่านั้น ถ้าใช้ hw: ตรงๆ
 # ไฟล์ที่ rate ไม่ตรงจะเปิดไม่ผ่าน
-AUDIO_DEVICE = None
+#
+# card 2 คือเลขที่ MAX98357A ได้บนเครื่องที่ใช้จริง (vc4hdmi0/1 กิน card 0/1 ไปก่อน)
+# ถ้าย้ายไปเครื่องอื่นหรือเสียบ USB audio เพิ่ม เลขอาจเปลี่ยน เช็คด้วย aplay -l
+# แล้วสั่งทับด้วย --audio-device ได้
+DEFAULT_AUDIO_DEVICE = "plughw:2,0"
+AUDIO_DEVICE = DEFAULT_AUDIO_DEVICE
 
 # ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = ระดับเดิมของไฟล์) ตั้งด้วย --volume
-# จำเป็นเพราะ DAC แบบ MAX98357A ไม่มีตัวคุมระดับเสียงในตัว amixer จึงไม่มีอะไรให้เร่ง
+# จำเป็นเพราะ MAX98357A ไม่มีตัวคุมระดับเสียงในตัว amixer จึงไม่มี control ให้เร่ง
 # เกิน 100 = ขยายสัญญาณด้วยซอฟต์แวร์ ดังขึ้นแลกกับความเสี่ยงที่เสียงจะแตกเมื่อ clip
-VOLUME_PCT = 100
+#
+# 300 มาจากการฟังเทียบบนลำโพงจริง — ไฟล์ใน audio/loud/ อัดจาก Botnoi ที่ตั้ง 300%
+# มาแล้ว (วัดได้ peak=1.000 rms=0.159) การซ้อน 300 ที่ไคลเอนต์อีกชั้นทำให้พยางค์ที่
+# ดังกว่าค่าเฉลี่ยมาก ๆ clip จริง แต่ผู้ใช้ยืนยันว่ายังฟังโอเคและต้องการความดังระดับนี้
+# ** เปลี่ยนไฟล์เสียงชุดใหม่เมื่อไหร่ ต้องวัด peak/rms ใหม่แล้วทบทวนค่านี้ **
+DEFAULT_VOLUME_PCT = 300
+VOLUME_PCT = DEFAULT_VOLUME_PCT
 
 # ชั้น 1 (Botnoi สด) ใช้ได้ไหม — ถ้าเซิร์ฟเวอร์ตอบ 503 แปลว่าไม่ได้ตั้ง BOTNOI_TOKEN
 # ปิดชั้นนี้ทิ้งทั้งรอบเลย ไม่ต้องเสียเวลายิงซ้ำแล้วพ่น error ทุกครั้งที่เตือน
@@ -410,7 +431,8 @@ def run(api_base, position_source, speak_enabled=True):
     buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม., "
-        f"เสียงพูด: {voice} [{player} {VOLUME_PCT}%], buzzer: {buzzer})"
+        f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
+        f"buzzer: {buzzer})"
     )
 
     while True:
@@ -518,11 +540,12 @@ def main():
     parser = argparse.ArgumentParser(description="ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi")
     parser.add_argument("--api", default="http://localhost:8000",
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
-    parser.add_argument("--volume", type=int, default=100, metavar="PCT",
-                        help="ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = เดิม, 200 = ดังขึ้นเท่าตัว) "
+    parser.add_argument("--volume", type=int, default=DEFAULT_VOLUME_PCT, metavar="PCT",
+                        help=f"ความดังเสียงพูดเป็นเปอร์เซ็นต์ (ค่าเริ่มต้น {DEFAULT_VOLUME_PCT}) "
                              "หาเพดานที่ปลอดภัยด้วย scripts/measure_audio_headroom.py")
-    parser.add_argument("--audio-device", metavar="DEV",
-                        help="ส่งอุปกรณ์เสียงให้ mpg123 (-a) เช่น plughw:2,0 — ปกติไม่ต้องใส่")
+    parser.add_argument("--audio-device", metavar="DEV", default=DEFAULT_AUDIO_DEVICE,
+                        help=f"อุปกรณ์เสียงที่ส่งให้ mpg123 (-a) ค่าเริ่มต้น {DEFAULT_AUDIO_DEVICE} "
+                             "= การ์ด MAX98357A · ดูเลขการ์ดของเครื่องด้วย aplay -l")
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--checkvoice", action="store_true",
                         help="ตรวจว่าทำไมเสียงพูดไม่ออก แล้วลองพูดประโยคตัวอย่างหนึ่งครั้ง")
