@@ -198,18 +198,22 @@ def evaluate_rules(point):
 
 
 def build_alert_message(point, distance_m):
-    """ข้อความเตือนภาษาไทย (แบบเดียวกับ riskrules.buildAlertMessage) พร้อมให้ TTS พูด"""
+    """ข้อความเตือนภาษาไทย (แบบเดียวกับ riskrules.buildAlertMessage) พร้อมให้ TTS พูด
+
+    ต้องแก้คู่กับ js/riskrules.js เสมอ — ข้อความไม่ตรงกันแล้ว VOICE_CLIPS ใน
+    js/tts.js และ device/pi_alert_client.py จะ match ไม่ติด ตกไปใช้ TTS สดทุกครั้ง
+    """
     dist = round(distance_m / 50) * 50
     matched = evaluate_rules(point)
     top = matched[0] if matched else None
 
     if point["level"] == "high":
         advice = top["advice"] if top else "ลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ"
-        return f"ข้างหน้าอีกประมาณ {dist} เมตร มีจุดอันตราย กรุณา{advice}"
+        return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับสูง กรุณา{advice}"
     if point["level"] == "medium":
         advice = top["advice"] if top else "ชะลอความเร็ว และขับขี่ด้วยความระมัดระวัง"
-        return f"ข้างหน้าอีกประมาณ {dist} เมตร กรุณา{advice}"
-    return f"ข้างหน้าอีกประมาณ {dist} เมตร ขอให้ขับขี่ด้วยความระมัดระวัง"
+        return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับปานกลาง กรุณา{advice}"
+    return f"ข้างหน้าอีกประมาณ {dist} เมตร จุดเสี่ยงระดับต่ำ ขอให้ขับขี่ด้วยความระมัดระวัง"
 
 
 # ---------- Endpoints ----------
