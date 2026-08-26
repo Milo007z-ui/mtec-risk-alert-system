@@ -26,23 +26,24 @@
    "minor": 0.058
   },
   "marker_position": "on_road_node",
-  "analysis_units": 3,
-  "zones": 3,
-  "risk_points": 12,
+  "analysis_units": 8,
+  "zones": 8,
+  "risk_points": 32,
   "levels": {
    "high": 1,
-   "medium": 1,
-   "low": 1
+   "medium": 3,
+   "low": 4
   },
-  "min_gap_m": 277.3,
-  "recommended_alert_radius_m": 120,
-  "recommended_exit_radius_m": 150,
+  "min_gap_m": 71.1,
+  "recommended_alert_radius_m": 60,
+  "recommended_exit_radius_m": 80,
+  "non_overlapping_radius_m": 35.6,
   "overall": {
-   "risk_points": 12,
+   "risk_points": 32,
    "deaths": 2,
-   "serious_injury": 5,
-   "minor_injury": 9,
-   "epdo_total_million": 23.922
+   "serious_injury": 10,
+   "minor_injury": 21,
+   "epdo_total_million": 34.618
   }
  },
  "features": [
@@ -176,6 +177,231 @@
     "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
     "road_feature": "ทางตรง+ไม่มีความลาดชัน",
     "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.600927,
+     14.080113
+    ]
+   },
+   "properties": {
+    "id": "nstda_w1",
+    "unit_type": "cluster",
+    "centroid": [
+     14.080113,
+     100.600927
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก (หน้า NECTEC Pilot Plant)",
+    "road_label_source": "record",
+    "landmark": "หน้าโรงงานต้นแบบ NECTEC ปลายถนนฝั่งตะวันตก",
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.6667,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 2,
+    "multi_count": 1,
+    "single_pct": 66.7,
+    "multi_pct": 33.3,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.600884,
+     14.07946
+    ]
+   },
+   "properties": {
+    "id": "nstda_w2",
+    "unit_type": "cluster",
+    "centroid": [
+     14.07946,
+     100.600884
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก (ข้าง Betagro Science Center)",
+    "road_label_source": "record",
+    "landmark": "ทางเข้าออก Betagro Science Center / อาคาร MTEC",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 2,
+    "minor_injury": 3,
+    "fatal_crashes": 0,
+    "injured_total": 5,
+    "severity_index": 1.25,
+    "level": "medium",
+    "economic_loss": 4174000,
+    "epdo_million": 4.174,
+    "single_count": 1,
+    "multi_count": 3,
+    "single_pct": 25.0,
+    "multi_pct": 75.0,
+    "pattern": "multiple",
+    "top_cause": "ตัดหน้ากระชั้นชิด",
+    "road_feature": "ทางเชื่อมเข้าออกพื้นที่ข้างทาง",
+    "crash_pattern": "ชนด้านข้างขณะเลี้ยวเข้าออก",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.600852,
+     14.078821
+    ]
+   },
+   "properties": {
+    "id": "nstda_w3",
+    "unit_type": "cluster",
+    "centroid": [
+     14.078821,
+     100.600852
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก (หน้าอาคาร MTEC)",
+    "road_label_source": "record",
+    "landmark": "หน้าอาคาร MTEC ฝั่งถนนตะวันตก",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 3,
+    "fatal_crashes": 0,
+    "injured_total": 3,
+    "severity_index": 0.6,
+    "level": "low",
+    "economic_loss": 174000,
+    "epdo_million": 0.174,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
+    "pattern": "multiple",
+    "top_cause": "ขับตามกระชั้นชิด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.600785,
+     14.077699
+    ]
+   },
+   "properties": {
+    "id": "nstda_w4",
+    "unit_type": "cluster",
+    "centroid": [
+     14.077699,
+     100.600785
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก (หน้าอาคาร BIOTEC)",
+    "road_label_source": "record",
+    "landmark": "หน้าอาคาร BIOTEC / ศูนย์ฝึกอบรม",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 1,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 2058000,
+    "epdo_million": 2.058,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.600725,
+     14.076747
+    ]
+   },
+   "properties": {
+    "id": "nstda_w5",
+    "unit_type": "cluster",
+    "centroid": [
+     14.076747,
+     100.600725
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันตก (โค้งมุมตะวันตกเฉียงใต้)",
+    "road_label_source": "record",
+    "landmark": "ทางโค้งมุมตะวันตกเฉียงใต้ ก่อนเลี้ยวเข้าถนนด้านใต้",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 2,
+    "minor_injury": 3,
+    "fatal_crashes": 0,
+    "injured_total": 5,
+    "severity_index": 1.25,
+    "level": "medium",
+    "economic_loss": 4174000,
+    "epdo_million": 4.174,
+    "single_count": 1,
+    "multi_count": 3,
+    "single_pct": 25.0,
+    "multi_pct": 75.0,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางโค้ง",
+    "crash_pattern": "เสียหลักออกนอกทางในทางโค้ง",
     "road_type": "ถนนภายในหน่วยงาน",
     "speed_limit": 30,
     "synthetic": true
