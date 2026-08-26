@@ -153,6 +153,7 @@ GeoJSON จึงเก็บแยกกัน — `road` = ค่าดิบ�
 ```
 ├── index.html                  # หน้าแผนที่ โหลด Leaflet จาก CDN
 ├── dashboard.html              # หน้าแดชบอร์ดสถิติ
+├── test-nstda.html             # หน้าสนามทดสอบภาคสนาม สวทช. ปทุมธานี (ชุดข้อมูลสมมติ)
 ├── css/  style.css · dashboard.css
 ├── js/
 │   ├── distance.js             # Haversine + bounding box (ไม่แตะ DOM, test ได้ใน Node)
@@ -174,10 +175,14 @@ GeoJSON จึงเก็บแยกกัน — `road` = ค่าดิบ�
 │   ├── risk_points_bkk_metro.geojson   # คลัสเตอร์ 192 วง จากชุด 1 ปี (เลิกใช้)
 │   ├── accident_points.geojson         # จุดเสี่ยง 4,460 จุด จากชุด 1 ปี (เลิกใช้)
 │   ├── calibrations/v2569-r1-3y.json    # snapshot ค่ารอบคำนวณ (เก็บทุกรอบไว้ตรวจย้อนหลัง)
-│   └── mock_route.geojson              # เส้นทางถนนจริงสำหรับโหมดจำลอง
+│   ├── mock_route.geojson              # เส้นทางถนนจริงสำหรับโหมดจำลอง
+│   ├── risk_points_nstda_test.geojson  # จุดเสี่ยง "สมมติ" 3 จุดในอุทยานวิทย์ฯ (สนามทดสอบ)
+│   └── mock_route_nstda.geojson        # เส้นทางวนรอบอุทยานวิทย์ฯ 1.4 กม.
 ├── scripts/build_risk_points.py        # pipeline: Excel -> DBSCAN -> SI -> GeoJSON
 ├── scripts/build_risk_points_3y.py     # รัน pipeline เดิมกับข้อมูล 3 ปี (ที่ใช้จริง)
+├── scripts/build_nstda_test_site.py    # สร้างชุดสนามทดสอบ สวทช. (จุดเสี่ยงสมมติ + เส้นทาง)
 ├── docs/risk-score-criteria.md         # เกณฑ์โมเดล v3 + อ้างอิงทั้งหมด
+├── docs/field-test-nstda.md            # แผน/ใบตรวจ ทดสอบภาคสนามร่วมกับกล้อง EMMA
 ├── api/server.py                       # REST API (FastAPI) ให้อุปกรณ์ดึงข้อมูลจุดเสี่ยง
 ├── device/pi_alert_client.py           # ไคลเอนต์ Raspberry Pi: GPS -> เรียก API -> พูดเตือน
 └── tests/distance.test.js              # unit test: node tests/distance.test.js
@@ -441,6 +446,10 @@ python3 device/pi_alert_client.py --api http://localhost:8000 \
 | `EXIT_RADIUS_M` | ต้องออกไกลกว่านี้ถึงจะ "เตือนซ้ำได้เมื่อกลับเข้ามา" (hysteresis) | 600 ม. |
 | `REALERT_MS` | วนอยู่ในรัศมีเดิมนานเท่านี้ถึงเตือนซ้ำ | 5 นาที |
 
+สองค่าแรกทับได้จากหน้าเว็บด้วย `window.ALERT_RADIUS_M` / `window.EXIT_RADIUS_M`
+(ตั้งก่อนโหลด `alert.js`) และบนอุปกรณ์ด้วย `--alert-radius` / `--exit-radius`
+ใช้เฉพาะสนามทดสอบเล็ก ๆ ที่ 500 ม. กว้างเกินพื้นที่ — ดู `docs/field-test-nstda.md`
+
 **Dynamic Alert** (`js/riskrules.js`): ข้อความเตือนประกอบจากกติกาตามเงื่อนไขจริงของจุด
 เช่น ทางแยก/ทางโค้ง/จุดกลับรถ/ประวัติผู้เสียชีวิต/รถคันเดียวเสียหลักเป็นหลัก/ชนท้ายบ่อย
 พร้อมคำแนะนำการขับขี่เฉพาะกรณี — ใช้ร่วมกันทั้งเสียงพูด แบนเนอร์ และ popup
@@ -493,6 +502,23 @@ node tests/distance.test.js                  # unit test ระยะทาง (
 
 ขับด้วยความเร็วสมจริง 80 กม./ชม. (มีช่วงออกตัวและชะลอก่อนถึงปลายทาง) ใช้เวลาราว 4 นาทีครึ่ง
 ปรับได้ด้วย `?mock=1&kmh=120` เพื่อดูให้จบไว หรือ `?mock=1&kmh=40` เพื่อดูจังหวะเตือนแบบช้าๆ
+
+### ทดสอบภาคสนามจริงในอุทยานวิทยาศาสตร์ฯ (สวทช. ปทุมธานี)
+
+`test-nstda.html` = สนามทดสอบ GPS จริงบนถนนวงรอบอุทยานวิทยาศาสตร์ฯ 1.4 กม.
+มีจุดเสี่ยง**สมมติ** 3 จุดครบสามระดับวางบน node ถนนจริง ขับรอบเดียวได้ครบ
+(ต่ำ หน้าอาคาร สวทช. → ปานกลาง ทางแยกศูนย์ประชุมฯ → สูง หน้า MTEC Pilot Plant)
+
+```bash
+python scripts/build_nstda_test_site.py      # สร้าง/สร้างใหม่ชุดข้อมูลสนามทดสอบ
+# ซ้อมในห้อง: http://localhost:8123/test-nstda.html?mock=1&kmh=30
+# หน้างาน:    http://localhost:8123/test-nstda.html   (ต้องเปิดผ่าน https หรือ localhost)
+```
+
+หน้านี้ใช้โค้ดชุดเดียวกับ `index.html` ทุกบรรทัด ต่างแค่ชุดข้อมูล + รัศมีเตือน
+ที่ย่อเหลือ 120/150 ม. (ถ้าใช้ 500 ม. ทั้งสามจุดจะร้องพร้อมกันเพราะพื้นที่เล็กกว่ารัศมี)
+**ตัวเลขอุบัติเหตุในชุดนี้เป็นข้อมูลสมมติ ห้ามนำไปรายงานปนกับชุด MOT**
+ขั้นตอนเต็ม ใบตรวจ และวิธีจับคู่เวลากับกล้อง EMMA อยู่ใน `docs/field-test-nstda.md`
 
 แต่ละระดับมีลายเสียงเตือนนำต่างกันก่อนเสียงพูด 2 วินาที — สูง 3 จังหวะถี่ไล่ขึ้น ·
 ปานกลาง 2 จังหวะไล่ลง · ต่ำ 1 จังหวะโน้ตต่ำ · ถ้ามีจุดใหม่เข้ามาระหว่างยังพูดไม่จบ

@@ -1,0 +1,185 @@
+{
+ "type": "FeatureCollection",
+ "calibration": {
+  "version": "nstda-test-r1",
+  "generated_at": "2026-08-26",
+  "synthetic": true,
+  "warning": "ข้อมูลสมมติสำหรับทดสอบระบบเท่านั้น ไม่ใช่สถิติอุบัติเหตุจริง",
+  "purpose": "สนามทดสอบ GPS + เสียงเตือน + กล้อง EMMA ในอุทยานวิทยาศาสตร์ประเทศไทย",
+  "site": "อุทยานวิทยาศาสตร์ประเทศไทย (สวทช.) คลองหนึ่ง คลองหลวง ปทุมธานี",
+  "source": "วางจุดเองบน node ถนนจริงจาก OpenStreetMap",
+  "scoring_method": "severity_index",
+  "si_formula": "(F + PI) / Total Accident",
+  "level_breaks": [
+   1.0,
+   2.0
+  ],
+  "level_break_method": "fixed_si_cutoff",
+  "cost_per_person_thb": {
+   "death": 6700000,
+   "serious": 2000000,
+   "minor": 58000
+  },
+  "epdo_weights_million_per_person": {
+   "fatal": 6.7,
+   "serious": 2.0,
+   "minor": 0.058
+  },
+  "marker_position": "on_road_node",
+  "analysis_units": 3,
+  "zones": 3,
+  "risk_points": 12,
+  "levels": {
+   "high": 1,
+   "medium": 1,
+   "low": 1
+  },
+  "min_gap_m": 277.3,
+  "recommended_alert_radius_m": 120,
+  "recommended_exit_radius_m": 150,
+  "overall": {
+   "risk_points": 12,
+   "deaths": 2,
+   "serious_injury": 5,
+   "minor_injury": 9,
+   "epdo_total_million": 23.922
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.602376,
+     14.076465
+    ]
+   },
+   "properties": {
+    "id": "nstda_low",
+    "unit_type": "cluster",
+    "centroid": [
+     14.076465,
+     100.602376
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศใต้",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศใต้ (หน้าอาคาร สวทช.)",
+    "road_label_source": "record",
+    "landmark": "หน้าอาคาร สวทช. / ศูนย์หนังสือ",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.603521,
+     14.078698
+    ]
+   },
+   "properties": {
+    "id": "nstda_medium",
+    "unit_type": "cluster",
+    "centroid": [
+     14.078698,
+     100.603521
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันออก",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศตะวันออก (หน้าศูนย์ประชุมฯ)",
+    "road_label_source": "record",
+    "landmark": "ทางแยกเข้าศูนย์ประชุมอุทยานวิทยาศาสตร์ประเทศไทย",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 3,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 7,
+    "severity_index": 1.4,
+    "level": "medium",
+    "economic_loss": 6232000,
+    "epdo_million": 6.232,
+    "single_count": 1,
+    "multi_count": 4,
+    "single_pct": 20.0,
+    "multi_pct": 80.0,
+    "pattern": "multiple",
+    "top_cause": "ตัดหน้ากระชั้นชิด",
+    "road_feature": "ทางแยก+ทางร่วม",
+    "crash_pattern": "ชนด้านข้างบริเวณทางแยก",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.601492,
+     14.080482
+    ]
+   },
+   "properties": {
+    "id": "nstda_high",
+    "unit_type": "cluster",
+    "centroid": [
+     14.080482,
+     100.601492
+    ],
+    "radius_m": 60.0,
+    "province": "ปทุมธานี",
+    "road": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศเหนือ",
+    "road_label": "ถนนวงรอบอุทยานวิทยาศาสตร์ ด้านทิศเหนือ (หน้า MTEC Pilot Plant)",
+    "road_label_source": "record",
+    "landmark": "หน้าโรงงานต้นแบบ MTEC / BIOTEC Pilot Plant",
+    "accident_count": 3,
+    "deaths": 2,
+    "serious_injury": 2,
+    "minor_injury": 3,
+    "fatal_crashes": 2,
+    "injured_total": 5,
+    "severity_index": 2.3333,
+    "level": "high",
+    "economic_loss": 17574000,
+    "epdo_million": 17.574,
+    "single_count": 1,
+    "multi_count": 2,
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
+    "pattern": "multiple",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนภายในหน่วยงาน",
+    "speed_limit": 30,
+    "synthetic": true
+   }
+  }
+ ]
+}

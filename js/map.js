@@ -3,7 +3,11 @@
  */
 
 const MapView = (() => {
+  // หน้าเว็บตั้ง window.MAP_CENTER / window.MAP_ZOOM ไว้ก่อนโหลดสคริปต์นี้ได้
+  // เพื่อเปิดแผนที่ค้างที่สนามทดสอบแทนภาพรวมกรุงเทพฯ (ดู test-nstda.html)
   const BKK_CENTER = [13.7563, 100.5018];
+  const START_CENTER = window.MAP_CENTER || BKK_CENTER;
+  const START_ZOOM = window.MAP_ZOOM || 11;
   let map = null;
   let userMarker = null;
   let accuracyCircle = null;
@@ -12,7 +16,7 @@ const MapView = (() => {
   let autoPan = true;
 
   function init() {
-    map = L.map("map").setView(BKK_CENTER, 11);
+    map = L.map("map").setView(START_CENTER, START_ZOOM);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',

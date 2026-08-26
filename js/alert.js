@@ -11,8 +11,12 @@
  */
 
 const AlertSystem = (() => {
-  const ALERT_RADIUS_M = 500;
-  const EXIT_RADIUS_M = 600; // hysteresis กันเด้งเข้าออกตรงขอบรัศมี
+  // หน้าเว็บตั้ง window.ALERT_RADIUS_M / window.EXIT_RADIUS_M ไว้ก่อนโหลดสคริปต์นี้ได้
+  // เพื่อย่อรัศมีสำหรับสนามทดสอบเล็ก ๆ (test-nstda.html ใช้ 120/150 ม. เพราะถนนวงรอบ
+  // อุทยานวิทย์ฯ ยาวแค่ 1.4 กม. ถ้าใช้ 500 ม. ทั้งสามจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ)
+  // ค่า default ต้องเป็น 500/600 เสมอ — เป็นระยะที่ใช้จริงบนถนนนอกพื้นที่
+  const ALERT_RADIUS_M = window.ALERT_RADIUS_M || 500;
+  const EXIT_RADIUS_M = window.EXIT_RADIUS_M || 600; // hysteresis กันเด้งเข้าออกตรงขอบรัศมี
   const REALERT_MS = 5 * 60 * 1000;
 
   const LEVEL_RANK = { low: 1, medium: 2, high: 3 };

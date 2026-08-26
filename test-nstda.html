@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>สนามทดสอบ GPS — อุทยานวิทยาศาสตร์ประเทศไทย (สวทช. ปทุมธานี)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="css/style.css?v=8">
+  <!--
+    หน้านี้ = หน้าทดสอบภาคสนาม ใช้โค้ดชุดเดียวกับ index.html ทุกบรรทัด
+    ต่างกันแค่ 4 ค่าที่ตั้งไว้ข้างล่างนี้ ห้ามแก้ตรรกะแยกจากหน้าหลัก
+    (ถ้าแก้ต่างกันเมื่อไร ผลทดสอบจะไม่ยืนยันพฤติกรรมของระบบจริงอีกต่อไป)
+
+    1. ชุดข้อมูล  -> จุดเสี่ยง "สมมติ" 3 จุดในอุทยานวิทยาศาสตร์ฯ ไม่ใช่สถิติ MOT
+    2. รัศมีเตือน -> 120 ม. (ปกติ 500 ม.) เพราะถนนวงรอบยาวแค่ 1.4 กม.
+                     จุดเสี่ยงห่างกันน้อยสุด 277 ม. ถ้าใช้ 500 ม. ทุกจุดจะร้องพร้อมกัน
+                     120 < 277/2 จึงรับประกันว่าไม่มีทางเตือนซ้อนกัน
+    3. เส้นทางจำลอง -> วงรอบอุทยานฯ (ใช้กับ ?mock=1 ตอนซ้อมในห้อง)
+    4. จุดกึ่งกลางแผนที่ -> กลางอุทยานฯ ซูม 16 ไม่ต้องเลื่อนหาเอง
+  -->
+  <script>
+    window.RISK_DATA_URL = "data/risk_points_nstda_test.geojson";
+    window.ALERT_RADIUS_M = 120;
+    window.EXIT_RADIUS_M = 150;
+    window.MOCK_ROUTE_URL = "data/mock_route_nstda.geojson";
+    window.MAP_CENTER = [14.07847, 100.60216];
+    window.MAP_ZOOM = 16;
+  </script>
+</head>
+<body>
+  <div id="status-bar">
+    <span id="gps-status">กำลังโหลด...</span>
+    <span id="nearest-info"></span>
+    <a id="link-dashboard" href="index.html" title="กลับหน้าแผนที่จริง">🗺️ แผนที่จริง</a>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="alert-banner" class="alert-banner hidden"></div>
+
+  <button id="btn-recenter" class="hidden">📍 กลับมาที่ตำแหน่งฉัน</button>
+
+  <div id="filter-panel">
+    <div class="filter-head">
+      <span class="filter-title">ตัวกรองจุดเสี่ยง</span>
+      <button id="filter-toggle" type="button" title="ย่อ/ขยายแผงตัวกรอง">▾</button>
+    </div>
+    <div class="filter-body">
+      <label class="filter-label" for="f-province">จังหวัด</label>
+      <select id="f-province">
+        <option value="">ทุกจังหวัด</option>
+      </select>
+
+      <div class="filter-label">ระดับความเสี่ยง</div>
+      <div class="filter-levels">
+        <label><input type="checkbox" id="f-level-high" checked>
+          <span class="dot" style="background:#c62828"></span>เสี่ยงสูง</label>
+        <label><input type="checkbox" id="f-level-medium" checked>
+          <span class="dot" style="background:#ef6c00"></span>ปานกลาง</label>
+        <label><input type="checkbox" id="f-level-low" checked>
+          <span class="dot" style="background:#2e7d32"></span>ต่ำ</label>
+      </div>
+
+      <label class="filter-label" for="f-pattern">ประเภทปัญหาหลัก</label>
+      <select id="f-pattern"></select>
+
+      <div class="filter-foot">
+        <span id="filter-count"></span>
+        <button id="filter-reset" type="button">ล้างตัวกรอง</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div><span class="dot" style="background:#c62828"></span> เสี่ยงสูง</div>
+    <div><span class="dot" style="background:#ef6c00"></span> ปานกลาง</div>
+    <div><span class="dot" style="background:#2e7d32"></span> ต่ำ</div>
+  </div>
+
+  <div id="start-overlay">
+    <div class="start-card">
+      <h1>🧪 สนามทดสอบ GPS — อุทยานวิทยาศาสตร์ประเทศไทย</h1>
+      <p>ขับวนรอบอุทยานฯ 1 รอบ (~1.4 กม.) เจอจุดเสี่ยงครบสามระดับ ต่ำ → ปานกลาง → สูง</p>
+      <p class="hint">
+        แจ้งเตือนที่ระยะ 120 เมตร (ย่อจาก 500 เมตรของระบบจริง ให้พอดีกับถนนในพื้นที่)
+      </p>
+      <p class="hint" style="color:#c62828">
+        ⚠️ จุดเสี่ยง 3 จุดนี้เป็น<b>ข้อมูลสมมติสำหรับทดสอบระบบ</b>
+        ไม่ใช่สถิติอุบัติเหตุจริงของถนนในอุทยานวิทยาศาสตร์ฯ
+      </p>
+      <button id="btn-start">เริ่มทดสอบ</button>
+      <p class="hint">ต้องอนุญาตให้เข้าถึงตำแหน่ง และเปิดเสียงเครื่อง · ซ้อมในห้องได้ด้วย ?mock=1&amp;kmh=30</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/distance.js"></script>
+  <script src="js/tts.js?v=11"></script>
+  <script src="js/riskrules.js?v=11"></script>
+  <script src="js/riskpoints.js?v=22"></script>
+  <!-- ไม่โหลด accidents.js: สนามทดสอบไม่มีชั้นจุดเสี่ยงรายอุบัติเหตุ (app.js/filters.js รองรับอยู่แล้ว) -->
+  <script src="js/filters.js?v=14"></script>
+  <script src="js/map.js?v=8"></script>
+  <script src="js/gps.js?v=14"></script>
+  <script src="js/alert.js?v=17"></script>
+  <script src="js/app.js?v=13"></script>
+</body>
+</html>

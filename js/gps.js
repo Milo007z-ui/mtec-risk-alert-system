@@ -13,7 +13,9 @@ const GPS = (() => {
   // ผ่านคลัสเตอร์ 7 วงในรัศมีเตือน ครบทั้งสามระดับ: ต่ำ -> ปานกลาง -> สูง (zone_455)
   // เส้นทางเดิม "บางปะอิน - แขวงรามอินทรา" เก็บไว้ที่ data/mock_route_bangpain.geojson
   // (เส้นนั้นเหลือแค่ระดับต่ำกับปานกลางหลังเปลี่ยนมาใช้ชุดข้อมูล 3 ปี)
-  const MOCK_ROUTE_URL = "data/mock_route.geojson";
+  // หน้าเว็บตั้ง window.MOCK_ROUTE_URL ไว้ก่อนโหลดสคริปต์นี้ได้ เพื่อเลือกเส้นทางจำลองอื่น
+  // (test-nstda.html ใช้ data/mock_route_nstda.geojson วนรอบอุทยานวิทยาศาสตร์ฯ)
+  const MOCK_ROUTE_URL = window.MOCK_ROUTE_URL || "data/mock_route.geojson";
 
   // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยคลัสเตอร์เป็นเส้นตรงแทน
   // (id ตามรอบ calibration v2569-r1-3y — เรียงตามลำดับบนถนน)

@@ -36,6 +36,9 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   # ใช้งานจริงกับ GPS ผ่าน gpsd (sudo apt install gpsd)
   python3 device/pi_alert_client.py --gpsd
 
+  # ทดสอบภาคสนามในอุทยานวิทยาศาสตร์ฯ (ต้องรัน API ด้วยชุด risk_points_nstda_test.geojson)
+  python3 device/pi_alert_client.py --gpsd --alert-radius 120 --exit-radius 150
+
   # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS) / ปิดเสียงพูดเหลือแค่ buzzer
   python3 device/pi_alert_client.py --test 13.665 100.534
   python3 device/pi_alert_client.py --route data/mock_route.geojson --no-speak
@@ -61,8 +64,13 @@ try:
 except ImportError:
     GPIO = None
 
-ALERT_RADIUS_M = 500
-EXIT_RADIUS_M = 600   # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
+# ระยะเตือนมาตรฐานบนถนนนอกพื้นที่ — ปรับได้ด้วย --alert-radius / --exit-radius
+# ตอนทดสอบในสนามเล็ก (เช่นถนนวงรอบอุทยานวิทยาศาสตร์ฯ ยาว 1.4 กม. จุดเสี่ยงห่างกัน 277 ม.)
+# ต้องย่อลงเหลือ 120/150 ม. ไม่งั้นทุกจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ
+DEFAULT_ALERT_RADIUS_M = 500
+DEFAULT_EXIT_RADIUS_M = 600  # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
+ALERT_RADIUS_M = DEFAULT_ALERT_RADIUS_M
+EXIT_RADIUS_M = DEFAULT_EXIT_RADIUS_M
 POLL_INTERVAL_S = 3
 HTTP_TIMEOUT_S = 5
 
@@ -555,15 +563,24 @@ def main():
     source.add_argument("--route", metavar="FILE",
                         help="โหมดจำลอง: อ่านพิกัดจากไฟล์ (.geojson เส้นทางเดียวกับเว็บ ?mock=1 "
                              "หรือ .csv บรรทัดละ lat,lng)")
+    parser.add_argument("--alert-radius", type=float, default=DEFAULT_ALERT_RADIUS_M, metavar="M",
+                        help=f"ระยะที่เริ่มเตือน (เมตร, ค่าเริ่มต้น {DEFAULT_ALERT_RADIUS_M}) "
+                             "สนามทดสอบในอุทยานวิทยาศาสตร์ฯ ใช้ 120")
+    parser.add_argument("--exit-radius", type=float, default=DEFAULT_EXIT_RADIUS_M, metavar="M",
+                        help=f"ระยะที่ถือว่าออกนอกรัศมีแล้ว เตือนจุดเดิมซ้ำได้ "
+                             f"(เมตร, ค่าเริ่มต้น {DEFAULT_EXIT_RADIUS_M}) สนามทดสอบใช้ 150")
     parser.add_argument("--no-speak", action="store_true",
                         help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
     parser.add_argument("--once", action="store_true",
                         help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
 
-    global AUDIO_DEVICE, VOLUME_PCT
+    global AUDIO_DEVICE, VOLUME_PCT, ALERT_RADIUS_M, EXIT_RADIUS_M
     AUDIO_DEVICE = args.audio_device
     VOLUME_PCT = max(10, min(1000, args.volume))
+    ALERT_RADIUS_M = args.alert_radius
+    # exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis จะกลายเป็นเตือนรัวทุกรอบโพล
+    EXIT_RADIUS_M = max(args.exit_radius, ALERT_RADIUS_M)
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
