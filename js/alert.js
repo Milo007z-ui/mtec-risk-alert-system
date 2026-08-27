@@ -8,6 +8,11 @@
  *
  * กติกากันพูดทับ: ระหว่างที่ยังเตือนจุดหนึ่งค้างอยู่ จุดถัดไปจะรอให้พูดจบก่อน
  * ยกเว้นจุดที่ระดับสูงกว่าเดิม ให้ตัดเข้าแทนได้ทันที (ของเร่งด่วนกว่าต้องได้ยินก่อน)
+ *
+ * กติกาทิศทาง: เตือนเฉพาะจุดที่อยู่ "ข้างหน้า" ตามทิศที่รถกำลังมุ่งหน้าไป
+ * เพราะจุดที่ขับผ่านมาแล้วหรืออยู่คนละฝั่งถนนเตือนไปก็ไม่มีประโยชน์ รบกวนคนขับเปล่า ๆ
+ * เห็นชัดที่สุดบนถนนวงรอบอย่างสนามทดสอบ สวทช. ที่ขับวนแล้วจุดฝั่งตรงข้ามอยู่ในรัศมีตลอด
+ * ปิดการกรองด้วย ?heading=180 บน URL ถ้าอยากได้พฤติกรรมเดิม (เตือนทุกทิศ)
  */
 
 const AlertSystem = (() => {
@@ -18,6 +23,19 @@ const AlertSystem = (() => {
   const ALERT_RADIUS_M = window.ALERT_RADIUS_M || 500;
   const EXIT_RADIUS_M = window.EXIT_RADIUS_M || 600; // hysteresis กันเด้งเข้าออกตรงขอบรัศมี
   const REALERT_MS = 5 * 60 * 1000;
+
+  // มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้)
+  // 90 = ครึ่งวงกลมด้านหน้า ตัดทุกอย่างที่อยู่ด้านหลังทิ้ง แต่ยังเผื่อถนนโค้งไว้เต็มที่
+  // เลือกค่านี้เพราะบนถนนโค้ง จุดที่อยู่ข้างหน้าจริงตามแนวถนนอาจเบนจากทิศรถได้มาก
+  // (รัศมีความโค้งเท่ากับระยะเตือน -> เบนราว 30°) แคบกว่านี้เสี่ยงพลาดจุดที่ควรเตือน
+  // ซึ่งอันตรายกว่าการเตือนเกิน ปรับสดหน้างานได้ด้วย ?heading=<องศา> · 180 = ปิดการกรอง
+  const HEADING_WINDOW_DEG = (() => {
+    const q = Number(new URLSearchParams(location.search).get("heading"));
+    return Number.isFinite(q) && q > 0 ? q : window.HEADING_WINDOW_DEG || 90;
+  })();
+
+  // ต้องขยับอย่างน้อย 15 ม. ถึงจะเชื่อทิศ — กัน GPS แกว่งตอนรถจอดทำให้ทิศสุ่มไปมา
+  const heading = createHeadingTracker(15);
 
   const LEVEL_RANK = { low: 1, medium: 2, high: 3 };
 
@@ -43,6 +61,7 @@ const AlertSystem = (() => {
   /** เรียกทุกครั้งที่ตำแหน่ง GPS อัปเดต */
   function onPositionUpdate(lat, lng) {
     const now = Date.now();
+    const headingDeg = heading.update(lat, lng);
     // visible() = จุดที่ผ่านตัวกรองบนแผนที่ — เตือนเฉพาะสิ่งที่ผู้ใช้เลือกดูอยู่
     const nearby = findNearbyPoints(lat, lng, RiskPoints.visible(), EXIT_RADIUS_M);
     const nearbyIds = new Set(nearby.map((n) => n.point.id));
@@ -55,6 +74,8 @@ const AlertSystem = (() => {
     // เตือนเฉพาะจุดที่ใกล้ที่สุดที่เข้าเงื่อนไข (กันพูดรัวเมื่อหลายจุดติดกัน)
     for (const { point, distance } of nearby) {
       if (distance > ALERT_RADIUS_M) continue;
+      // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
+      if (!isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)) continue;
       const state = alerted.get(point.id);
       if (state && now - state.lastAlertAt < REALERT_MS) continue;
 
@@ -66,7 +87,9 @@ const AlertSystem = (() => {
       // log ไว้ตรวจลำดับการเตือน: บอกจุดที่เตือน + จุดอื่นที่อยู่ในระยะขณะนั้น
       // (ถ้าเห็นว่าเตือนจุดไกลก่อนจุดใกล้ ให้ดูบรรทัดนี้ว่าจุดใกล้ถูกเตือนไปแล้วหรือยัง)
       console.log(
-        `[ALERT] ${point.level} ${point.id} ที่ ${distance.toFixed(0)} ม. | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
+        `[ALERT] ${point.level} ${point.id} ที่ ${distance.toFixed(0)} ม. | ` +
+          `ทิศรถ ${headingDeg === null ? "ยังไม่รู้" : headingDeg.toFixed(0) + "°"} ` +
+          `(กรอง ±${HEADING_WINDOW_DEG}°) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
           nearby
             .map((n) => `${n.point.id} ${n.distance.toFixed(0)}ม.${alerted.has(n.point.id) ? "*" : ""}`)
             .join(", ") +
@@ -112,5 +135,5 @@ const AlertSystem = (() => {
         : "ไม่มีจุดเสี่ยงในระยะ 10 กม.";
   }
 
-  return { onPositionUpdate, ALERT_RADIUS_M };
+  return { onPositionUpdate, ALERT_RADIUS_M, heading: () => heading.get() };
 })();

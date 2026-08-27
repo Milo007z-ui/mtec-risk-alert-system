@@ -15,6 +15,11 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
   - เตือนจุดเดิมซ้ำได้ต่อเมื่อออกไกลกว่า EXIT_RADIUS_M (600 ม.) แล้วกลับเข้ามาใหม่
 
+กติกาทิศทาง (ต้องตรงกับ js/alert.js เสมอ):
+  - เตือนเฉพาะจุดที่อยู่ข้างหน้าในมุม ±HEADING_WINDOW_DEG จากทิศที่รถมุ่งหน้า
+  - จุดที่ขับผ่านมาแล้วหรืออยู่คนละฝั่งถนน เตือนไปก็ไม่มีประโยชน์ รบกวนคนขับเปล่า ๆ
+  - ยังไม่รู้ทิศ (รถเพิ่งออก/จอดนิ่ง) = ไม่กรอง เตือนไว้ก่อน ปลอดภัยกว่าเดาแล้วเงียบ
+
 ใช้ Python standard library เป็นหลัก ยกเว้นส่วนคุม buzzer ที่ต้องมี RPi.GPIO
 (มากับ Raspberry Pi OS อยู่แล้ว ไม่ต้อง pip install เพิ่ม — ถ้าไม่มีจะแค่ข้ามการสั่ง buzzer เฉยๆ)
 ส่วนเสียงพูดไม่ได้ใช้ audio library ของ Python เลย — สั่ง mpg123/espeak-ng ผ่าน subprocess
@@ -70,6 +75,7 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 import argparse
 import glob
 import json
+import math
 import pathlib
 import shutil
 import socket
@@ -95,6 +101,16 @@ DEFAULT_ALERT_RADIUS_M = 500
 DEFAULT_EXIT_RADIUS_M = 600  # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
 ALERT_RADIUS_M = DEFAULT_ALERT_RADIUS_M
 EXIT_RADIUS_M = DEFAULT_EXIT_RADIUS_M
+
+# มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้)
+# ** ต้องตรงกับ HEADING_WINDOW_DEG ใน js/alert.js เสมอ ไม่งั้นอุปกรณ์กับเว็บเตือนคนละชุด **
+# 90 = ครึ่งวงกลมด้านหน้า ตัดทุกอย่างที่อยู่ด้านหลังทิ้ง แต่ยังเผื่อถนนโค้งไว้เต็มที่
+# แคบกว่านี้เสี่ยงพลาดจุดที่ควรเตือนบนถนนโค้ง ซึ่งอันตรายกว่าการเตือนเกิน
+DEFAULT_HEADING_WINDOW_DEG = 90
+HEADING_WINDOW_DEG = DEFAULT_HEADING_WINDOW_DEG
+
+# ต้องขยับอย่างน้อยเท่านี้ถึงจะเชื่อทิศ — กัน GPS แกว่งตอนรถจอดทำให้ทิศสุ่มไปมา
+HEADING_MIN_MOVE_M = 15
 POLL_INTERVAL_S = 3
 HTTP_TIMEOUT_S = 5
 
@@ -120,6 +136,90 @@ BUZZER_READY = False
 
 # ให้ log ขึ้นทันทีแม้ stdout ถูก redirect (เช่น รันผ่าน systemd/journald บน Pi)
 sys.stdout.reconfigure(line_buffering=True)
+
+
+# ---------- ทิศทาง (พอร์ตจาก js/distance.js — ต้องให้ผลตรงกันเสมอ) ----------
+
+def _haversine_m(lat1, lon1, lat2, lon2):
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    a = (math.sin(d_lat / 2) ** 2
+         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2)
+    return 2 * 6371000 * math.asin(math.sqrt(a))
+
+
+def _bearing_deg(lat1, lon1, lat2, lon2):
+    """ทิศจากจุดหนึ่งไปอีกจุด 0-360 องศา (0 = เหนือ, 90 = ตะวันออก)
+
+    ใช้สูตร initial bearing ของ great-circle ไม่ใช่การลบพิกัดตรง ๆ เพราะเส้นลองจิจูด
+    ลู่เข้าหากันเมื่อเข้าใกล้ขั้วโลก การลบตรง ๆ จะเพี้ยน
+    """
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    d_lon = math.radians(lon2 - lon1)
+    y = math.sin(d_lon) * math.cos(phi2)
+    x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(d_lon)
+    return (math.degrees(math.atan2(y, x)) + 360) % 360
+
+
+def _angle_diff_deg(a, b):
+    """ผลต่างสองมุมเอาทางที่สั้นกว่า 0-180 (350 กับ 10 ต่างกัน 20 ไม่ใช่ 340)"""
+    d = abs(a - b) % 360
+    return 360 - d if d > 180 else d
+
+
+class HeadingTracker:
+    """ติดตามทิศที่รถมุ่งหน้า จากตำแหน่งที่ขยับไปจริง
+
+    ทำไมต้องรอให้ขยับครบ HEADING_MIN_MOVE_M: GPS คลาดเคลื่อนตลอดแม้รถจอดนิ่ง
+    ถ้าคิดทิศจากทุกคู่พิกัด รถจอดอยู่กับที่จะได้ทิศสุ่มไปมา แล้วการกรอง "ข้างหน้า"
+    จะกลายเป็นสุ่มว่าจะเตือนหรือไม่ ต้องรอให้ระยะที่ขยับชนะ noise ก่อน
+
+    get() คืน None จนกว่าจะมั่นใจ — ผู้เรียกต้องถือว่า "ไม่รู้ทิศ = ไม่กรอง"
+    ปลอดภัยกว่าเดาแล้วเงียบจุดที่ควรเตือน
+    """
+
+    def __init__(self, min_move_m=None):
+        self.min_move_m = HEADING_MIN_MOVE_M if min_move_m is None else min_move_m
+        self.anchor = None
+        self.heading = None
+
+    def update(self, lat, lng):
+        if self.anchor is None:
+            self.anchor = (lat, lng)
+            return self.heading
+        if _haversine_m(*self.anchor, lat, lng) >= self.min_move_m:
+            self.heading = _bearing_deg(*self.anchor, lat, lng)
+            self.anchor = (lat, lng)
+        return self.heading
+
+    def get(self):
+        return self.heading
+
+
+# ระยะที่ใกล้เกินกว่าจะเชื่อทิศ — ต่ำกว่านี้ให้ผ่านเสมอ ไม่ต้องกรอง
+#
+# เหตุผล: ทิศจากรถไปยังจุดที่แทบจะทับกันอยู่แล้วไม่มีความหมาย ความคลาดเคลื่อนของ GPS
+# (ปกติ 5-15 ม.) ครอบงำการคำนวณจนได้ทิศสุ่ม เช่น ยืนทับจุดพอดีอาจคำนวณได้ว่า
+# "จุดอยู่ข้างหลัง 177 องศา" แล้วโดนกรองทิ้งทั้งที่กำลังอยู่บนจุดเสี่ยงนั้น
+#
+# เจอจริงตอนจำลองขับวนรอบสนามทดสอบ สวทช.: เส้นทางสุ่มตัวอย่างห่างกัน ~39 ม.
+# ทำให้รถกระโดดจาก 71 ม. -> 0 ม. -> 72 ม. มีตัวอย่างเดียวที่อยู่ในรัศมี 60 ม.
+# และตัวอย่างนั้นทับจุดพอดี ผลคือจุด nstda_w3 ไม่ถูกเตือนเลยทั้งรอบ
+# สถานการณ์เดียวกันเกิดกับ GPS จริงได้ เพราะโพลทุก 3 วิ ที่ 60 กม./ชม. = 50 ม./ตัวอย่าง
+#
+# 30 ม. มาจากการเผื่อความคลาดเคลื่อน GPS สองเท่า และถึงระยะนั้นก็ควรเตือนอยู่แล้ว
+# ไม่ว่าจะหันไปทางไหน เพราะอยู่ตรงจุดเสี่ยงพอดี
+HEADING_NEAR_BYPASS_M = 30
+
+
+def is_ahead(heading_deg, user_lat, user_lng, point_lat, point_lng, window_deg):
+    """จุดนี้อยู่ข้างหน้ารถไหม — ยังไม่รู้ทิศ / window >= 180 / ใกล้มาก = ถือว่าใช่เสมอ"""
+    if heading_deg is None or window_deg >= 180:
+        return True
+    if _haversine_m(user_lat, user_lng, point_lat, point_lng) <= HEADING_NEAR_BYPASS_M:
+        return True
+    to_point = _bearing_deg(user_lat, user_lng, point_lat, point_lng)
+    return _angle_diff_deg(heading_deg, to_point) <= window_deg
 
 
 # ---------- แหล่งพิกัด GPS ----------
@@ -696,7 +796,8 @@ def run(api_base, position_source, speak_enabled=True):
     player = _player_cmd() or "ไม่พบโปรแกรมเล่น mp3"
     buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
     print(
-        f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม., "
+        f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม. "
+        f"เฉพาะข้างหน้า ±{HEADING_WINDOW_DEG:.0f}°, "
         f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
         f"buzzer: {buzzer})"
     )
@@ -709,6 +810,8 @@ def run(api_base, position_source, speak_enabled=True):
             # ต้องเป็น IP จริงไม่ใช่ localhost ไม่งั้นเปิดจากมือถือไม่ได้
             print(f"   จากมือถือ       : http://{ip}:8000/{page}  (ต่อ WiFi วงเดียวกัน)")
 
+    heading = HeadingTracker()
+
     while True:
         started = time.monotonic()
         pos = position_source.read()
@@ -719,6 +822,7 @@ def run(api_base, position_source, speak_enabled=True):
             print("[gps] ยังไม่ได้ตำแหน่ง (รอสัญญาณดาวเทียม)...")
         else:
             lat, lng = pos
+            heading_deg = heading.update(lat, lng)
             report_location(api_base, lat, lng, getattr(position_source, "name", None))
             try:
                 nearby = fetch_nearby(api_base, lat, lng)
@@ -735,6 +839,10 @@ def run(api_base, position_source, speak_enabled=True):
                 for p in nearby:
                     if p["distance_m"] > ALERT_RADIUS_M:
                         continue
+                    # ข้ามจุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
+                    if not is_ahead(heading_deg, lat, lng, p["lat"], p["lng"],
+                                    HEADING_WINDOW_DEG):
+                        continue
                     if p["id"] not in beeped:
                         beeped.add(p["id"])
                         beep()  # เสียงนำ แล้วค่อยพูดประโยคเตือน
@@ -748,7 +856,8 @@ def run(api_base, position_source, speak_enabled=True):
                     if nearest
                     else f"ไม่มีจุดเสี่ยงในรัศมี {EXIT_RADIUS_M} ม."
                 )
-                print(f"[{time.strftime('%H:%M:%S')}] ({lat:.5f}, {lng:.5f}) {status}")
+                hdg = "ทิศ ?" if heading_deg is None else f"ทิศ {heading_deg:.0f}°"
+                print(f"[{time.strftime('%H:%M:%S')}] ({lat:.5f}, {lng:.5f}) {hdg} {status}")
 
         time.sleep(max(0, POLL_INTERVAL_S - (time.monotonic() - started)))
 
@@ -908,6 +1017,10 @@ def main():
     parser.add_argument("--exit-radius", type=float, default=DEFAULT_EXIT_RADIUS_M, metavar="M",
                         help=f"ระยะที่ถือว่าออกนอกรัศมีแล้ว เตือนจุดเดิมซ้ำได้ "
                              f"(เมตร, ค่าเริ่มต้น {DEFAULT_EXIT_RADIUS_M}) สนามทดสอบใช้ 80")
+    parser.add_argument("--heading-window", type=float, metavar="DEG",
+                        default=DEFAULT_HEADING_WINDOW_DEG,
+                        help=f"มุมที่ถือว่าอยู่ข้างหน้ารถ (องศา ค่าเริ่มต้น {DEFAULT_HEADING_WINDOW_DEG}) "
+                             "180 = ปิดการกรอง เตือนทุกทิศเหมือนเดิม")
     parser.add_argument("--no-speak", action="store_true",
                         help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
     parser.add_argument("--no-report", action="store_true",
@@ -917,12 +1030,14 @@ def main():
     args = parser.parse_args()
 
     global AUDIO_DEVICE, VOLUME_PCT, ALERT_RADIUS_M, EXIT_RADIUS_M, REPORT_LOCATION
+    global HEADING_WINDOW_DEG
     AUDIO_DEVICE = args.audio_device
     VOLUME_PCT = max(10, min(1000, args.volume))
     ALERT_RADIUS_M = args.alert_radius
     # exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis จะกลายเป็นเตือนรัวทุกรอบโพล
     EXIT_RADIUS_M = max(args.exit_radius, ALERT_RADIUS_M)
     REPORT_LOCATION = not args.no_report
+    HEADING_WINDOW_DEG = max(0.0, min(180.0, args.heading_window))
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
