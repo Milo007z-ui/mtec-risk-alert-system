@@ -93,10 +93,23 @@ const DeviceTracker = (() => {
     timer = null;
   }
 
+  // ngrok แผนฟรีแทรกหน้าเตือน "You are about to visit..." ก่อนส่งคำขอถึงเซิร์ฟเวอร์จริง
+  // เมื่อ User-Agent เป็นเบราว์เซอร์ ทำให้ fetch ได้ HTML กลับมาแทน JSON แล้ว resp.json()
+  // โยน error -> ชั้นนี้หยุดโพลไปเงียบ ๆ โดยไม่มีอะไรบอกสาเหตุ
+  //
+  // การเปิดหน้าเว็บผ่าน ngrok ตรง ๆ กดผ่านหน้าเตือนครั้งเดียวแล้วได้คุกกี้ จึงไม่เจอปัญหา
+  // แต่ถ้าเปิดจาก GitHub Pages แล้วชี้ ?api= มาที่ ngrok คำขอเป็นข้ามโดเมน ไม่มีคุกกี้ติดไป
+  // จะโดนหน้าเตือนทุกครั้ง — header นี้คือทางที่ ngrok ให้ไว้ให้ข้าม (ค่าอะไรก็ได้)
+  // ไม่มีผลข้างเคียงเมื่อไม่ได้ใช้ ngrok เพราะเซิร์ฟเวอร์อื่นแค่มองข้าม header ที่ไม่รู้จัก
+  const FETCH_OPTS = {
+    cache: "no-store",
+    headers: { "ngrok-skip-browser-warning": "true" },
+  };
+
   async function poll() {
     let data;
     try {
-      const resp = await fetch(`${API_BASE}/api/device/location`, { cache: "no-store" });
+      const resp = await fetch(`${API_BASE}/api/device/location`, FETCH_OPTS);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       data = await resp.json();
     } catch (err) {
