@@ -27,8 +27,13 @@ WorkingDirectory=/home/pi/mtec-risk-alert-system
 #
 # ALERT_RADIUS_M ต้องตรงกับหน้าเว็บที่เปิดดูเสมอ (test-nstda.html=60 · index.html=500)
 # ไม่งั้นอุปกรณ์กับแผนที่เตือนคนละระยะ แล้วผลทดสอบภาคสนามเทียบกันไม่ได้
+# ใช้ $SPEAK_FLAG ไม่ใช่ ${SPEAK_FLAG} — systemd แยกความหมายสองแบบนี้:
+#   ${VAR} = แทนเป็น argument เดียวเสมอ ถ้าค่าว่างจะได้ argument ว่าง '''''' ติดไปด้วย
+#   $VAR   = ตัดตามช่องว่าง ถ้าค่าว่างจะไม่มี argument เลย  <- ที่ต้องการ
+# ตอน SPEAK_FLAG=--no-speak ใช้แบบไหนก็ได้ แต่พอเว้นว่างเพื่อเปิดเสียงพูด
+# ${} จะส่งสตริงว่างเข้าไปแล้ว argparse ตายด้วย exit code 2 รีสตาร์ตวนไม่จบ (เจอจริง)
 EnvironmentFile=/etc/mtec.env
-ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} ${SPEAK_FLAG}
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} $SPEAK_FLAG
 Restart=on-failure
 RestartSec=5
 
