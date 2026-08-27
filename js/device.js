@@ -13,12 +13,41 @@
  * จึงแสดงพร้อมกันได้ (หมุดน้ำเงิน = เว็บ, หมุด 🚌 = Pi)
  *
  * ปิดชั้นนี้ด้วย ?device=0 บน URL ถ้าไม่ได้เสียบอุปกรณ์แล้วไม่อยากเห็นป้าย "ออฟไลน์"
+ *
+ * เปิดจาก GitHub Pages (ไฟล์นิ่ง ไม่มี API อยู่ด้วย) ให้ชี้ API มาที่ Pi ผ่าน ?api=
+ *   https://<user>.github.io/<repo>/test-nstda.html?api=https://xxxx.trycloudflare.com
+ * ต้องเป็น https เพราะหน้า GitHub Pages เป็น https (ดูหมายเหตุ mixed content ข้างล่าง)
  */
 
 const DeviceTracker = (() => {
-  // เว็บถูกเสิร์ฟจาก uvicorn ตัวเดียวกับ API อยู่แล้ว จึงใช้ path สัมพัทธ์ได้เลย
-  // ตั้ง window.API_BASE ไว้ก่อนโหลดสคริปต์นี้ได้ ถ้าเปิดเว็บจากที่อื่น (เช่น Live Server)
-  const API_BASE = window.API_BASE || "";
+  // ปกติเว็บถูกเสิร์ฟจาก uvicorn ตัวเดียวกับ API จึงใช้ path สัมพัทธ์ได้เลย (ค่าว่าง)
+  //
+  // แต่ถ้าเปิดหน้านี้จาก GitHub Pages ซึ่งเสิร์ฟไฟล์นิ่งอย่างเดียว ไม่มี API อยู่ด้วย
+  // ต้องบอกว่า API อยู่ที่ไหนผ่าน ?api=... บน URL เช่น
+  //   .../test-nstda.html?api=https://xxxx.trycloudflare.com
+  // ใช้ query param แทนการ hardcode เพราะ URL ของ tunnel เปลี่ยนทุกครั้งที่รันใหม่
+  // ถ้า hardcode ไว้ในไฟล์จะต้อง commit + รอ Pages deploy 1-2 นาทีทุกรอบ
+  //
+  // ⚠️ ต้องเป็น https:// เมื่อหน้าเว็บเป็น https (GitHub Pages) — เบราว์เซอร์บล็อก
+  // การเรียก http จากหน้า https (mixed content) โดยไม่มีทางข้ามได้เลย
+  const API_BASE = (() => {
+    const fromUrl = new URLSearchParams(location.search).get("api");
+    if (!fromUrl) return window.API_BASE || "";
+    // ตัด / ท้ายออกกัน //api/... ซึ่งบางเซิร์ฟเวอร์ตอบ 404
+    const base = fromUrl.replace(/\/+$/, "");
+    if (!/^https?:\/\//.test(base)) {
+      console.warn(`[device] ?api= ต้องขึ้นต้นด้วย http:// หรือ https:// — ไม่รับค่า "${base}"`);
+      return window.API_BASE || "";
+    }
+    if (location.protocol === "https:" && base.startsWith("http://")) {
+      console.warn(
+        "[device] หน้านี้เป็น https แต่ ?api= เป็น http — เบราว์เซอร์จะบล็อก\n" +
+          "ใช้ Cloudflare Tunnel/ngrok ให้ Pi มี URL https ก่อน"
+      );
+    }
+    console.log(`[device] ใช้ API ที่ ${base}`);
+    return base;
+  })();
   const POLL_MS = 2000; // ถี่กว่า Pi ที่ส่งทุก 3 วิ เพื่อให้หน่วงรวมไม่เกิน ~1 รอบ
 
   let map = null;
