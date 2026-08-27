@@ -5,10 +5,20 @@ After=mtec-api.service
 Requires=mtec-api.service
 
 [Service]
+# ตัวรับ GPS USB ใช้เวลาสักครู่กว่าเคอร์เนลจะสร้างไฟล์พอร์ตให้หลังบูต
+# ถ้า service เริ่มก่อน จะหาพอร์ตไม่เจอแล้ว exit — Restart=on-failure ด้านล่าง
+# จะพาให้ลองใหม่ทุก 5 วิ จนกว่าจะเจอ จึงไม่ต้องใส่ ExecStartPre รออะไรเพิ่ม
+
 Type=simple
 User=pi
+# ต้องอยู่กลุ่ม dialout ถึงจะอ่าน /dev/ttyACM0 หรือ /dev/ttyUSB0 ของตัวรับ GPS ได้
+# (รันมือได้แต่ service อ่านไม่ได้ = สาเหตุนี้เกือบทุกครั้ง)
+SupplementaryGroups=dialout
 WorkingDirectory=/home/pi/mtec-risk-alert-system
-# --gpsd = โหมดใช้งานจริงกับ GPS จริง ไม่ใช่โหมดจำลอง (--route)
+# --serial = อ่านพิกัดจากตัวรับ GPS USB (Beltian BE-609U) โดยตรง ไม่ผ่าน gpsd
+#            หาพอร์ตให้อัตโนมัติ ถ้าเสียบ USB serial หลายตัวจนหาผิด ระบุเองได้:
+#            --serial /dev/ttyUSB0   (ดูรายการจริงด้วย ls -l /dev/serial/by-id/)
+#            โหมดนี้ยังส่งพิกัดขึ้น /api/device/location ให้เว็บวาดหมุดรถเรียลไทม์ด้วย
 # ปรับ --audio-device ให้ตรงกับเลขการ์ดของเครื่อง เช็คด้วย aplay -l
 #
 # --volume 300 คู่กับไฟล์เสียงใน audio/loud/ ที่สร้างจาก Botnoi ตั้ง 300% มาแล้ว
@@ -16,7 +26,7 @@ WorkingDirectory=/home/pi/mtec-risk-alert-system
 # กว่าค่าเฉลี่ยมาก ๆ เกิด clipping จริง แต่ผู้ใช้ฟังเทียบบนลำโพงจริงแล้วยืนยันว่า
 # ยังฟังโอเค (2026-08-25) — ถ้าเปลี่ยนไฟล์เสียงชุดใหม่ที่ Botnoi ระดับอื่น (ไม่ใช่ 300%)
 # ต้องวัด peak/rms ใหม่แล้วทบทวนค่านี้ ไม่งั้นอาจดังเกินจนแตกหนักกว่านี้มาก
-ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --gpsd --audio-device plughw:2,0 --volume 300
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --volume 300
 Restart=on-failure
 RestartSec=5
 

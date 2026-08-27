@@ -7,6 +7,8 @@ Endpoints:
   GET /api/risk-points/nearby          จุดเสี่ยงในรัศมีจากพิกัดที่ส่งมา พร้อมระยะห่าง
                                        และข้อความเตือนภาษาไทยสำเร็จรูป (alert_message)
   GET /api/risk-points/{point_id}      รายละเอียดจุดเดียว
+  POST /api/device/location            Pi ส่งพิกัด GPS ปัจจุบันของตัวเองขึ้นมา
+  GET  /api/device/location            เว็บดึงพิกัดล่าสุดของ Pi ไปวาดหมุดเรียลไทม์
 
 รันเซิร์ฟเวอร์:  uvicorn api.server:app --host 0.0.0.0 --port 8000
 (เสิร์ฟหน้าเว็บ index.html ที่รากโปรเจกต์ให้ด้วย จึงใช้เซิร์ฟเวอร์เดียวได้ทั้งเว็บและ API)
@@ -15,6 +17,7 @@ Endpoints:
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from math import asin, cos, pi, radians, sin, sqrt
@@ -23,6 +26,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -51,11 +55,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# เปิด CORS ทุก origin — ข้อมูลเป็นสาธารณะแบบอ่านอย่างเดียว
+# เปิด CORS ทุก origin — ข้อมูลจุดเสี่ยงเป็นสาธารณะแบบอ่านอย่างเดียว
+# ต้องมี POST ด้วยเพราะ Pi ส่งพิกัดตัวเองขึ้น /api/device/location
+# (ไม่มี auth เพราะระบบนี้รันในวงแลนเดียวกับ Pi เท่านั้น ถ้าเอาขึ้น public
+#  ต้องใส่ token ที่ endpoint นั้นก่อน ไม่งั้นใครก็ปลอมพิกัดรถได้)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -357,6 +364,66 @@ def tts(
             raise HTTPException(status_code=502, detail="สร้างเสียงจาก Botnoi ไม่สำเร็จ")
         _tts_cache[key] = audio
     return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "max-age=86400"})
+
+
+# ---------- ตำแหน่งเรียลไทม์ของอุปกรณ์ (Raspberry Pi + GPS BE-609U) ----------
+# Pi ยิง POST เข้ามาทุกรอบโพล (3 วิ) เว็บดึง GET ไปวาดหมุดบนแผนที่
+#
+# เก็บไว้ในตัวแปรในหน่วยความจำ ไม่ลง DB เพราะ:
+#   - เก็บแค่ "ตำแหน่งล่าสุด" จุดเดียว ไม่ต้องการประวัติย้อนหลัง
+#   - รีสตาร์ตเซิร์ฟเวอร์แล้วหายไม่เป็นไร Pi ส่งใหม่ภายใน 3 วิอยู่แล้ว
+# ถ้าต่อไปอยากได้เส้นทางย้อนหลัง ค่อยเปลี่ยนเป็น deque หรือ SQLite ตรงนี้จุดเดียว
+_DEVICE_STALE_AFTER_S = 15  # เกินนี้ = ถือว่าอุปกรณ์หลุด (Pi ส่งทุก 3 วิ เผื่อพลาด 4 รอบ)
+
+_device_location: dict = {
+    "lat": None,
+    "lng": None,
+    "speed_kmh": None,
+    "satellites": None,
+    "source": None,      # "serial" / "gpsd" / "route" / "fixed" — บอกว่าเป็น GPS จริงหรือโหมดจำลอง
+    "updated_at": None,  # epoch seconds ฝั่งเซิร์ฟเวอร์
+}
+
+
+class DeviceLocation(BaseModel):
+    """พิกัดที่ Pi ส่งขึ้นมา — ฟิลด์ที่ไม่ใช่ lat/lng ใส่หรือไม่ใส่ก็ได้"""
+    lat: float = Field(..., ge=-90, le=90)
+    lng: float = Field(..., ge=-180, le=180)
+    speed_kmh: float | None = Field(None, ge=0, le=300)
+    satellites: int | None = Field(None, ge=0, le=64)
+    source: str | None = Field(None, max_length=20)
+
+
+@app.post("/api/device/location")
+def update_device_location(loc: DeviceLocation):
+    """รับพิกัดล่าสุดจาก Raspberry Pi (เขียนทับของเดิมเสมอ)"""
+    _device_location.update(
+        lat=loc.lat,
+        lng=loc.lng,
+        speed_kmh=loc.speed_kmh,
+        satellites=loc.satellites,
+        source=loc.source,
+        updated_at=time.time(),
+    )
+    return {"ok": True}
+
+
+@app.get("/api/device/location")
+def get_device_location():
+    """พิกัดล่าสุดของอุปกรณ์ + อายุของข้อมูล ให้เว็บรู้ว่ายังออนไลน์อยู่ไหม
+
+    online=False ได้ 2 กรณี: ยังไม่เคยมี Pi ส่งเข้ามาเลย (updated_at=None)
+    หรือส่งครั้งสุดท้ายนานเกิน _DEVICE_STALE_AFTER_S (Pi ดับ/เน็ตหลุด/GPS ไม่จับดาว)
+    เว็บใช้ค่านี้ตัดสินใจว่าจะแสดงหมุดแบบจางหรือซ่อนไปเลย
+    """
+    updated_at = _device_location["updated_at"]
+    age_s = None if updated_at is None else round(time.time() - updated_at, 1)
+    return {
+        **_device_location,
+        "age_s": age_s,
+        "online": age_s is not None and age_s <= _DEVICE_STALE_AFTER_S,
+        "stale_after_s": _DEVICE_STALE_AFTER_S,
+    }
 
 
 # เสิร์ฟหน้าเว็บเดิม (index.html, dashboard.html, js/, css/, data/) จากรากโปรเจกต์

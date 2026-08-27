@@ -3,11 +3,13 @@
 pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi (สำหรับติดบนรถเมล์)
 
 หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
-  1. อ่านพิกัด GPS ปัจจุบันของรถ (จาก gpsd หรือโหมดจำลอง)
+  1. อ่านพิกัด GPS ปัจจุบันของรถ (จากตัวรับ GPS ต่อ USB, gpsd หรือโหมดจำลอง)
   2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
   3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM)
      ร้อง 1 วิ เป็นเสียงนำ แล้วพูดประโยคเตือนภาษาไทยที่ได้จาก alert_message ของ API
      (เสียงพูดมี 4 ชั้น ดูหัวข้อ "เสียงพูดแจ้งเตือน" ด้านล่าง ปิดด้วย --no-speak ได้)
+  4. ส่งพิกัดตัวเองขึ้น POST /api/device/location ทุกรอบ เพื่อให้หน้าเว็บบนมือถือ
+     เห็นหมุดรถแบบเรียลไทม์ (ปิดด้วย --no-report ได้ · ส่งไม่สำเร็จไม่กระทบการเตือน)
 
 กติกา cooldown ต่อจุด:
   - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
@@ -22,6 +24,10 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
               Vin ขา2(5V) · GND ขา6 · BCLK ขา12 · LRC ขา35 · DIN ขา40
               SD/GAIN ปล่อยลอย · ต้องมี dtoverlay=max98357a,no-sdmode ใน config.txt
               ** Pi 5 ไม่มีแจ็ค 3.5 มม. และจอ HDMI ที่ใช้ไม่รับเสียง จึงต้องมีโมดูลนี้ **
+  - GPS       Beltian BE-609U (ตัวรับ GPS แบบ USB) เสียบพอร์ต USB ช่องไหนก็ได้
+              คุยด้วยโปรโตคอล NMEA 0183 ผ่าน serial — โผล่เป็น /dev/ttyACM0 (ชิป u-blox
+              ต่อ USB ตรง) หรือ /dev/ttyUSB0 (ชิปแปลง UART เช่น PL2303/CP210x)
+              โค้ดหาพอร์ตให้เองจาก /dev/serial/by-id/ ไม่ต้องระบุถ้าเสียบตัวเดียว
   - buzzer    GPIO13 (ขา 33) — ไม่ชนกับ I2S ที่ใช้ GPIO18/19/21
   รายละเอียดการต่อสายทั้งหมดอยู่ใน README หัวข้อ "ต่อลำโพงกับ Raspberry Pi 5"
 
@@ -33,7 +39,14 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1 (เตือน 7 ครั้ง ครบสามระดับ)
   python3 device/pi_alert_client.py --route data/mock_route.geojson --once
 
-  # ใช้งานจริงกับ GPS ผ่าน gpsd (sudo apt install gpsd)
+  # ใช้งานจริงกับ GPS BE-609U ที่เสียบ USB (แนะนำ — ไม่ต้องติดตั้ง gpsd)
+  python3 device/pi_alert_client.py --serial
+  python3 device/pi_alert_client.py --serial /dev/ttyUSB0   # ระบุพอร์ตเองถ้าหาไม่เจอ
+
+  # ดู NMEA ดิบ ๆ ว่าตัวรับส่งอะไรมาบ้าง จับดาวได้กี่ดวง (ใช้ตอนหาสาเหตุ GPS ไม่ติด)
+  python3 device/pi_alert_client.py --checkgps
+
+  # ใช้งานจริงผ่าน gpsd แทน (ถ้าติดตั้ง gpsd ไว้อยู่แล้ว)
   python3 device/pi_alert_client.py --gpsd
 
   # ทดสอบภาคสนามในอุทยานวิทยาศาสตร์ฯ (ต้องรัน API ด้วยชุด risk_points_nstda_test.geojson)
@@ -48,12 +61,14 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
 """
 
 import argparse
+import glob
 import json
 import pathlib
 import shutil
 import socket
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -78,6 +93,19 @@ BUZZER_PIN = 13  # เลข GPIO แบบ BCM (ไม่ใช่ตำแห�
 
 GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
 
+# ตัวรับ GPS แบบ USB (Beltian BE-609U) — คุย NMEA 0183 ผ่าน serial
+# ลำดับการหาพอร์ต: /dev/serial/by-id/* ก่อน เพราะชื่อคงที่ ไม่สลับเลขเมื่อเสียบ USB อื่นเพิ่ม
+# แล้วค่อย ttyACM* (u-blox ต่อ USB ตรง) และ ttyUSB* (ชิปแปลง UART เช่น PL2303)
+GPS_PORT_GLOBS = ["/dev/serial/by-id/*GPS*", "/dev/serial/by-id/*u-blox*",
+                  "/dev/ttyACM*", "/dev/ttyUSB*"]
+# 9600 คือค่าโรงงานของตัวรับ NMEA เกือบทั้งหมด รวม BE-609U
+# ถ้าเป็น CDC-ACM (ttyACM) ค่านี้ไม่มีผลจริง เพราะ USB ไม่ได้ใช้ baud rate — ตั้งไว้ก็ไม่เสียหาย
+GPS_BAUD = 9600
+GPS_CHECK_SECONDS = 20  # ระยะเวลาที่ --checkgps ฟัง NMEA
+
+# ส่งพิกัดขึ้นเซิร์ฟเวอร์ให้หน้าเว็บวาดหมุดรถแบบเรียลไทม์ (ปิดด้วย --no-report)
+REPORT_LOCATION = True
+
 # จอง GPIO ของ buzzer สำเร็จหรือยัง — ถ้าไม่สำเร็จยังเดินต่อได้ เหลือแต่เสียงพูด
 BUZZER_READY = False
 
@@ -89,6 +117,8 @@ sys.stdout.reconfigure(line_buffering=True)
 
 class FixedPosition:
     """โหมดทดสอบ: พิกัดคงที่"""
+
+    name = "fixed"
 
     def __init__(self, lat, lng):
         self.lat, self.lng = lat, lng
@@ -105,6 +135,8 @@ class RoutePlayer:
                          (data/mock_route.geojson) พิกัดเป็น [lng, lat]
       - อื่นๆ (เช่น .csv) ไฟล์ข้อความบรรทัดละ "lat,lng"
     """
+
+    name = "route"
 
     def __init__(self, path, loop=True):
         if path.endswith((".geojson", ".json")):
@@ -152,8 +184,145 @@ class RoutePlayer:
         return pos
 
 
+def _nmea_degrees(value, hemi):
+    """แปลงพิกัดรูปแบบ NMEA (ddmm.mmmm / dddmm.mmmm) เป็นองศาทศนิยม
+
+    NMEA เก็บเป็น "องศา 2-3 หลักแรก ตามด้วยลิปดา" ไม่ใช่องศาทศนิยมตรง ๆ
+    เช่น 1345.6789 = 13 องศา 45.6789 ลิปดา = 13.761315 องศา
+    ถ้าตีความผิดเป็น 1345.68 องศา จะได้ตำแหน่งหลุดออกนอกโลกไปเลย
+    """
+    if not value or not hemi:
+        return None
+    dot = value.find(".")
+    if dot < 3:
+        return None
+    deg = float(value[:dot - 2])
+    minutes = float(value[dot - 2:])
+    result = deg + minutes / 60.0
+    return -result if hemi in ("S", "W") else result
+
+
+def _nmea_checksum_ok(line):
+    """ตรวจ checksum ท้ายประโยค NMEA (*XX = XOR ของทุกตัวอักษรระหว่าง $ กับ *)
+
+    จำเป็นเพราะสัญญาณกวนทำให้ได้บรรทัดที่ตัวเลขเพี้ยนแต่ยังแยกคอลัมน์ได้ปกติ
+    ถ้าไม่ตรวจ หมุดจะกระโดดไปคนละที่เป็นครั้งคราวโดยหาสาเหตุไม่เจอ
+    """
+    if not line.startswith("$") or "*" not in line:
+        return False
+    body, _, given = line[1:].partition("*")
+    calc = 0
+    for ch in body:
+        calc ^= ord(ch)
+    try:
+        return calc == int(given[:2], 16)
+    except ValueError:
+        return False
+
+
+class NmeaSerialReader:
+    """อ่านพิกัดจากตัวรับ GPS USB (BE-609U) ที่พูด NMEA 0183 — ไม่ต้องมี pyserial/gpsd
+
+    ทำไมไม่ใช้ pyserial: ทั้งโปรเจกต์ยึด standard library อย่างเดียว และบน Linux
+    พอร์ต serial เปิดเป็นไฟล์ธรรมดาได้เลย ส่วนการตั้ง baud rate ยืมคำสั่ง stty ของระบบ
+
+    ทำไมต้องอ่านในเธรดแยก: ตัวรับส่ง NMEA มา 1 ครั้งต่อวินาที แต่ลูปหลักโพลทุก 3 วินาที
+    ถ้าอ่านในลูปหลัก จะได้ข้อมูลค้างเก่า และถ้า GPS ยังไม่จับดาว การอ่านจะบล็อกจน
+    ลูปเตือนหยุดตามไปด้วย เธรดนี้จึงคอยอ่านทิ้งไว้ตลอด เก็บแต่ fix ล่าสุด
+    (หลักการเดียวกับที่ GpsdReader เก็บ last_fix) ลูปหลักแค่มาหยิบไปใช้
+    """
+
+    name = "serial"
+
+    def __init__(self, port=None):
+        self.port = port or self.find_port()
+        if not self.port:
+            sys.exit(
+                "หาตัวรับ GPS ไม่เจอ — ตรวจว่าเสียบสาย USB แล้ว\n"
+                "  ดูรายการพอร์ต:  ls -l /dev/serial/by-id/ /dev/ttyACM* /dev/ttyUSB*\n"
+                "  ดูว่า Linux เห็นอุปกรณ์ไหม:  lsusb\n"
+                "  ถ้าเจอพอร์ตแต่โค้ดหาไม่เจอ ระบุเองได้:  --serial /dev/ttyUSB0"
+            )
+        self.last_fix = None
+        self.speed_kmh = None
+        self.satellites = None
+        self.fix_quality = 0
+        self._lock = threading.Lock()
+        self._configure_port()
+        threading.Thread(target=self._reader_loop, daemon=True).start()
+
+    @staticmethod
+    def find_port():
+        for pattern in GPS_PORT_GLOBS:
+            matches = sorted(glob.glob(pattern))
+            if matches:
+                return matches[0]
+        return None
+
+    def _configure_port(self):
+        """ตั้ง baud rate + โหมด raw ด้วย stty (ล้มเหลวก็ไปต่อ — ttyACM ไม่ต้องตั้งอยู่แล้ว)"""
+        try:
+            subprocess.run(
+                ["stty", "-F", self.port, str(GPS_BAUD), "raw", "-echo"],
+                check=True, capture_output=True, timeout=5,
+            )
+        except (OSError, subprocess.SubprocessError) as e:
+            print(f"[gps] ตั้งค่าพอร์ตไม่สำเร็จ ({e}) — ลองอ่านต่อไปเลย", file=sys.stderr)
+
+    def _reader_loop(self):
+        while True:
+            try:
+                # errors="replace" กันบรรทัดที่สัญญาณกวนจนไม่ใช่ ASCII ทำให้เธรดตายทั้งเธรด
+                with open(self.port, "r", encoding="ascii", errors="replace") as f:
+                    for line in f:
+                        self._handle(line.strip())
+            except OSError as e:
+                print(f"[gps] อ่านพอร์ต {self.port} ไม่ได้: {e} — ลองใหม่ใน 3 วิ", file=sys.stderr)
+                time.sleep(3)
+
+    def _handle(self, line):
+        if not _nmea_checksum_ok(line):
+            return
+        parts = line.split(",")
+        # ตัดตัวอักษรบอกระบบดาวเทียม (GP=GPS, GN=หลายระบบรวม, GL=GLONASS) เอาแต่ชนิดประโยค
+        kind = parts[0][3:]
+
+        if kind == "GGA" and len(parts) >= 10:
+            # GGA: $--GGA,เวลา,lat,N/S,lng,E/W,คุณภาพfix,จำนวนดาว,HDOP,ความสูง,...
+            quality = parts[6]
+            self.fix_quality = int(quality) if quality.isdigit() else 0
+            if parts[7].isdigit():
+                self.satellites = int(parts[7])
+            if self.fix_quality > 0:  # 0 = ยังไม่จับดาว พิกัดในบรรทัดนี้เชื่อไม่ได้
+                lat = _nmea_degrees(parts[2], parts[3])
+                lng = _nmea_degrees(parts[4], parts[5])
+                if lat is not None and lng is not None:
+                    with self._lock:
+                        self.last_fix = (lat, lng)
+
+        elif kind == "RMC" and len(parts) >= 8:
+            # RMC: $--RMC,เวลา,สถานะ,lat,N/S,lng,E/W,ความเร็ว(นอต),ทิศ,วันที่,...
+            if parts[2] != "A":  # A = ใช้ได้, V = เตือนว่าข้อมูลยังไม่นิ่ง
+                return
+            lat = _nmea_degrees(parts[3], parts[4])
+            lng = _nmea_degrees(parts[5], parts[6])
+            if lat is not None and lng is not None:
+                with self._lock:
+                    self.last_fix = (lat, lng)
+            try:
+                self.speed_kmh = float(parts[7]) * 1.852  # นอต -> กม./ชม.
+            except ValueError:
+                pass
+
+    def read(self):
+        with self._lock:
+            return self.last_fix
+
+
 class GpsdReader:
     """อ่านพิกัดจาก gpsd ผ่าน TCP JSON protocol (ไม่ต้องใช้ไลบรารี gps3)"""
+
+    name = "gpsd"
 
     def __init__(self):
         self.sock = None
@@ -430,10 +599,55 @@ def fetch_nearby(api_base, lat, lng):
         return json.loads(resp.read())["points"]
 
 
+def report_location(api_base, lat, lng, source):
+    """ส่งพิกัดปัจจุบันขึ้น POST /api/device/location ให้หน้าเว็บวาดหมุดรถเรียลไทม์
+
+    เป็นงานเสริม ไม่ใช่งานหลัก — ถ้าส่งไม่สำเร็จต้องไม่กระทบการเตือน จึงกลืน error ทุกชนิด
+    และเตือนแค่ครั้งแรกครั้งเดียว ไม่งั้นถ้าเซิร์ฟเวอร์ดับจะมี log ท่วมทุก 3 วินาที
+    (ปัญหาเดียวกับที่เคยเจอตอน Botnoi ตอบ 503 รัว ๆ)
+
+    ส่ง source ไปด้วยเพื่อให้เว็บแยกออกว่าหมุดที่เห็นมาจาก GPS จริง (serial/gpsd)
+    หรือมาจากโหมดจำลอง (route/fixed) — ไม่งั้นตอนสาธิตจะแยกไม่ออกว่ารถวิ่งจริงหรือไม่
+    """
+    global _report_failed_once
+    if not REPORT_LOCATION:
+        return
+    body = {"lat": round(lat, 6), "lng": round(lng, 6), "source": source}
+    if source_telemetry:
+        body.update(source_telemetry())
+    data = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(
+        f"{api_base}/api/device/location", data=data,
+        headers={"Content-Type": "application/json"}, method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT_S):
+            pass
+        _report_failed_once = False
+    except (OSError, ValueError) as e:
+        if not _report_failed_once:
+            print(f"[report] ส่งพิกัดขึ้นเว็บไม่สำเร็จ: {e} (จะเงียบไว้จนกว่าจะส่งได้)",
+                  file=sys.stderr)
+            _report_failed_once = True
+
+
+_report_failed_once = False
+source_telemetry = None  # ตั้งใน run() = ฟังก์ชันคืน {"speed_kmh":..., "satellites":...}
+
+
 # ---------- ลูปหลัก ----------
 
 def run(api_base, position_source, speak_enabled=True):
     beeped = set()  # point id ที่ร้อง beep ไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
+
+    # ตัวรับ GPS จริงรู้ความเร็ว/จำนวนดาว โหมดจำลองไม่รู้ — ผูกไว้ให้ report_location หยิบไปใช้
+    global source_telemetry
+    if hasattr(position_source, "satellites"):
+        source_telemetry = lambda: {
+            "speed_kmh": (round(position_source.speed_kmh, 1)
+                          if position_source.speed_kmh is not None else None),
+            "satellites": position_source.satellites,
+        }
     voice = "เปิด" if speak_enabled else "ปิด"
     player = _player_cmd() or "ไม่พบโปรแกรมเล่น mp3"
     buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
@@ -442,6 +656,8 @@ def run(api_base, position_source, speak_enabled=True):
         f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
         f"buzzer: {buzzer})"
     )
+    if REPORT_LOCATION:
+        print(f"ส่งตำแหน่งขึ้นเว็บ: เปิด — เปิดแผนที่แล้วดูหมุด 🚌 ได้ที่ {api_base}/index.html")
 
     while True:
         started = time.monotonic()
@@ -453,6 +669,7 @@ def run(api_base, position_source, speak_enabled=True):
             print("[gps] ยังไม่ได้ตำแหน่ง (รอสัญญาณดาวเทียม)...")
         else:
             lat, lng = pos
+            report_location(api_base, lat, lng, getattr(position_source, "name", None))
             try:
                 nearby = fetch_nearby(api_base, lat, lng)
             except OSError as e:
@@ -544,6 +761,73 @@ def check_voice(api_base):
     return ok
 
 
+def check_gps(port=None):
+    """ดูว่าตัวรับ GPS ส่งอะไรมาบ้าง จับดาวได้กี่ดวง — ใช้ตอน --serial แล้วไม่ได้พิกัด
+
+        python3 device/pi_alert_client.py --checkgps
+
+    ต่างจาก --serial ตรงที่โหมดนี้ไม่ยิง API เลย แสดงแต่สถานะดิบของตัวรับ
+    ทำให้แยกได้ว่าปัญหาอยู่ที่ GPS เอง หรืออยู่ที่เซิร์ฟเวอร์/เครือข่าย
+    """
+    print("=" * 62)
+    print("ตรวจตัวรับ GPS (Beltian BE-609U)")
+    print("=" * 62)
+
+    port = port or NmeaSerialReader.find_port()
+    if not port:
+        print("❌ หาพอร์ต GPS ไม่เจอ")
+        print("   ls -l /dev/serial/by-id/ /dev/ttyACM* /dev/ttyUSB*")
+        print("   lsusb          # ดูว่า Linux เห็นตัวอุปกรณ์ไหม")
+        print("   ถ้าเห็นใน lsusb แต่ไม่มีไฟล์พอร์ต แปลว่าไดรเวอร์ยังไม่โหลด ลองถอดเสียบใหม่")
+        return False
+    print(f"✓ พบพอร์ต: {port}")
+
+    try:
+        with open(port, "rb"):
+            pass
+    except PermissionError:
+        print(f"❌ ไม่มีสิทธิ์อ่าน {port}")
+        print("   sudo usermod -a -G dialout $USER   แล้ว logout/login (หรือ reboot) หนึ่งครั้ง")
+        return False
+    except OSError as e:
+        print(f"❌ เปิดพอร์ตไม่ได้: {e}")
+        print("   อาจมี gpsd จองพอร์ตอยู่:  sudo systemctl stop gpsd gpsd.socket")
+        return False
+    print("✓ เปิดพอร์ตได้")
+
+    reader = NmeaSerialReader(port)
+    print(f"\nกำลังฟัง NMEA {GPS_CHECK_SECONDS} วินาที...")
+    print("(ตัวรับที่เพิ่งเปิดเครื่องต้องใช้เวลาจับดาวครั้งแรก 30 วิ - 2 นาที และต้องอยู่กลางแจ้ง")
+    print(" หรือริมหน้าต่าง — ในอาคารลึก ๆ จับดาวไม่ได้เลย)")
+    for i in range(GPS_CHECK_SECONDS):
+        time.sleep(1)
+        fix = reader.read()
+        sats = reader.satellites if reader.satellites is not None else "?"
+        if fix:
+            print(f"  [{i + 1:2d}วิ] ✓ พิกัด {fix[0]:.6f}, {fix[1]:.6f} · ดาว {sats} ดวง")
+        else:
+            print(f"  [{i + 1:2d}วิ] ยังไม่ได้พิกัด · เห็นดาว {sats} ดวง · fix quality {reader.fix_quality}")
+
+    fix = reader.read()
+    print()
+    if fix:
+        print(f"✅ GPS ใช้งานได้ — พิกัดล่าสุด {fix[0]:.6f}, {fix[1]:.6f}")
+        print(f"   เช็คว่าตรงจริงไหม: https://www.google.com/maps?q={fix[0]:.6f},{fix[1]:.6f}")
+        print(f"\n   ใช้งานจริง:  python3 device/pi_alert_client.py --serial")
+        return True
+
+    print("❌ ยังไม่ได้พิกัดใน", GPS_CHECK_SECONDS, "วินาที")
+    if reader.satellites:
+        print(f"   แต่เห็นดาว {reader.satellites} ดวงแล้ว = ตัวรับทำงานปกติ แค่ยังจับไม่พอ")
+        print("   เอาตัวรับออกไปกลางแจ้งแล้วรออีก 1-2 นาที")
+    else:
+        print("   ไม่เห็นดาวเลย และไม่มีข้อมูล NMEA เข้ามา — เป็นไปได้ว่า:")
+        print("   1. เป็นพอร์ตผิดตัว (ลอง --checkgps /dev/ttyUSB0 หรือพอร์ตอื่นใน ls)")
+        print("   2. baud rate ไม่ใช่ 9600 (ลอง 4800 / 38400 ด้วย stty แล้วรัน cat ดู)")
+        print(f"   3. ดู NMEA ดิบตรง ๆ:  cat {port}")
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi")
     parser.add_argument("--api", default="http://localhost:8000",
@@ -557,6 +841,11 @@ def main():
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--checkvoice", action="store_true",
                         help="ตรวจว่าทำไมเสียงพูดไม่ออก แล้วลองพูดประโยคตัวอย่างหนึ่งครั้ง")
+    source.add_argument("--serial", nargs="?", const="", metavar="PORT",
+                        help="อ่านพิกัดจริงจากตัวรับ GPS USB (BE-609U) ที่พูด NMEA "
+                             "ไม่ใส่พอร์ต = หาให้อัตโนมัติ · ระบุเองได้ เช่น /dev/ttyUSB0")
+    source.add_argument("--checkgps", nargs="?", const="", metavar="PORT",
+                        help="ตรวจว่าตัวรับ GPS ทำงานไหม จับดาวได้กี่ดวง (ไม่ยิง API)")
     source.add_argument("--gpsd", action="store_true", help="อ่านพิกัดจริงจาก gpsd")
     source.add_argument("--test", nargs=2, type=float, metavar=("LAT", "LNG"),
                         help="โหมดทดสอบ: ใช้พิกัดคงที่")
@@ -571,21 +860,28 @@ def main():
                              f"(เมตร, ค่าเริ่มต้น {DEFAULT_EXIT_RADIUS_M}) สนามทดสอบใช้ 150")
     parser.add_argument("--no-speak", action="store_true",
                         help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
+    parser.add_argument("--no-report", action="store_true",
+                        help="ไม่ต้องส่งพิกัดขึ้นเว็บ (หน้าแผนที่จะไม่เห็นหมุดรถ)")
     parser.add_argument("--once", action="store_true",
                         help="ใช้กับ --route เท่านั้น: วิ่งจบเส้นทางครั้งเดียวแล้วหยุด แทนที่จะวนซ้ำ")
     args = parser.parse_args()
 
-    global AUDIO_DEVICE, VOLUME_PCT, ALERT_RADIUS_M, EXIT_RADIUS_M
+    global AUDIO_DEVICE, VOLUME_PCT, ALERT_RADIUS_M, EXIT_RADIUS_M, REPORT_LOCATION
     AUDIO_DEVICE = args.audio_device
     VOLUME_PCT = max(10, min(1000, args.volume))
     ALERT_RADIUS_M = args.alert_radius
     # exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis จะกลายเป็นเตือนรัวทุกรอบโพล
     EXIT_RADIUS_M = max(args.exit_radius, ALERT_RADIUS_M)
+    REPORT_LOCATION = not args.no_report
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
+    if args.checkgps is not None:
+        sys.exit(0 if check_gps(args.checkgps or None) else 1)
 
-    if args.gpsd:
+    if args.serial is not None:
+        position_source = NmeaSerialReader(args.serial or None)
+    elif args.gpsd:
         position_source = GpsdReader()
     elif args.test:
         position_source = FixedPosition(*args.test)

@@ -391,3 +391,49 @@ html, body {
   color: #6d4c00;
   line-height: 1.45;
 }
+
+/* ---------- marker + สถานะอุปกรณ์ Raspberry Pi บนรถ ---------- */
+/* แยกหน้าตาจากหมุดผู้ใช้ (จุดน้ำเงิน) ให้ชัด เพราะสองหมุดนี้อยู่บนแผนที่พร้อมกันได้
+   และมีความหมายคนละอย่าง: จุดน้ำเงิน = เครื่องที่เปิดเว็บ, 🚌 = กล่อง Pi บนรถ */
+.device-dot {
+  position: relative;   /* จุดอ้างอิงของวงกระเพื่อม ::after ด้านล่าง */
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  background: #fff;
+  border: 3px solid #00897b;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0,137,123,.7);
+  transition: opacity .3s, filter .3s;
+}
+/* วงกระเพื่อมบอกว่ายังมีข้อมูลไหลเข้ามาอยู่ — ดูออกทันทีว่าอุปกรณ์ยังส่งอยู่ไหม
+   โดยไม่ต้องอ่านตัวหนังสือบนแถบสถานะ */
+.device-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid rgba(0,137,123,.55);
+  border-radius: 50%;
+  animation: device-pulse 2s ease-out infinite;
+}
+/* หยุดกระเพื่อมและทำให้ซีดลงเมื่อขาดการติดต่อ — หมุดยังอยู่ที่เดิมให้รู้ว่า
+   "เห็นครั้งสุดท้ายตรงนี้" แต่ต้องไม่ดูเหมือนตำแหน่งสด ๆ */
+.device-marker.device-stale .device-dot {
+  opacity: .45;
+  filter: grayscale(1);
+}
+.device-marker.device-stale .device-dot::after { animation: none; opacity: 0; }
+
+@keyframes device-pulse {
+  from { transform: scale(.85); opacity: .9; }
+  to   { transform: scale(1.5); opacity: 0; }
+}
+
+#device-status { font-weight: 600; }
+#device-status.device-online { color: #4db6ac; }
+#device-status.device-offline { color: #ef9a9a; }
+
+.device-popup h4 { margin: 0 0 6px; font-size: 14px; }
+.device-popup table { border-collapse: collapse; font-size: 13px; }
+.device-popup td { padding: 2px 10px 2px 0; vertical-align: top; }
+.device-popup td:first-child { color: #666; }
