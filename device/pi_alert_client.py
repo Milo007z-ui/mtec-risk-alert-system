@@ -719,6 +719,18 @@ def speak(text, api_base):
     return False
 
 
+def announce(text, speak_enabled, api_base):
+    """บอกสถานะของตัวระบบเอง (ไม่ใช่การเตือนจุดเสี่ยง) — ใช้แทนจอตอนออกภาคสนาม
+
+    ต่างจาก speak() ตรงที่ถ้าปิดเสียงพูดไว้ (--no-speak) จะไม่ออกเสียงเลย ไม่ใช้ buzzer
+    แทน เพราะ buzzer มีความหมายเดียวคือ "เข้าใกล้จุดเสี่ยง" ถ้าเอามาใช้บอกสถานะด้วย
+    คนขับจะแยกไม่ออกว่าเสียงที่ได้ยินหมายถึงอะไร
+    """
+    print(f"[สถานะ] {text}")
+    if speak_enabled:
+        speak(text, api_base)
+
+
 # ---------- เรียก API ----------
 
 def fetch_nearby(api_base, lat, lng):
@@ -829,6 +841,19 @@ def run(api_base, position_source, speak_enabled=True):
 
     heading = HeadingTracker()
 
+    # บอกสถานะด้วยเสียงตอนออกภาคสนาม เพราะไม่มีจอให้ดู
+    #
+    # เสียเที่ยวทดสอบไปแล้ว 1 รอบเพราะเรื่องนี้ (2026-08-27 18:10-18:25): service
+    # ถูกสั่ง stop ไว้ตอนทดสอบ --checkgps แล้วลืมสั่ง start กลับ ออกไปข้างนอกทั้งที่
+    # ไม่มีอะไรทำงานเลย กว่าจะรู้ก็ตอนกลับมาเสียบจอแล้วไล่ journalctl ย้อนหลัง
+    #
+    # แยกสองประโยคเพื่อให้วินิจฉัยได้จากเสียงล้วน ๆ:
+    #   เงียบสนิทตั้งแต่แรก      = เครื่องไม่ติด / service ไม่ได้รัน
+    #   พูดประโยคแรกแล้วเงียบยาว = ระบบทำงาน แต่ GPS ยังจับดาวไม่ได้
+    #   พูดครบสองประโยค          = พร้อมใช้งานจริง
+    announce("ระบบพร้อมทำงาน กำลังค้นหาสัญญาณดาวเทียม", speak_enabled, api_base)
+    got_first_fix = False
+
     while True:
         started = time.monotonic()
         pos = position_source.read()
@@ -839,6 +864,10 @@ def run(api_base, position_source, speak_enabled=True):
             print("[gps] ยังไม่ได้ตำแหน่ง (รอสัญญาณดาวเทียม)...")
         else:
             lat, lng = pos
+            if not got_first_fix:
+                got_first_fix = True
+                announce("รับสัญญาณดาวเทียมแล้ว เริ่มแจ้งเตือนจุดเสี่ยง",
+                         speak_enabled, api_base)
             heading_deg = heading.update(lat, lng)
             report_location(api_base, lat, lng, getattr(position_source, "name", None))
             try:
