@@ -375,6 +375,14 @@ def tts(
 # ถ้าต่อไปอยากได้เส้นทางย้อนหลัง ค่อยเปลี่ยนเป็น deque หรือ SQLite ตรงนี้จุดเดียว
 _DEVICE_STALE_AFTER_S = 15  # เกินนี้ = ถือว่าอุปกรณ์หลุด (Pi ส่งทุก 3 วิ เผื่อพลาด 4 รอบ)
 
+# เกินนี้ = ลืมพิกัดไปเลย ไม่ใช่แค่ทำเป็นสีจาง
+# ระหว่าง 15 วิ ถึง 10 นาที ยังแสดงหมุดไว้เพราะมีประโยชน์ — บอกได้ว่า 'เห็นครั้งสุดท้ายตรงนี้'
+# ตอนรถวิ่งเข้าอุโมงค์หรือสัญญาณตกชั่วคราว
+# แต่เกิน 10 นาทีข้อมูลไม่มีประโยชน์แล้ว มีแต่โทษ: เคยเกิดจริงตอนพิกัดค้างจากการรัน
+# โหมดจำลอง (--route) ค้างอยู่ 38 นาที แล้วไปโผล่บนแผนที่สนามทดสอบคนละจังหวัด
+# ซึ่งถ้าเป็นตอนสาธิตหน้ากรรมการจะอธิบายยากมาก
+_DEVICE_FORGET_AFTER_S = 600
+
 _device_location: dict = {
     "lat": None,
     "lng": None,
@@ -418,6 +426,18 @@ def get_device_location():
     """
     updated_at = _device_location["updated_at"]
     age_s = None if updated_at is None else round(time.time() - updated_at, 1)
+
+    # เก่าเกินกำหนด -> ตอบเหมือนยังไม่เคยมีอุปกรณ์ส่งอะไรมาเลย ให้หมุดหายไปจากแผนที่
+    # ไม่ลบ _device_location ทิ้งจริง ๆ เพราะถ้า Pi กลับมาส่งใหม่ค่าจะถูกเขียนทับอยู่แล้ว
+    # และการอ่านอย่างเดียวไม่ควรมีผลข้างเคียง (ผู้ใช้เปิดหลายเครื่องพร้อมกันได้)
+    if age_s is not None and age_s > _DEVICE_FORGET_AFTER_S:
+        return {
+            "lat": None, "lng": None, "speed_kmh": None, "satellites": None,
+            "source": None, "updated_at": None, "age_s": None, "online": False,
+            "stale_after_s": _DEVICE_STALE_AFTER_S,
+            "forgotten_age_s": round(age_s),  # ให้เว็บบอกผู้ใช้ได้ว่าเงียบมานานแค่ไหน
+        }
+
     return {
         **_device_location,
         "age_s": age_s,

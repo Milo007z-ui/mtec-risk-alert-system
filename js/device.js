@@ -138,8 +138,16 @@ const DeviceTracker = (() => {
     }
 
     if (data.lat === null || data.lng === null) {
-      statusEl().textContent = "🚌 อุปกรณ์: ยังไม่เคยส่งตำแหน่ง";
+      // forgotten_age_s = เคยส่งมาแล้วแต่นานจนเซิร์ฟเวอร์ลืมทิ้ง — ต่างจากไม่เคยส่งเลย
+      // แยกสองกรณีนี้ให้ผู้ใช้เห็น เพราะวิธีแก้ต่างกัน (ยังไม่เปิดเครื่อง vs เปิดแล้วแต่หลุด)
+      statusEl().textContent = data.forgotten_age_s
+        ? `🚌 อุปกรณ์: เงียบมา ${fmtAge(data.forgotten_age_s)}`
+        : "🚌 อุปกรณ์: ยังไม่เคยส่งตำแหน่ง";
       statusEl().className = "device-offline";
+      if (marker) {
+        marker.remove();
+        marker = null;
+      }
       return;
     }
 
@@ -178,6 +186,9 @@ const DeviceTracker = (() => {
     }
 
     const parts = [`🚌 อุปกรณ์: ${online ? "ออนไลน์" : `ขาดหาย ${fmtAge(d.age_s)}`}`];
+    // เตือนบนแถบสถานะด้วย ไม่ใช่แค่ใน popup ที่ต้องกดหมุดก่อนถึงจะเห็น
+    // ตอนสาธิตต้องแยกออกทันทีว่ากำลังดู GPS จริงหรือข้อมูลจำลอง
+    if (d.source === "route" || d.source === "fixed") parts.push("⚠️ ข้อมูลจำลอง");
     if (online && d.speed_kmh !== null && d.speed_kmh !== undefined) {
       parts.push(`${d.speed_kmh.toFixed(0)} กม./ชม.`);
     }
