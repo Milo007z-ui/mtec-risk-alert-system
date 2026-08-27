@@ -32,8 +32,25 @@ if [ "$REPO_DIR" != "/home/pi/mtec-risk-alert-system" ]; then
 fi
 
 echo "==> คัดลอกไฟล์ service"
-cp systemd/mtec-api.service systemd/mtec-alert-client.service systemd/mtec-tunnel.service \
-   /etc/systemd/system/
+cp systemd/mtec-api.service systemd/mtec-alert-client.service /etc/systemd/system/
+
+# path ของ ngrok ต่างกันตามวิธีติดตั้ง (snap -> /snap/bin, apt -> /usr/local/bin)
+# systemd บังคับให้ ExecStart เป็น absolute path จึงต้องหาให้ตอนติดตั้ง ล็อกไว้ในไฟล์ไม่ได้
+NGROK_BIN="$(command -v ngrok || true)"
+if [ -z "$NGROK_BIN" ]; then
+  # command -v ไม่เห็น /snap/bin ตอนรันผ่าน sudo เพราะ PATH ถูกล้าง จึงเช็คตรง ๆ อีกที
+  for c in /snap/bin/ngrok /usr/local/bin/ngrok /usr/bin/ngrok; do
+    [ -x "$c" ] && NGROK_BIN="$c" && break
+  done
+fi
+if [ -z "$NGROK_BIN" ]; then
+  echo "    ยังไม่พบ ngrok — ข้ามการติดตั้ง mtec-tunnel ไปก่อน"
+  echo "    ติดตั้งแล้วรันสคริปต์นี้ซ้ำได้ ไม่มีผลกับ service อื่น"
+else
+  sed "s|__NGROK_BIN__|$NGROK_BIN|" systemd/mtec-tunnel.service \
+    > /etc/systemd/system/mtec-tunnel.service
+  echo "    พบ ngrok ที่ $NGROK_BIN"
+fi
 echo "    /etc/systemd/system/mtec-{api,alert-client,tunnel}.service"
 
 echo "==> ตั้งค่า /etc/mtec.env"
@@ -55,11 +72,12 @@ systemctl enable mtec-api.service mtec-alert-client.service >/dev/null
 
 # tunnel enable ให้เฉพาะเมื่อกรอกโดเมนแล้ว ไม่งั้นจะ restart วนไม่รู้จบตอนบูต
 # แล้ว log เต็มไปด้วย error จนกลบปัญหาจริงของ service อื่น
-if grep -q '^NGROK_DOMAIN=.\+' /etc/mtec.env 2>/dev/null; then
+if grep -q '^NGROK_DOMAIN=.\+' /etc/mtec.env 2>/dev/null \
+   && [ -f /etc/systemd/system/mtec-tunnel.service ]; then
   systemctl enable mtec-tunnel.service >/dev/null
   echo "    เปิด mtec-tunnel ด้วย (พบ NGROK_DOMAIN แล้ว)"
 else
-  echo "    ยังไม่เปิด mtec-tunnel เพราะยังไม่ได้กรอก NGROK_DOMAIN"
+  echo "    ยังไม่เปิด mtec-tunnel (ต้องมีทั้ง ngrok ติดตั้งแล้ว และกรอก NGROK_DOMAIN)"
 fi
 
 cat <<'EOF'
@@ -67,18 +85,18 @@ cat <<'EOF'
 ================================================================
 ติดตั้งเสร็จแล้ว — เหลืออีก 2 ขั้นตอน (ทำครั้งเดียว ตอนอยู่กับคอม)
 
-1) สมัคร ngrok ฟรีเพื่อขอโดเมนคงที่ https://dashboard.ngrok.com
-   - Your Authtoken          -> คัดลอกไว้
-   - Domains > New Domain    -> จะได้ชื่อแบบ xxxx-yyyy.ngrok-free.app
+1) ติดตั้ง ngrok แล้วผูก authtoken (ถ้ายังไม่ได้ทำ)
+   sudo snap install ngrok
+   ngrok config add-authtoken <TOKEN จาก dashboard.ngrok.com > Your Authtoken>
+   sudo bash scripts/install_services.sh     # รันซ้ำ เพื่อให้สคริปต์เจอ ngrok
 
-2) กรอกลงไฟล์ตั้งค่า แล้วเปิด tunnel
+2) กรอกโดเมนคงที่ลงไฟล์ตั้งค่า แล้วเปิดทั้งหมด
+   บัญชีใหม่ของ ngrok แถมโดเมนคงที่มาให้แล้ว ดูที่เมนู Domains
+   หน้าตาแบบ  xxxx-yyyy-zzzz.ngrok-free.dev   (ไม่ต้องใส่ https:// นำหน้า)
+
    sudo nano /etc/mtec.env          # ใส่ NGROK_AUTHTOKEN กับ NGROK_DOMAIN
    sudo systemctl enable --now mtec-tunnel
    sudo systemctl start mtec-api mtec-alert-client
-
-   ถ้ายังไม่ได้ติดตั้ง ngrok:
-   curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz \
-     | sudo tar xz -C /usr/local/bin
 
 ลิงก์ที่จะ bookmark ไว้ในมือถือ (คงที่ ไม่เปลี่ยนอีกเลย):
 
