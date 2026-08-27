@@ -937,6 +937,25 @@ def check_voice(api_base):
     return ok
 
 
+def _alert_client_service_running():
+    """service ตัวจริงกำลังจับพอร์ต GPS อยู่ไหม
+
+    ตรวจก่อน --checkgps เสมอ เพราะเป็นหลุมพรางที่เสียเวลาไล่หาสาเหตุผิดทางไปมากที่สุด
+    (เจอจริงสองรอบ 2026-08-27) — เปิดพอร์ตซ้ำได้โดยไม่ error แต่ NMEA ที่วิ่งเข้ามา
+    จะถูกสองโปรเซสแย่งกันอ่านคนละครึ่งบรรทัด checksum เลยไม่ผ่านทุกบรรทัด
+    ผลลัพธ์คือขึ้นว่า "ไม่เห็นดาวเลย" เหมือนตอน baud rate ผิดเป๊ะ ๆ ทั้งที่ GPS ปกติดี
+
+    ตรวจด้วย systemctl แทนการดูว่าเปิดพอร์ตได้ไหม เพราะ Linux ยอมให้เปิด tty ซ้ำได้
+    ไม่มี error ให้จับ · ไม่มี systemd (เช่นรันบนเครื่องอื่น) = ถือว่าไม่ชน
+    """
+    try:
+        r = subprocess.run(["systemctl", "is-active", "mtec-alert-client"],
+                           capture_output=True, text=True, timeout=5)
+        return r.stdout.strip() == "active"
+    except (FileNotFoundError, subprocess.SubprocessError):
+        return False
+
+
 def check_gps(port=None):
     """ดูว่าตัวรับ GPS ส่งอะไรมาบ้าง จับดาวได้กี่ดวง — ใช้ตอน --serial แล้วไม่ได้พิกัด
 
@@ -948,6 +967,17 @@ def check_gps(port=None):
     print("=" * 62)
     print("ตรวจตัวรับ GPS (Beltian BE-609U)")
     print("=" * 62)
+
+    if _alert_client_service_running():
+        print("❌ mtec-alert-client.service ทำงานอยู่ — หยุดก่อนแล้วค่อยตรวจ")
+        print()
+        print("   sudo systemctl stop mtec-alert-client")
+        print("   python3 device/pi_alert_client.py --checkgps")
+        print("   sudo systemctl start mtec-alert-client      # ค่อยเปิดกลับหลังตรวจเสร็จ")
+        print()
+        print("   เหตุผล: พอร์ตอนุกรมอ่านพร้อมกันสองโปรเซสไม่ได้ ข้อมูล NMEA จะถูกแบ่งกันไป")
+        print("   คนละครึ่งจนอ่านไม่ออกทั้งคู่ ผลตรวจจะขึ้นว่าไม่เห็นดาวเลยทั้งที่ GPS ปกติดี")
+        return False
 
     port = port or NmeaSerialReader.find_port()
     if not port:
@@ -998,9 +1028,11 @@ def check_gps(port=None):
         print("   เอาตัวรับออกไปกลางแจ้งแล้วรออีก 1-2 นาที")
     else:
         print("   ไม่เห็นดาวเลย และไม่มีข้อมูล NMEA เข้ามา — เป็นไปได้ว่า:")
-        print("   1. เป็นพอร์ตผิดตัว (ลอง --checkgps /dev/ttyUSB0 หรือพอร์ตอื่นใน ls)")
-        print("   2. baud rate ไม่ใช่ 9600 (ลอง 4800 / 38400 ด้วย stty แล้วรัน cat ดู)")
-        print(f"   3. ดู NMEA ดิบตรง ๆ:  cat {port}")
+        print("   1. มีโปรเซสอื่นแย่งอ่านพอร์ตอยู่ (ตัวที่รันมือค้างไว้):")
+        print("      pgrep -af pi_alert_client.py")
+        print("   2. เป็นพอร์ตผิดตัว (ลอง --checkgps /dev/ttyUSB0 หรือพอร์ตอื่นใน ls)")
+        print(f"   3. baud rate ไม่ใช่ {GPS_BAUD} (ตัวรับรุ่นอื่นใช้ค่าอื่น — ไล่ด้วย stty แล้ว cat ดู)")
+        print(f"   4. ดู NMEA ดิบตรง ๆ:  stty -F {port} {GPS_BAUD} raw -echo && cat {port}")
     return False
 
 
