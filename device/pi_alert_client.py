@@ -649,6 +649,36 @@ _report_failed_once = False
 source_telemetry = None  # ตั้งใน run() = ฟังก์ชันคืน {"speed_kmh":..., "satellites":...}
 
 
+def _lan_ip():
+    """หา IP ของ Pi ในวงแลน เพื่อบอก URL ที่เปิดจากมือถือได้จริง
+
+    localhost ใช้ได้แค่บนตัว Pi เอง เปิดจากมือถือไม่ได้ — ต้องบอก IP จริง
+    วิธีหา: เปิด UDP socket ไปยัง IP ภายนอก แล้วอ่านว่าระบบเลือกใช้ขาไหนออก
+    UDP ไม่ต้อง handshake จึงไม่มีแพ็กเก็ตถูกส่งออกจริงและไม่ต้องมีเน็ต
+    (ใช้ 8.8.8.8 เป็นแค่ปลายทางสมมติ ไม่ได้ติดต่อ Google จริง)
+    """
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sk:
+            sk.connect(("8.8.8.8", 80))
+            return sk.getsockname()[0]
+    except OSError:
+        return None
+
+
+def _web_page(api_base):
+    """เดาว่าควรเปิดหน้าไหน จากชุดข้อมูลที่ API กำลังแจกอยู่
+
+    เปิดผิดหน้าแล้วจะงงมาก เพราะแผนที่ขึ้นปกติแต่ไม่มีจุดเสี่ยงตรงกับที่อุปกรณ์เตือน
+    (index.html โหลด geojson กรุงเทพฯ ของตัวเอง ไม่ได้ถามชุดข้อมูลจาก API)
+    """
+    try:
+        with urllib.request.urlopen(f"{api_base}/api/health", timeout=HTTP_TIMEOUT_S) as r:
+            dataset = json.loads(r.read()).get("dataset", "")
+    except (OSError, ValueError):
+        return "index.html"
+    return "test-nstda.html" if "nstda" in dataset else "index.html"
+
+
 # ---------- ลูปหลัก ----------
 
 def run(api_base, position_source, speak_enabled=True):
@@ -671,7 +701,13 @@ def run(api_base, position_source, speak_enabled=True):
         f"buzzer: {buzzer})"
     )
     if REPORT_LOCATION:
-        print(f"ส่งตำแหน่งขึ้นเว็บ: เปิด — เปิดแผนที่แล้วดูหมุด 🚌 ได้ที่ {api_base}/index.html")
+        page = _web_page(api_base)
+        ip = _lan_ip()
+        print("ส่งตำแหน่งขึ้นเว็บ: เปิด — เปิดลิงก์นี้เพื่อดูหมุด 🚌 บนแผนที่")
+        print(f"   บน Pi เครื่องนี้ : {api_base}/{page}")
+        if ip:
+            # ต้องเป็น IP จริงไม่ใช่ localhost ไม่งั้นเปิดจากมือถือไม่ได้
+            print(f"   จากมือถือ       : http://{ip}:8000/{page}  (ต่อ WiFi วงเดียวกัน)")
 
     while True:
         started = time.monotonic()
