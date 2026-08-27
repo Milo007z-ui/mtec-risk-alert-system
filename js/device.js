@@ -14,6 +14,10 @@
  *
  * ปิดชั้นนี้ด้วย ?device=0 บน URL ถ้าไม่ได้เสียบอุปกรณ์แล้วไม่อยากเห็นป้าย "ออฟไลน์"
  *
+ * มีสองระดับที่บอกสถานะอุปกรณ์: แถบสถานะด้านบน (บอกตลอดเวลา) กับข้อความลอยด้านล่าง
+ * ที่โผล่เฉพาะ "ตอนเปลี่ยนสถานะ" — เพราะตอนขับรถไม่มีใครนั่งจ้องแถบสถานะเล็ก ๆ
+ * ถ้าอุปกรณ์หลุดกลางทางแล้วไม่มีอะไรเด้ง จะรู้ตัวอีกทีตอนถึงปลายทางแล้วว่าไม่ได้เก็บข้อมูลเลย
+ *
  * ลำดับการหาว่า API อยู่ที่ไหน:
  *   1. ?api=https://...        บน URL — ชนะทุกอย่าง ใช้ตอนสลับไปชี้ Pi เครื่องอื่นชั่วคราว
  *   2. window.API_BASE         ตั้งในหน้า HTML
@@ -73,6 +77,11 @@ const DeviceTracker = (() => {
   let lastPos = null;
   let centeredOnce = false;
 
+  // สถานะล่าสุดที่เคยแจ้งไปแล้ว ใช้เทียบกันรอบต่อรอบ จะได้ toast เฉพาะตอน "เปลี่ยน"
+  // สถานะ ไม่ใช่ทุกครั้งที่ poll (ทุก 2 วิ) — ไม่งั้นข้อความจะเด้งถี่จนรำคาญ
+  // ค่าที่เป็นไปได้: null (ยังไม่เคยรู้อะไรเลย) / "online" / "offline"
+  let lastNotifiedState = null;
+
   const SOURCE_LABEL = {
     serial: "GPS จริง",
     gpsd: "GPS จริง (gpsd)",
@@ -110,6 +119,33 @@ const DeviceTracker = (() => {
     timer = null;
   }
 
+  /** ข้อความลอยแจ้งตอนอุปกรณ์เชื่อมต่อ/หลุด — สร้างเองแบบเดียวกับ statusEl() */
+  function toast(text, kind) {
+    let el = document.getElementById("device-toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "device-toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.className = `device-toast toast-${kind}`;
+    el.classList.remove("hidden");
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => el.classList.add("hidden"), 5000);
+  }
+
+  /** เรียกทุกครั้งที่รู้สถานะออนไลน์/ออฟไลน์ล่าสุด — โผล่ข้อความเฉพาะตอน "เปลี่ยน" สถานะ
+   *  ครั้งแรกที่เพิ่งเปิดหน้า (lastNotifiedState เป็น null) ไม่แจ้ง กันข้อความเด้งทันทีที่
+   *  เปิดหน้าเว็บทั้งที่อุปกรณ์อาจไม่เคยเชื่อมต่อมาก่อนเลย (ไม่ใช่การ "หลุด" จริง ๆ) */
+  function notifyState(nextState) {
+    if (nextState === lastNotifiedState) return;
+    if (lastNotifiedState !== null) {
+      if (nextState === "online") toast("🚌 อุปกรณ์เชื่อมต่อแล้ว", "connect");
+      else toast("⚠️ ขาดการเชื่อมต่อกับอุปกรณ์", "disconnect");
+    }
+    lastNotifiedState = nextState;
+  }
+
   // ngrok แผนฟรีแทรกหน้าเตือน "You are about to visit..." ก่อนส่งคำขอถึงเซิร์ฟเวอร์จริง
   // เมื่อ User-Agent เป็นเบราว์เซอร์ ทำให้ fetch ได้ HTML กลับมาแทน JSON แล้ว resp.json()
   // โยน error -> ชั้นนี้หยุดโพลไปเงียบ ๆ โดยไม่มีอะไรบอกสาเหตุ
@@ -133,6 +169,9 @@ const DeviceTracker = (() => {
       // เปิดเว็บจาก file:// หรือ static server ที่ไม่มี API — ไม่ใช่ความผิดพลาดของผู้ใช้
       // แค่ไม่มีชั้นนี้ให้ดู เลยเงียบไว้แล้วหยุดโพล ไม่ต้องรัวคำเตือนใน console ทุก 2 วิ
       statusEl().textContent = "";
+      // เคยต่อได้แล้วเพิ่งมาต่อไม่ได้ = เซิร์ฟเวอร์/tunnel ล้ม ต้องบอกผู้ใช้ เพราะหลังจากนี้
+      // เราหยุดโพลแล้ว หน้าจะค้างอยู่กับข้อมูลเก่าเงียบ ๆ โดยไม่มีอะไรบอกว่าเลิกอัปเดตแล้ว
+      notifyState("offline");
       stop();
       return;
     }
@@ -144,6 +183,7 @@ const DeviceTracker = (() => {
         ? `🚌 อุปกรณ์: เงียบมา ${fmtAge(data.forgotten_age_s)}`
         : "🚌 อุปกรณ์: ยังไม่เคยส่งตำแหน่ง";
       statusEl().className = "device-offline";
+      notifyState("offline");
       if (marker) {
         marker.remove();
         marker = null;
@@ -195,6 +235,7 @@ const DeviceTracker = (() => {
     const el = statusEl();
     el.textContent = parts.join(" · ");
     el.className = online ? "device-online" : "device-offline";
+    notifyState(online ? "online" : "offline");
   }
 
   function fmtAge(s) {

@@ -437,3 +437,27 @@ html, body {
 .device-popup table { border-collapse: collapse; font-size: 13px; }
 .device-popup td { padding: 2px 10px 2px 0; vertical-align: top; }
 .device-popup td:first-child { color: #666; }
+
+/* ---------- ข้อความแจ้งเตือนตอนอุปกรณ์เชื่อมต่อ/หลุด ---------- */
+/* วางไว้ล่างจอ (ไม่ใช้ตำแหน่งเดียวกับ .alert-banner) กันไปทับแบนเนอร์เตือนจุดเสี่ยง
+   ซึ่งสำคัญกว่าและต้องเห็นชัดกว่าเสมอ */
+.device-toast {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  z-index: 1150;
+  animation: slide-up .25s ease;
+}
+.device-toast.toast-connect { background: #2e7d32; }
+.device-toast.toast-disconnect { background: #c62828; }
+
+@keyframes slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
