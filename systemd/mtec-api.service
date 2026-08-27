@@ -8,6 +8,10 @@ Wants=network-online.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/mtec-risk-alert-system
+# RISK_DATA_FILE ตั้งที่ /etc/mtec.env — สลับระหว่างชุดสนามทดสอบ สวทช. กับชุด กทม.
+# ได้โดยไม่ต้องแก้ไฟล์นี้ (แก้ env แล้ว restart พอ ไม่ต้อง daemon-reload)
+# ⚠️ ต้องสลับพร้อมกับ ALERT_RADIUS_M/EXIT_RADIUS_M และหน้าเว็บที่เปิดดูเสมอ
+EnvironmentFile=/etc/mtec.env
 ExecStart=/usr/bin/python3 -m uvicorn api.server:app --host 0.0.0.0 --port 8000
 Restart=on-failure
 RestartSec=3

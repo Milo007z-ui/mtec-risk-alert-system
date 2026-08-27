@@ -1,0 +1,24 @@
+[Unit]
+Description=EMMA Public Tunnel (ngrok) - ให้เปิดแผนที่จากมือถือได้โดยไม่ต้องอยู่วง WiFi เดียวกัน
+# ต้องรอเน็ตพร้อมจริง ไม่งั้น ngrok จะ resolve ไม่ได้แล้วตายทันทีตอนบูต
+After=network-online.target mtec-api.service
+Wants=network-online.target
+Requires=mtec-api.service
+
+[Service]
+Type=simple
+User=pi
+EnvironmentFile=/etc/mtec.env
+
+# --url=<โดเมนคงที่> คือหัวใจของทั้งไฟล์นี้
+# ngrok แบบไม่ระบุโดเมนจะสุ่ม URL ใหม่ทุกครั้งที่รัน ซึ่งใช้ไม่ได้เลยเวลาออกภาคสนาม
+# เพราะไม่มีจอให้อ่าน URL ใหม่ — ต้องเป็นโดเมนเดิมทุกครั้งถึงจะ bookmark ในมือถือได้
+# (บัญชี ngrok ฟรีให้โดเมนคงที่ 1 ชื่อ ตั้งค่าที่ /etc/mtec.env)
+ExecStart=/usr/local/bin/ngrok http 8000 --url=https://${NGROK_DOMAIN} --log=stdout
+
+# ngrok ล้มได้จากเน็ตมือถือหลุดชั่วคราว (USB dongle สัญญาณตก) ต้องต่อเองเสมอ
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

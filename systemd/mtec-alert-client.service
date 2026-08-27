@@ -21,11 +21,14 @@ WorkingDirectory=/home/pi/mtec-risk-alert-system
 #            โหมดนี้ยังส่งพิกัดขึ้น /api/device/location ให้เว็บวาดหมุดรถเรียลไทม์ด้วย
 # ปรับ --audio-device ให้ตรงกับเลขการ์ดของเครื่อง เช็คด้วย aplay -l
 #
-# ไม่ต้องใส่ --volume: ค่าเริ่มต้นในโค้ดคือ 100 = ไม่ขยายสัญญาณซ้ำ เสียงไม่แตก
-# (ไฟล์ใน audio/loud/ อัดจาก Botnoi ที่ 300% มาแล้ว peak=1.000 จึงดังพออยู่แล้ว)
-# ถ้าติดตั้งบนรถจริงแล้วเสียงเครื่องยนต์กลบ ค่อยเติม --volume 200 ตรงนี้
-# แล้ว daemon-reload + restart — ยิ่งเกิน 100 มาก ยิ่งแตกมาก
-ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0
+# รัศมี/ความดัง/เปิด-ปิดเสียงพูด อ่านจาก /etc/mtec.env ทั้งหมด แก้ที่นั่นที่เดียว
+# VOLUME_PCT=100 คือไม่ขยายสัญญาณซ้ำ เสียงไม่แตก (ไฟล์ต้นทางอัดที่ Botnoi 300% แล้ว)
+# ยิ่งเกิน 100 ยิ่งแตก — ขึ้นไปได้ถ้าเสียงเครื่องยนต์กลบตอนติดตั้งบนรถจริง
+#
+# ALERT_RADIUS_M ต้องตรงกับหน้าเว็บที่เปิดดูเสมอ (test-nstda.html=60 · index.html=500)
+# ไม่งั้นอุปกรณ์กับแผนที่เตือนคนละระยะ แล้วผลทดสอบภาคสนามเทียบกันไม่ได้
+EnvironmentFile=/etc/mtec.env
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} ${SPEAK_FLAG}
 Restart=on-failure
 RestartSec=5
 

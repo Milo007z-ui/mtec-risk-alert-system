@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# ไฟล์ตั้งค่าจริงของ systemd — มี NGROK_AUTHTOKEN อยู่ ห้าม commit
+# commit ได้เฉพาะ systemd/mtec.env.example ที่เว้นช่องว่างไว้
+mtec.env
+*.env
+!*.env.example
