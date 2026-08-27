@@ -16,6 +16,18 @@
   <script>
     window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
     window.ACCIDENT_DATA_URL = "data/accident_points_3y.geojson";
+
+    // ที่อยู่ของ API บนกล่อง Raspberry Pi — ใช้เฉพาะตอนเปิดหน้านี้จาก GitHub Pages
+    // ซึ่งเป็นไฟล์นิ่งล้วน ไม่มี API อยู่ข้าง ๆ (เปิดจาก uvicorn บน Pi ไม่ใช้ค่านี้)
+    // ทำให้ลิงก์ GitHub Pages ที่ bookmark ไว้ในมือถือใช้ได้เลย ไม่ต้องพิมพ์ ?api=... ต่อท้าย
+    //
+    // เป็น URL คงที่จาก ngrok (แผนฟรีให้โดเมนถาวร 1 ชื่อ) เปลี่ยนได้ที่ NGROK_DOMAIN
+    // ใน /etc/mtec.env บน Pi — ถ้าเปลี่ยนที่นั่น ต้องแก้ตรงนี้ให้ตรงกันด้วย
+    //
+    // ⚠️ POST /api/device/location ยังไม่มีการยืนยันตัวตน การเปิดเผยโดเมนนี้แปลว่า
+    // ใครก็ยิงพิกัดปลอมเข้ามาแทนตำแหน่งรถได้ ยอมรับได้ในขั้นทดสอบ/สาธิต
+    // แต่ถ้าจะใช้งานจริงระยะยาว ต้องใส่ token ที่ endpoint นั้นก่อน
+    window.API_BASE_FALLBACK = "https://patient-praising-doorstep.ngrok-free.dev";
   </script>
 </head>
 <body>
@@ -98,7 +110,7 @@
   <script src="js/map.js?v=8"></script>
   <script src="js/gps.js?v=14"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
-  <script src="js/device.js?v=3"></script>
+  <script src="js/device.js?v=4"></script>
   <script src="js/alert.js?v=17"></script>
   <script src="js/app.js?v=14"></script>
 </body>

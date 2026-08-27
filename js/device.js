@@ -14,9 +14,13 @@
  *
  * ปิดชั้นนี้ด้วย ?device=0 บน URL ถ้าไม่ได้เสียบอุปกรณ์แล้วไม่อยากเห็นป้าย "ออฟไลน์"
  *
- * เปิดจาก GitHub Pages (ไฟล์นิ่ง ไม่มี API อยู่ด้วย) ให้ชี้ API มาที่ Pi ผ่าน ?api=
- *   https://<user>.github.io/<repo>/test-nstda.html?api=https://xxxx.trycloudflare.com
- * ต้องเป็น https เพราะหน้า GitHub Pages เป็น https (ดูหมายเหตุ mixed content ข้างล่าง)
+ * ลำดับการหาว่า API อยู่ที่ไหน:
+ *   1. ?api=https://...        บน URL — ชนะทุกอย่าง ใช้ตอนสลับไปชี้ Pi เครื่องอื่นชั่วคราว
+ *   2. window.API_BASE         ตั้งในหน้า HTML
+ *   3. window.API_BASE_FALLBACK ใช้เฉพาะเมื่อหน้าเว็บมาจาก GitHub Pages หรือ file://
+ *                              ซึ่งไม่มี API อยู่ข้าง ๆ (ตั้งไว้ใน index.html/test-nstda.html)
+ *   4. path สัมพัทธ์            กรณีปกติ: เสิร์ฟจาก uvicorn ตัวเดียวกับ API
+ * ทุกกรณีต้องเป็น https ถ้าหน้าเว็บเป็น https ไม่งั้นเบราว์เซอร์บล็อก (mixed content)
  */
 
 const DeviceTracker = (() => {
@@ -32,21 +36,34 @@ const DeviceTracker = (() => {
   // การเรียก http จากหน้า https (mixed content) โดยไม่มีทางข้ามได้เลย
   const API_BASE = (() => {
     const fromUrl = new URLSearchParams(location.search).get("api");
-    if (!fromUrl) return window.API_BASE || "";
-    // ตัด / ท้ายออกกัน //api/... ซึ่งบางเซิร์ฟเวอร์ตอบ 404
-    const base = fromUrl.replace(/\/+$/, "");
-    if (!/^https?:\/\//.test(base)) {
-      console.warn(`[device] ?api= ต้องขึ้นต้นด้วย http:// หรือ https:// — ไม่รับค่า "${base}"`);
-      return window.API_BASE || "";
+    if (fromUrl) {
+      // ตัด / ท้ายออกกัน //api/... ซึ่งบางเซิร์ฟเวอร์ตอบ 404
+      const base = fromUrl.replace(/\/+$/, "");
+      if (!/^https?:\/\//.test(base)) {
+        console.warn(`[device] ?api= ต้องขึ้นต้นด้วย http:// หรือ https:// — ไม่รับค่า "${base}"`);
+      } else {
+        if (location.protocol === "https:" && base.startsWith("http://")) {
+          console.warn(
+            "[device] หน้านี้เป็น https แต่ ?api= เป็น http — เบราว์เซอร์จะบล็อก\n" +
+              "ให้ Pi มี URL https ก่อน (ngrok/Cloudflare Tunnel)"
+          );
+        }
+        console.log(`[device] ใช้ API ที่ ${base} (จาก ?api=)`);
+        return base;
+      }
     }
-    if (location.protocol === "https:" && base.startsWith("http://")) {
-      console.warn(
-        "[device] หน้านี้เป็น https แต่ ?api= เป็น http — เบราว์เซอร์จะบล็อก\n" +
-          "ใช้ Cloudflare Tunnel/ngrok ให้ Pi มี URL https ก่อน"
-      );
+    if (window.API_BASE) return window.API_BASE;
+
+    // หน้าที่ถูกเสิร์ฟจาก GitHub Pages (หรือเปิดจากไฟล์ตรง ๆ) ไม่มี API อยู่ข้าง ๆ
+    // จึงต้องใช้ค่าสำรองที่หน้าเว็บตั้งไว้ ไม่งั้นยิง /api/... แล้วได้ 404 แล้วหมุดไม่ขึ้น
+    // ผู้ใช้เลือกใช้ลิงก์ GitHub Pages เป็นหลัก (bookmark ในมือถือ) การบังคับให้พิมพ์
+    // ?api=... ต่อท้ายทุกครั้งจึงไม่เวิร์ก — ลืมเมื่อไหร่ก็เงียบไปเฉย ๆ โดยไม่มีอะไรเตือน
+    const noLocalApi = location.protocol === "file:" || /\.github\.io$/.test(location.hostname);
+    if (noLocalApi && window.API_BASE_FALLBACK) {
+      console.log(`[device] ใช้ API ที่ ${window.API_BASE_FALLBACK} (ค่าสำรองของหน้านี้)`);
+      return window.API_BASE_FALLBACK;
     }
-    console.log(`[device] ใช้ API ที่ ${base}`);
-    return base;
+    return "";
   })();
   const POLL_MS = 2000; // ถี่กว่า Pi ที่ส่งทุก 3 วิ เพื่อให้หน่วงรวมไม่เกิน ~1 รอบ
 
