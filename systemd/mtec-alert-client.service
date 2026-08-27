@@ -33,6 +33,12 @@ WorkingDirectory=/home/pi/mtec-risk-alert-system
 # ตอน SPEAK_FLAG=--no-speak ใช้แบบไหนก็ได้ แต่พอเว้นว่างเพื่อเปิดเสียงพูด
 # ${} จะส่งสตริงว่างเข้าไปแล้ว argparse ตายด้วย exit code 2 รีสตาร์ตวนไม่จบ (เจอจริง)
 EnvironmentFile=/etc/mtec.env
+# ฆ่าไคลเอนต์ตัวอื่นที่ค้างอยู่ก่อนเริ่มเสมอ (เช่นที่รันมือด้วย --route ไว้ทดสอบ
+# แล้วลืมปิด) เพราะสองตัวจะแย่งกันส่ง POST /api/device/location ทำให้หมุดบนแผนที่
+# กระโดดสลับไปมาระหว่างตำแหน่งจริงกับเส้นทางจำลอง หาสาเหตุยากมาก (เจอจริง 2026-08-27:
+# หมุดขึ้นว่า "ออนไลน์" ที่สมุทรสาคร ทั้งที่อุปกรณ์อยู่ในอาคารที่ปทุมธานี)
+# ตัวมันเองยังไม่เริ่มตอน ExecStartPre ทำงาน จึงไม่ฆ่าตัวเอง · - นำหน้า = ล้มเหลวก็ไปต่อ
+ExecStartPre=-/usr/bin/pkill -f "pi_alert_client.py"
 ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} $SPEAK_FLAG
 Restart=on-failure
 RestartSec=5
