@@ -49,8 +49,10 @@ pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุ
   # ใช้งานจริงผ่าน gpsd แทน (ถ้าติดตั้ง gpsd ไว้อยู่แล้ว)
   python3 device/pi_alert_client.py --gpsd
 
-  # ทดสอบภาคสนามในอุทยานวิทยาศาสตร์ฯ (ต้องรัน API ด้วยชุด risk_points_nstda_test.geojson)
-  python3 device/pi_alert_client.py --gpsd --alert-radius 120 --exit-radius 150
+  # ทดสอบภาคสนามในอุทยานวิทยาศาสตร์ฯ — รัศมี 60/80 ต้องตรงกับที่ test-nstda.html ตั้งไว้
+  # และ API ต้องรันด้วยชุด risk_points_nstda_test.geojson ไม่งั้น Pi จะเตือนคนละจุดกับเว็บ
+  RISK_DATA_FILE=data/risk_points_nstda_test.geojson python3 -m uvicorn api.server:app --host 0.0.0.0
+  python3 device/pi_alert_client.py --serial --alert-radius 60 --exit-radius 80
 
   # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS) / ปิดเสียงพูดเหลือแค่ buzzer
   python3 device/pi_alert_client.py --test 13.665 100.534
@@ -80,8 +82,10 @@ except ImportError:
     GPIO = None
 
 # ระยะเตือนมาตรฐานบนถนนนอกพื้นที่ — ปรับได้ด้วย --alert-radius / --exit-radius
-# ตอนทดสอบในสนามเล็ก (เช่นถนนวงรอบอุทยานวิทยาศาสตร์ฯ ยาว 1.4 กม. จุดเสี่ยงห่างกัน 277 ม.)
-# ต้องย่อลงเหลือ 120/150 ม. ไม่งั้นทุกจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ
+# ตอนทดสอบในสนามเล็ก (ถนนวงรอบอุทยานวิทยาศาสตร์ฯ ยาว 1.4 กม. จุดฝั่งตะวันตกห่างกัน 71-125 ม.)
+# ต้องย่อลงเหลือ 60/80 ม. ไม่งั้นทุกจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ
+# ** ค่านี้ต้องตรงกับที่ test-nstda.html ตั้งไว้ (alertM 60 / exitM 80) เสมอ **
+# ไม่งั้น Pi กับเว็บจะเตือนคนละระยะ แล้วผลทดสอบภาคสนามจะเทียบกันไม่ได้
 DEFAULT_ALERT_RADIUS_M = 500
 DEFAULT_EXIT_RADIUS_M = 600  # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
 ALERT_RADIUS_M = DEFAULT_ALERT_RADIUS_M
@@ -854,10 +858,10 @@ def main():
                              "หรือ .csv บรรทัดละ lat,lng)")
     parser.add_argument("--alert-radius", type=float, default=DEFAULT_ALERT_RADIUS_M, metavar="M",
                         help=f"ระยะที่เริ่มเตือน (เมตร, ค่าเริ่มต้น {DEFAULT_ALERT_RADIUS_M}) "
-                             "สนามทดสอบในอุทยานวิทยาศาสตร์ฯ ใช้ 120")
+                             "สนามทดสอบในอุทยานวิทยาศาสตร์ฯ ใช้ 60 (ต้องตรงกับ test-nstda.html)")
     parser.add_argument("--exit-radius", type=float, default=DEFAULT_EXIT_RADIUS_M, metavar="M",
                         help=f"ระยะที่ถือว่าออกนอกรัศมีแล้ว เตือนจุดเดิมซ้ำได้ "
-                             f"(เมตร, ค่าเริ่มต้น {DEFAULT_EXIT_RADIUS_M}) สนามทดสอบใช้ 150")
+                             f"(เมตร, ค่าเริ่มต้น {DEFAULT_EXIT_RADIUS_M}) สนามทดสอบใช้ 80")
     parser.add_argument("--no-speak", action="store_true",
                         help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
     parser.add_argument("--no-report", action="store_true",
