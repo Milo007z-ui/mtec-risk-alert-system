@@ -751,11 +751,17 @@ def report_location(api_base, lat, lng, source):
 
     ส่ง source ไปด้วยเพื่อให้เว็บแยกออกว่าหมุดที่เห็นมาจาก GPS จริง (serial/gpsd)
     หรือมาจากโหมดจำลอง (route/fixed) — ไม่งั้นตอนสาธิตจะแยกไม่ออกว่ารถวิ่งจริงหรือไม่
+
+    lat/lng เป็น None ได้ = "ยังทำงานอยู่ แต่ยังจับดาวไม่ได้" ส่งขึ้นไปทุกรอบเหมือนกัน
+    เพื่อให้เว็บแยก "เครื่องดับ" (เงียบไปเลย) ออกจาก "กำลังหาดาว" (ยังส่งอยู่ แค่ไม่มีพิกัด)
+    ซึ่งวิธีแก้ต่างกันคนละเรื่อง — ก่อนหน้านี้เว็บเงียบเหมือนกันทั้งสองกรณี
     """
     global _report_failed_once
     if not REPORT_LOCATION:
         return
-    body = {"lat": round(lat, 6), "lng": round(lng, 6), "source": source}
+    body = {"source": source}
+    if lat is not None and lng is not None:
+        body.update(lat=round(lat, 6), lng=round(lng, 6))
     if source_telemetry:
         body.update(source_telemetry())
     data = json.dumps(body).encode("utf-8")
@@ -872,6 +878,9 @@ def run(api_base, position_source, speak_enabled=True):
             sats = getattr(position_source, "satellites", None)
             print(f"[gps] ยังไม่ได้ตำแหน่ง · เห็นดาว {'?' if sats is None else sats} ดวง"
                   " (รอสัญญาณดาวเทียม)...")
+            # บอกเว็บว่ายังทำงานอยู่ แค่ยังไม่มีพิกัด — ไม่งั้นแผนที่จะเงียบเหมือนเครื่องดับ
+            report_location(api_base, None, None,
+                            getattr(position_source, "name", None))
         else:
             lat, lng = pos
             if not got_first_fix:

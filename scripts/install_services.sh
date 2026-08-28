@@ -66,6 +66,20 @@ fi
 echo "==> ให้ผู้ใช้ pi อ่านพอร์ต GPS ได้"
 usermod -a -G dialout pi
 
+# หน้าต่าง log สดบนจอของ Pi เอง — ช่วยเฉพาะตอนต่อจอไว้ ไม่มีผลตอนออกภาคสนาม
+# ต้องวางใน ~/.config/autostart ของผู้ใช้ ไม่ใช่ systemd เพราะต้องรอเดสก์ท็อปขึ้นก่อน
+# และต้องเป็นเจ้าของโดย pi ไม่ใช่ root ไม่งั้นเซสชันเดสก์ท็อปจะไม่หยิบไปรัน
+echo "==> หน้าต่างแสดงสถานะบนจอ Pi (autostart)"
+if command -v lxterminal >/dev/null 2>&1; then
+  install -d -o pi -g pi /home/pi/.config/autostart
+  install -o pi -g pi -m 644 systemd/mtec-monitor.desktop \
+    /home/pi/.config/autostart/mtec-monitor.desktop
+  echo "    ~/.config/autostart/mtec-monitor.desktop"
+else
+  # ข้ามไปเงียบ ๆ ไม่ได้ ต้องบอก เพราะผู้ใช้จะรอดูหน้าต่างที่ไม่มีวันขึ้น
+  echo "    ข้าม — ไม่พบ lxterminal (ติดตั้ง: sudo apt install lxterminal แล้วรันสคริปต์นี้ซ้ำ)"
+fi
+
 echo "==> เปิดให้เริ่มเองตอนบูต"
 systemctl daemon-reload
 systemctl enable mtec-api.service mtec-alert-client.service >/dev/null

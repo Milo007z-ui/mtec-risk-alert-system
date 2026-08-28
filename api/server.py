@@ -389,14 +389,23 @@ _device_location: dict = {
     "speed_kmh": None,
     "satellites": None,
     "source": None,      # "serial" / "gpsd" / "route" / "fixed" — บอกว่าเป็น GPS จริงหรือโหมดจำลอง
-    "updated_at": None,  # epoch seconds ฝั่งเซิร์ฟเวอร์
+    "updated_at": None,  # epoch seconds ที่ได้ "พิกัด" ล่าสุด
+    # เวลาที่ Pi ติดต่อเข้ามาล่าสุด ไม่ว่าจะมีพิกัดหรือไม่ — แยกจาก updated_at เพราะ
+    # ระหว่างที่ GPS ยังจับดาวไม่ได้ Pi ทำงานอยู่แต่ไม่มีพิกัดจะส่ง ถ้าดูแค่ updated_at
+    # จะแยกไม่ออกระหว่าง "เครื่องดับ" กับ "เครื่องทำงานอยู่ กำลังหาดาว" ซึ่งวิธีแก้ต่างกันมาก
+    # (เสียเที่ยวทดสอบไปแล้ว 1 รอบเพราะแยกสองอย่างนี้ไม่ออก — 2026-08-27)
+    "seen_at": None,
 }
 
 
 class DeviceLocation(BaseModel):
-    """พิกัดที่ Pi ส่งขึ้นมา — ฟิลด์ที่ไม่ใช่ lat/lng ใส่หรือไม่ใส่ก็ได้"""
-    lat: float = Field(..., ge=-90, le=90)
-    lng: float = Field(..., ge=-180, le=180)
+    """สถานะที่ Pi ส่งขึ้นมา — lat/lng เว้นว่างได้เมื่อยังจับดาวไม่ได้
+
+    ยอมให้ lat/lng เป็น null เพื่อให้ Pi รายงานได้ว่า "ยังทำงานอยู่นะ แค่ยังไม่มีพิกัด"
+    เว็บจะได้แสดง "กำลังค้นหาสัญญาณ · เห็นดาว N ดวง" แทนที่จะเงียบเหมือนเครื่องดับ
+    """
+    lat: float | None = Field(None, ge=-90, le=90)
+    lng: float | None = Field(None, ge=-180, le=180)
     speed_kmh: float | None = Field(None, ge=0, le=300)
     satellites: int | None = Field(None, ge=0, le=64)
     source: str | None = Field(None, max_length=20)
@@ -404,15 +413,17 @@ class DeviceLocation(BaseModel):
 
 @app.post("/api/device/location")
 def update_device_location(loc: DeviceLocation):
-    """รับพิกัดล่าสุดจาก Raspberry Pi (เขียนทับของเดิมเสมอ)"""
-    _device_location.update(
-        lat=loc.lat,
-        lng=loc.lng,
-        speed_kmh=loc.speed_kmh,
-        satellites=loc.satellites,
-        source=loc.source,
-        updated_at=time.time(),
-    )
+    """รับสถานะล่าสุดจาก Raspberry Pi (เขียนทับของเดิมเสมอ)"""
+    now = time.time()
+    # จำนวนดาว/แหล่งพิกัด อัปเดตทุกครั้ง เพราะเป็นข้อมูลของ "ตัวรับ" ไม่ใช่ของพิกัด
+    # ตัวเลขดาวที่ขยับระหว่างยังไม่ได้พิกัดคือสิ่งที่บอกว่ากำลังคืบหน้าหรือค้างสนิท
+    _device_location.update(satellites=loc.satellites, source=loc.source, seen_at=now)
+    # ไม่มีพิกัดก็ไม่แตะพิกัดเดิม — ของเก่ายังมีประโยชน์ตอนสัญญาณตกชั่วคราว
+    # (บอกได้ว่า "เห็นครั้งสุดท้ายตรงนี้") และมี _DEVICE_FORGET_AFTER_S คุมอายุอยู่แล้ว
+    if loc.lat is not None and loc.lng is not None:
+        _device_location.update(
+            lat=loc.lat, lng=loc.lng, speed_kmh=loc.speed_kmh, updated_at=now,
+        )
     return {"ok": True}
 
 
@@ -424,16 +435,30 @@ def get_device_location():
     หรือส่งครั้งสุดท้ายนานเกิน _DEVICE_STALE_AFTER_S (Pi ดับ/เน็ตหลุด/GPS ไม่จับดาว)
     เว็บใช้ค่านี้ตัดสินใจว่าจะแสดงหมุดแบบจางหรือซ่อนไปเลย
     """
+    now = time.time()
     updated_at = _device_location["updated_at"]
-    age_s = None if updated_at is None else round(time.time() - updated_at, 1)
+    seen_at = _device_location["seen_at"]
+    age_s = None if updated_at is None else round(now - updated_at, 1)
+    seen_age_s = None if seen_at is None else round(now - seen_at, 1)
+
+    # อุปกรณ์ยังติดต่อเข้ามาอยู่ (จะมีพิกัดหรือไม่ก็ตาม) = เครื่องเปิดอยู่ โปรแกรมรันอยู่
+    device_up = seen_age_s is not None and seen_age_s <= _DEVICE_STALE_AFTER_S
+    online = age_s is not None and age_s <= _DEVICE_STALE_AFTER_S
+    # เครื่องทำงานอยู่แต่ยังไม่มีพิกัดสด = กำลังหาดาว ต่างจากเครื่องดับที่เงียบไปเลย
+    searching = device_up and not online
 
     # เก่าเกินกำหนด -> ตอบเหมือนยังไม่เคยมีอุปกรณ์ส่งอะไรมาเลย ให้หมุดหายไปจากแผนที่
     # ไม่ลบ _device_location ทิ้งจริง ๆ เพราะถ้า Pi กลับมาส่งใหม่ค่าจะถูกเขียนทับอยู่แล้ว
     # และการอ่านอย่างเดียวไม่ควรมีผลข้างเคียง (ผู้ใช้เปิดหลายเครื่องพร้อมกันได้)
+    #
+    # ยังคง satellites/searching ไว้ตรงนี้ด้วย เพราะกรณีที่พบบ่อยที่สุดคือเพิ่งเปิดเครื่อง
+    # กลางแจ้ง: ไม่เคยมีพิกัดเลย (หรือของเก่าหมดอายุ) แต่ตัวรับกำลังไล่จับดาวอยู่จริง ๆ
     if age_s is not None and age_s > _DEVICE_FORGET_AFTER_S:
         return {
-            "lat": None, "lng": None, "speed_kmh": None, "satellites": None,
+            "lat": None, "lng": None, "speed_kmh": None,
+            "satellites": _device_location["satellites"] if device_up else None,
             "source": None, "updated_at": None, "age_s": None, "online": False,
+            "searching": searching, "seen_age_s": seen_age_s,
             "stale_after_s": _DEVICE_STALE_AFTER_S,
             "forgotten_age_s": round(age_s),  # ให้เว็บบอกผู้ใช้ได้ว่าเงียบมานานแค่ไหน
         }
@@ -441,7 +466,9 @@ def get_device_location():
     return {
         **_device_location,
         "age_s": age_s,
-        "online": age_s is not None and age_s <= _DEVICE_STALE_AFTER_S,
+        "online": online,
+        "searching": searching,
+        "seen_age_s": seen_age_s,
         "stale_after_s": _DEVICE_STALE_AFTER_S,
     }
 

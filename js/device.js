@@ -139,7 +139,12 @@ const DeviceTracker = (() => {
    *  เปิดหน้าเว็บทั้งที่อุปกรณ์อาจไม่เคยเชื่อมต่อมาก่อนเลย (ไม่ใช่การ "หลุด" จริง ๆ) */
   function notifyState(nextState) {
     if (nextState === lastNotifiedState) return;
-    if (lastNotifiedState !== null) {
+    // ครั้งแรกที่เจอสถานะ searching ก็แจ้งได้ ต่างจาก offline ตรงที่มันคือข่าวดี
+    // ("เครื่องเปิดอยู่นะ") ไม่ใช่การเตือนว่ามีอะไรพัง จึงไม่ทำให้ตกใจเปล่า ๆ ตอนเปิดหน้า
+    const firstEver = lastNotifiedState === null;
+    if (nextState === "searching") {
+      toast("🔍 อุปกรณ์ทำงานอยู่ กำลังค้นหาสัญญาณดาวเทียม", "searching");
+    } else if (!firstEver) {
       if (nextState === "online") toast("🚌 อุปกรณ์เชื่อมต่อแล้ว", "connect");
       else toast("⚠️ ขาดการเชื่อมต่อกับอุปกรณ์", "disconnect");
     }
@@ -177,6 +182,21 @@ const DeviceTracker = (() => {
     }
 
     if (data.lat === null || data.lng === null) {
+      // searching = อุปกรณ์ยังติดต่อเข้ามาอยู่ แค่ GPS ยังจับดาวไม่ได้ ต่างจากเครื่องดับ
+      // ที่เงียบไปเลย — ก่อนหน้านี้สองกรณีนี้หน้าตาเหมือนกันบนเว็บ ทำให้ตอนออกภาคสนาม
+      // แยกไม่ออกว่าต้องไปขยับปลั๊กไฟ หรือแค่รอ/ย้ายที่วางตัวรับ
+      if (data.searching) {
+        const sats = data.satellites;
+        statusEl().textContent =
+          `🔍 อุปกรณ์: กำลังค้นหาสัญญาณดาวเทียม${sats == null ? "" : ` · เห็นดาว ${sats} ดวง`}`;
+        statusEl().className = "device-searching";
+        notifyState("searching");
+        if (marker) {
+          marker.remove();
+          marker = null;
+        }
+        return;
+      }
       // forgotten_age_s = เคยส่งมาแล้วแต่นานจนเซิร์ฟเวอร์ลืมทิ้ง — ต่างจากไม่เคยส่งเลย
       // แยกสองกรณีนี้ให้ผู้ใช้เห็น เพราะวิธีแก้ต่างกัน (ยังไม่เปิดเครื่อง vs เปิดแล้วแต่หลุด)
       statusEl().textContent = data.forgotten_age_s

@@ -432,6 +432,8 @@ html, body {
 #device-status { font-weight: 600; }
 #device-status.device-online { color: #4db6ac; }
 #device-status.device-offline { color: #ef9a9a; }
+/* กำลังหาดาว = เครื่องทำงานอยู่ ยังไม่ถึงขั้นมีปัญหา จึงใช้สีเหลืองอำพันไม่ใช่สีแดง */
+#device-status.device-searching { color: #ffcc80; }
 
 .device-popup h4 { margin: 0 0 6px; font-size: 14px; }
 .device-popup table { border-collapse: collapse; font-size: 13px; }
@@ -456,6 +458,7 @@ html, body {
 }
 .device-toast.toast-connect { background: #2e7d32; }
 .device-toast.toast-disconnect { background: #c62828; }
+.device-toast.toast-searching { background: #ef6c00; }
 
 @keyframes slide-up {
   from { transform: translateY(16px); opacity: 0; }
