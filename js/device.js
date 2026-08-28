@@ -70,6 +70,9 @@ const DeviceTracker = (() => {
     return "";
   })();
   const POLL_MS = 2000; // ถี่กว่า Pi ที่ส่งทุก 3 วิ เพื่อให้หน่วงรวมไม่เกิน ~1 รอบ
+  // จังหวะที่ผ่อนลงเมื่อต่อไม่ติดติดกันหลายครั้ง (เซิร์ฟเวอร์/tunnel ล่มยาว)
+  // ไม่ยอมแพ้ถาวร เพราะบนรถ ngrok หลุดแล้วต่อกลับเองได้เสมอ แค่ใช้เวลาสักครู่
+  const RETRY_MS = 10000;
 
   let map = null;
   let marker = null;
@@ -81,6 +84,12 @@ const DeviceTracker = (() => {
   // สถานะ ไม่ใช่ทุกครั้งที่ poll (ทุก 2 วิ) — ไม่งั้นข้อความจะเด้งถี่จนรำคาญ
   // ค่าที่เป็นไปได้: null (ยังไม่เคยรู้อะไรเลย) / "online" / "offline"
   let lastNotifiedState = null;
+
+  // เคยดึงข้อมูลสำเร็จอย่างน้อย 1 ครั้งไหม — ใช้แยก "หน้านี้ไม่มี API ให้คุยด้วย"
+  // (ไม่เคยติดเลย -> หยุดโพล) ออกจาก "สัญญาณตกชั่วคราว" (เคยติดแล้ว -> ต้องพยายามต่อ)
+  let everConnected = false;
+  let consecutiveFails = 0;
+  let pollMs = POLL_MS;
 
   const SOURCE_LABEL = {
     serial: "GPS จริง",
@@ -117,6 +126,14 @@ const DeviceTracker = (() => {
   function stop() {
     if (timer !== null) clearInterval(timer);
     timer = null;
+  }
+
+  /** เปลี่ยนจังหวะโพล — ต้องล้างตัวเก่าก่อนเสมอ ไม่งั้นจะมี interval ซ้อนกันหลายตัว */
+  function retimer(ms) {
+    if (ms === pollMs && timer !== null) return;
+    pollMs = ms;
+    stop();
+    timer = setInterval(poll, ms);
   }
 
   /** ข้อความลอยแจ้งตอนอุปกรณ์เชื่อมต่อ/หลุด — สร้างเองแบบเดียวกับ statusEl() */
@@ -171,15 +188,38 @@ const DeviceTracker = (() => {
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       data = await resp.json();
     } catch (err) {
-      // เปิดเว็บจาก file:// หรือ static server ที่ไม่มี API — ไม่ใช่ความผิดพลาดของผู้ใช้
-      // แค่ไม่มีชั้นนี้ให้ดู เลยเงียบไว้แล้วหยุดโพล ไม่ต้องรัวคำเตือนใน console ทุก 2 วิ
-      statusEl().textContent = "";
-      // เคยต่อได้แล้วเพิ่งมาต่อไม่ได้ = เซิร์ฟเวอร์/tunnel ล้ม ต้องบอกผู้ใช้ เพราะหลังจากนี้
-      // เราหยุดโพลแล้ว หน้าจะค้างอยู่กับข้อมูลเก่าเงียบ ๆ โดยไม่มีอะไรบอกว่าเลิกอัปเดตแล้ว
+      // ยังไม่เคยต่อติดเลยสักครั้ง = หน้านี้ไม่มี API ให้คุยด้วยจริง ๆ (เปิดจาก file://
+      // หรือ static host ที่ไม่ได้ตั้ง API_BASE_FALLBACK) หยุดโพลไปเลย ไม่ต้องรัว
+      // คำเตือนใน console ทุก 2 วิ และไม่ต้องขึ้นป้ายอะไรให้ผู้ใช้งง
+      if (!everConnected) {
+        statusEl().textContent = "";
+        stop();
+        return;
+      }
+      // เคยต่อติดแล้วเพิ่งมาพลาด = สัญญาณตกชั่วคราว ไม่ใช่ "ไม่มี API"
+      // ต้องพยายามต่อ ไม่ใช่ยอมแพ้ถาวร — บนเน็ตมือถือ + ngrok การพลาดสัก 1-2 ครั้ง
+      // เป็นเรื่องปกติมาก เคยหยุดโพลถาวรตรงนี้แล้วผู้ใช้ต้องรีเฟรชหน้าเองถึงจะกลับมา
+      // (เจอจริงตอนทดสอบภาคสนาม 2026-08-28)
+      consecutiveFails++;
+      statusEl().textContent =
+        `⚠️ อุปกรณ์: ขาดการเชื่อมต่อ (พยายามต่อใหม่... ${consecutiveFails})`;
+      statusEl().className = "device-offline";
       notifyState("offline");
-      stop();
+      if (marker) {
+        marker.remove();
+        marker = null;
+      }
+      // ถี่เท่าเดิมช่วงแรกเพื่อกลับมาให้ไวที่สุดตอนสัญญาณแค่กระพริบ แล้วค่อยผ่อนลง
+      // เมื่อพลาดติดกันหลายครั้ง เพื่อไม่ให้เปลืองแบตกับเน็ตมือถือตอนเซิร์ฟเวอร์ล่มยาว
+      retimer(consecutiveFails <= 3 ? POLL_MS : RETRY_MS);
       return;
     }
+    // กลับมาต่อติดแล้ว — คืนจังหวะโพลปกติถ้าเมื่อกี้ผ่อนไปแล้ว
+    if (consecutiveFails > 0) {
+      consecutiveFails = 0;
+      retimer(POLL_MS);
+    }
+    everConnected = true;
 
     if (data.lat === null || data.lng === null) {
       // searching = อุปกรณ์ยังติดต่อเข้ามาอยู่ แค่ GPS ยังจับดาวไม่ได้ ต่างจากเครื่องดับ
