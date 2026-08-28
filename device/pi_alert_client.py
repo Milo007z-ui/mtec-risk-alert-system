@@ -861,7 +861,17 @@ def run(api_base, position_source, speak_enabled=True):
             if getattr(position_source, "finished", False):
                 print("จบเส้นทางจำลองแล้ว — หยุดทำงาน")
                 break
-            print("[gps] ยังไม่ได้ตำแหน่ง (รอสัญญาณดาวเทียม)...")
+            # บอกจำนวนดาวที่เห็นด้วย ไม่ใช่แค่ "ยังไม่ได้ตำแหน่ง" เฉย ๆ เพราะระหว่างรอ
+            # ต้องแยกให้ออกว่า "กำลังคืบหน้า" (ดาวเพิ่มขึ้นเรื่อย ๆ รออีกหน่อยได้พิกัด)
+            # กับ "ไม่คืบเลย" (0 ดวงค้าง = ที่วางตัวรับมองไม่เห็นฟ้า ต้องย้ายที่)
+            # ดูสดด้วย journalctl -u mtec-alert-client -f ตอนออกภาคสนาม
+            #
+            # None = ยังไม่เคย parse ประโยค GGA สำเร็จสักครั้ง ต่างจาก 0 ที่ตัวรับบอกเองว่า
+            # เห็น 0 ดวง — ถ้าค้างที่ ? นานแปลว่าอ่าน NMEA ไม่ออก (baud ผิด/มีตัวแย่งพอร์ต)
+            # ไม่ใช่แค่จับดาวไม่ได้ ดูหมายเหตุที่ GPS_BAUD
+            sats = getattr(position_source, "satellites", None)
+            print(f"[gps] ยังไม่ได้ตำแหน่ง · เห็นดาว {'?' if sats is None else sats} ดวง"
+                  " (รอสัญญาณดาวเทียม)...")
         else:
             lat, lng = pos
             if not got_first_fix:
