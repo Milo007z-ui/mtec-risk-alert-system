@@ -33,6 +33,7 @@ fi
 
 echo "==> คัดลอกไฟล์ service"
 cp systemd/mtec-api.service systemd/mtec-alert-client.service /etc/systemd/system/
+cp systemd/mtec-autoheal.service systemd/mtec-autoheal.timer /etc/systemd/system/
 
 # path ของ ngrok ต่างกันตามวิธีติดตั้ง (snap -> /snap/bin, apt -> /usr/local/bin)
 # systemd บังคับให้ ExecStart เป็น absolute path จึงต้องหาให้ตอนติดตั้ง ล็อกไว้ในไฟล์ไม่ได้
@@ -51,7 +52,7 @@ else
     > /etc/systemd/system/mtec-tunnel.service
   echo "    พบ ngrok ที่ $NGROK_BIN"
 fi
-echo "    /etc/systemd/system/mtec-{api,alert-client,tunnel}.service"
+echo "    /etc/systemd/system/mtec-{api,alert-client,tunnel,autoheal}.service + autoheal.timer"
 
 echo "==> ตั้งค่า /etc/mtec.env"
 if [ -f /etc/mtec.env ]; then
@@ -83,6 +84,9 @@ fi
 echo "==> เปิดให้เริ่มเองตอนบูต"
 systemctl daemon-reload
 systemctl enable mtec-api.service mtec-alert-client.service >/dev/null
+# timer กู้ service ที่ถูกสั่ง stop แล้วลืมเปิดกลับ (เกิดมาแล้ว 4 ครั้ง — ดูหมายเหตุในไฟล์ .timer)
+systemctl enable --now mtec-autoheal.timer >/dev/null
+echo "    เปิด mtec-autoheal.timer แล้ว (ตรวจทุก 5 นาที)"
 
 # tunnel enable ให้เฉพาะเมื่อกรอกโดเมนแล้ว ไม่งั้นจะ restart วนไม่รู้จบตอนบูต
 # แล้ว log เต็มไปด้วย error จนกลบปัญหาจริงของ service อื่น

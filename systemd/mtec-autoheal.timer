@@ -1,0 +1,27 @@
+[Unit]
+Description=EMMA Autoheal - ตรวจทุก 5 นาทีว่า service ยังทำงานอยู่ไหม
+#
+# ทำไมต้องมี: สั่ง systemctl stop เพื่อทดสอบ --checkgps แล้วลืมสั่ง start กลับ
+# เกิดมาแล้ว 4 ครั้งในสองวัน (2026-08-27/28) ครั้งที่แพงที่สุดคือออกไปทดสอบภาคสนาม
+# 15 นาทีโดยไม่มีอะไรทำงานเลย กว่าจะรู้ก็ตอนกลับมาไล่ journalctl ย้อนหลัง
+#
+# ปัญหาไม่ได้อยู่ที่ความจำของคน แต่อยู่ที่ระบบยอมให้อยู่ในสถานะ "ปิดเงียบ" ได้นาน
+# ไม่จำกัดโดยไม่มีอะไรทัก — Restart=on-failure ของ systemd ไม่ช่วยตรงนี้ เพราะ
+# การถูกสั่ง stop ถือเป็นการจบงานปกติ ไม่ใช่ failure
+#
+# ตอนต้องการปิดจริง ๆ (เช่นทดสอบ --checkgps ที่ต้องใช้พอร์ต GPS คนเดียว)
+# ให้ปิด timer ไปพร้อมกัน ไม่งั้นมันจะเปิด service กลับมาแย่งพอร์ตกลางคัน:
+#     sudo systemctl stop mtec-autoheal.timer mtec-alert-client
+#     python3 device/pi_alert_client.py --checkgps
+#     sudo systemctl start mtec-autoheal.timer mtec-alert-client
+
+[Timer]
+# เริ่มตรวจครั้งแรก 3 นาทีหลังบูต — ให้ service ปกติได้ลองเองก่อน
+# (mtec-alert-client มี Restart=on-failure ทุก 5 วิ ถ้า GPS ยังไม่พร้อมตอนบูต)
+OnBootSec=3min
+OnUnitActiveSec=5min
+# ถ้าเครื่องดับตอนถึงกำหนด ให้ตรวจทันทีเมื่อเปิดมาใหม่ ไม่ต้องรอครบรอบ
+Persistent=true
+
+[Install]
+WantedBy=timers.target

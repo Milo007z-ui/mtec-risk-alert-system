@@ -1,0 +1,12 @@
+[Unit]
+Description=EMMA Autoheal - เปิด service ที่ถูกปิดค้างไว้กลับมาเอง
+# ไม่ใส่ Requires/After ของ service ที่จะไปเปิด เพราะถ้าตัวนั้นล้มแล้วจะพาตัวนี้ล้มตาม
+# กลายเป็นว่าตัวที่มีหน้าที่กู้กลับ ตายพร้อมกับตัวที่ต้องกู้
+
+[Service]
+Type=oneshot
+# ไม่ใช้ User=pi เพราะต้องมีสิทธิ์สั่ง systemctl start
+ExecStart=/usr/bin/systemctl start mtec-api.service mtec-alert-client.service
+
+# systemctl start กับ service ที่ทำงานอยู่แล้ว = ไม่ทำอะไรเลย ไม่ใช่การรีสตาร์ต
+# จึงเรียกซ้ำทุก 5 นาทีได้โดยไม่กระทบการทำงานที่กำลังดำเนินอยู่
