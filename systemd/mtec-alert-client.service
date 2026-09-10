@@ -1,45 +1,22 @@
 [Unit]
 Description=EMMA Pi Alert Client (mtec-risk-alert-system) - ใช้งานจริงกับ GPS
-# ต้องรอ mtec-api.service ให้เปิดพอร์ต 8000 เสร็จก่อน ไม่งั้นเชื่อมต่อไม่ติดตั้งแต่ต้น
+# ต้องรอ API เปิดพอร์ต 8000 ก่อน ไม่งั้นเชื่อมต่อไม่ติดตั้งแต่ต้น
 After=mtec-api.service
 Requires=mtec-api.service
 
 [Service]
-# ตัวรับ GPS USB ใช้เวลาสักครู่กว่าเคอร์เนลจะสร้างไฟล์พอร์ตให้หลังบูต
-# ถ้า service เริ่มก่อน จะหาพอร์ตไม่เจอแล้ว exit — Restart=on-failure ด้านล่าง
-# จะพาให้ลองใหม่ทุก 5 วิ จนกว่าจะเจอ จึงไม่ต้องใส่ ExecStartPre รออะไรเพิ่ม
-
 Type=simple
 User=pi
-# ต้องอยู่กลุ่ม dialout ถึงจะอ่าน /dev/ttyACM0 หรือ /dev/ttyUSB0 ของตัวรับ GPS ได้
-# (รันมือได้แต่ service อ่านไม่ได้ = สาเหตุนี้เกือบทุกครั้ง)
+# ต้องอยู่กลุ่ม dialout ถึงจะอ่านพอร์ต GPS ได้ (รันมือได้แต่ service ไม่ได้ = สาเหตุนี้)
 SupplementaryGroups=dialout
 WorkingDirectory=/home/pi/mtec-risk-alert-system
-# --serial = อ่านพิกัดจากตัวรับ GPS USB (Beltian BE-609U) โดยตรง ไม่ผ่าน gpsd
-#            หาพอร์ตให้อัตโนมัติ ถ้าเสียบ USB serial หลายตัวจนหาผิด ระบุเองได้:
-#            --serial /dev/ttyUSB0   (ดูรายการจริงด้วย ls -l /dev/serial/by-id/)
-#            โหมดนี้ยังส่งพิกัดขึ้น /api/device/location ให้เว็บวาดหมุดรถเรียลไทม์ด้วย
-# ปรับ --audio-device ให้ตรงกับเลขการ์ดของเครื่อง เช็คด้วย aplay -l
-#
-# รัศมี/ความดัง/เปิด-ปิดเสียงพูด อ่านจาก /etc/mtec.env ทั้งหมด แก้ที่นั่นที่เดียว
-# VOLUME_PCT=100 คือไม่ขยายสัญญาณซ้ำ เสียงไม่แตก (ไฟล์ต้นทางอัดที่ Botnoi 300% แล้ว)
-# ยิ่งเกิน 100 ยิ่งแตก — ขึ้นไปได้ถ้าเสียงเครื่องยนต์กลบตอนติดตั้งบนรถจริง
-#
-# ALERT_RADIUS_M ต้องตรงกับหน้าเว็บที่เปิดดูเสมอ (test-nstda.html=60 · index.html=500)
-# ไม่งั้นอุปกรณ์กับแผนที่เตือนคนละระยะ แล้วผลทดสอบภาคสนามเทียบกันไม่ได้
-# ใช้ $SPEAK_FLAG ไม่ใช่ ${SPEAK_FLAG} — systemd แยกความหมายสองแบบนี้:
-#   ${VAR} = แทนเป็น argument เดียวเสมอ ถ้าค่าว่างจะได้ argument ว่าง '''''' ติดไปด้วย
-#   $VAR   = ตัดตามช่องว่าง ถ้าค่าว่างจะไม่มี argument เลย  <- ที่ต้องการ
-# ตอน SPEAK_FLAG=--no-speak ใช้แบบไหนก็ได้ แต่พอเว้นว่างเพื่อเปิดเสียงพูด
-# ${} จะส่งสตริงว่างเข้าไปแล้ว argparse ตายด้วย exit code 2 รีสตาร์ตวนไม่จบ (เจอจริง)
+# รัศมี ความดัง เปิด/ปิดเสียงพูด แก้ที่ /etc/mtec.env ที่เดียว
 EnvironmentFile=/etc/mtec.env
-# ฆ่าไคลเอนต์ตัวอื่นที่ค้างอยู่ก่อนเริ่มเสมอ (เช่นที่รันมือด้วย --route ไว้ทดสอบ
-# แล้วลืมปิด) เพราะสองตัวจะแย่งกันส่ง POST /api/device/location ทำให้หมุดบนแผนที่
-# กระโดดสลับไปมาระหว่างตำแหน่งจริงกับเส้นทางจำลอง หาสาเหตุยากมาก (เจอจริง 2026-08-27:
-# หมุดขึ้นว่า "ออนไลน์" ที่สมุทรสาคร ทั้งที่อุปกรณ์อยู่ในอาคารที่ปทุมธานี)
-# ตัวมันเองยังไม่เริ่มตอน ExecStartPre ทำงาน จึงไม่ฆ่าตัวเอง · - นำหน้า = ล้มเหลวก็ไปต่อ
+# ฆ่าไคลเอนต์ตัวเก่าที่ค้างอยู่ก่อนเสมอ กันสองตัวแย่งกันส่งพิกัดจนหมุดกระโดด
 ExecStartPre=-/usr/bin/pkill -f "pi_alert_client.py"
+# --serial = อ่าน NMEA จากตัวรับ GPS โดยตรง ไม่ต้องมี gpsd
 ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} $SPEAK_FLAG
+# หาพอร์ต GPS ไม่เจอตอนเพิ่งบูต = ลองใหม่ทุก 5 วิ จนกว่าเคอร์เนลจะสร้างไฟล์พอร์ตให้
 Restart=on-failure
 RestartSec=5
 

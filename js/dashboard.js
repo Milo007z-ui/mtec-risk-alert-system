@@ -1,6 +1,4 @@
-/**
- * dashboard.js — โหลด GeoJSON แล้วสรุปสถิติเป็น KPI + กราฟ + ตาราง
- */
+/** dashboard.js — โหลด GeoJSON แล้วสรุปสถิติเป็น KPI + กราฟ + ตาราง */
 
 (async function main() {
   const LEVELS = [
@@ -10,7 +8,6 @@
   ];
 
   // dashboard.html ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
-  // ค่า default ต้องเป็นชุดที่ใช้งานจริง (รอบ 3 ปี v2569-r1-3y) เสมอ ดูเหตุผลใน riskpoints.js
   const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro_3y.geojson";
 
   let zones;
@@ -38,8 +35,6 @@
   for (const lv of LEVELS) byLevel[lv.key] = zones.filter((z) => z.level === lv.key).length;
 
   // KPI ผู้เสียชีวิต/บาดเจ็บ/จุดเสี่ยง ใช้ยอด "ทุกจุดเสี่ยง" จาก calibration.overall
-  // ไม่ใช่ผลรวมของคลัสเตอร์ เพราะจุดเสี่ยงเดี่ยวไม่ถูกจัดระดับ
-  // ถ้าบวกเฉพาะคลัสเตอร์ ผู้เสียชีวิต 312 คนของจุดเดี่ยวจะหายไปจากหน้าสรุป (รอบ 3 ปี)
   const overall = (calibration && calibration.overall) || null;
   const excluded = (calibration && calibration.excluded_noise) || null;
   const totalAcc = overall ? overall.risk_points : sum("accident_count");

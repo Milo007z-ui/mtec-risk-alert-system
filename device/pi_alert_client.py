@@ -1,82 +1,12 @@
 #!/usr/bin/env python3
-"""
-pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi (สำหรับติดบนรถเมล์)
-
-หลักการทำงาน (วนลูปทุก POLL_INTERVAL_S วินาที):
-  1. อ่านพิกัด GPS ปัจจุบันของรถ (จากตัวรับ GPS ต่อ USB, gpsd หรือโหมดจำลอง)
-  2. ยิง GET /api/risk-points/nearby?lat=..&lng=..&radius=600 ไปที่เซิร์ฟเวอร์
-  3. ถ้ามีจุดเสี่ยงใกล้กว่า 500 เมตรและยังไม่เคยเตือน -> สั่ง buzzer ที่ต่อขา GPIO13 (เลขแบบ BCM)
-     ร้อง 1 วิ เป็นเสียงนำ แล้วพูดประโยคเตือนภาษาไทยที่ได้จาก alert_message ของ API
-     (เสียงพูดมี 4 ชั้น ดูหัวข้อ "เสียงพูดแจ้งเตือน" ด้านล่าง ปิดด้วย --no-speak ได้)
-  4. ส่งพิกัดตัวเองขึ้น POST /api/device/location ทุกรอบ เพื่อให้หน้าเว็บบนมือถือ
-     เห็นหมุดรถแบบเรียลไทม์ (ปิดด้วย --no-report ได้ · ส่งไม่สำเร็จไม่กระทบการเตือน)
-
-กติกา cooldown ต่อจุด:
-  - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M (500 ม.)
-  - เตือนจุดเดิมซ้ำได้ต่อเมื่อออกไกลกว่า EXIT_RADIUS_M (600 ม.) แล้วกลับเข้ามาใหม่
-
-กติกาทิศทาง (ต้องตรงกับ js/alert.js เสมอ):
-  - ปัจจุบัน "ปิด" อยู่ (180 = เตือนทุกทิศรอบตัว) เปิดด้วย --heading-window 90
-  - เปิดแล้วจะเตือนเฉพาะจุดในมุม ±องศาที่ตั้งจากทิศที่รถมุ่งหน้า ตัดจุดที่ผ่านไปแล้วออก
-  - ยังไม่รู้ทิศ (รถเพิ่งออก/จอดนิ่ง) หรือใกล้กว่า 30 ม. = ไม่กรอง เตือนไว้ก่อน
-  - ต้องตั้งให้ตรงกับ HEADING_WINDOW_DEG ใน js/alert.js เสมอ
-
-ใช้ Python standard library เป็นหลัก ยกเว้นส่วนคุม buzzer ที่ต้องมี RPi.GPIO
-(มากับ Raspberry Pi OS อยู่แล้ว ไม่ต้อง pip install เพิ่ม — ถ้าไม่มีจะแค่ข้ามการสั่ง buzzer เฉยๆ)
-ส่วนเสียงพูดไม่ได้ใช้ audio library ของ Python เลย — สั่ง mpg123/espeak-ng ผ่าน subprocess
-
-ฮาร์ดแวร์ที่ใช้จริง (Raspberry Pi 5):
-  - เสียงพูด  MAX98357A (I2S DAC + แอมป์ Class-D 3W ในตัว) -> ลำโพง 8Ω 2W
-              Vin ขา2(5V) · GND ขา6 · BCLK ขา12 · LRC ขา35 · DIN ขา40
-              SD/GAIN ปล่อยลอย · ต้องมี dtoverlay=max98357a,no-sdmode ใน config.txt
-              ** Pi 5 ไม่มีแจ็ค 3.5 มม. และจอ HDMI ที่ใช้ไม่รับเสียง จึงต้องมีโมดูลนี้ **
-  - GPS       Beltian BE-609U (ตัวรับ GPS แบบ USB) เสียบพอร์ต USB ช่องไหนก็ได้
-              คุยด้วยโปรโตคอล NMEA 0183 ผ่าน serial — โผล่เป็น /dev/ttyACM0 (ชิป u-blox
-              ต่อ USB ตรง) หรือ /dev/ttyUSB0 (ชิปแปลง UART เช่น PL2303/CP210x)
-              โค้ดหาพอร์ตให้เองจาก /dev/serial/by-id/ ไม่ต้องระบุถ้าเสียบตัวเดียว
-  - buzzer    GPIO13 (ขา 33) — ไม่ชนกับ I2S ที่ใช้ GPIO18/19/21
-  รายละเอียดการต่อสายทั้งหมดอยู่ใน README หัวข้อ "ต่อลำโพงกับ Raspberry Pi 5"
-
-ตัวอย่างการใช้งาน (ค่า --audio-device/--volume ตั้ง default ให้ตรงกับชุดข้างบนแล้ว
-ไม่ต้องพิมพ์เองถ้าใช้ฮาร์ดแวร์ชุดนี้):
-  # ตรวจว่าเสียงพูดออกลำโพงไหม พร้อมบอกว่าติดตรงไหนถ้าไม่ออก
-  python3 device/pi_alert_client.py --checkvoice
-
-  # จำลองการขับด้วยเส้นทางเดียวกับที่เว็บใช้ตอน ?mock=1 (เตือน 7 ครั้ง ครบสามระดับ)
-  python3 device/pi_alert_client.py --route data/mock_route.geojson --once
-
-  # ใช้งานจริงกับ GPS BE-609U ที่เสียบ USB (แนะนำ — ไม่ต้องติดตั้ง gpsd)
-  python3 device/pi_alert_client.py --serial
-  python3 device/pi_alert_client.py --serial /dev/ttyUSB0   # ระบุพอร์ตเองถ้าหาไม่เจอ
-
-  # ดู NMEA ดิบ ๆ ว่าตัวรับส่งอะไรมาบ้าง จับดาวได้กี่ดวง (ใช้ตอนหาสาเหตุ GPS ไม่ติด)
-  python3 device/pi_alert_client.py --checkgps
-
-  # ใช้งานจริงผ่าน gpsd แทน (ถ้าติดตั้ง gpsd ไว้อยู่แล้ว)
-  python3 device/pi_alert_client.py --gpsd
-
-  # ทดสอบภาคสนามในอุทยานวิทยาศาสตร์ฯ — รัศมี 60/80 ต้องตรงกับที่ test-nstda.html ตั้งไว้
-  # และ API ต้องรันด้วยชุด risk_points_nstda_test.geojson ไม่งั้น Pi จะเตือนคนละจุดกับเว็บ
-  RISK_DATA_FILE=data/risk_points_nstda_test.geojson python3 -m uvicorn api.server:app --host 0.0.0.0
-  python3 device/pi_alert_client.py --serial --alert-radius 60 --exit-radius 80
-
-  # ทดสอบด้วยพิกัดคงที่ (ไม่ต้องมี GPS) / ปิดเสียงพูดเหลือแค่ buzzer
-  python3 device/pi_alert_client.py --test 13.665 100.534
-  python3 device/pi_alert_client.py --route data/mock_route.geojson --no-speak
-
-  # ปรับความดัง: 100 = ไม่ขยายซ้ำ (เสียงสะอาด) · เกิน 100 ดังขึ้นแต่เริ่มแตก
-  # ต่ำกว่า 100 เบาลงกว่าไฟล์ต้นฉบับ เช่น 50 = ครึ่งหนึ่ง (ต่ำสุดที่รับคือ 10)
-  python3 device/pi_alert_client.py --serial --volume 50
-  python3 device/pi_alert_client.py --serial --volume 200
-
-  # เครื่องอื่นที่การ์ดเสียงคนละเลข
-  python3 device/pi_alert_client.py --serial --audio-device plughw:1,0
-"""
+"""pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi (สำหรับติดบนรถเมล์)"""
 
 import argparse
+import collections
 import glob
 import json
 import math
+import select
 import pathlib
 import shutil
 import socket
@@ -88,79 +18,45 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-try:
-    import RPi.GPIO as GPIO
-except ImportError:
-    GPIO = None
-
-# ระยะเตือนมาตรฐานบนถนนนอกพื้นที่ — ปรับได้ด้วย --alert-radius / --exit-radius
-# ตอนทดสอบในสนามเล็ก (ถนนวงรอบอุทยานวิทยาศาสตร์ฯ ยาว 1.4 กม. จุดฝั่งตะวันตกห่างกัน 71-125 ม.)
-# ต้องย่อลงเหลือ 60/80 ม. ไม่งั้นทุกจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ
-# ** ค่านี้ต้องตรงกับที่ test-nstda.html ตั้งไว้ (alertM 60 / exitM 80) เสมอ **
-# ไม่งั้น Pi กับเว็บจะเตือนคนละระยะ แล้วผลทดสอบภาคสนามจะเทียบกันไม่ได้
-DEFAULT_ALERT_RADIUS_M = 500
-DEFAULT_EXIT_RADIUS_M = 600  # hysteresis กันเด้งเข้าออกตรงขอบรัศมี
+DEFAULT_ALERT_RADIUS_M = 500      # เริ่มพูดเตือนเมื่อเข้าใกล้จุดเสี่ยงเท่านี้ (เมตร)
+DEFAULT_EXIT_RADIUS_M = 600      # ต้องออกไกลกว่านี้ก่อน ถึงจะเตือนจุดเดิมซ้ำได้
 ALERT_RADIUS_M = DEFAULT_ALERT_RADIUS_M
 EXIT_RADIUS_M = DEFAULT_EXIT_RADIUS_M
 
-# มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้)
-# ** ต้องตรงกับ HEADING_WINDOW_DEG ใน js/alert.js เสมอ ไม่งั้นอุปกรณ์กับเว็บเตือนคนละชุด **
-#
-# 180 = ปิดการกรองทิศ เตือนทุกทิศรอบตัว (ผู้ใช้เลือกกลับมาใช้แบบนี้ 2026-08-28
-# ก่อนออกทดสอบภาคสนามบนถนนจริงชุด 456 คลัสเตอร์ รัศมี 500 ม.)
-#
-# เหตุผลที่ปิดก่อน: ยังไม่เคยมีการทดสอบบนถนนจริงสำเร็จสักครั้ง จึงยังไม่มีข้อมูลว่า
-# การกรองทิศทำงานถูกต้องแค่ไหนกับ GPS จริงที่มีความคลาดเคลื่อน — ถ้าเปิดไว้แล้ว
-# ระบบเงียบตอนควรเตือน จะแยกไม่ออกว่าเป็นเพราะตัวกรอง หรือเพราะจุดเสี่ยง/พิกัดผิด
-# ปิดไว้ก่อนทำให้เห็นทุกจุดที่เข้ารัศมี ใช้เป็นฐานเทียบได้ว่าระบบเตือนครบไหม
-#
-# โค้ดกับเทสยังอยู่ครบ (bearingDegrees / isAhead / HeadingTracker) เปิดกลับได้ทันที
-# โดยไม่ต้องเขียนใหม่ ตั้งเป็น 90 เพื่อตัดจุดที่ขับผ่านไปแล้วออก — วัดกับเส้นทางจำลอง
-# แล้วลดการเตือนซ้ำซ้อน 41% (สมุทรสาคร 500 ม.) และ 9% (สนามทดสอบ สวทช. 60 ม.)
-# โดยไม่พลาดจุดเสี่ยงใดเลยทั้งสองเส้นทาง
-#
-# ข้อจำกัดที่ต้องรู้ก่อนเปิดกลับ: แยกได้แค่ข้างหน้า/ข้างหลัง ไม่ได้แยกเลนขาขึ้น-ขาล่อง
-# เลนสวนที่อยู่ข้างหน้า 100 ม. เบนจากทิศรถแค่ 8.5 องศา ซึ่งน้อยกว่าความคลาดเคลื่อน
-# ของ GPS เอง (5-15 ม.) จะแยกเลนได้ต้องทำ map matching กับ OSM
-#
-# ลองเปิดได้ด้วย --heading-window 90 (อย่าลืมเปิดฝั่งเว็บด้วย ?heading=90)
-DEFAULT_HEADING_WINDOW_DEG = 180
+DEFAULT_HEADING_WINDOW_DEG = 90  # นับว่า "ข้างหน้า" ถ้าเบนจากหัวรถไม่เกินนี้ (180 = ปิดการกรอง)
 HEADING_WINDOW_DEG = DEFAULT_HEADING_WINDOW_DEG
+HEADING_MIN_MOVE_M = 15          # วิธีสำรอง: ต้องขยับเกินนี้ก่อนถึงเชื่อทิศที่คำนวณจากพิกัด
 
-# ต้องขยับอย่างน้อยเท่านี้ถึงจะเชื่อทิศ — กัน GPS แกว่งตอนรถจอดทำให้ทิศสุ่มไปมา
-HEADING_MIN_MOVE_M = 15
-POLL_INTERVAL_S = 3
-HTTP_TIMEOUT_S = 5
+COG_MIN_SPEED_KMH = 5            # ช้ากว่านี้ไม่รับทิศใหม่ เพราะตอนรถจอด COG หมุนสุ่ม
+COG_HOLD_MAX_S = 120             # จอดนานเกินนี้ = ทิ้งทิศเก่า ถือว่าไม่รู้ทิศ
+COURSE_WINDOW_S = 0.5            # เฉลี่ยทิศย้อนหลังกี่วินาที (ยาวไปจะตามการเลี้ยวไม่ทัน)
 
-BUZZER_PIN = 13  # เลข GPIO แบบ BCM (ไม่ใช่ตำแหน่งจริงบนขาเข็มแบบ BOARD — ทดสอบแล้วว่า BCM13 ตรงกับ buzzer ที่ต่อไว้)
+POLL_INTERVAL_S = 1              # รอบของลูปหลัก: อ่าน GPS -> ถาม API -> ตัดสินใจเตือน (วินาที)
+HTTP_TIMEOUT_S = 5               # รอเซิร์ฟเวอร์ตอบนานสุดเท่านี้
+REPORT_LOCATION = True           # ส่งพิกัดขึ้นเว็บให้เห็นหมุดรถแบบเรียลไทม์
 
 GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
 
-# ตัวรับ GPS แบบ USB (Beltian BE-609U) — คุย NMEA 0183 ผ่าน serial
-# ลำดับการหาพอร์ต: /dev/serial/by-id/* ก่อน เพราะชื่อคงที่ ไม่สลับเลขเมื่อเสียบ USB อื่นเพิ่ม
-# แล้วค่อย ttyACM* (u-blox ต่อ USB ตรง) และ ttyUSB* (ชิปแปลง UART เช่น PL2303)
+# พอร์ตที่ไล่หาตัวรับ GPS ตามลำดับ (ชื่อ by-id ก่อน เพราะไม่สลับเลขเวลาเสียบ USB หลายตัว)
 GPS_PORT_GLOBS = ["/dev/serial/by-id/*GPS*", "/dev/serial/by-id/*u-blox*",
                   "/dev/ttyACM*", "/dev/ttyUSB*"]
-# 9600 เป็นค่าโรงงานของตัวรับ NMEA ส่วนใหญ่ แต่ตัว Beltian BE-609U ที่ใช้จริง
-# ตั้งมาจากโรงงานที่ 115200 — ยืนยันแล้วด้วยการไล่ค่า stty ทีละตัว (2026-08-27)
-# ที่ 9600/4800/38400/19200/57600 ได้แต่ข้อมูลขยะ (baud ผิดทำให้ตีความบิตพลาด)
-# พอลอง 115200 ได้ NMEA ที่อ่านออกทันที ($GNRMC, $GPGSV, ...) — ไม่ใช่ฮาร์ดแวร์เสีย
-# ถ้าเปลี่ยนไปใช้ตัวรับรุ่นอื่น ต้องตรวจ baud ใหม่ด้วยวิธีเดียวกัน (ดู README หัวข้อ GPS)
-# ถ้าเป็น CDC-ACM (ttyACM) ค่านี้ไม่มีผลจริง เพราะ USB ไม่ได้ใช้ baud rate — ตั้งไว้ก็ไม่เสียหาย
-GPS_BAUD = 115200
-GPS_CHECK_SECONDS = 20  # ระยะเวลาที่ --checkgps ฟัง NMEA
+GPS_BAUD = 115200                # ต้องตรงกับที่ตั้งไว้ในโมดูล ไม่งั้นอ่านได้แต่ตัวอักษรมั่ว
+GPS_CHECK_SECONDS = 20           # --checkgps ฟังสัญญาณนานเท่านี้
+DEFAULT_GPS_UPDATE_HZ = 10       # สั่งให้โมดูลส่งข้อมูลกี่ครั้งต่อวินาที (0 = ไม่ตั้งค่า)
+GPS_UPDATE_HZ = DEFAULT_GPS_UPDATE_HZ
 
-# ส่งพิกัดขึ้นเซิร์ฟเวอร์ให้หน้าเว็บวาดหมุดรถแบบเรียลไทม์ (ปิดด้วย --no-report)
-REPORT_LOCATION = True
+NMEA_KEEP = ("RMC", "VTG", "GGA")   # ประโยคที่ใช้จริง: ทิศ ความเร็ว พิกัด จำนวนดาว
+NMEA_DROP = ("GSV", "GSA", "GLL")   # ปิดทิ้ง ไม่ได้ใช้ และ GSV กินสายจนล้นที่ 10Hz
 
-# จอง GPIO ของ buzzer สำเร็จหรือยัง — ถ้าไม่สำเร็จยังเดินต่อได้ เหลือแต่เสียงพูด
-BUZZER_READY = False
+UBX_KEY_RATE_MEAS = 0x30210001   # คีย์ตั้งคาบการวัด หน่วย ms (100 = 10Hz)
+UBX_KEY_MSGOUT_UART1 = {         # คีย์เปิด/ปิดประโยค NMEA แต่ละชนิด (0 = ปิด, 1 = ทุกรอบ)
+    "GGA": 0x209100BB, "GLL": 0x209100CA, "GSA": 0x209100C0,
+    "GSV": 0x209100C5, "RMC": 0x209100AC, "VTG": 0x209100B1,
+}
+UBX_LAYER_RAM = 0x01             # เขียนลง RAM อย่างเดียว ไม่แตะ FLASH กันตั้งค่าผิดแล้วกู้ไม่ได้
 
-# ให้ log ขึ้นทันทีแม้ stdout ถูก redirect (เช่น รันผ่าน systemd/journald บน Pi)
 sys.stdout.reconfigure(line_buffering=True)
 
-
-# ---------- ทิศทาง (พอร์ตจาก js/distance.js — ต้องให้ผลตรงกันเสมอ) ----------
 
 def _haversine_m(lat1, lon1, lat2, lon2):
     d_lat = math.radians(lat2 - lat1)
@@ -171,11 +67,7 @@ def _haversine_m(lat1, lon1, lat2, lon2):
 
 
 def _bearing_deg(lat1, lon1, lat2, lon2):
-    """ทิศจากจุดหนึ่งไปอีกจุด 0-360 องศา (0 = เหนือ, 90 = ตะวันออก)
-
-    ใช้สูตร initial bearing ของ great-circle ไม่ใช่การลบพิกัดตรง ๆ เพราะเส้นลองจิจูด
-    ลู่เข้าหากันเมื่อเข้าใกล้ขั้วโลก การลบตรง ๆ จะเพี้ยน
-    """
+    """ทิศจากจุดหนึ่งไปอีกจุด 0-360 องศา (0 = เหนือ, 90 = ตะวันออก)"""
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     d_lon = math.radians(lon2 - lon1)
     y = math.sin(d_lon) * math.cos(phi2)
@@ -190,15 +82,7 @@ def _angle_diff_deg(a, b):
 
 
 class HeadingTracker:
-    """ติดตามทิศที่รถมุ่งหน้า จากตำแหน่งที่ขยับไปจริง
-
-    ทำไมต้องรอให้ขยับครบ HEADING_MIN_MOVE_M: GPS คลาดเคลื่อนตลอดแม้รถจอดนิ่ง
-    ถ้าคิดทิศจากทุกคู่พิกัด รถจอดอยู่กับที่จะได้ทิศสุ่มไปมา แล้วการกรอง "ข้างหน้า"
-    จะกลายเป็นสุ่มว่าจะเตือนหรือไม่ ต้องรอให้ระยะที่ขยับชนะ noise ก่อน
-
-    get() คืน None จนกว่าจะมั่นใจ — ผู้เรียกต้องถือว่า "ไม่รู้ทิศ = ไม่กรอง"
-    ปลอดภัยกว่าเดาแล้วเงียบจุดที่ควรเตือน
-    """
+    """ติดตามทิศที่รถมุ่งหน้า จากตำแหน่งที่ขยับไปจริง"""
 
     def __init__(self, min_move_m=None):
         self.min_move_m = HEADING_MIN_MOVE_M if min_move_m is None else min_move_m
@@ -218,19 +102,36 @@ class HeadingTracker:
         return self.heading
 
 
-# ระยะที่ใกล้เกินกว่าจะเชื่อทิศ — ต่ำกว่านี้ให้ผ่านเสมอ ไม่ต้องกรอง
-#
-# เหตุผล: ทิศจากรถไปยังจุดที่แทบจะทับกันอยู่แล้วไม่มีความหมาย ความคลาดเคลื่อนของ GPS
-# (ปกติ 5-15 ม.) ครอบงำการคำนวณจนได้ทิศสุ่ม เช่น ยืนทับจุดพอดีอาจคำนวณได้ว่า
-# "จุดอยู่ข้างหลัง 177 องศา" แล้วโดนกรองทิ้งทั้งที่กำลังอยู่บนจุดเสี่ยงนั้น
-#
-# เจอจริงตอนจำลองขับวนรอบสนามทดสอบ สวทช.: เส้นทางสุ่มตัวอย่างห่างกัน ~39 ม.
-# ทำให้รถกระโดดจาก 71 ม. -> 0 ม. -> 72 ม. มีตัวอย่างเดียวที่อยู่ในรัศมี 60 ม.
-# และตัวอย่างนั้นทับจุดพอดี ผลคือจุด nstda_w3 ไม่ถูกเตือนเลยทั้งรอบ
-# สถานการณ์เดียวกันเกิดกับ GPS จริงได้ เพราะโพลทุก 3 วิ ที่ 60 กม./ชม. = 50 ม./ตัวอย่าง
-#
-# 30 ม. มาจากการเผื่อความคลาดเคลื่อน GPS สองเท่า และถึงระยะนั้นก็ควรเตือนอยู่แล้ว
-# ไม่ว่าจะหันไปทางไหน เพราะอยู่ตรงจุดเสี่ยงพอดี
+class CourseTracker:
+    """ติดตามทิศจากค่า COG ที่ตัวรับ GPS ส่งมาโดยตรง (ไม่ใช่จากการลบพิกัด)"""
+
+    def __init__(self, min_speed_kmh=None, hold_max_s=None):
+        self.min_speed_kmh = COG_MIN_SPEED_KMH if min_speed_kmh is None else min_speed_kmh
+        self.hold_max_s = COG_HOLD_MAX_S if hold_max_s is None else hold_max_s
+        self.course = None
+        self.updated_at = 0.0
+
+    def _expire(self, now):
+        if self.course is not None and now - self.updated_at > self.hold_max_s:
+            self.course = None
+        return self.course
+
+    def update(self, course_deg, speed_kmh, now=None):
+        """ป้อน COG + ความเร็วรอบนี้ คืนทิศล่าสุดที่เชื่อได้ (องศา) หรือ None"""
+        now = time.monotonic() if now is None else now
+        self._expire(now)
+        if course_deg is None or speed_kmh is None:
+            return self.course
+        if speed_kmh < self.min_speed_kmh:
+            return self.course
+        self.course = course_deg % 360
+        self.updated_at = now
+        return self.course
+
+    def get(self, now=None):
+        return self._expire(time.monotonic() if now is None else now)
+
+
 HEADING_NEAR_BYPASS_M = 30
 
 
@@ -243,8 +144,6 @@ def is_ahead(heading_deg, user_lat, user_lng, point_lat, point_lng, window_deg):
     to_point = _bearing_deg(user_lat, user_lng, point_lat, point_lng)
     return _angle_diff_deg(heading_deg, to_point) <= window_deg
 
-
-# ---------- แหล่งพิกัด GPS ----------
 
 class FixedPosition:
     """โหมดทดสอบ: พิกัดคงที่"""
@@ -259,13 +158,7 @@ class FixedPosition:
 
 
 class RoutePlayer:
-    """โหมดจำลอง: อ่านพิกัดจากไฟล์ วนซ้ำเมื่อจบไฟล์ (หรือหยุดครั้งเดียวถ้า loop=False)
-
-    รองรับ 2 ฟอร์แมต (เลือกอัตโนมัติจากนามสกุลไฟล์):
-      - .geojson/.json  เส้นทาง LineString เดียวกับที่เว็บใช้ตอน ?mock=1
-                         (data/mock_route.geojson) พิกัดเป็น [lng, lat]
-      - อื่นๆ (เช่น .csv) ไฟล์ข้อความบรรทัดละ "lat,lng"
-    """
+    """โหมดจำลอง: อ่านพิกัดจากไฟล์ วนซ้ำเมื่อจบไฟล์ (หรือหยุดครั้งเดียวถ้า loop=False)"""
 
     name = "route"
 
@@ -316,12 +209,7 @@ class RoutePlayer:
 
 
 def _nmea_degrees(value, hemi):
-    """แปลงพิกัดรูปแบบ NMEA (ddmm.mmmm / dddmm.mmmm) เป็นองศาทศนิยม
-
-    NMEA เก็บเป็น "องศา 2-3 หลักแรก ตามด้วยลิปดา" ไม่ใช่องศาทศนิยมตรง ๆ
-    เช่น 1345.6789 = 13 องศา 45.6789 ลิปดา = 13.761315 องศา
-    ถ้าตีความผิดเป็น 1345.68 องศา จะได้ตำแหน่งหลุดออกนอกโลกไปเลย
-    """
+    """แปลงพิกัดรูปแบบ NMEA (ddmm.mmmm / dddmm.mmmm) เป็นองศาทศนิยม"""
     if not value or not hemi:
         return None
     dot = value.find(".")
@@ -333,12 +221,18 @@ def _nmea_degrees(value, hemi):
     return -result if hemi in ("S", "W") else result
 
 
-def _nmea_checksum_ok(line):
-    """ตรวจ checksum ท้ายประโยค NMEA (*XX = XOR ของทุกตัวอักษรระหว่าง $ กับ *)
+def _nmea_float(value):
+    """แปลงฟิลด์ NMEA เป็น float — ฟิลด์ว่างคืน None"""
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
 
-    จำเป็นเพราะสัญญาณกวนทำให้ได้บรรทัดที่ตัวเลขเพี้ยนแต่ยังแยกคอลัมน์ได้ปกติ
-    ถ้าไม่ตรวจ หมุดจะกระโดดไปคนละที่เป็นครั้งคราวโดยหาสาเหตุไม่เจอ
-    """
+
+def _nmea_checksum_ok(line):
+    """ตรวจ checksum ท้ายประโยค NMEA (*XX = XOR ของทุกตัวอักษรระหว่าง $ กับ *)"""
     if not line.startswith("$") or "*" not in line:
         return False
     body, _, given = line[1:].partition("*")
@@ -351,17 +245,165 @@ def _nmea_checksum_ok(line):
         return False
 
 
+# ---------- UBX binary protocol (ใช้ตั้งค่าโมดูลเท่านั้น ไม่ได้ใช้อ่านพิกัด) ----------
+def _ubx_frame(msg_class, msg_id, payload=b""):
+    """ประกอบเฟรม UBX: B5 62 | class id | ความยาว (2 ไบต์ little-endian) | payload | checksum"""
+    body = bytes([msg_class, msg_id]) + len(payload).to_bytes(2, "little") + payload
+    ck_a = ck_b = 0
+    for b in body:
+        ck_a = (ck_a + b) & 0xFF
+        ck_b = (ck_b + ck_a) & 0xFF
+    return b"\xb5\x62" + body + bytes([ck_a, ck_b])
+
+
+def _ubx_valset(pairs, layers=UBX_LAYER_RAM):
+    """UBX-CFG-VALSET (0x06 0x8A) — ตั้งค่าหลายคีย์ในเฟรมเดียว"""
+    size_bytes = {0x01: 1, 0x02: 1, 0x03: 2, 0x04: 4, 0x05: 8}
+    payload = bytes([0x00, layers, 0x00, 0x00])
+    for key, value in pairs:
+        n = size_bytes[(key >> 28) & 0x07]
+        payload += key.to_bytes(4, "little") + int(value).to_bytes(n, "little")
+    return _ubx_frame(0x06, 0x8A, payload)
+
+
+def _ubx_read(f, want, timeout_s):
+    """อ่านสตรีมจนเจอเฟรม UBX ที่ class/id ตรงกับ want คืน (class, id, payload) หรือ None"""
+    want = set(want)
+    buf = b""
+    deadline = time.monotonic() + timeout_s
+    while time.monotonic() < deadline:
+        remaining = deadline - time.monotonic()
+        if not select.select([f], [], [], max(0.05, min(0.5, remaining)))[0]:
+            continue
+        chunk = f.read(512)
+        if not chunk:
+            continue
+        buf += chunk
+        while True:
+            i = buf.find(b"\xb5\x62")
+            if i < 0 or len(buf) - i < 8:
+                break
+            length = int.from_bytes(buf[i + 4:i + 6], "little")
+            if len(buf) - i < 8 + length:
+                break
+            frame = buf[i:i + 8 + length]
+            buf = buf[i + 8 + length:]
+            cls_id = (frame[2], frame[3])
+            if cls_id in want:
+                return cls_id[0], cls_id[1], frame[6:6 + length]
+        if len(buf) > 8192:
+            buf = buf[-4096:]
+    return None
+
+
+def _ubx_text(raw):
+    """ฟิลด์ข้อความใน UBX เป็นความยาวคงที่เติมศูนย์ท้าย — ตัดตรงศูนย์ตัวแรก"""
+    return raw.split(b"\x00")[0].decode("ascii", "replace")
+
+
+def _ubx_mon_ver(port, timeout_s=2.0):
+    """ถาม UBX-MON-VER ว่าเป็นชิปรุ่นอะไร เฟิร์มแวร์/โปรโตคอลเวอร์ชันไหน"""
+    try:
+        with open(port, "r+b", buffering=0) as f:
+            f.write(_ubx_frame(0x0A, 0x04))
+            got = _ubx_read(f, {(0x0A, 0x04)}, timeout_s)
+    except OSError as e:
+        return {"error": str(e)}
+    if got is None:
+        return None
+    payload = got[2]
+    info = {"sw": _ubx_text(payload[0:30]), "hw": _ubx_text(payload[30:40]), "ext": []}
+    for i in range(40, len(payload), 30):
+        line = _ubx_text(payload[i:i + 30])
+        if line:
+            info["ext"].append(line)
+    return info
+
+
+def _ubx_configure_port(port, hz=None, timeout_s=2.0):
+    """ตั้ง update rate + ปิดประโยคที่ไม่ใช้ ผ่าน UBX-CFG-VALSET (เขียนลง RAM เท่านั้น)"""
+    hz = GPS_UPDATE_HZ if hz is None else hz
+    if not hz:
+        return {"skipped": True}
+    pairs = [(UBX_KEY_RATE_MEAS, int(round(1000 / hz)))]
+    for name in NMEA_DROP:
+        pairs.append((UBX_KEY_MSGOUT_UART1[name], 0))
+    for name in NMEA_KEEP:
+        pairs.append((UBX_KEY_MSGOUT_UART1[name], 1))
+    try:
+        with open(port, "r+b", buffering=0) as f:
+            f.write(_ubx_valset(pairs))
+            got = _ubx_read(f, {(0x05, 0x01), (0x05, 0x00)}, timeout_s)
+    except OSError as e:
+        return {"error": str(e)}
+    if got is None:
+        return {"acked": None, "hz": hz}   # ไม่ตอบเลย = น่าจะไม่รองรับ UBX
+    return {"acked": got[1] == 0x01, "hz": hz}
+
+
+def _measure_nmea_rate(port, seconds=3.0):
+    """นับว่าประโยคไหนเข้ามากี่ครั้งต่อวินาทีจริง ๆ"""
+    counts = collections.Counter()
+    bytes_in = 0
+    try:
+        with open(port, "rb", buffering=0) as f:
+            buf = b""
+            deadline = time.monotonic() + seconds
+            while time.monotonic() < deadline:
+                if not select.select([f], [], [], 0.3)[0]:
+                    continue
+                chunk = f.read(1024)
+                if not chunk:
+                    continue
+                bytes_in += len(chunk)
+                buf += chunk
+                *lines, buf = buf.split(b"\n")
+                for line in lines:
+                    text = line.strip().decode("ascii", "replace")
+                    if _nmea_checksum_ok(text):
+                        counts[text.split(",")[0][3:]] += 1
+    except OSError as e:
+        return {"error": str(e)}
+    return {"per_s": {k: v / seconds for k, v in counts.items()},
+            "bytes_per_s": bytes_in / seconds, "seconds": seconds}
+
+
+class CircularCourseSmoother:
+    """เฉลี่ยทิศแบบวงกลมบนหน้าต่างเวลา — เฉลี่ยองศาตรง ๆ ไม่ได้"""
+
+    def __init__(self, window_s=None, min_speed_kmh=None):
+        self.window_s = COURSE_WINDOW_S if window_s is None else window_s
+        self.min_speed_kmh = COG_MIN_SPEED_KMH if min_speed_kmh is None else min_speed_kmh
+        self.samples = collections.deque()   # (เวลา, มุมองศา)
+        self.last_good = None
+
+    def add(self, course_deg, speed_kmh, now=None):
+        now = time.monotonic() if now is None else now
+        if course_deg is not None and speed_kmh is not None and speed_kmh >= self.min_speed_kmh:
+            self.samples.append((now, course_deg % 360))
+        return self.get(now)
+
+    def get(self, now=None):
+        now = time.monotonic() if now is None else now
+        while self.samples and now - self.samples[0][0] > self.window_s:
+            self.samples.popleft()
+        if not self.samples:
+            return self.last_good
+        if len(self.samples) == 1:
+            # ตัวอย่างเดียว = ค่าเฉลี่ยคือตัวมันเอง คืนตรง ๆ เลี่ยงเศษทศนิยมจาก atan2
+            self.last_good = self.samples[0][1]
+            return self.last_good
+        sum_x = sum(math.cos(math.radians(a)) for _, a in self.samples)
+        sum_y = sum(math.sin(math.radians(a)) for _, a in self.samples)
+        # ความยาวเวกเตอร์ลัพธ์บอกว่าตัวอย่างในหน้าต่างไปทางเดียวกันแค่ไหน (1 = ตรงกันหมด)
+        if math.hypot(sum_x, sum_y) / len(self.samples) < 0.3:
+            return self.last_good
+        self.last_good = (math.degrees(math.atan2(sum_y, sum_x)) + 360) % 360
+        return self.last_good
+
+
 class NmeaSerialReader:
-    """อ่านพิกัดจากตัวรับ GPS USB (BE-609U) ที่พูด NMEA 0183 — ไม่ต้องมี pyserial/gpsd
-
-    ทำไมไม่ใช้ pyserial: ทั้งโปรเจกต์ยึด standard library อย่างเดียว และบน Linux
-    พอร์ต serial เปิดเป็นไฟล์ธรรมดาได้เลย ส่วนการตั้ง baud rate ยืมคำสั่ง stty ของระบบ
-
-    ทำไมต้องอ่านในเธรดแยก: ตัวรับส่ง NMEA มา 1 ครั้งต่อวินาที แต่ลูปหลักโพลทุก 3 วินาที
-    ถ้าอ่านในลูปหลัก จะได้ข้อมูลค้างเก่า และถ้า GPS ยังไม่จับดาว การอ่านจะบล็อกจน
-    ลูปเตือนหยุดตามไปด้วย เธรดนี้จึงคอยอ่านทิ้งไว้ตลอด เก็บแต่ fix ล่าสุด
-    (หลักการเดียวกับที่ GpsdReader เก็บ last_fix) ลูปหลักแค่มาหยิบไปใช้
-    """
+    """อ่านพิกัดจากตัวรับ GPS USB (BE-609U) ที่พูด NMEA 0183 — ไม่ต้องมี pyserial/gpsd"""
 
     name = "serial"
 
@@ -376,11 +418,37 @@ class NmeaSerialReader:
             )
         self.last_fix = None
         self.speed_kmh = None
+        self.course = None          # COG ที่ผ่าน CircularCourseSmoother แล้ว
+        self.course_raw = None      # COG ดิบรอบล่าสุด (ไว้เทียบใน log ว่าการเฉลี่ยทำอะไรไป)
         self.satellites = None
         self.fix_quality = 0
+        # VTG มาก่อน RMC: VTG มีทั้ง COG อ้าง true north และความเร็วเป็น กม./ชม. อยู่ใน
+        self._vtg_seen = False
+        # เฉลี่ยทิศในเธรดอ่าน (ทุกประโยคที่เข้ามา) ไม่ใช่ในลูปหลักที่โพลทุก 1 วินาที
+        self._smoother = CircularCourseSmoother()
         self._lock = threading.Lock()
         self._configure_port()
+        # ตั้งค่าโมดูลก่อนเปิดเธรดอ่านเสมอ — ระหว่างตั้งค่าต้องอ่าน ACK กลับมาจากพอร์ตเดียวกัน
+        self.config_result = _ubx_configure_port(self.port, GPS_UPDATE_HZ)
+        self._print_config_result()
         threading.Thread(target=self._reader_loop, daemon=True).start()
+
+    def _print_config_result(self):
+        r = self.config_result
+        if r.get("skipped"):
+            return
+        keep = "+".join(NMEA_KEEP)
+        if r.get("error"):
+            print(f"[gps] ตั้งค่าโมดูลไม่ได้ ({r['error']}) — ใช้อัตราเดิมของโมดูลต่อไป",
+                  file=sys.stderr)
+        elif r.get("acked") is True:
+            print(f"[gps] ตั้งโมดูลเป็น {r['hz']}Hz · เหลือประโยค {keep} "
+                  f"(ปิด {'+'.join(NMEA_DROP)}) · เขียนลง RAM ไม่แตะ FLASH")
+        elif r.get("acked") is False:
+            print("[gps] โมดูลปฏิเสธการตั้งค่า (NAK) — ใช้อัตราเดิมต่อไป", file=sys.stderr)
+        else:
+            print("[gps] โมดูลไม่ตอบคำสั่ง UBX (อาจไม่ใช่ชิป u-blox) — ใช้อัตราเดิมต่อไป",
+                  file=sys.stderr)
 
     @staticmethod
     def find_port():
@@ -403,7 +471,6 @@ class NmeaSerialReader:
     def _reader_loop(self):
         while True:
             try:
-                # errors="replace" กันบรรทัดที่สัญญาณกวนจนไม่ใช่ ASCII ทำให้เธรดตายทั้งเธรด
                 with open(self.port, "r", encoding="ascii", errors="replace") as f:
                     for line in f:
                         self._handle(line.strip())
@@ -415,16 +482,14 @@ class NmeaSerialReader:
         if not _nmea_checksum_ok(line):
             return
         parts = line.split(",")
-        # ตัดตัวอักษรบอกระบบดาวเทียม (GP=GPS, GN=หลายระบบรวม, GL=GLONASS) เอาแต่ชนิดประโยค
         kind = parts[0][3:]
 
         if kind == "GGA" and len(parts) >= 10:
-            # GGA: $--GGA,เวลา,lat,N/S,lng,E/W,คุณภาพfix,จำนวนดาว,HDOP,ความสูง,...
             quality = parts[6]
             self.fix_quality = int(quality) if quality.isdigit() else 0
             if parts[7].isdigit():
                 self.satellites = int(parts[7])
-            if self.fix_quality > 0:  # 0 = ยังไม่จับดาว พิกัดในบรรทัดนี้เชื่อไม่ได้
+            if self.fix_quality > 0:
                 lat = _nmea_degrees(parts[2], parts[3])
                 lng = _nmea_degrees(parts[4], parts[5])
                 if lat is not None and lng is not None:
@@ -432,8 +497,7 @@ class NmeaSerialReader:
                         self.last_fix = (lat, lng)
 
         elif kind == "RMC" and len(parts) >= 8:
-            # RMC: $--RMC,เวลา,สถานะ,lat,N/S,lng,E/W,ความเร็ว(นอต),ทิศ,วันที่,...
-            if parts[2] != "A":  # A = ใช้ได้, V = เตือนว่าข้อมูลยังไม่นิ่ง
+            if parts[2] != "A":
                 return
             lat = _nmea_degrees(parts[3], parts[4])
             lng = _nmea_degrees(parts[5], parts[6])
@@ -441,9 +505,27 @@ class NmeaSerialReader:
                 with self._lock:
                     self.last_fix = (lat, lng)
             try:
-                self.speed_kmh = float(parts[7]) * 1.852  # นอต -> กม./ชม.
+                self.speed_kmh = float(parts[7]) * 1.852
             except ValueError:
                 pass
+            # field 8 = course over ground (องศา อ้าง true north) — ว่างได้เมื่อรถจอดนิ่ง
+            if len(parts) >= 9 and not self._vtg_seen:
+                self._update_course(_nmea_float(parts[8]))
+
+        elif kind == "VTG" and len(parts) >= 8:
+            # $--VTG,cogTrue,T,cogMag,M,knots,N,kmh,K,mode
+            self._vtg_seen = True
+            speed = _nmea_float(parts[7])
+            if speed is not None:
+                self.speed_kmh = speed
+            self._update_course(_nmea_float(parts[1]))
+
+    def _update_course(self, raw_course):
+        """ป้อน COG ดิบเข้า smoother แล้วเก็บผลที่เฉลี่ยแล้วไว้ให้ลูปหลักมาหยิบ"""
+        smoothed = self._smoother.add(raw_course, self.speed_kmh)
+        with self._lock:
+            self.course_raw = raw_course
+            self.course = smoothed
 
     def read(self):
         with self._lock:
@@ -459,6 +541,11 @@ class GpsdReader:
         self.sock = None
         self.buffer = b""
         self.last_fix = None
+        self.course = None      # gpsd TPV field "track" = COG องศา อ้าง true north (เฉลี่ยแล้ว)
+        self.course_raw = None
+        self.speed_kmh = None   # TPV field "speed" เป็น m/s ต้องคูณ 3.6
+        self.satellites = None
+        self._smoother = CircularCourseSmoother()
 
     def _connect(self):
         self.sock = socket.create_connection((GPSD_HOST, GPSD_PORT), timeout=5)
@@ -480,64 +567,29 @@ class GpsdReader:
                     report = json.loads(line)
                 except ValueError:
                     continue
-                if report.get("class") == "TPV" and "lat" in report and "lon" in report:
+                if report.get("class") == "SKY" and "satellites" in report:
+                    self.satellites = len(report["satellites"])
+                if report.get("class") != "TPV":
+                    continue
+                if "lat" in report and "lon" in report:
                     self.last_fix = (report["lat"], report["lon"])
+                # track/speed อาจไม่มาในทุกรายงาน — ไม่มีก็คงค่าเดิมไว้
+                if report.get("speed") is not None:
+                    self.speed_kmh = float(report["speed"]) * 3.6
+                if report.get("track") is not None:
+                    self.course_raw = float(report["track"])
+                    self.course = self._smoother.add(self.course_raw, self.speed_kmh)
         except OSError as e:
             print(f"[gpsd] ขาดการเชื่อมต่อ: {e} — จะลองใหม่", file=sys.stderr)
             self.sock = None
         return self.last_fix
 
 
-def setup_buzzer():
-    """เตรียมขา GPIO ของ buzzer (เรียกครั้งเดียวตอนเริ่มโปรแกรม)
-
-    จองขาไม่ได้ไม่ถือว่าโปรแกรมพัง — ข้ามแค่ buzzer แล้วเตือนด้วยเสียงพูดต่อไป
-    เคสที่เจอบ่อยคือ "GPIO busy": ไคลเอนต์รอบก่อนยังไม่ตาย หรือถูก kill -9
-    จนไม่ได้เรียก GPIO.cleanup() ขาเลยค้างว่าถูกจองอยู่
-    """
-    global BUZZER_READY
-    if GPIO is None:
-        print("   (ไม่พบ RPi.GPIO — buzzer จะไม่ทำงาน ติดตั้งด้วย: sudo apt install python3-rpi.gpio)", file=sys.stderr)
-        return
-    try:
-        GPIO.setmode(GPIO.BCM)  # เลข GPIO แบบ BCM (ยืนยันจากการทดสอบจริงว่าตรงกับ buzzer ที่ต่อไว้ — BUZZER_PIN=13)
-        GPIO.setup(BUZZER_PIN, GPIO.OUT, initial=GPIO.LOW)
-    except Exception as e:  # noqa: BLE001 — lgpio.error/RuntimeError แล้วแต่เวอร์ชัน
-        print(f"   [buzzer] จองขา GPIO{BUZZER_PIN} ไม่ได้: {e}", file=sys.stderr)
-        print("   [buzzer] ข้ามเสียง buzzer ใช้เสียงพูดอย่างเดียวต่อไป", file=sys.stderr)
-        print("   [buzzer] ถ้าอยากได้ buzzer ด้วย ให้ปิดโปรเซสเก่าก่อน:  pkill -f pi_alert_client.py", file=sys.stderr)
-        return
-    BUZZER_READY = True
-
-
-def beep():
-    """buzzer ร้อง 1 วิ ผ่านขา GPIO — ตอนเข้าใกล้จุดเสี่ยงในระยะ ALERT_RADIUS_M"""
-    print("\a🔔 buzzer")
-    if not BUZZER_READY:
-        return
-    GPIO.output(BUZZER_PIN, GPIO.HIGH)
-    time.sleep(1)
-    GPIO.output(BUZZER_PIN, GPIO.LOW)
-
-
-# ---------- เสียงพูดแจ้งเตือน (พอร์ตจาก js/tts.js) ----------
-# ลำดับชั้นเดียวกับบนเว็บ ไล่ลงทีละชั้นจนกว่าจะมีชั้นไหนเล่นได้:
-#   ชั้น 0  ไฟล์ Botnoi ที่อัดไว้ล่วงหน้าใน audio/ — ไม่ต้องมีเน็ต ไม่เสียพอยท์ เล่นทันที
-#   ชั้น 1  Botnoi สดผ่าน /api/tts ของเซิร์ฟเวอร์เอง (ต้องตั้ง BOTNOI_TOKEN ฝั่งเซิร์ฟเวอร์)
-#   ชั้น 2  Google translate_tts — ฟรี ไม่ต้องสมัคร แต่ต้องมีเน็ต
-#   ชั้น 3  espeak-ng ในเครื่อง — เสียงแข็งกว่ามาก แต่ยังพูดได้ตอนเน็ตหลุด
-
 _AUDIO_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
 
 
 def _pick_clip_dir():
-    """เลือกชุดไฟล์เสียง — ชุด "ดัง" ใน audio/loud/ มาก่อนถ้ามี
-
-    audio/loud/ สร้างด้วย scripts/boost_voice_clips.py เป็นชุดที่บีบช่วงไดนามิก
-    มาแล้วให้ดังขึ้นราว 6-8 dB สำหรับลำโพงจิ๋วบนอุปกรณ์ ส่วน audio/ ต้นฉบับ
-    ปล่อยไว้ให้เว็บใช้ เพราะระดับเสียงนำ (chime) บนเว็บคำนวณจาก RMS ของชุดนั้น
-    ลบโฟลเดอร์ loud ทิ้งเมื่อไหร่ก็กลับไปใช้ต้นฉบับเองอัตโนมัติ
-    """
+    """เลือกชุดไฟล์เสียง — ชุด "ดัง" ใน audio/loud/ มาก่อนถ้ามี"""
     loud = _AUDIO_DIR / "loud"
     if loud.is_dir() and any(loud.glob("alert_*.mp3")):
         return loud
@@ -546,51 +598,17 @@ def _pick_clip_dir():
 
 CLIP_DIR = _pick_clip_dir()
 
-# อุปกรณ์เสียงที่จะส่งให้ mpg123 (-a)
-# ใช้ plughw: ไม่ใช่ hw: เพราะ plug ให้ ALSA แปลง sample rate/ช่องสัญญาณให้อัตโนมัติ
-# DAC แบบ I2S (MAX98357A) เป็นโมโนและรับบาง sample rate เท่านั้น ถ้าใช้ hw: ตรงๆ
-# ไฟล์ที่ rate ไม่ตรงจะเปิดไม่ผ่าน
-#
-# card 2 คือเลขที่ MAX98357A ได้บนเครื่องที่ใช้จริง (vc4hdmi0/1 กิน card 0/1 ไปก่อน)
-# ถ้าย้ายไปเครื่องอื่นหรือเสียบ USB audio เพิ่ม เลขอาจเปลี่ยน เช็คด้วย aplay -l
-# แล้วสั่งทับด้วย --audio-device ได้
 DEFAULT_AUDIO_DEVICE = "plughw:2,0"
 AUDIO_DEVICE = DEFAULT_AUDIO_DEVICE
 
-# ความดังเสียงพูดเป็นเปอร์เซ็นต์ (100 = ระดับเดิมของไฟล์) ตั้งด้วย --volume
-# จำเป็นเพราะ MAX98357A ไม่มีตัวคุมระดับเสียงในตัว amixer จึงไม่มี control ให้เร่ง
-# เกิน 100 = ขยายสัญญาณด้วยซอฟต์แวร์ ดังขึ้นแลกกับความเสี่ยงที่เสียงจะแตกเมื่อ clip
-#
-# ทำไม 100 ถึงยังดังพอ: ไฟล์ใน audio/loud/ อัดจาก Botnoi ที่ตั้งระดับเสียง 300%
-# มาตั้งแต่ต้นทางแล้ว (วัดได้ peak=1.000 rms=0.159) ค่า 100 ที่นี่จึงไม่ใช่ 'เสียงเบา'
-# แต่แปลว่า 'ไม่ขยายซ้ำอีกชั้น' — ซึ่งเป็นค่าเดียวที่การันตีว่าไม่มี clipping เลย
-# เพราะ peak ของไฟล์ชนเพดานดิจิทัลอยู่แล้ว คูณอะไรเพิ่มก็ตัดยอดคลื่นทันที
-#
-# ประวัติ: เคยตั้ง 300 (2026-08-25) ตามที่ผู้ใช้ขอให้ดังที่สุดเท่าที่ได้ ยอมให้เสียงแตก
-# ต่อมาผู้ใช้ขอให้เบาลง (2026-08-27) จึงกลับมาที่ 100 ซึ่งเป็นจุดที่เสียงสะอาด
-# ปรับสดได้เสมอด้วย --volume โดยไม่ต้องแก้โค้ด เช่น --volume 200 ถ้ารู้สึกเบาไป
-# ** เปลี่ยนไฟล์เสียงชุดใหม่เมื่อไหร่ ต้องวัด peak/rms ใหม่แล้วทบทวนค่านี้ **
 DEFAULT_VOLUME_PCT = 100
 VOLUME_PCT = DEFAULT_VOLUME_PCT
 
-# เสียงบอกสถานะระบบ (announce) ดังเท่านี้เทียบกับเสียงเตือนจุดเสี่ยง
-#
-# ตั้งให้เบากว่าเพราะสองอย่างนี้เร่งด่วนไม่เท่ากัน: เสียงเตือนจุดเสี่ยงต้องดังพอสู้
-# เสียงเครื่องยนต์ให้คนขับได้ยินทัน ส่วนเสียงบอกสถานะเป็นข้อมูลประกอบ ฟังตอนจอดอยู่
-# ถ้าดังเท่ากันจะกลบความสำคัญของเสียงเตือนจริง แล้วคนขับเริ่มชินจนไม่สนใจทั้งคู่
-#
-# ใช้อัตราส่วนไม่ใช่ค่าตายตัว เพื่อให้ขยับตาม --volume ที่ผู้ใช้ปรับหน้างานเสมอ
-# (ตั้ง VOLUME_PCT=200 ไว้ตอนอยู่บนรถ -> เสียงสถานะได้ 100 = ไม่ขยายซ้ำ ไม่มี clipping)
 ANNOUNCE_VOLUME_RATIO = 0.5
-ANNOUNCE_VOLUME_MIN_PCT = 50  # กันเบาจนไม่ได้ยินเมื่อผู้ใช้ตั้ง --volume ต่ำมาก
+ANNOUNCE_VOLUME_MIN_PCT = 50
 
-# ชั้น 1 (Botnoi สด) ใช้ได้ไหม — ถ้าเซิร์ฟเวอร์ตอบ 503 แปลว่าไม่ได้ตั้ง BOTNOI_TOKEN
-# ปิดชั้นนี้ทิ้งทั้งรอบเลย ไม่ต้องเสียเวลายิงซ้ำแล้วพ่น error ทุกครั้งที่เตือน
 BOTNOI_ENABLED = True
 
-# ตารางนี้ต้องตรงกับ VOICE_CLIPS ใน js/tts.js ทุกตัวอักษร (สร้างมาจากไฟล์นั้นโดยตรง)
-# match ข้อความแบบตรงตัว ประโยคที่ระยะไม่ใช่ 500 เมตรจะไม่มีไฟล์ตรงแล้วตกไปชั้นถัดไปเอง
-# — จงใจไม่บิดระยะให้เป็น 500 เพื่อไม่ให้บอกระยะผิดกับคนขับ พฤติกรรมเดียวกับเว็บ
 VOICE_CLIPS = {
     "ข้างหน้าอีก 500 เมตร ใกล้จุดเสี่ยงต่ำ โปรดขับขี่ด้วยความระมัดระวัง":
         "alert_01.mp3",
@@ -624,16 +642,11 @@ def _player_cmd():
 
 
 def _play_mp3(data, label):
-    """เล่น mp3 จาก bytes ผ่าน stdin — คืน True ถ้าเล่นจบปกติ
-
-    label คือชื่อชั้นที่จะ log ต่อเมื่อเล่นสำเร็จจริง ไม่ log ตอนแค่เริ่มลอง
-    ไม่งั้นบรรทัด log จะบอกว่าใช้ชั้นนั้นแล้วทั้งที่ยังเล่นไม่ออก
-    """
+    """เล่น mp3 จาก bytes ผ่าน stdin — คืน True ถ้าเล่นจบปกติ"""
     exe = _player_cmd()
     if exe is None or not data:
         return False
     dev = ["-a", AUDIO_DEVICE] if AUDIO_DEVICE and exe in ("mpg123", "mpg321") else []
-    # mpg123 คุมความดังด้วย scale factor ฐาน 32768 = 100% (mpg321 ไม่รองรับแบบเดียวกัน)
     vol = ["-f", str(int(32768 * VOLUME_PCT / 100))] if exe == "mpg123" and VOLUME_PCT != 100 else []
     cmd = {
         "mpg123": [exe, "-q", *dev, *vol, "-"],
@@ -648,6 +661,137 @@ def _play_mp3(data, label):
         return False
     print(f"   [เสียง] {label}")
     return True
+
+
+# ---------- เสียง beep บอกระยะ (แทน buzzer GPIO ที่ถอดออกไปแล้ว) ----------
+# AASHTO Green Book 7th ed. Table 3-3 — Decision Sight Distance (เมตร), Avoidance Maneuver E
+DSD_E_M = {50: 200, 60: 235, 70: 275, 80: 315, 90: 360,
+           100: 405, 110: 435, 120: 470}
+
+MAX_DESIGN_SPEED_KMH = 120   # เพดานทางพิเศษของไทย เกินจากนี้ใช้ค่าที่ 120
+
+# ใช้เมื่อยังไม่รู้ความเร็ว (เพิ่งจับดาวได้ / GPS ไม่ส่งค่ามาใน RMC) — เลือกค่ากลางของ
+DEFAULT_SPEED_KMH = 90
+
+# ต่ำกว่านี้ถือว่ารถไม่ได้เคลื่อนที่ — คงค่าความเร็วเดิมไว้ ไม่ให้ระยะ beep ร่วงไปขั้นต่ำสุด
+SPEED_HOLD_MIN_KMH = 5
+
+BEEP_DIR = _AUDIO_DIR / "beep"
+BEEP_LOOP_S = 2.0        # ความยาวไฟล์แพตเทิร์น = จังหวะเปลี่ยนได้ทุก 2 วินาที
+BEEP_FAR_FRAC = 0.66     # เกิน 66% ของระยะ DSD = จังหวะช้า
+BEEP_MID_FRAC = 0.33     # 33-66% = ปานกลาง · ต่ำกว่านั้น = ถี่สุด
+
+# ถือว่า "ขับผ่านไปแล้ว" เมื่อระยะเพิ่มจากค่าต่ำสุดที่เคยวัดได้เกินค่านี้ แล้วหยุด beep
+BEEP_RECEDE_MIN_M = 25
+
+# ล็อกทางออกเสียง — พอถอด buzzer ออก เสียงพูดกับ beep ก็ใช้ลำโพงตัวเดียวกัน และ plughw:
+AUDIO_LOCK = threading.Lock()
+SPEECH_ACTIVE = threading.Event()
+
+_beep_warned = False
+
+
+def beep_start_m(speed_kmh):
+    """ระยะที่เริ่ม beep บอกระยะ = DSD Maneuver E ที่ความเร็วรถขณะนั้น"""
+    v = DEFAULT_SPEED_KMH if speed_kmh is None else min(speed_kmh, MAX_DESIGN_SPEED_KMH)
+    for s in sorted(DSD_E_M):
+        if v <= s:
+            return float(DSD_E_M[s])
+    return float(DSD_E_M[max(DSD_E_M)])
+
+
+def _play_wav(path):
+    """เล่น WAV ออกลำโพงตัวเดียวกับเสียงพูด — คืน True ถ้าเล่นจบปกติ"""
+    exe = shutil.which("aplay") or shutil.which("ffplay")
+    if exe is None or not path.exists():
+        return False
+    if exe.endswith("aplay"):
+        dev = ["-D", AUDIO_DEVICE] if AUDIO_DEVICE else []
+        cmd = [exe, "-q", *dev, str(path)]
+    else:
+        cmd = [exe, "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)]
+    try:
+        return subprocess.run(cmd, timeout=10).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+def play_lead_beep():
+    """beep สองครั้งนำหน้าประโยคเตือน — แทน chime เดิมของเว็บ"""
+    global _beep_warned
+    with AUDIO_LOCK:
+        if _play_wav(BEEP_DIR / "beep_lead.wav"):
+            return True
+    if not _beep_warned:
+        _beep_warned = True
+        print("   [beep] เล่นไฟล์ beep ไม่ได้ — สร้างด้วย: "
+              "python3 scripts/build_beep_clips.py", file=sys.stderr)
+    return False
+
+
+def beep_pattern_for(points, closest_seen, speed_kmh):
+    """เลือกจังหวะ beep จากจุดที่ใกล้ที่สุดเทียบกับระยะเริ่ม beep ของความเร็วปัจจุบัน"""
+    radius = beep_start_m(speed_kmh)
+    best = None
+    for p in points:
+        pid, d = p["id"], p["distance_m"]
+        low = closest_seen.get(pid)
+        if low is None or d < low:
+            closest_seen[pid] = low = d
+        if d > radius:
+            continue
+        if d > low + BEEP_RECEDE_MIN_M:      # ขับผ่านไปแล้ว เลิกร้องจุดนี้
+            continue
+        frac = d / radius
+        if best is None or frac < best:
+            best = frac
+    if best is None:
+        return None
+    if best > BEEP_FAR_FRAC:
+        return "far"
+    if best > BEEP_MID_FRAC:
+        return "mid"
+    return "near"
+
+
+class BeepLoop:
+    """เล่นไฟล์แพตเทิร์น beep วนซ้ำในเธรดแยก จนกว่าจะสั่งเปลี่ยนหรือหยุด"""
+
+    def __init__(self):
+        self._pattern = None
+        self._stop = threading.Event()
+        self._thread = None
+
+    def set_pattern(self, name):
+        """name = 'far' | 'mid' | 'near' | None (None = เงียบ)"""
+        self._pattern = name
+
+    def start(self):
+        if self._thread is not None:
+            return
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def stop(self):
+        self._pattern = None
+        self._stop.set()
+
+    def _run(self):
+        global _beep_warned
+        while not self._stop.is_set():
+            name = self._pattern
+            # เสียงพูดมาก่อนเสมอ — ยอมให้ beep ขาดช่วง ดีกว่าให้ประโยคเตือนถูกกลืน
+            if name is None or SPEECH_ACTIVE.is_set():
+                time.sleep(0.1)
+                continue
+            with AUDIO_LOCK:
+                ok = _play_wav(BEEP_DIR / f"beep_{name}.wav")
+            if not ok:
+                if not _beep_warned:
+                    _beep_warned = True
+                    print("   [beep] เล่นไฟล์ beep ไม่ได้ — สร้างด้วย: "
+                          "python3 scripts/build_beep_clips.py", file=sys.stderr)
+                time.sleep(BEEP_LOOP_S)   # เล่นไม่ได้ก็อย่าวนรัวเปล่า ๆ
 
 
 def _speak_clip(text):
@@ -672,14 +816,12 @@ def _speak_botnoi(text, api_base):
             data = resp.read()
     except urllib.error.HTTPError as e:
         if e.code == 503:
-            # เซิร์ฟเวอร์ไม่ได้ตั้ง BOTNOI_TOKEN — ยิงกี่ครั้งก็ได้ 503 เหมือนเดิม
-            # ปิดชั้นนี้ทิ้งเลย ประหยัดเวลาและไม่ทำให้ log ดูเหมือนมี error ทุกครั้ง
             BOTNOI_ENABLED = False
             print("   [เสียง] ข้ามชั้น 1 ทั้งรอบ: เซิร์ฟเวอร์ยังไม่ได้ตั้ง BOTNOI_TOKEN")
         else:
             print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
         return False
-    except Exception as e:  # noqa: BLE001 — ทุก error ให้ตกไปชั้นถัดไป
+    except Exception as e:
         print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
         return False
     return _play_mp3(data, "ชั้น 1 Botnoi สด")
@@ -687,7 +829,7 @@ def _speak_botnoi(text, api_base):
 
 def _speak_google(text):
     """ชั้น 2 — Google translate_tts (ต้องมีเน็ต)"""
-    if len(text) > 190:  # translate_tts รับได้จำกัดต่อครั้ง
+    if len(text) > 190:
         return False
     url = "https://translate.google.com/translate_tts?" + urllib.parse.urlencode(
         {"ie": "UTF-8", "q": text, "tl": "th", "client": "tw-ob"}
@@ -696,7 +838,7 @@ def _speak_google(text):
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = resp.read()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"   [เสียง] Google ไม่สำเร็จ: {e}", file=sys.stderr)
         return False
     return _play_mp3(data, "ชั้น 2 Google")
@@ -707,8 +849,6 @@ def _speak_espeak(text):
     if not shutil.which("espeak-ng"):
         return False
     try:
-        # -s 150 คำ/นาที ช้ากว่าค่าเริ่มต้นเล็กน้อย ให้คนขับฟังทัน
-        # espeak-ng: -a คือ amplitude 0-200 (ค่าเริ่มต้น 100) เพดานตามที่โปรแกรมรับได้
         amp = str(min(200, max(0, VOLUME_PCT)))
         if subprocess.run(
             ["espeak-ng", "-v", "th", "-s", "150", "-a", amp, text], timeout=30
@@ -723,33 +863,28 @@ def _speak_espeak(text):
 def speak(text, api_base):
     """พูดข้อความเตือน ไล่ลงทีละชั้นจนกว่าจะมีชั้นไหนสำเร็จ"""
     print(f"   >> {text}")
-    for layer in (
-        lambda: _speak_clip(text),
-        lambda: _speak_botnoi(text, api_base),
-        lambda: _speak_google(text),
-        lambda: _speak_espeak(text),
-    ):
-        if layer():
-            return True
-    print("   [เสียง] ไม่มีชั้นไหนพูดได้ — เหลือแค่ buzzer", file=sys.stderr)
+    SPEECH_ACTIVE.set()
+    try:
+        with AUDIO_LOCK:
+            for layer in (
+                lambda: _speak_clip(text),
+                lambda: _speak_botnoi(text, api_base),
+                lambda: _speak_google(text),
+                lambda: _speak_espeak(text),
+            ):
+                if layer():
+                    return True
+    finally:
+        SPEECH_ACTIVE.clear()
+    print("   [เสียง] ไม่มีชั้นไหนพูดได้ — เหลือแค่ beep", file=sys.stderr)
     return False
 
 
 def announce(text, speak_enabled, api_base):
-    """บอกสถานะของตัวระบบเอง (ไม่ใช่การเตือนจุดเสี่ยง) — ใช้แทนจอตอนออกภาคสนาม
-
-    ต่างจาก speak() สองอย่าง:
-
-    1. เบากว่า — ดูหมายเหตุที่ ANNOUNCE_VOLUME_RATIO
-    2. ถ้าปิดเสียงพูดไว้ (--no-speak) จะเงียบไปเลย ไม่ใช้ buzzer แทน เพราะ buzzer
-       มีความหมายเดียวคือ "เข้าใกล้จุดเสี่ยง" ถ้าเอามาใช้บอกสถานะด้วยคนขับจะแยกไม่ออก
-       ว่าเสียงที่ได้ยินหมายถึงอะไร
-    """
+    """บอกสถานะของตัวระบบเอง (ไม่ใช่การเตือนจุดเสี่ยง) — ใช้แทนจอตอนออกภาคสนาม"""
     print(f"[สถานะ] {text}")
     if not speak_enabled:
         return
-    # สลับค่าความดังชั่วคราวแทนการส่งพารามิเตอร์ผ่าน 5 ชั้นฟังก์ชัน (speak -> ชั้น 0-3
-    # -> _play_mp3) ปลอดภัยเพราะลูปหลักเป็น thread เดียว ไม่มีการพูดซ้อนกัน
     global VOLUME_PCT
     saved = VOLUME_PCT
     VOLUME_PCT = max(ANNOUNCE_VOLUME_MIN_PCT, int(saved * ANNOUNCE_VOLUME_RATIO))
@@ -759,37 +894,29 @@ def announce(text, speak_enabled, api_base):
         VOLUME_PCT = saved
 
 
-# ---------- เรียก API ----------
-
-def fetch_nearby(api_base, lat, lng):
-    query = urllib.parse.urlencode(
-        {"lat": f"{lat:.6f}", "lng": f"{lng:.6f}", "radius": EXIT_RADIUS_M}
-    )
+def fetch_nearby(api_base, lat, lng, heading_deg=None):
+    """ดึงจุดเสี่ยงในรัศมี — ส่งทิศไปด้วยเพื่อให้เซิร์ฟเวอร์กรองเฉพาะจุดข้างหน้าให้เลย"""
+    params = {"lat": f"{lat:.6f}", "lng": f"{lng:.6f}", "radius": EXIT_RADIUS_M}
+    if heading_deg is not None and HEADING_WINDOW_DEG < 180:
+        params["heading"] = f"{heading_deg:.1f}"
+        params["cone_deg"] = f"{HEADING_WINDOW_DEG:.1f}"
+    query = urllib.parse.urlencode(params)
     url = f"{api_base}/api/risk-points/nearby?{query}"
     with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_S) as resp:
         return json.loads(resp.read())["points"]
 
 
-def report_location(api_base, lat, lng, source):
-    """ส่งพิกัดปัจจุบันขึ้น POST /api/device/location ให้หน้าเว็บวาดหมุดรถเรียลไทม์
-
-    เป็นงานเสริม ไม่ใช่งานหลัก — ถ้าส่งไม่สำเร็จต้องไม่กระทบการเตือน จึงกลืน error ทุกชนิด
-    และเตือนแค่ครั้งแรกครั้งเดียว ไม่งั้นถ้าเซิร์ฟเวอร์ดับจะมี log ท่วมทุก 3 วินาที
-    (ปัญหาเดียวกับที่เคยเจอตอน Botnoi ตอบ 503 รัว ๆ)
-
-    ส่ง source ไปด้วยเพื่อให้เว็บแยกออกว่าหมุดที่เห็นมาจาก GPS จริง (serial/gpsd)
-    หรือมาจากโหมดจำลอง (route/fixed) — ไม่งั้นตอนสาธิตจะแยกไม่ออกว่ารถวิ่งจริงหรือไม่
-
-    lat/lng เป็น None ได้ = "ยังทำงานอยู่ แต่ยังจับดาวไม่ได้" ส่งขึ้นไปทุกรอบเหมือนกัน
-    เพื่อให้เว็บแยก "เครื่องดับ" (เงียบไปเลย) ออกจาก "กำลังหาดาว" (ยังส่งอยู่ แค่ไม่มีพิกัด)
-    ซึ่งวิธีแก้ต่างกันคนละเรื่อง — ก่อนหน้านี้เว็บเงียบเหมือนกันทั้งสองกรณี
-    """
+def report_location(api_base, lat, lng, source, heading_deg=None):
+    """ส่งพิกัดปัจจุบันขึ้น POST /api/device/location ให้หน้าเว็บวาดหมุดรถเรียลไทม์"""
     global _report_failed_once
     if not REPORT_LOCATION:
         return
     body = {"source": source}
     if lat is not None and lng is not None:
         body.update(lat=round(lat, 6), lng=round(lng, 6))
+    # ทิศส่งขึ้นไปด้วยเพื่อให้เว็บหมุนหมุดรถให้ตรงกับทิศที่วิ่งจริง (None = ยังไม่รู้ทิศ)
+    if heading_deg is not None:
+        body["heading"] = round(heading_deg, 1)
     if source_telemetry:
         body.update(source_telemetry())
     data = json.dumps(body).encode("utf-8")
@@ -809,17 +936,11 @@ def report_location(api_base, lat, lng, source):
 
 
 _report_failed_once = False
-source_telemetry = None  # ตั้งใน run() = ฟังก์ชันคืน {"speed_kmh":..., "satellites":...}
+source_telemetry = None
 
 
 def _lan_ip():
-    """หา IP ของ Pi ในวงแลน เพื่อบอก URL ที่เปิดจากมือถือได้จริง
-
-    localhost ใช้ได้แค่บนตัว Pi เอง เปิดจากมือถือไม่ได้ — ต้องบอก IP จริง
-    วิธีหา: เปิด UDP socket ไปยัง IP ภายนอก แล้วอ่านว่าระบบเลือกใช้ขาไหนออก
-    UDP ไม่ต้อง handshake จึงไม่มีแพ็กเก็ตถูกส่งออกจริงและไม่ต้องมีเน็ต
-    (ใช้ 8.8.8.8 เป็นแค่ปลายทางสมมติ ไม่ได้ติดต่อ Google จริง)
-    """
+    """หา IP ของ Pi ในวงแลน เพื่อบอก URL ที่เปิดจากมือถือได้จริง"""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sk:
             sk.connect(("8.8.8.8", 80))
@@ -829,11 +950,7 @@ def _lan_ip():
 
 
 def _web_page(api_base):
-    """เดาว่าควรเปิดหน้าไหน จากชุดข้อมูลที่ API กำลังแจกอยู่
-
-    เปิดผิดหน้าแล้วจะงงมาก เพราะแผนที่ขึ้นปกติแต่ไม่มีจุดเสี่ยงตรงกับที่อุปกรณ์เตือน
-    (index.html โหลด geojson กรุงเทพฯ ของตัวเอง ไม่ได้ถามชุดข้อมูลจาก API)
-    """
+    """เดาว่าควรเปิดหน้าไหน จากชุดข้อมูลที่ API กำลังแจกอยู่"""
     try:
         with urllib.request.urlopen(f"{api_base}/api/health", timeout=HTTP_TIMEOUT_S) as r:
             dataset = json.loads(r.read()).get("dataset", "")
@@ -842,49 +959,44 @@ def _web_page(api_base):
     return "test-nstda.html" if "nstda" in dataset else "index.html"
 
 
-# ---------- ลูปหลัก ----------
-
 def run(api_base, position_source, speak_enabled=True):
-    beeped = set()  # point id ที่ร้อง beep ไปแล้ว (รีเซ็ตเมื่อออกนอกรัศมี)
+    announced = set()          # จุดที่พูดประโยคเตือนไปแล้ว (cooldown ของเสียงพูด)
+    closest_seen = {}          # id -> ระยะต่ำสุดที่เคยวัดได้ ใช้ดูว่าขับผ่านไปหรือยัง
+    last_moving_speed = None   # ความเร็วล่าสุดตอนที่รถยังเคลื่อนที่จริง
+    beeper = BeepLoop()
+    beeper.start()
 
-    # ตัวรับ GPS จริงรู้ความเร็ว/จำนวนดาว โหมดจำลองไม่รู้ — ผูกไว้ให้ report_location หยิบไปใช้
     global source_telemetry
-    if hasattr(position_source, "satellites"):
+    if hasattr(position_source, "speed_kmh"):
         source_telemetry = lambda: {
             "speed_kmh": (round(position_source.speed_kmh, 1)
                           if position_source.speed_kmh is not None else None),
-            "satellites": position_source.satellites,
+            "satellites": getattr(position_source, "satellites", None),
         }
     voice = "เปิด" if speak_enabled else "ปิด"
     player = _player_cmd() or "ไม่พบโปรแกรมเล่น mp3"
-    buzzer = "พร้อม" if BUZZER_READY else "ข้าม"
+    beep_ready = "พร้อม" if (BEEP_DIR / "beep_far.wav").exists() else "ไม่มีไฟล์"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม. "
-        f"เฉพาะข้างหน้า ±{HEADING_WINDOW_DEG:.0f}°, "
+        f"{'ทุกทิศรอบตัว' if HEADING_WINDOW_DEG >= 180 else f'เฉพาะข้างหน้า ±{HEADING_WINDOW_DEG:.0f}°'}, "
         f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
-        f"buzzer: {buzzer})"
+        f"beep: {beep_ready})"
     )
+    hz_note = getattr(position_source, "config_result", None)
+    if hz_note and hz_note.get("acked") is True:
+        print(f"GPS: {hz_note['hz']:g}Hz · เฉลี่ยทิศแบบวงกลมหน้าต่าง {COURSE_WINDOW_S} วิ")
     if REPORT_LOCATION:
         page = _web_page(api_base)
         ip = _lan_ip()
         print("ส่งตำแหน่งขึ้นเว็บ: เปิด — เปิดลิงก์นี้เพื่อดูหมุด 🚌 บนแผนที่")
         print(f"   บน Pi เครื่องนี้ : {api_base}/{page}")
         if ip:
-            # ต้องเป็น IP จริงไม่ใช่ localhost ไม่งั้นเปิดจากมือถือไม่ได้
             print(f"   จากมือถือ       : http://{ip}:8000/{page}  (ต่อ WiFi วงเดียวกัน)")
 
+    # ทิศมาจาก COG ของตัวรับเป็นหลัก ส่วน HeadingTracker (ลบพิกัด) เป็นตัวสำรอง
+    course = CourseTracker()
     heading = HeadingTracker()
 
-    # บอกสถานะด้วยเสียงตอนออกภาคสนาม เพราะไม่มีจอให้ดู
-    #
-    # เสียเที่ยวทดสอบไปแล้ว 1 รอบเพราะเรื่องนี้ (2026-08-27 18:10-18:25): service
-    # ถูกสั่ง stop ไว้ตอนทดสอบ --checkgps แล้วลืมสั่ง start กลับ ออกไปข้างนอกทั้งที่
-    # ไม่มีอะไรทำงานเลย กว่าจะรู้ก็ตอนกลับมาเสียบจอแล้วไล่ journalctl ย้อนหลัง
-    #
-    # แยกสองประโยคเพื่อให้วินิจฉัยได้จากเสียงล้วน ๆ:
-    #   เงียบสนิทตั้งแต่แรก      = เครื่องไม่ติด / service ไม่ได้รัน
-    #   พูดประโยคแรกแล้วเงียบยาว = ระบบทำงาน แต่ GPS ยังจับดาวไม่ได้
-    #   พูดครบสองประโยค          = พร้อมใช้งานจริง
     announce("ระบบพร้อมทำงาน กำลังค้นหาสัญญาณดาวเทียม", speak_enabled, api_base)
     got_first_fix = False
 
@@ -895,52 +1007,58 @@ def run(api_base, position_source, speak_enabled=True):
             if getattr(position_source, "finished", False):
                 print("จบเส้นทางจำลองแล้ว — หยุดทำงาน")
                 break
-            # บอกจำนวนดาวที่เห็นด้วย ไม่ใช่แค่ "ยังไม่ได้ตำแหน่ง" เฉย ๆ เพราะระหว่างรอ
-            # ต้องแยกให้ออกว่า "กำลังคืบหน้า" (ดาวเพิ่มขึ้นเรื่อย ๆ รออีกหน่อยได้พิกัด)
-            # กับ "ไม่คืบเลย" (0 ดวงค้าง = ที่วางตัวรับมองไม่เห็นฟ้า ต้องย้ายที่)
-            # ดูสดด้วย journalctl -u mtec-alert-client -f ตอนออกภาคสนาม
-            #
-            # None = ยังไม่เคย parse ประโยค GGA สำเร็จสักครั้ง ต่างจาก 0 ที่ตัวรับบอกเองว่า
-            # เห็น 0 ดวง — ถ้าค้างที่ ? นานแปลว่าอ่าน NMEA ไม่ออก (baud ผิด/มีตัวแย่งพอร์ต)
-            # ไม่ใช่แค่จับดาวไม่ได้ ดูหมายเหตุที่ GPS_BAUD
             sats = getattr(position_source, "satellites", None)
             print(f"[gps] ยังไม่ได้ตำแหน่ง · เห็นดาว {'?' if sats is None else sats} ดวง"
                   " (รอสัญญาณดาวเทียม)...")
-            # บอกเว็บว่ายังทำงานอยู่ แค่ยังไม่มีพิกัด — ไม่งั้นแผนที่จะเงียบเหมือนเครื่องดับ
             report_location(api_base, None, None,
                             getattr(position_source, "name", None))
+            beeper.set_pattern(None)
         else:
             lat, lng = pos
             if not got_first_fix:
                 got_first_fix = True
                 announce("รับสัญญาณดาวเทียมแล้ว เริ่มแจ้งเตือนจุดเสี่ยง",
                          speak_enabled, api_base)
-            heading_deg = heading.update(lat, lng)
-            report_location(api_base, lat, lng, getattr(position_source, "name", None))
+            speed_now = getattr(position_source, "speed_kmh", None)
+            cog_deg = course.update(getattr(position_source, "course", None), speed_now)
+            fallback_deg = heading.update(lat, lng)
+            heading_deg = cog_deg if cog_deg is not None else fallback_deg
+            heading_src = "COG" if cog_deg is not None else "พิกัด"
+            report_location(api_base, lat, lng, getattr(position_source, "name", None),
+                            heading_deg)
             try:
-                nearby = fetch_nearby(api_base, lat, lng)
+                nearby = fetch_nearby(api_base, lat, lng, heading_deg)
             except OSError as e:
                 print(f"[api] เรียกเซิร์ฟเวอร์ไม่สำเร็จ: {e}", file=sys.stderr)
                 nearby = None
+                beeper.set_pattern(None)
 
             if nearby is not None:
                 nearby_ids = {p["id"] for p in nearby}
 
-                beeped &= nearby_ids  # จุดที่ออกนอกรัศมีแล้ว -> รีเซ็ตให้ beep ใหม่ได้เมื่อเข้ามาอีกรอบ
+                announced &= nearby_ids
+                for pid in [k for k in closest_seen if k not in nearby_ids]:
+                    del closest_seen[pid]
 
-                # beep ครั้งเดียวตอนเพิ่งเข้ารัศมี ALERT_RADIUS_M
-                for p in nearby:
+                ahead = [p for p in nearby
+                         if is_ahead(heading_deg, lat, lng, p["lat"], p["lng"],
+                                     HEADING_WINDOW_DEG)]
+
+                for p in ahead:
                     if p["distance_m"] > ALERT_RADIUS_M:
                         continue
-                    # ข้ามจุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
-                    if not is_ahead(heading_deg, lat, lng, p["lat"], p["lng"],
-                                    HEADING_WINDOW_DEG):
-                        continue
-                    if p["id"] not in beeped:
-                        beeped.add(p["id"])
-                        beep()  # เสียงนำ แล้วค่อยพูดประโยคเตือน
+                    if p["id"] not in announced:
+                        announced.add(p["id"])
+                        # beep นำเล่นเสมอแม้ปิดเสียงพูด — เหมือนที่ buzzer เคยทำ
+                        play_lead_beep()
                         if speak_enabled:
                             speak(p["alert_message"], api_base)
+
+                # beep บอกระยะคิดแยกจาก cooldown ของเสียงพูด เพราะตอบคนละคำถาม:
+                if speed_now is not None and speed_now >= SPEED_HOLD_MIN_KMH:
+                    last_moving_speed = speed_now
+                beeper.set_pattern(
+                    beep_pattern_for(ahead, closest_seen, last_moving_speed))
 
                 nearest = nearby[0] if nearby else None
                 status = (
@@ -949,7 +1067,8 @@ def run(api_base, position_source, speak_enabled=True):
                     if nearest
                     else f"ไม่มีจุดเสี่ยงในรัศมี {EXIT_RADIUS_M} ม."
                 )
-                hdg = "ทิศ ?" if heading_deg is None else f"ทิศ {heading_deg:.0f}°"
+                hdg = ("ทิศ ?" if heading_deg is None
+                       else f"ทิศ {heading_deg:.0f}° ({heading_src})")
                 print(f"[{time.strftime('%H:%M:%S')}] ({lat:.5f}, {lng:.5f}) {hdg} {status}")
 
         time.sleep(max(0, POLL_INTERVAL_S - (time.monotonic() - started)))
@@ -959,11 +1078,7 @@ SAMPLE_TEXT = "ข้างหน้าอีกประมาณ 500 เมต
 
 
 def check_voice(api_base):
-    """ตรวจว่าทำไมเสียงพูดไม่ออก — ไล่ทีละชั้นแล้วบอกว่าติดที่อะไร
-
-    ใช้ตอนอุปกรณ์ร้องแต่ buzzer แล้วไม่พูด:
-        python3 device/pi_alert_client.py --checkvoice
-    """
+    """ตรวจว่าทำไมเสียงพูดไม่ออก — ไล่ทีละชั้นแล้วบอกว่าติดที่อะไร"""
     print("=" * 62)
     print("ตรวจระบบเสียงพูดแจ้งเตือน")
     print("=" * 62)
@@ -990,7 +1105,7 @@ def check_voice(api_base):
         print("  ", "[มี]  " if path else "[ไม่มี]", exe.ljust(10), path or "")
     if _player_cmd() is None:
         print()
-        print("   >>> ไม่มีตัวเล่น mp3 เลย นี่คือสาเหตุที่ได้ยินแต่ buzzer")
+        print("   >>> ไม่มีตัวเล่น mp3 เลย นี่คือสาเหตุที่ได้ยินแต่ beep")
         print("   >>> แก้ด้วย:  sudo apt install -y mpg123")
     if AUDIO_DEVICE:
         print("   อุปกรณ์เสียงที่บังคับใช้:", AUDIO_DEVICE)
@@ -1014,16 +1129,7 @@ def check_voice(api_base):
 
 
 def _alert_client_service_running():
-    """service ตัวจริงกำลังจับพอร์ต GPS อยู่ไหม
-
-    ตรวจก่อน --checkgps เสมอ เพราะเป็นหลุมพรางที่เสียเวลาไล่หาสาเหตุผิดทางไปมากที่สุด
-    (เจอจริงสองรอบ 2026-08-27) — เปิดพอร์ตซ้ำได้โดยไม่ error แต่ NMEA ที่วิ่งเข้ามา
-    จะถูกสองโปรเซสแย่งกันอ่านคนละครึ่งบรรทัด checksum เลยไม่ผ่านทุกบรรทัด
-    ผลลัพธ์คือขึ้นว่า "ไม่เห็นดาวเลย" เหมือนตอน baud rate ผิดเป๊ะ ๆ ทั้งที่ GPS ปกติดี
-
-    ตรวจด้วย systemctl แทนการดูว่าเปิดพอร์ตได้ไหม เพราะ Linux ยอมให้เปิด tty ซ้ำได้
-    ไม่มี error ให้จับ · ไม่มี systemd (เช่นรันบนเครื่องอื่น) = ถือว่าไม่ชน
-    """
+    """service ตัวจริงกำลังจับพอร์ต GPS อยู่ไหม"""
     try:
         r = subprocess.run(["systemctl", "is-active", "mtec-alert-client"],
                            capture_output=True, text=True, timeout=5)
@@ -1033,13 +1139,7 @@ def _alert_client_service_running():
 
 
 def check_gps(port=None):
-    """ดูว่าตัวรับ GPS ส่งอะไรมาบ้าง จับดาวได้กี่ดวง — ใช้ตอน --serial แล้วไม่ได้พิกัด
-
-        python3 device/pi_alert_client.py --checkgps
-
-    ต่างจาก --serial ตรงที่โหมดนี้ไม่ยิง API เลย แสดงแต่สถานะดิบของตัวรับ
-    ทำให้แยกได้ว่าปัญหาอยู่ที่ GPS เอง หรืออยู่ที่เซิร์ฟเวอร์/เครือข่าย
-    """
+    """ดูว่าตัวรับ GPS ส่งอะไรมาบ้าง จับดาวได้กี่ดวง — ใช้ตอน --serial แล้วไม่ได้พิกัด"""
     print("=" * 62)
     print("ตรวจตัวรับ GPS (Beltian BE-609U)")
     print("=" * 62)
@@ -1080,6 +1180,59 @@ def check_gps(port=None):
         return False
     print("✓ เปิดพอร์ตได้")
 
+    # ---- ระบุตัวชิป ----
+    print()
+    print("1) ตัวชิปในโมดูล (UBX-MON-VER)")
+    ver = _ubx_mon_ver(port)
+    if ver is None:
+        print("   ไม่ตอบคำสั่ง UBX — อาจไม่ใช่ชิป u-blox หรือปิดโปรโตคอล UBX ไว้")
+        print("   ไม่ใช่ปัญหา: ระบบอ่าน NMEA อย่างเดียวก็ทำงานได้ครบ แค่ตั้ง update rate ไม่ได้")
+    elif ver.get("error"):
+        print("   เปิดพอร์ตเพื่อถามไม่ได้:", ver["error"])
+    else:
+        print(f"   เฟิร์มแวร์ : {ver['sw']}")
+        print(f"   ฮาร์ดแวร์  : {ver['hw']}")
+        for line in ver["ext"]:
+            print(f"   ส่วนขยาย   : {line}")
+        print("   >>> ตอบกลับมาเป็นโครงสร้าง = เป็นชิป u-blox และรองรับ UBX ยืนยันแล้ว")
+
+    # ---- อัตราก่อน/หลังตั้งค่า ----
+    budget = GPS_BAUD / 10   # 8N1 = 10 บิตต่อ 1 ไบต์
+
+    def show_rate(label, r):
+        if r.get("error"):
+            print(f"   {label}: อ่านไม่ได้ ({r['error']})")
+            return
+        pct = r["bytes_per_s"] / budget * 100
+        order = sorted(r["per_s"].items(), key=lambda kv: -kv[1])
+        detail = " · ".join(f"{k} {v:.1f}/วิ" for k, v in order) or "ไม่มีประโยคที่ checksum ผ่าน"
+        print(f"   {label}: {detail}")
+        print(f"   {' ' * len(label)}  รวม {r['bytes_per_s']:,.0f} ไบต์/วิ = "
+              f"{pct:.1f}% ของสาย {GPS_BAUD} bps")
+
+    print()
+    print("2) อัตราข้อมูลที่ตัวรับส่งมา")
+    show_rate("ก่อนตั้งค่า", _measure_nmea_rate(port, 3.0))
+
+    if GPS_UPDATE_HZ:
+        print()
+        print(f"3) ตั้งค่าเป็น {GPS_UPDATE_HZ:g}Hz + ปิด {'/'.join(NMEA_DROP)}")
+        res = _ubx_configure_port(port, GPS_UPDATE_HZ)
+        if res.get("error"):
+            print("   ล้มเหลว:", res["error"])
+        elif res.get("acked") is True:
+            print("   ✓ โมดูลตอบ ACK — ตั้งค่าสำเร็จ (เขียนลง RAM เท่านั้น ไม่แตะ FLASH)")
+        elif res.get("acked") is False:
+            print("   ✗ โมดูลตอบ NAK — ไม่รับค่านี้ (อัตราสูงเกินที่รุ่นนี้ทำได้?)")
+        else:
+            print("   ไม่มีคำตอบกลับมา — น่าจะไม่รองรับ UBX")
+        show_rate("หลังตั้งค่า", _measure_nmea_rate(port, 3.0))
+        print()
+        print("   หมายเหตุ: ค่านี้อยู่ใน RAM หายเมื่อถอดไฟ — ตั้งใจให้เป็นแบบนี้")
+        print("   ไคลเอนต์ตั้งใหม่ให้เองทุกครั้งที่เริ่มทำงาน จึงไม่ต้องเขียน FLASH")
+
+    print()
+    print("4) ฟังพิกัดจริง")
     reader = NmeaSerialReader(port)
     print(f"\nกำลังฟัง NMEA {GPS_CHECK_SECONDS} วินาที...")
     print("(ตัวรับที่เพิ่งเปิดเครื่องต้องใช้เวลาจับดาวครั้งแรก 30 วิ - 2 นาที และต้องอยู่กลางแจ้ง")
@@ -1089,7 +1242,12 @@ def check_gps(port=None):
         fix = reader.read()
         sats = reader.satellites if reader.satellites is not None else "?"
         if fix:
-            print(f"  [{i + 1:2d}วิ] ✓ พิกัด {fix[0]:.6f}, {fix[1]:.6f} · ดาว {sats} ดวง")
+            cog = ("ทิศ -" if reader.course is None
+                   else f"ทิศ {reader.course:.1f}° (ดิบ {reader.course_raw:.1f}°)"
+                   if reader.course_raw is not None else f"ทิศ {reader.course:.1f}°")
+            spd = "-" if reader.speed_kmh is None else f"{reader.speed_kmh:.1f} กม./ชม."
+            print(f"  [{i + 1:2d}วิ] ✓ พิกัด {fix[0]:.6f}, {fix[1]:.6f} · ดาว {sats} ดวง"
+                  f" · {cog} · {spd}")
         else:
             print(f"  [{i + 1:2d}วิ] ยังไม่ได้พิกัด · เห็นดาว {sats} ดวง · fix quality {reader.fix_quality}")
 
@@ -1134,6 +1292,9 @@ def main():
     source.add_argument("--checkgps", nargs="?", const="", metavar="PORT",
                         help="ตรวจว่าตัวรับ GPS ทำงานไหม จับดาวได้กี่ดวง (ไม่ยิง API)")
     source.add_argument("--gpsd", action="store_true", help="อ่านพิกัดจริงจาก gpsd")
+    parser.add_argument("--gps-hz", type=float, metavar="HZ", default=DEFAULT_GPS_UPDATE_HZ,
+                        help=f"อัตราที่สั่งให้โมดูลส่งข้อมูล (ค่าเริ่มต้น {DEFAULT_GPS_UPDATE_HZ}) "
+                             "0 = ไม่ตั้งค่า ใช้ค่าที่โมดูลจำไว้ · เขียนลง RAM เท่านั้น")
     source.add_argument("--test", nargs=2, type=float, metavar=("LAT", "LNG"),
                         help="โหมดทดสอบ: ใช้พิกัดคงที่")
     source.add_argument("--route", metavar="FILE",
@@ -1148,9 +1309,10 @@ def main():
     parser.add_argument("--heading-window", type=float, metavar="DEG",
                         default=DEFAULT_HEADING_WINDOW_DEG,
                         help=f"มุมที่ถือว่าอยู่ข้างหน้ารถ (องศา ค่าเริ่มต้น {DEFAULT_HEADING_WINDOW_DEG}) "
+                             "180 = ปิดการกรองทิศ เตือนทุกทิศรอบตัว "
                              "180 = ปิดการกรอง เตือนทุกทิศเหมือนเดิม")
     parser.add_argument("--no-speak", action="store_true",
-                        help="ปิดเสียงพูด ใช้แค่ buzzer อย่างเดียว")
+                        help="ปิดเสียงพูด ใช้แค่ beep อย่างเดียว")
     parser.add_argument("--no-report", action="store_true",
                         help="ไม่ต้องส่งพิกัดขึ้นเว็บ (หน้าแผนที่จะไม่เห็นหมุดรถ)")
     parser.add_argument("--once", action="store_true",
@@ -1158,14 +1320,15 @@ def main():
     args = parser.parse_args()
 
     global AUDIO_DEVICE, VOLUME_PCT, ALERT_RADIUS_M, EXIT_RADIUS_M, REPORT_LOCATION
-    global HEADING_WINDOW_DEG
+    global HEADING_WINDOW_DEG, GPS_UPDATE_HZ
     AUDIO_DEVICE = args.audio_device
     VOLUME_PCT = max(10, min(1000, args.volume))
     ALERT_RADIUS_M = args.alert_radius
-    # exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis จะกลายเป็นเตือนรัวทุกรอบโพล
     EXIT_RADIUS_M = max(args.exit_radius, ALERT_RADIUS_M)
     REPORT_LOCATION = not args.no_report
     HEADING_WINDOW_DEG = max(0.0, min(180.0, args.heading_window))
+    # 18Hz คือเพดานที่สเปก BE-609U ระบุ — สูงกว่านั้นโมดูลจะ NAK ทิ้งอยู่ดี
+    GPS_UPDATE_HZ = max(0.0, min(18.0, args.gps_hz))
 
     if args.checkvoice:
         sys.exit(0 if check_voice(args.api.rstrip("/")) else 1)
@@ -1181,14 +1344,10 @@ def main():
     else:
         position_source = RoutePlayer(args.route, loop=not args.once)
 
-    setup_buzzer()
     try:
         run(args.api.rstrip("/"), position_source, speak_enabled=not args.no_speak)
     except KeyboardInterrupt:
         print("\nหยุดการทำงาน")
-    finally:
-        if BUZZER_READY:
-            GPIO.cleanup()
 
 
 if __name__ == "__main__":

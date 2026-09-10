@@ -1,15 +1,7 @@
-/**
- * riskpoints.js — โหลด GeoJSON จุดเสี่ยงและวาดลงแผนที่
- *
- * คะแนนคำนวณล่วงหน้าฝั่ง Python ตามรอบ calibration (Fixed-Schedule) —
- * หน้าเว็บแค่แสดงผล ไม่ให้คะแนน/จัดระดับสดเอง
- */
+/** riskpoints.js — โหลด GeoJSON จุดเสี่ยงและวาดลงแผนที่ */
 
 const RiskPoints = (() => {
   // index.html ตั้ง window.RISK_DATA_URL ไว้ก่อนโหลดสคริปต์นี้เพื่อเลือกชุดข้อมูล
-  // ค่า default ต้องเป็นชุดที่ใช้งานจริง (รอบ 3 ปี v2569-r1-3y) เสมอ — ถ้าตั้งเป็นชุดเก่า
-  // แล้ววันไหนบรรทัด window.RISK_DATA_URL หายไป แผนที่จะเงียบ ๆ กลับไปโหลดชุดที่เลิกใช้
-  // โดยไม่มี error ให้จับได้เลย
   const DATA_URL = window.RISK_DATA_URL || "data/risk_points_bkk_metro_3y.geojson";
 
   const LEVEL_STYLE = {
@@ -41,10 +33,7 @@ const RiskPoints = (() => {
     pattern: "", // "" = ทุกประเภทปัญหา
   };
 
-  /**
-   * จำนวนเงินเป็นหน่วยไทยที่อ่านออกทันที — 58,000 -> "5.8 หมื่นบาท",
-   * 500,000 -> "5 แสนบาท", 6,700,000 -> "6.7 ล้านบาท"
-   */
+  /** จำนวนเงินเป็นหน่วยไทยที่อ่านออกทันที — 58,000 -> "5.8 หมื่นบาท", */
   function formatBaht(value) {
     const v = Math.round(value || 0);
     if (v === 0) return "ไม่มีผู้บาดเจ็บหรือเสียชีวิต";
@@ -77,18 +66,7 @@ const RiskPoints = (() => {
     return points;
   }
 
-  /**
-   * วาดเฉพาะ "คลัสเตอร์" (456 วง ในชุด 3 ปี) เป็นหมุดขนาดคงที่ตามดีไซน์เดิม
-   *
-   * เคยลองเปลี่ยนเป็น L.circle รัศมีจริงตาม `radius_m` แล้วผู้ใช้ขอย้อนกลับ —
-   * ที่ระดับซูมภาพรวมทั้งกรุงเทพฯ รัศมีจริง (มัธยฐาน 158 ม.) เล็กกว่า 2 พิกเซล
-   * มองไม่เห็น ส่วนกลุ่ม chaining 4.5 กม. กลับใหญ่จนกลบพื้นที่ข้างเคียง
-   * ขนาดคงที่อ่านง่ายกว่าในทุกระดับซูม (`radius_m` ยังอยู่ใน GeoJSON และแสดงในป๊อปอัป)
-   *
-   * หน่วยวิเคราะห์ชนิด noise (จุดเสี่ยงเดี่ยว 796 จุด) ไม่วาดที่ชั้นนี้
-   * เพราะชั้นจุดเสี่ยง (accidents.js) ปิดอยู่ — แต่ยังอยู่ใน `points`
-   * เพื่อให้ระบบแจ้งเตือนตรวจครบทุกคลัสเตอร์
-   */
+  /** วาดเฉพาะ "คลัสเตอร์" (456 วง ในชุด 3 ปี) เป็นหมุดขนาดคงที่ตามดีไซน์เดิม */
   function drawOnMap(map) {
     mapRef = map;
     markers = [];
@@ -120,11 +98,7 @@ const RiskPoints = (() => {
     return true;
   }
 
-  /**
-   * ตั้งค่าตัวกรองแล้วซ่อน/แสดงหมุดให้ตรงกัน
-   * ตัวกรองมีผลกับการแจ้งเตือนด้วย (alert.js อ่านจาก visible()) เพื่อให้
-   * "เห็นอะไรบนแผนที่ = ได้ยินเตือนเรื่องนั้น" ไม่สับสน
-   */
+  /** ตั้งค่าตัวกรองแล้วซ่อน/แสดงหมุดให้ตรงกัน */
   function setFilter(next) {
     filter = {
       province: next.province || "",
@@ -153,11 +127,7 @@ const RiskPoints = (() => {
     );
   }
 
-  /**
-   * Convex hull ด้วย monotone chain (Andrew 1979) — คืนลำดับจุดขอบนอกสุด
-   * ใช้วาดขอบเขตจริงของคลัสเตอร์ ไม่ใช่วงกลมประมาณ เพื่อให้เห็นรูปร่างที่ DBSCAN
-   * จับได้จริง รวมถึงกรณีที่กลุ่มยืดยาวตามถนน (chaining) ซึ่งวงกลมจะซ่อนไว้
-   */
+  /** Convex hull ด้วย monotone chain (Andrew 1979) — คืนลำดับจุดขอบนอกสุด */
   function convexHull(pts) {
     if (pts.length < 3) return pts.slice();
     const s = pts.slice().sort((a, b) => a.lng - b.lng || a.lat - b.lat);
@@ -175,12 +145,7 @@ const RiskPoints = (() => {
     return half(s).concat(half(s.slice().reverse()));
   }
 
-  /**
-   * โหมดตรวจสอบคลัสเตอร์ — วาดสิ่งที่พิสูจน์ได้ด้วยตาว่า DBSCAN จัดกลุ่มถูกต้อง:
-   *   1. ขอบเขตจริง (convex hull) ของจุดเสี่ยงที่เป็นสมาชิกวงนี้
-   *   2. จุดเสี่ยงสมาชิกทุกจุด วาดทับให้เห็นชัดว่ามีจุดไหนอยู่ในวงบ้าง
-   * ต้องมี accidents.js โหลดอยู่ ถ้าไม่มีก็ข้ามไปเงียบ ๆ (แผนที่ยังใช้ได้ปกติ)
-   */
+  /** โหมดตรวจสอบคลัสเตอร์ — วาดสิ่งที่พิสูจน์ได้ด้วยตาว่า DBSCAN จัดกลุ่มถูกต้อง: */
   function showInspect(cluster, style) {
     clearInspect();
     if (typeof Accidents === "undefined" || !mapRef) return;
@@ -220,10 +185,7 @@ const RiskPoints = (() => {
     inspectLayer = null;
   }
 
-  /**
-   * popup: Severity Index + ระดับ + สถิติ + มูลค่าความเสียหาย + Single/Multi
-   * + ปัจจัยเสี่ยง + คำแนะนำขับขี่ + คำแนะนำวิศวกรรม + ที่มาของค่า SI
-   */
+  /** popup: Severity Index + ระดับ + สถิติ + มูลค่าความเสียหาย + Single/Multi */
   function buildPopupHtml(p, style) {
     const rules = RiskRules.evaluate(p);
     const factors = rules
@@ -234,8 +196,6 @@ const RiskPoints = (() => {
       : "ขับขี่ด้วยความระมัดระวังตามปกติ";
 
     // ชื่อสายทาง: จุดที่ต้นทางไม่ได้กรอกคอลัมน์ "สายทาง" มา จะมี road = "ไม่ระบุ"
-    // แต่มี road_label ที่สคริปต์สร้างข้อมูลเติมให้จากรหัสสายทางของจุดข้างเคียง
-    // เครื่องหมาย ≈ บอกผู้ใช้ว่าชื่อนี้เป็นค่าอนุมาน ไม่ใช่ชื่อที่ต้นทางกรอกเอง
     const inferred = p.road_label_source && p.road_label_source !== "record";
     const roadName = `${inferred ? "≈ " : ""}${p.road_label || p.road}`;
     const roadTip = inferred
@@ -247,7 +207,6 @@ const RiskPoints = (() => {
     const si = p.severity_index ?? 0;
 
     // ที่มาของค่า SI แบบกางสูตรให้เห็นตัวตั้งจริง เพราะ SI เป็นค่าเฉลี่ยต่อครั้ง
-    // ตัวเลขเดียวจึงไม่บอกว่ามาจากจุดที่เกิดถี่แต่เบา หรือเกิดน้อยครั้งแต่หนัก
     const fatal = p.fatal_crashes ?? 0;
     const injured = p.injured_total ?? 0;
     const n = p.accident_count ?? 1;
@@ -287,10 +246,7 @@ const RiskPoints = (() => {
       </div>`;
   }
 
-  /**
-   * แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคันของคลัสเตอร์ พร้อมจำนวนครั้งจริง
-   * ตัวเลข % ในแถบจะซ่อนเมื่อช่วงแคบเกินไป (ตัวเลขเต็มอยู่ในบรรทัดใต้แถบแล้ว)
-   */
+  /** แถบเทียบสัดส่วนรถคันเดียว vs รถหลายคันของคลัสเตอร์ พร้อมจำนวนครั้งจริง */
   function buildSplitHtml(p, single, multi) {
     const singlePct = p.single_pct ?? 0;
     const multiPct = p.multi_pct ?? 0;

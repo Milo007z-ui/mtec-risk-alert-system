@@ -1,6 +1,4 @@
-/**
- * app.js — จุดเริ่มต้น: ประกอบทุกโมดูลเข้าด้วยกัน
- */
+/** app.js — จุดเริ่มต้น: ประกอบทุกโมดูลเข้าด้วยกัน */
 
 (async function main() {
   const statusEl = document.getElementById("gps-status");
@@ -11,15 +9,9 @@
   const map = MapView.init();
 
   // ชั้นตำแหน่งอุปกรณ์ Raspberry Pi บนรถ — เริ่มทันทีโดยไม่ต้องรอกด "เริ่มใช้งาน"
-  // เพราะเป็นการ "ดู" ตำแหน่งรถคันอื่น ไม่ต้องขอสิทธิ์ตำแหน่งหรือปลดล็อกเสียงก่อน
-  // (ใช้ได้ทั้งแผนที่จริง โหมด ?mock=1 และหน้าทดสอบ สวทช.)
   if (typeof DeviceTracker !== "undefined") DeviceTracker.start(map);
 
   // โหลดหน่วยวิเคราะห์ (คลัสเตอร์ + จุดเสี่ยงเดี่ยว) — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้
-  //
-  // ชั้นจุดเสี่ยงรายอุบัติเหตุ (accidents.js) เป็นชั้นดูอย่างเดียว เริ่มต้นปิดไว้
-  // ผู้ใช้ติ๊กเปิดเองในแผงตัวกรอง — ไม่มีผลกับการแจ้งเตือน เพราะ alert.js
-  // อ่านจาก RiskPoints.visible() ซึ่งเป็นคลัสเตอร์ล้วน
   const hasAccidentLayer = typeof Accidents !== "undefined";
   try {
     await Promise.all([RiskPoints.load(), hasAccidentLayer ? Accidents.load() : null]);
@@ -58,9 +50,10 @@
     }
 
     GPS.start(
-      (lat, lng, accuracy) => {
-        MapView.updateUserPosition(lat, lng, accuracy);
-        AlertSystem.onPositionUpdate(lat, lng);
+      (lat, lng, accuracy, courseDeg, speedKmh) => {
+        // ให้ AlertSystem คิดทิศก่อน (มันกรอง COG ด้วยความเร็วและคงค่าล่าสุดไว้ตอนรถจอด)
+        AlertSystem.onPositionUpdate(lat, lng, courseDeg, speedKmh);
+        MapView.updateUserPosition(lat, lng, accuracy, AlertSystem.heading());
         if (!GPS.isMockMode()) {
           showStatus(`📍 GPS ทำงาน (ความแม่นยำ ±${Math.round(accuracy)} ม.)`);
         }

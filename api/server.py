@@ -1,18 +1,4 @@
-"""
-server.py — REST API สำหรับให้อุปกรณ์ (เช่น Raspberry Pi บนรถเมล์) ดึงข้อมูลจุดเสี่ยง
-
-Endpoints:
-  GET /api/health                      สถานะเซิร์ฟเวอร์ + จำนวนจุดเสี่ยง
-  GET /api/risk-points                 จุดเสี่ยงทั้งหมด (กรอง level / province / min_si ได้)
-  GET /api/risk-points/nearby          จุดเสี่ยงในรัศมีจากพิกัดที่ส่งมา พร้อมระยะห่าง
-                                       และข้อความเตือนภาษาไทยสำเร็จรูป (alert_message)
-  GET /api/risk-points/{point_id}      รายละเอียดจุดเดียว
-  POST /api/device/location            Pi ส่งพิกัด GPS ปัจจุบันของตัวเองขึ้นมา
-  GET  /api/device/location            เว็บดึงพิกัดล่าสุดของ Pi ไปวาดหมุดเรียลไทม์
-
-รันเซิร์ฟเวอร์:  uvicorn api.server:app --host 0.0.0.0 --port 8000
-(เสิร์ฟหน้าเว็บ index.html ที่รากโปรเจกต์ให้ด้วย จึงใช้เซิร์ฟเวอร์เดียวได้ทั้งเว็บและ API)
-"""
+"""server.py — REST API สำหรับให้อุปกรณ์ (เช่น Raspberry Pi บนรถเมล์) ดึงข้อมูลจุดเสี่ยง"""
 
 import json
 import os
@@ -20,7 +6,7 @@ import re
 import time
 import urllib.error
 import urllib.request
-from math import asin, cos, pi, radians, sin, sqrt
+from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Response
@@ -31,19 +17,12 @@ from pydantic import BaseModel, Field
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # ชุดข้อมูลที่ API แจกจ่าย — ต้องเป็นชุดเดียวกับที่หน้าเว็บตั้งไว้ใน window.RISK_DATA_URL
-# (index.html / dashboard.html) ไม่งั้น buzzer บน Pi จะเตือนคนละคลัสเตอร์กับหมุดบนแผนที่
-# สลับกลับไปชุด 1 ปีเพื่อเทียบผลได้โดยไม่ต้องแก้โค้ด:
-#   PowerShell:  $env:RISK_DATA_FILE = "data/risk_points_bkk_metro.geojson"
-#   bash:        RISK_DATA_FILE=data/risk_points_bkk_metro.geojson uvicorn api.server:app
 DEFAULT_DATA_FILE = "data/risk_points_bkk_metro_3y.geojson"  # ชุด 3 ปี (2566-2568) = ชุดหลักของระบบ
 DATA_FILE = PROJECT_ROOT / os.environ.get("RISK_DATA_FILE", DEFAULT_DATA_FILE)
 
 EARTH_RADIUS_M = 6371000
 
 # ---------- ตั้งค่า Botnoi Voice (TTS) ----------
-# เก็บ token ไว้ใน environment variable เท่านั้น — ห้าม commit key ลงโค้ด
-#   PowerShell:  $env:BOTNOI_TOKEN = "xxxx";  uvicorn api.server:app --port 8000
-#   bash:        BOTNOI_TOKEN=xxxx uvicorn api.server:app --port 8000
 BOTNOI_TOKEN = os.environ.get("BOTNOI_TOKEN", "")
 BOTNOI_SPEAKER = os.environ.get("BOTNOI_SPEAKER", "1")  # เลือก speaker id ที่ชอบได้
 BOTNOI_URL = "https://api-voice.botnoi.ai/openapi/v1/generate_audio"
@@ -56,9 +35,6 @@ app = FastAPI(
 )
 
 # เปิด CORS ทุก origin — ข้อมูลจุดเสี่ยงเป็นสาธารณะแบบอ่านอย่างเดียว
-# ต้องมี POST ด้วยเพราะ Pi ส่งพิกัดตัวเองขึ้น /api/device/location
-# (ไม่มี auth เพราะระบบนี้รันในวงแลนเดียวกับ Pi เท่านั้น ถ้าเอาขึ้น public
-#  ต้องใส่ token ที่ endpoint นั้นก่อน ไม่งั้นใครก็ปลอมพิกัดรถได้)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -68,12 +44,8 @@ app.add_middleware(
 
 
 # ---------- โหลดข้อมูล ----------
-
 def load_points():
-    """อ่าน GeoJSON แล้ว flatten เป็น [{id, lat, lng, ...properties}] แบบเดียวกับ riskpoints.js
-
-    คืน (points, calibration) — calibration ใช้บอกเวอร์ชันรอบคำนวณผ่าน /api/health
-    """
+    """อ่าน GeoJSON แล้ว flatten เป็น [{id, lat, lng, ...properties}] แบบเดียวกับ riskpoints.js"""
     with open(DATA_FILE, encoding="utf-8") as f:
         geojson = json.load(f)
     points = []
@@ -88,7 +60,6 @@ POINTS_BY_ID = {p["id"]: p for p in POINTS}
 
 
 # ---------- ระยะทาง (port จาก js/distance.js) ----------
-
 def haversine_meters(lat1, lon1, lat2, lon2):
     d_lat = radians(lat2 - lat1)
     d_lon = radians(lon2 - lon1)
@@ -105,6 +76,35 @@ def in_bounding_box(user_lat, user_lon, point_lat, point_lon, radius_m):
     return abs(point_lat - user_lat) <= d_lat and abs(point_lon - user_lon) <= d_lon
 
 
+def bearing_degrees(lat1, lon1, lat2, lon2):
+    """ทิศจากจุดหนึ่งไปอีกจุด 0-360 องศา (0 = เหนือ, 90 = ตะวันออก)"""
+    phi1, phi2 = radians(lat1), radians(lat2)
+    d_lon = radians(lon2 - lon1)
+    y = sin(d_lon) * cos(phi2)
+    x = cos(phi1) * sin(phi2) - sin(phi1) * cos(phi2) * cos(d_lon)
+    return (degrees(atan2(y, x)) + 360) % 360
+
+
+def angle_diff_degrees(a, b):
+    """ผลต่างสองมุมเอาทางที่สั้นกว่า 0-180 (350 กับ 10 ต่างกัน 20 ไม่ใช่ 340)"""
+    d = abs(a - b) % 360
+    return 360 - d if d > 180 else d
+
+
+# ระยะที่ใกล้เกินกว่าจะเชื่อทิศ — ต่ำกว่านี้ให้ผ่านเสมอ ไม่ต้องกรอง
+HEADING_NEAR_BYPASS_M = 30
+
+
+def is_ahead(heading_deg, user_lat, user_lng, point_lat, point_lng, cone_deg):
+    """จุดนี้อยู่ข้างหน้ารถไหม — ไม่รู้ทิศ / cone >= 180 / ใกล้มาก = ถือว่าใช่เสมอ"""
+    if heading_deg is None or cone_deg >= 180:
+        return True
+    if haversine_meters(user_lat, user_lng, point_lat, point_lng) <= HEADING_NEAR_BYPASS_M:
+        return True
+    return angle_diff_degrees(heading_deg, bearing_degrees(user_lat, user_lng,
+                                                           point_lat, point_lng)) <= cone_deg
+
+
 def find_nearby(user_lat, user_lon, radius_m):
     nearby = []
     for p in POINTS:
@@ -118,17 +118,12 @@ def find_nearby(user_lat, user_lon, radius_m):
 
 
 # ---------- กติกา Dynamic Alert (port จาก js/riskrules.js) ----------
-# แต่ละกติกา: (id, เงื่อนไข, สาเหตุ, คำแนะนำ) เรียงตามความสำคัญ —
-# ข้อความเสียงหยิบข้อแรกที่เข้าเงื่อนไข
-
 RULES = [
     (
         "fatal-history",
         lambda p: p.get("deaths", 0) >= 1,
         lambda p: f"จุดนี้เคยมีผู้เสียชีวิต {p['deaths']} ราย",
         # "เป็นพิเศษ" สงวนไว้ให้ระดับสูงเท่านั้น ไม่งั้นคำเตือนสองระดับฟังเหมือนกันเป๊ะ
-        # 2026-08-25: ตัด "ลดความเร็ว" ออกตามที่ผู้ใช้ขอ ใช้ "เพิ่มสมาธิในการขับขี่"
-        # แทน — single-vehicle/rollover ก็ใช้ประโยคเดียวกันนี้ด้วย (ดูด้านล่าง)
         lambda p: (
             "ใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ"
             if p["level"] == "high"
@@ -216,11 +211,7 @@ def evaluate_rules(point):
 
 
 def build_alert_message(point, distance_m):
-    """ข้อความเตือนภาษาไทย (แบบเดียวกับ riskrules.buildAlertMessage) พร้อมให้ TTS พูด
-
-    ต้องแก้คู่กับ js/riskrules.js เสมอ — ข้อความไม่ตรงกันแล้ว VOICE_CLIPS ใน
-    js/tts.js และ device/pi_alert_client.py จะ match ไม่ติด ตกไปใช้ TTS สดทุกครั้ง
-    """
+    """ข้อความเตือนภาษาไทย (แบบเดียวกับ riskrules.buildAlertMessage) พร้อมให้ TTS พูด"""
     dist = round(distance_m / 50) * 50
     matched = evaluate_rules(point)
     top = matched[0] if matched else None
@@ -235,7 +226,6 @@ def build_alert_message(point, distance_m):
 
 
 # ---------- Endpoints ----------
-
 @app.get("/api/health")
 def health():
     """ใช้ตรวจว่าเซิร์ฟเวอร์กำลังแจกข้อมูลชุดไหน/รอบคำนวณอะไร หลัง build ข้อมูลใหม่"""
@@ -270,20 +260,38 @@ def nearby_risk_points(
     lng: float = Query(..., ge=-180, le=180, description="ลองจิจูดของอุปกรณ์"),
     radius: float = Query(600, gt=0, le=20000, description="รัศมีค้นหา (เมตร)"),
     limit: int = Query(10, ge=1, le=100, description="จำนวนจุดสูงสุดที่ตอบกลับ"),
+    heading: float | None = Query(
+        None, ge=0, lt=360,
+        description="ทิศที่รถกำลังมุ่งหน้า (COG องศา อ้าง true north) — ไม่ใส่ = ไม่กรองทิศ"),
+    cone_deg: float = Query(
+        90, gt=0, le=180,
+        description="มุมที่ถือว่าอยู่ข้างหน้า นับจาก heading ไปทางละเท่านี้ (180 = ปิดการกรอง)"),
 ):
     """จุดเสี่ยงในรัศมี เรียงใกล้ -> ไกล พร้อม distance_m และ alert_message ให้อุปกรณ์พูดได้ทันที"""
-    nearby = find_nearby(lat, lng, radius)[:limit]
+    nearby = find_nearby(lat, lng, radius)
+    if heading is not None and cone_deg < 180:
+        nearby = [(p, d) for p, d in nearby
+                  if is_ahead(heading, lat, lng, p["lat"], p["lng"], cone_deg)]
+    nearby = nearby[:limit]
+
+    def with_angles(p, d):
+        item = {
+            **p,
+            "distance_m": round(d, 1),
+            "risk_factors": evaluate_rules(p),
+            "alert_message": build_alert_message(p, d),
+        }
+        if heading is not None:
+            bearing = bearing_degrees(lat, lng, p["lat"], p["lng"])
+            item["bearing_deg"] = round(bearing, 1)
+            item["angle_off_deg"] = round(angle_diff_degrees(heading, bearing), 1)
+        return item
+
     return {
         "count": len(nearby),
-        "points": [
-            {
-                **p,
-                "distance_m": round(d, 1),
-                "risk_factors": evaluate_rules(p),
-                "alert_message": build_alert_message(p, d),
-            }
-            for p, d in nearby
-        ],
+        "heading": heading,
+        "cone_deg": cone_deg if heading is not None else None,
+        "points": [with_angles(p, d) for p, d in nearby],
     }
 
 
@@ -296,8 +304,6 @@ def get_risk_point(point_id: str):
 
 
 # ---------- TTS proxy (Botnoi Voice) ----------
-# เบราว์เซอร์เรียกตรงไป Botnoi ไม่ได้ (CORS + ต้องซ่อน token) จึงผ่านเซิร์ฟเวอร์นี้แทน
-
 def _fetch_botnoi_audio(text: str, speaker: str) -> bytes | None:
     """เรียก Botnoi สร้างเสียง คืน bytes ของ mp3 / None ถ้าล้มเหลว (ให้ frontend fallback)"""
     body = json.dumps(
@@ -367,46 +373,31 @@ def tts(
 
 
 # ---------- ตำแหน่งเรียลไทม์ของอุปกรณ์ (Raspberry Pi + GPS BE-609U) ----------
-# Pi ยิง POST เข้ามาทุกรอบโพล (3 วิ) เว็บดึง GET ไปวาดหมุดบนแผนที่
-#
-# เก็บไว้ในตัวแปรในหน่วยความจำ ไม่ลง DB เพราะ:
-#   - เก็บแค่ "ตำแหน่งล่าสุด" จุดเดียว ไม่ต้องการประวัติย้อนหลัง
-#   - รีสตาร์ตเซิร์ฟเวอร์แล้วหายไม่เป็นไร Pi ส่งใหม่ภายใน 3 วิอยู่แล้ว
-# ถ้าต่อไปอยากได้เส้นทางย้อนหลัง ค่อยเปลี่ยนเป็น deque หรือ SQLite ตรงนี้จุดเดียว
-_DEVICE_STALE_AFTER_S = 15  # เกินนี้ = ถือว่าอุปกรณ์หลุด (Pi ส่งทุก 3 วิ เผื่อพลาด 4 รอบ)
+_DEVICE_STALE_AFTER_S = 15
 
 # เกินนี้ = ลืมพิกัดไปเลย ไม่ใช่แค่ทำเป็นสีจาง
-# ระหว่าง 15 วิ ถึง 10 นาที ยังแสดงหมุดไว้เพราะมีประโยชน์ — บอกได้ว่า 'เห็นครั้งสุดท้ายตรงนี้'
-# ตอนรถวิ่งเข้าอุโมงค์หรือสัญญาณตกชั่วคราว
-# แต่เกิน 10 นาทีข้อมูลไม่มีประโยชน์แล้ว มีแต่โทษ: เคยเกิดจริงตอนพิกัดค้างจากการรัน
-# โหมดจำลอง (--route) ค้างอยู่ 38 นาที แล้วไปโผล่บนแผนที่สนามทดสอบคนละจังหวัด
-# ซึ่งถ้าเป็นตอนสาธิตหน้ากรรมการจะอธิบายยากมาก
 _DEVICE_FORGET_AFTER_S = 600
 
 _device_location: dict = {
     "lat": None,
     "lng": None,
     "speed_kmh": None,
+    "heading": None,
     "satellites": None,
     "source": None,      # "serial" / "gpsd" / "route" / "fixed" — บอกว่าเป็น GPS จริงหรือโหมดจำลอง
     "updated_at": None,  # epoch seconds ที่ได้ "พิกัด" ล่าสุด
     # เวลาที่ Pi ติดต่อเข้ามาล่าสุด ไม่ว่าจะมีพิกัดหรือไม่ — แยกจาก updated_at เพราะ
-    # ระหว่างที่ GPS ยังจับดาวไม่ได้ Pi ทำงานอยู่แต่ไม่มีพิกัดจะส่ง ถ้าดูแค่ updated_at
-    # จะแยกไม่ออกระหว่าง "เครื่องดับ" กับ "เครื่องทำงานอยู่ กำลังหาดาว" ซึ่งวิธีแก้ต่างกันมาก
-    # (เสียเที่ยวทดสอบไปแล้ว 1 รอบเพราะแยกสองอย่างนี้ไม่ออก — 2026-08-27)
     "seen_at": None,
 }
 
 
 class DeviceLocation(BaseModel):
-    """สถานะที่ Pi ส่งขึ้นมา — lat/lng เว้นว่างได้เมื่อยังจับดาวไม่ได้
-
-    ยอมให้ lat/lng เป็น null เพื่อให้ Pi รายงานได้ว่า "ยังทำงานอยู่นะ แค่ยังไม่มีพิกัด"
-    เว็บจะได้แสดง "กำลังค้นหาสัญญาณ · เห็นดาว N ดวง" แทนที่จะเงียบเหมือนเครื่องดับ
-    """
+    """สถานะที่ Pi ส่งขึ้นมา — lat/lng เว้นว่างได้เมื่อยังจับดาวไม่ได้"""
     lat: float | None = Field(None, ge=-90, le=90)
     lng: float | None = Field(None, ge=-180, le=180)
     speed_kmh: float | None = Field(None, ge=0, le=300)
+    # ทิศที่รถมุ่งหน้า (COG องศา) — null ได้เมื่อยังไม่รู้ทิศ (รถเพิ่งออก/จอดนาน)
+    heading: float | None = Field(None, ge=0, lt=360)
     satellites: int | None = Field(None, ge=0, le=64)
     source: str | None = Field(None, max_length=20)
 
@@ -416,25 +407,19 @@ def update_device_location(loc: DeviceLocation):
     """รับสถานะล่าสุดจาก Raspberry Pi (เขียนทับของเดิมเสมอ)"""
     now = time.time()
     # จำนวนดาว/แหล่งพิกัด อัปเดตทุกครั้ง เพราะเป็นข้อมูลของ "ตัวรับ" ไม่ใช่ของพิกัด
-    # ตัวเลขดาวที่ขยับระหว่างยังไม่ได้พิกัดคือสิ่งที่บอกว่ากำลังคืบหน้าหรือค้างสนิท
     _device_location.update(satellites=loc.satellites, source=loc.source, seen_at=now)
     # ไม่มีพิกัดก็ไม่แตะพิกัดเดิม — ของเก่ายังมีประโยชน์ตอนสัญญาณตกชั่วคราว
-    # (บอกได้ว่า "เห็นครั้งสุดท้ายตรงนี้") และมี _DEVICE_FORGET_AFTER_S คุมอายุอยู่แล้ว
     if loc.lat is not None and loc.lng is not None:
         _device_location.update(
-            lat=loc.lat, lng=loc.lng, speed_kmh=loc.speed_kmh, updated_at=now,
+            lat=loc.lat, lng=loc.lng, speed_kmh=loc.speed_kmh,
+            heading=loc.heading, updated_at=now,
         )
     return {"ok": True}
 
 
 @app.get("/api/device/location")
 def get_device_location():
-    """พิกัดล่าสุดของอุปกรณ์ + อายุของข้อมูล ให้เว็บรู้ว่ายังออนไลน์อยู่ไหม
-
-    online=False ได้ 2 กรณี: ยังไม่เคยมี Pi ส่งเข้ามาเลย (updated_at=None)
-    หรือส่งครั้งสุดท้ายนานเกิน _DEVICE_STALE_AFTER_S (Pi ดับ/เน็ตหลุด/GPS ไม่จับดาว)
-    เว็บใช้ค่านี้ตัดสินใจว่าจะแสดงหมุดแบบจางหรือซ่อนไปเลย
-    """
+    """พิกัดล่าสุดของอุปกรณ์ + อายุของข้อมูล ให้เว็บรู้ว่ายังออนไลน์อยู่ไหม"""
     now = time.time()
     updated_at = _device_location["updated_at"]
     seen_at = _device_location["seen_at"]
@@ -448,14 +433,9 @@ def get_device_location():
     searching = device_up and not online
 
     # เก่าเกินกำหนด -> ตอบเหมือนยังไม่เคยมีอุปกรณ์ส่งอะไรมาเลย ให้หมุดหายไปจากแผนที่
-    # ไม่ลบ _device_location ทิ้งจริง ๆ เพราะถ้า Pi กลับมาส่งใหม่ค่าจะถูกเขียนทับอยู่แล้ว
-    # และการอ่านอย่างเดียวไม่ควรมีผลข้างเคียง (ผู้ใช้เปิดหลายเครื่องพร้อมกันได้)
-    #
-    # ยังคง satellites/searching ไว้ตรงนี้ด้วย เพราะกรณีที่พบบ่อยที่สุดคือเพิ่งเปิดเครื่อง
-    # กลางแจ้ง: ไม่เคยมีพิกัดเลย (หรือของเก่าหมดอายุ) แต่ตัวรับกำลังไล่จับดาวอยู่จริง ๆ
     if age_s is not None and age_s > _DEVICE_FORGET_AFTER_S:
         return {
-            "lat": None, "lng": None, "speed_kmh": None,
+            "lat": None, "lng": None, "speed_kmh": None, "heading": None,
             "satellites": _device_location["satellites"] if device_up else None,
             "source": None, "updated_at": None, "age_s": None, "online": False,
             "searching": searching, "seen_age_s": seen_age_s,
@@ -474,5 +454,4 @@ def get_device_location():
 
 
 # เสิร์ฟหน้าเว็บเดิม (index.html, dashboard.html, js/, css/, data/) จากรากโปรเจกต์
-# ต้อง mount ท้ายสุดเพื่อไม่ให้ทับเส้นทาง /api ด้านบน
 app.mount("/", StaticFiles(directory=PROJECT_ROOT, html=True), name="static")

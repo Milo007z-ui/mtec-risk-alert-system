@@ -1,7 +1,4 @@
-/**
- * gps.js — ติดตามตำแหน่งผู้ใช้แบบเรียลไทม์
- * รองรับโหมดจำลอง (?mock=1) สำหรับทดสอบโดยไม่ต้องออกไปข้างนอกจริง
- */
+/** gps.js — ติดตามตำแหน่งผู้ใช้แบบเรียลไทม์ */
 
 const GPS = (() => {
   let watchId = null;
@@ -9,20 +6,12 @@ const GPS = (() => {
   let plannedRoute = null; // เส้นทางจำลอง (memoized) — [{lat,lng}] รวมจุดตั้งต้น/สิ้นสุด
 
   // เส้นทางถนนจริง (สร้างจาก OSRM) ให้รถวิ่งตามเลนถนนตลอด ไม่ตัดข้ามอาคาร
-  // วิ่งบนถนน "แยกสาครเกษม - คลองมะเดื่อ" (สมุทรสาคร ~6.2 กม.) ทิศทางเดียวไม่สวนเลน
-  // ผ่านคลัสเตอร์ 7 วงในรัศมีเตือน ครบทั้งสามระดับ: ต่ำ -> ปานกลาง -> สูง (zone_455)
-  // เส้นทางเดิม "บางปะอิน - แขวงรามอินทรา" เก็บไว้ที่ data/mock_route_bangpain.geojson
-  // (เส้นนั้นเหลือแค่ระดับต่ำกับปานกลางหลังเปลี่ยนมาใช้ชุดข้อมูล 3 ปี)
-  // หน้าเว็บตั้ง window.MOCK_ROUTE_URL ไว้ก่อนโหลดสคริปต์นี้ได้ เพื่อเลือกเส้นทางจำลองอื่น
-  // (test-nstda.html ใช้ data/mock_route_nstda.geojson วนรอบอุทยานวิทยาศาสตร์ฯ)
   const MOCK_ROUTE_URL = window.MOCK_ROUTE_URL || "data/mock_route.geojson";
 
   // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยคลัสเตอร์เป็นเส้นตรงแทน
-  // (id ตามรอบ calibration v2569-r1-3y — เรียงตามลำดับบนถนน)
   const MOCK_ROUTE_IDS = ["zone_431", "zone_440", "zone_455"];
 
   // คลัสเตอร์ที่ "ยกเว้นเฉพาะโหมดจำลอง" — ใส่ id วงที่อยู่คนละฝั่งเลน/แรมป์ ที่รถไม่ได้ขับผ่านจริง
-  // (รอบ v2568-r10 ยังไม่พบวงที่ต้องยกเว้น)
   const MOCK_EXCLUDE_IDS = [];
 
   const ERROR_MESSAGES = {
@@ -40,10 +29,7 @@ const GPS = (() => {
     return v === null ? def : v;
   }
 
-  /**
-   * เริ่มติดตามตำแหน่ง
-   * onUpdate(lat, lng, accuracyM), onError(messageThai)
-   */
+  /** เริ่มติดตามตำแหน่ง */
   function start(onUpdate, onError) {
     if (isMockMode()) {
       startMock(onUpdate);
@@ -54,7 +40,12 @@ const GPS = (() => {
       return;
     }
     watchId = navigator.geolocation.watchPosition(
-      (pos) => onUpdate(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+      (pos) => {
+        const c = pos.coords;
+        // coords.speed เป็น m/s และเป็น null ได้บ่อย (โน้ตบุ๊ก/Android บางรุ่น)
+        const speedKmh = c.speed === null || c.speed === undefined ? null : c.speed * 3.6;
+        onUpdate(c.latitude, c.longitude, c.accuracy, c.heading ?? null, speedKmh);
+      },
       (err) => onError(ERROR_MESSAGES[err.code] || `เกิดข้อผิดพลาด: ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
     );
@@ -74,10 +65,7 @@ const GPS = (() => {
     return wps.length >= 2 ? wps : autoChain(all);
   }
 
-  /**
-   * ต่อเส้นทางอัตโนมัติแบบ nearest-neighbor เผื่อชุดจุดที่กำหนดไว้ไม่มีในข้อมูล
-   * เริ่มจากจุด high จุดแรก แล้วไล่ไปจุดใกล้สุดที่ยังไปในทิศทางเดิม (กันวกไปมา)
-   */
+  /** ต่อเส้นทางอัตโนมัติแบบ nearest-neighbor เผื่อชุดจุดที่กำหนดไว้ไม่มีในข้อมูล */
   function autoChain(all, N = 4, maxHopM = 5000) {
     const seed = all.find((p) => p.level === "high") || all[0];
     if (!seed) return [];
@@ -121,10 +109,7 @@ const GPS = (() => {
     return { lat: from.lat + mLat / 111320, lng: from.lng + mLng / (111320 * cos) };
   }
 
-  /**
-   * โหลดเส้นทางถนนจริงจากไฟล์ GeoJSON (LineString) มาเป็นเส้นทางจำลอง
-   * เรียกครั้งเดียวตอนเริ่มแอป (มีผลเฉพาะโหมดจำลอง) — ถ้าล้มเหลวเงียบๆ แล้วใช้ fallback
-   */
+  /** โหลดเส้นทางถนนจริงจากไฟล์ GeoJSON (LineString) มาเป็นเส้นทางจำลอง */
   async function prepare() {
     if (!isMockMode() || plannedRoute) return;
     try {
@@ -156,11 +141,7 @@ const GPS = (() => {
     return plannedRoute;
   }
 
-  /**
-   * ระยะทางที่วิ่งได้ ณ วินาทีที่ t — ออกตัวและเบรกจริงแบบรถยนต์ ไม่ใช่ความเร็วคงที่ทันที
-   * ช่วงออกตัวเร่งด้วย ACCEL_MS2 จนถึงความเร็วเดินทาง แล้วคงที่ และชะลอลงก่อนถึงปลายทาง
-   * (ทำให้หมุดไม่กระโดดจากนิ่งเป็นความเร็วเต็มในเฟรมเดียว ดูเป็นการขับจริง)
-   */
+  /** ระยะทางที่วิ่งได้ ณ วินาทีที่ t — ออกตัวและเบรกจริงแบบรถยนต์ ไม่ใช่ความเร็วคงที่ทันที */
   function distanceAtTime(t, cruise, accel, total) {
     const rampS = cruise / accel; // เวลาที่ใช้เร่ง/เบรก
     const rampM = (cruise * cruise) / (2 * accel); // ระยะที่ใช้เร่ง/เบรก
@@ -178,11 +159,7 @@ const GPS = (() => {
     return total - rampM + cruise * td - 0.5 * accel * td * td;
   }
 
-  /**
-   * โหมดจำลอง: ขับตามเส้นทางถนนจริงด้วยความเร็วสมจริง
-   * ค่าเริ่มต้น 80 กม./ชม. (เท่าเพดานความเร็วที่โมเดลใช้กับสายทางประเภทนี้)
-   * ปรับได้ด้วย ?kmh=<ความเร็ว> เช่น ?kmh=100 ขับเร็วขึ้น หรือ ?kmh=40 ดูจังหวะเตือนแบบช้าๆ
-   */
+  /** โหมดจำลอง: ขับตามเส้นทางถนนจริงด้วยความเร็วสมจริง */
   function startMock(onUpdate) {
     const verts = getMockRoute();
     if (verts.length < 2) return;
@@ -207,13 +184,20 @@ const GPS = (() => {
         ` (ปรับด้วย ?kmh=)`
     );
 
+    // ทิศของแต่ละเซกเมนต์ = COG ที่ตัวรับจริงจะรายงานตอนวิ่งอยู่ช่วงนั้น
+    const segCourse = [];
+    for (let i = 0; i < verts.length - 1; i++) {
+      segCourse.push(bearingDegrees(verts[i].lat, verts[i].lng, verts[i + 1].lat, verts[i + 1].lng));
+    }
+
     const startedAt = performance.now();
-    onUpdate(verts[0].lat, verts[0].lng, 8);
+    onUpdate(verts[0].lat, verts[0].lng, 8, segCourse[0], 0);
     mockTimer = setInterval(() => {
       const elapsedS = (performance.now() - startedAt) / 1000;
       let dist = distanceAtTime(elapsedS, cruise, ACCEL_MS2, total);
       if (dist >= total) {
-        onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8);
+        onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8,
+                 segCourse[segCourse.length - 1], 0);
         clearInterval(mockTimer);
         mockTimer = null;
         console.log("[MOCK] จบเส้นทางจำลอง");
@@ -227,7 +211,11 @@ const GPS = (() => {
       const t = seg[i] ? dist / seg[i] : 0;
       const lat = verts[i].lat + (verts[i + 1].lat - verts[i].lat) * t;
       const lng = verts[i].lng + (verts[i + 1].lng - verts[i].lng) * t;
-      onUpdate(lat, lng, 6 + Math.random() * 6); // ความแม่นยำแกว่งเล็กน้อยให้เหมือนจริง
+      // ความเร็ว ณ วินาทีนั้น (หาจากระยะที่วิ่งได้ในช่วง 1 วิ) — ให้ speed gate ของ
+      const dNext = distanceAtTime(elapsedS + 1, cruise, ACCEL_MS2, total);
+      const speedKmh = Math.max(0, dNext - distanceAtTime(elapsedS, cruise, ACCEL_MS2, total)) * 3.6;
+      // ความแม่นยำแกว่งเล็กน้อยให้เหมือนจริง
+      onUpdate(lat, lng, 6 + Math.random() * 6, segCourse[i], speedKmh);
     }, TICK_MS);
   }
 

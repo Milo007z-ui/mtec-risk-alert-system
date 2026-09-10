@@ -1,57 +1,29 @@
-/**
- * alert.js — ตรวจจับการเข้าใกล้จุดเสี่ยงและแจ้งเตือน (เสียง + ภาพ)
- *
- * กติกา cooldown ต่อจุด:
- *  - เตือนครั้งแรกเมื่อเข้ามาในรัศมี ALERT_RADIUS_M
- *  - จะเตือนจุดเดิมซ้ำได้ต่อเมื่อ (ก) ออกไปไกลกว่า EXIT_RADIUS_M แล้วกลับเข้ามาใหม่
- *    หรือ (ข) ยังวนอยู่ในรัศมีนานเกิน REALERT_MS
- *
- * กติกากันพูดทับ: ระหว่างที่ยังเตือนจุดหนึ่งค้างอยู่ จุดถัดไปจะรอให้พูดจบก่อน
- * ยกเว้นจุดที่ระดับสูงกว่าเดิม ให้ตัดเข้าแทนได้ทันที (ของเร่งด่วนกว่าต้องได้ยินก่อน)
- *
- * กติกาทิศทาง (ปัจจุบัน "ปิด" อยู่ — เตือนทุกทิศรอบตัว): เปิดด้วย ?heading=90 บน URL
- * จะเตือนเฉพาะจุดในมุม +-90 องศาจากทิศที่รถมุ่งหน้า ตัดจุดที่ขับผ่านไปแล้วออก
- * ปิดไว้ก่อนเพื่อให้เห็นทุกจุดที่เข้ารัศมี ใช้เป็นฐานเทียบว่าระบบเตือนครบไหม
- * ข้อจำกัดที่ต้องรู้ก่อนเปิด: แยกได้แค่ข้างหน้า/ข้างหลัง ไม่ได้แยกเลนขาขึ้น-ขาล่อง
- */
+/** alert.js — ตรวจจับการเข้าใกล้จุดเสี่ยงและแจ้งเตือน (เสียง + ภาพ) */
 
 const AlertSystem = (() => {
   // หน้าเว็บตั้ง window.ALERT_RADIUS_M / window.EXIT_RADIUS_M ไว้ก่อนโหลดสคริปต์นี้ได้
-  // เพื่อย่อรัศมีสำหรับสนามทดสอบเล็ก ๆ (test-nstda.html ใช้ 120/150 ม. เพราะถนนวงรอบ
-  // อุทยานวิทย์ฯ ยาวแค่ 1.4 กม. ถ้าใช้ 500 ม. ทั้งสามจุดจะร้องพร้อมกันตั้งแต่ยังไม่ออกรถ)
-  // ค่า default ต้องเป็น 500/600 เสมอ — เป็นระยะที่ใช้จริงบนถนนนอกพื้นที่
   const ALERT_RADIUS_M = window.ALERT_RADIUS_M || 500;
   const EXIT_RADIUS_M = window.EXIT_RADIUS_M || 600; // hysteresis กันเด้งเข้าออกตรงขอบรัศมี
   const REALERT_MS = 5 * 60 * 1000;
 
+  // id จุดเสี่ยง -> ระยะต่ำสุดที่เคยวัดได้ ใช้ดูว่าขับผ่านจุดไปแล้วหรือยัง
+  const closestSeen = new Map();
+
+  // ความเร็วรถ ใช้เลือกระยะเริ่ม beep — Geolocation API ไม่ได้ส่ง coords.speed มาที่นี่
+  const speedTracker = createSpeedTracker(15);
+  let lastMovingSpeedKmh = null; // ความเร็วล่าสุดตอนที่รถยังเคลื่อนที่จริง
+
   // มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้)
-  //
-  // 180 = ปิดการกรองทิศ เตือนทุกทิศรอบตัว (ผู้ใช้เลือกกลับมาใช้แบบนี้ 2026-08-28
-  // ก่อนออกทดสอบภาคสนามบนถนนจริงชุด 456 คลัสเตอร์ รัศมี 500 ม.)
-  //
-  // เหตุผลที่ปิดก่อน: ยังไม่เคยมีการทดสอบบนถนนจริงสำเร็จสักครั้ง จึงยังไม่มีข้อมูลว่า
-  // การกรองทิศทำงานถูกต้องแค่ไหนกับ GPS จริงที่มีความคลาดเคลื่อน — ถ้าเปิดไว้แล้ว
-  // ระบบเงียบตอนควรเตือน จะแยกไม่ออกว่าเป็นเพราะตัวกรอง หรือเพราะจุดเสี่ยง/พิกัดผิด
-  // ปิดไว้ก่อนทำให้เห็นทุกจุดที่เข้ารัศมี ใช้เป็นฐานเทียบได้ว่าระบบเตือนครบไหม
-  //
-  // โค้ดกับเทสยังอยู่ครบ (bearingDegrees / isAhead / HeadingTracker) เปิดกลับได้ทันที
-  // โดยไม่ต้องเขียนใหม่ ตั้งเป็น 90 เพื่อตัดจุดที่ขับผ่านไปแล้วออก — วัดกับเส้นทางจำลอง
-  // แล้วลดการเตือนซ้ำซ้อน 41% (สมุทรสาคร 500 ม.) และ 9% (สนามทดสอบ สวทช. 60 ม.)
-  // โดยไม่พลาดจุดเสี่ยงใดเลยทั้งสองเส้นทาง
-  //
-  // ข้อจำกัดที่ต้องรู้ก่อนเปิดกลับ: แยกได้แค่ข้างหน้า/ข้างหลัง ไม่ได้แยกเลนขาขึ้น-ขาล่อง
-  // เลนสวนที่อยู่ข้างหน้า 100 ม. เบนจากทิศรถแค่ 8.5 องศา ซึ่งน้อยกว่าความคลาดเคลื่อน
-  // ของ GPS เอง (5-15 ม.) จะแยกเลนได้ต้องทำ map matching กับ OSM
-  //
-  // ลองเปิดสดหน้างานได้ด้วย ?heading=90 บน URL ไม่ต้องแก้โค้ด
-  // ** ถ้าเปิดถาวร ต้องตั้งให้ตรงกับ DEFAULT_HEADING_WINDOW_DEG ใน device/pi_alert_client.py **
   const HEADING_WINDOW_DEG = (() => {
     const q = Number(new URLSearchParams(location.search).get("heading"));
-    return Number.isFinite(q) && q > 0 ? q : window.HEADING_WINDOW_DEG || 180;
+    return Number.isFinite(q) && q > 0 ? q : window.HEADING_WINDOW_DEG || FRONT_CONE_DEG;
   })();
 
-  // ต้องขยับอย่างน้อย 15 ม. ถึงจะเชื่อทิศ — กัน GPS แกว่งตอนรถจอดทำให้ทิศสุ่มไปมา
+  // ทิศหลัก: COG จากตัวรับ GPS (คำนวณจากเวกเตอร์ความเร็ว ไม่ใช่ผลต่างพิกัด)
+  const course = createCourseTracker();
+  // ทิศสำรอง: ประมาณจากพิกัดที่ขยับไป ใช้เมื่อเครื่องไม่ให้ coords.heading (พบบ่อยบน
   const heading = createHeadingTracker(15);
+  let headingSource = null; // "COG" / "พิกัด" / null — ใช้ใน log และหมุนหมุด
 
   const LEVEL_RANK = { low: 1, medium: 2, high: 3 };
 
@@ -59,12 +31,10 @@ const AlertSystem = (() => {
   const alerted = new Map();
 
   // ระดับของเสียงเตือนที่กำลังเล่นอยู่ (null = ว่าง พร้อมเตือนจุดใหม่)
-  // speakSeq กันชุดเสียงเก่าที่ถูกตัดกลางคัน มาปลดล็อกทับชุดใหม่ที่กำลังพูดอยู่
   let speakingLevel = null;
   let speakSeq = 0;
 
   // ข้อความเตือน (สาเหตุ + คำแนะนำ) สร้างโดยกติกา Dynamic Alert ใน riskrules.js
-
   function showBanner(text, level) {
     const banner = document.getElementById("alert-banner");
     banner.textContent = text;
@@ -75,9 +45,19 @@ const AlertSystem = (() => {
   }
 
   /** เรียกทุกครั้งที่ตำแหน่ง GPS อัปเดต */
-  function onPositionUpdate(lat, lng) {
+  function onPositionUpdate(lat, lng, courseDeg = null, gpsSpeedKmh = null) {
     const now = Date.now();
-    const headingDeg = heading.update(lat, lng);
+
+    // ความเร็วสำหรับ speed gate ของ COG — ใช้ค่าจาก GPS ก่อน ถ้าไม่มีค่อยประมาณจากพิกัด
+    const measuredSpeed = speedTracker.update(lat, lng, now);
+    const speedForGate = gpsSpeedKmh !== null && gpsSpeedKmh !== undefined
+      ? gpsSpeedKmh
+      : measuredSpeed;
+
+    const cogDeg = course.update(courseDeg, speedForGate, now);
+    const fallbackDeg = heading.update(lat, lng);
+    const headingDeg = cogDeg !== null ? cogDeg : fallbackDeg;
+    headingSource = cogDeg !== null ? "COG" : (fallbackDeg !== null ? "พิกัด" : null);
     // visible() = จุดที่ผ่านตัวกรองบนแผนที่ — เตือนเฉพาะสิ่งที่ผู้ใช้เลือกดูอยู่
     const nearby = findNearbyPoints(lat, lng, RiskPoints.visible(), EXIT_RADIUS_M);
     const nearbyIds = new Set(nearby.map((n) => n.point.id));
@@ -86,25 +66,37 @@ const AlertSystem = (() => {
     for (const id of alerted.keys()) {
       if (!nearbyIds.has(id)) alerted.delete(id);
     }
+    for (const id of closestSeen.keys()) {
+      if (!nearbyIds.has(id)) closestSeen.delete(id);
+    }
+
+    // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
+    const ahead = nearby.filter(({ point }) =>
+      isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)
+    );
+
+    // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
+    if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
+      lastMovingSpeedKmh = speedForGate;
+    }
+
+    // beep บอกระยะ — คิดแยกจาก cooldown ของเสียงพูด อัปเดตทุกรอบจนกว่าจะขับผ่านไป
+    TTS.setBeepPattern(beepPatternFor(ahead, closestSeen, lastMovingSpeedKmh));
 
     // เตือนเฉพาะจุดที่ใกล้ที่สุดที่เข้าเงื่อนไข (กันพูดรัวเมื่อหลายจุดติดกัน)
-    for (const { point, distance } of nearby) {
+    for (const { point, distance } of ahead) {
       if (distance > ALERT_RADIUS_M) continue;
-      // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
-      if (!isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)) continue;
       const state = alerted.get(point.id);
       if (state && now - state.lastAlertAt < REALERT_MS) continue;
 
       // ยังพูดจุดก่อนหน้าไม่จบ — รอก่อน เว้นแต่จุดนี้ระดับสูงกว่า จึงตัดเข้าแทนได้
-      // (ไม่บันทึกลง alerted จึงกลับมาเตือนได้เองในรอบถัดไปเมื่อเสียงว่าง)
       if (speakingLevel && LEVEL_RANK[point.level] <= LEVEL_RANK[speakingLevel]) break;
 
       alerted.set(point.id, { lastAlertAt: now });
       // log ไว้ตรวจลำดับการเตือน: บอกจุดที่เตือน + จุดอื่นที่อยู่ในระยะขณะนั้น
-      // (ถ้าเห็นว่าเตือนจุดไกลก่อนจุดใกล้ ให้ดูบรรทัดนี้ว่าจุดใกล้ถูกเตือนไปแล้วหรือยัง)
       console.log(
         `[ALERT] ${point.level} ${point.id} ที่ ${distance.toFixed(0)} ม. | ` +
-          `ทิศรถ ${headingDeg === null ? "ยังไม่รู้" : headingDeg.toFixed(0) + "°"} ` +
+          `ทิศรถ ${headingDeg === null ? "ยังไม่รู้" : `${headingDeg.toFixed(0)}° (${headingSource})`} ` +
           `(กรอง ±${HEADING_WINDOW_DEG}°) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
           nearby
             .map((n) => `${n.point.id} ${n.distance.toFixed(0)}ม.${alerted.has(n.point.id) ? "*" : ""}`)
@@ -113,13 +105,11 @@ const AlertSystem = (() => {
       );
       const msg = RiskRules.buildAlertMessage(point, distance);
       showBanner("🔊 " + msg, point.level);
-      // เสียงเตือนนำตามระดับความเสี่ยงก่อน แล้วค่อยพูดข้อความ (Botnoi -> Google -> Web Speech)
-      // ถ้าทุกชั้นล้มเหลวค่อยเปลี่ยนไอคอนเป็นเตือนภาพ
+      // beep นำสองครั้งก่อน แล้วค่อยพูดข้อความ (Botnoi -> Google -> Web Speech)
       speakingLevel = point.level;
       const seq = ++speakSeq;
-      TTS.playChime(point.level)
-        // ถ้าระหว่างเล่นเสียงนำมีจุดที่เร่งด่วนกว่าตัดเข้ามา ให้ทิ้งประโยคนี้ไปเลย
-        // ไม่งั้นชุดเก่าจะพูดออกมาทับตอนเสียงนำของชุดใหม่ยังไม่จบ แล้วค่อยโดนตัดกลางคำ
+      TTS.playLeadBeep()
+        // ถ้าระหว่างเล่น beep นำมีจุดที่เร่งด่วนกว่าตัดเข้ามา ให้ทิ้งประโยคนี้ไปเลย
         .then(() => (seq === speakSeq ? TTS.speak(msg) : true))
         .then((spoken) => {
           if (!spoken) showBanner("⚠️ " + msg, point.level);
@@ -151,5 +141,12 @@ const AlertSystem = (() => {
         : "ไม่มีจุดเสี่ยงในระยะ 10 กม.";
   }
 
-  return { onPositionUpdate, ALERT_RADIUS_M, heading: () => heading.get() };
+  return {
+    onPositionUpdate,
+    ALERT_RADIUS_M,
+    HEADING_WINDOW_DEG,
+    // ทิศที่ใช้กรองอยู่จริง (null = ยังไม่รู้ทิศ = ไม่กรอง) — map.js ใช้หมุนหมุด
+    heading: () => (course.get() !== null ? course.get() : heading.get()),
+    headingSource: () => headingSource,
+  };
 })();

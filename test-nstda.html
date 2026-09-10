@@ -6,19 +6,8 @@
   <title>สนามทดสอบ GPS — อุทยานวิทยาศาสตร์ประเทศไทย (สวทช. ปทุมธานี)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=11">
-  <!--
-    หน้านี้ = หน้าทดสอบภาคสนาม ใช้โค้ดชุดเดียวกับ index.html ทุกบรรทัด
-    ต่างกันแค่ 4 ค่าที่ตั้งไว้ข้างล่างนี้ ห้ามแก้ตรรกะแยกจากหน้าหลัก
-    (ถ้าแก้ต่างกันเมื่อไร ผลทดสอบจะไม่ยืนยันพฤติกรรมของระบบจริงอีกต่อไป)
-
-    1. ชุดข้อมูล  -> จุดเสี่ยง "สมมติ" 8 จุดในอุทยานวิทยาศาสตร์ฯ ไม่ใช่สถิติ MOT
-    2. รัศมีเตือน -> 60 ม. (ปกติ 500 ม.) เพราะถนนวงรอบยาวแค่ 1.4 กม.
-                     และ 5 จุดบนถนนฝั่งตะวันตกห่างกันเพียง 71-125 ม.
-                     ลองค่าอื่นสดหน้างานได้ด้วย ?alert=40&exit=60 ไม่ต้อง deploy ใหม่
-    3. เส้นทางจำลอง -> วงรอบอุทยานฯ (ใช้กับ ?mock=1 ตอนซ้อมในห้อง)
-    4. จุดกึ่งกลางแผนที่ -> กลางอุทยานฯ ซูม 16 ไม่ต้องเลื่อนหาเอง
-  -->
+  <link rel="stylesheet" href="css/style.css?v=12">
+  <!-- หน้านี้ = หน้าทดสอบภาคสนาม ใช้โค้ดชุดเดียวกับ index.html ทุกบรรทัด ต่างกันแค่ 4 ... -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_nstda_test.geojson";
     window.MOCK_ROUTE_URL = "data/mock_route_nstda.geojson";
@@ -117,17 +106,17 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="js/distance.js?v=2"></script>
-  <script src="js/tts.js?v=11"></script>
+  <script src="js/distance.js?v=7"></script>
+  <script src="js/tts.js?v=12"></script>
   <script src="js/riskrules.js?v=11"></script>
   <script src="js/riskpoints.js?v=22"></script>
-  <!-- ไม่โหลด accidents.js: สนามทดสอบไม่มีชั้นจุดเสี่ยงรายอุบัติเหตุ (app.js/filters.js รองรับอยู่แล้ว) -->
+  <!-- ไม่โหลด accidents.js: สนามทดสอบไม่มีชั้นจุดเสี่ยงรายอุบัติเหตุ (app.js/filters.js ... -->
   <script src="js/filters.js?v=14"></script>
-  <script src="js/map.js?v=8"></script>
-  <script src="js/gps.js?v=14"></script>
+  <script src="js/map.js?v=9"></script>
+  <script src="js/gps.js?v=15"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
-  <script src="js/device.js?v=8"></script>
-  <script src="js/alert.js?v=21"></script>
-  <script src="js/app.js?v=14"></script>
+  <script src="js/device.js?v=10"></script>
+  <script src="js/alert.js?v=24"></script>
+  <script src="js/app.js?v=15"></script>
 </body>
 </html>

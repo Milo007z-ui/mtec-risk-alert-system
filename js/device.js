@@ -1,43 +1,7 @@
-/**
- * device.js — แสดงตำแหน่งเรียลไทม์ของอุปกรณ์ Raspberry Pi บนแผนที่
- *
- * ต่างจาก gps.js ตรงที่ gps.js ติดตาม "ตำแหน่งของเครื่องที่เปิดเว็บอยู่" (มือถือในมือเรา)
- * ส่วนไฟล์นี้ติดตาม "ตำแหน่งของกล่อง Raspberry Pi ที่ติดอยู่บนรถ" ซึ่งเป็นคนละเครื่องกัน
- * ทำให้เปิดมือถือดูได้ว่ารถอยู่ไหนโดยไม่ต้องนั่งอยู่บนรถคันนั้น
- *
- * ทางเดินข้อมูล:
- *   Pi (GPS BE-609U) --POST--> /api/device/location --GET--> หน้านี้ --> หมุด 🚌 บนแผนที่
- *
- * ทำงานได้ทุกหน้าและทุกโหมด (แผนที่จริง / ?mock=1 / test-nstda.html) เพราะเป็นชั้นข้อมูล
- * อิสระ ไม่ยุ่งกับ GPS.start() หรือระบบเตือน — โหมดจำลองของเว็บกับตำแหน่ง Pi จริง
- * จึงแสดงพร้อมกันได้ (หมุดน้ำเงิน = เว็บ, หมุด 🚌 = Pi)
- *
- * ปิดชั้นนี้ด้วย ?device=0 บน URL ถ้าไม่ได้เสียบอุปกรณ์แล้วไม่อยากเห็นป้าย "ออฟไลน์"
- *
- * มีสองระดับที่บอกสถานะอุปกรณ์: แถบสถานะด้านบน (บอกตลอดเวลา) กับข้อความลอยด้านล่าง
- * ที่โผล่เฉพาะ "ตอนเปลี่ยนสถานะ" — เพราะตอนขับรถไม่มีใครนั่งจ้องแถบสถานะเล็ก ๆ
- * ถ้าอุปกรณ์หลุดกลางทางแล้วไม่มีอะไรเด้ง จะรู้ตัวอีกทีตอนถึงปลายทางแล้วว่าไม่ได้เก็บข้อมูลเลย
- *
- * ลำดับการหาว่า API อยู่ที่ไหน:
- *   1. ?api=https://...        บน URL — ชนะทุกอย่าง ใช้ตอนสลับไปชี้ Pi เครื่องอื่นชั่วคราว
- *   2. window.API_BASE         ตั้งในหน้า HTML
- *   3. window.API_BASE_FALLBACK ใช้เฉพาะเมื่อหน้าเว็บมาจาก GitHub Pages หรือ file://
- *                              ซึ่งไม่มี API อยู่ข้าง ๆ (ตั้งไว้ใน index.html/test-nstda.html)
- *   4. path สัมพัทธ์            กรณีปกติ: เสิร์ฟจาก uvicorn ตัวเดียวกับ API
- * ทุกกรณีต้องเป็น https ถ้าหน้าเว็บเป็น https ไม่งั้นเบราว์เซอร์บล็อก (mixed content)
- */
+/** device.js — แสดงตำแหน่งเรียลไทม์ของอุปกรณ์ Raspberry Pi บนแผนที่ */
 
 const DeviceTracker = (() => {
   // ปกติเว็บถูกเสิร์ฟจาก uvicorn ตัวเดียวกับ API จึงใช้ path สัมพัทธ์ได้เลย (ค่าว่าง)
-  //
-  // แต่ถ้าเปิดหน้านี้จาก GitHub Pages ซึ่งเสิร์ฟไฟล์นิ่งอย่างเดียว ไม่มี API อยู่ด้วย
-  // ต้องบอกว่า API อยู่ที่ไหนผ่าน ?api=... บน URL เช่น
-  //   .../test-nstda.html?api=https://xxxx.trycloudflare.com
-  // ใช้ query param แทนการ hardcode เพราะ URL ของ tunnel เปลี่ยนทุกครั้งที่รันใหม่
-  // ถ้า hardcode ไว้ในไฟล์จะต้อง commit + รอ Pages deploy 1-2 นาทีทุกรอบ
-  //
-  // ⚠️ ต้องเป็น https:// เมื่อหน้าเว็บเป็น https (GitHub Pages) — เบราว์เซอร์บล็อก
-  // การเรียก http จากหน้า https (mixed content) โดยไม่มีทางข้ามได้เลย
   const API_BASE = (() => {
     const fromUrl = new URLSearchParams(location.search).get("api");
     if (fromUrl) {
@@ -59,9 +23,6 @@ const DeviceTracker = (() => {
     if (window.API_BASE) return window.API_BASE;
 
     // หน้าที่ถูกเสิร์ฟจาก GitHub Pages (หรือเปิดจากไฟล์ตรง ๆ) ไม่มี API อยู่ข้าง ๆ
-    // จึงต้องใช้ค่าสำรองที่หน้าเว็บตั้งไว้ ไม่งั้นยิง /api/... แล้วได้ 404 แล้วหมุดไม่ขึ้น
-    // ผู้ใช้เลือกใช้ลิงก์ GitHub Pages เป็นหลัก (bookmark ในมือถือ) การบังคับให้พิมพ์
-    // ?api=... ต่อท้ายทุกครั้งจึงไม่เวิร์ก — ลืมเมื่อไหร่ก็เงียบไปเฉย ๆ โดยไม่มีอะไรเตือน
     const noLocalApi = location.protocol === "file:" || /\.github\.io$/.test(location.hostname);
     if (noLocalApi && window.API_BASE_FALLBACK) {
       console.log(`[device] ใช้ API ที่ ${window.API_BASE_FALLBACK} (ค่าสำรองของหน้านี้)`);
@@ -69,9 +30,9 @@ const DeviceTracker = (() => {
     }
     return "";
   })();
-  const POLL_MS = 2000; // ถี่กว่า Pi ที่ส่งทุก 3 วิ เพื่อให้หน่วงรวมไม่เกิน ~1 รอบ
+  // Pi ส่งพิกัดขึ้นมาทุก 1 วินาที (POLL_INTERVAL_S) — ดึงที่อัตราเดียวกัน
+  const POLL_MS = 1000;
   // จังหวะที่ผ่อนลงเมื่อต่อไม่ติดติดกันหลายครั้ง (เซิร์ฟเวอร์/tunnel ล่มยาว)
-  // ไม่ยอมแพ้ถาวร เพราะบนรถ ngrok หลุดแล้วต่อกลับเองได้เสมอ แค่ใช้เวลาสักครู่
   const RETRY_MS = 10000;
 
   let map = null;
@@ -81,12 +42,9 @@ const DeviceTracker = (() => {
   let centeredOnce = false;
 
   // สถานะล่าสุดที่เคยแจ้งไปแล้ว ใช้เทียบกันรอบต่อรอบ จะได้ toast เฉพาะตอน "เปลี่ยน"
-  // สถานะ ไม่ใช่ทุกครั้งที่ poll (ทุก 2 วิ) — ไม่งั้นข้อความจะเด้งถี่จนรำคาญ
-  // ค่าที่เป็นไปได้: null (ยังไม่เคยรู้อะไรเลย) / "online" / "offline"
   let lastNotifiedState = null;
 
   // เคยดึงข้อมูลสำเร็จอย่างน้อย 1 ครั้งไหม — ใช้แยก "หน้านี้ไม่มี API ให้คุยด้วย"
-  // (ไม่เคยติดเลย -> หยุดโพล) ออกจาก "สัญญาณตกชั่วคราว" (เคยติดแล้ว -> ต้องพยายามต่อ)
   let everConnected = false;
   let consecutiveFails = 0;
   let pollMs = POLL_MS;
@@ -151,13 +109,10 @@ const DeviceTracker = (() => {
     toast._timer = setTimeout(() => el.classList.add("hidden"), 5000);
   }
 
-  /** เรียกทุกครั้งที่รู้สถานะออนไลน์/ออฟไลน์ล่าสุด — โผล่ข้อความเฉพาะตอน "เปลี่ยน" สถานะ
-   *  ครั้งแรกที่เพิ่งเปิดหน้า (lastNotifiedState เป็น null) ไม่แจ้ง กันข้อความเด้งทันทีที่
-   *  เปิดหน้าเว็บทั้งที่อุปกรณ์อาจไม่เคยเชื่อมต่อมาก่อนเลย (ไม่ใช่การ "หลุด" จริง ๆ) */
+  /** เรียกทุกครั้งที่รู้สถานะออนไลน์/ออฟไลน์ล่าสุด — โผล่ข้อความเฉพาะตอน "เปลี่ยน" สถานะ */
   function notifyState(nextState) {
     if (nextState === lastNotifiedState) return;
     // ครั้งแรกที่เจอสถานะ searching ก็แจ้งได้ ต่างจาก offline ตรงที่มันคือข่าวดี
-    // ("เครื่องเปิดอยู่นะ") ไม่ใช่การเตือนว่ามีอะไรพัง จึงไม่ทำให้ตกใจเปล่า ๆ ตอนเปิดหน้า
     const firstEver = lastNotifiedState === null;
     if (nextState === "searching") {
       toast("🔍 อุปกรณ์ทำงานอยู่ กำลังค้นหาสัญญาณดาวเทียม", "searching");
@@ -169,13 +124,6 @@ const DeviceTracker = (() => {
   }
 
   // ngrok แผนฟรีแทรกหน้าเตือน "You are about to visit..." ก่อนส่งคำขอถึงเซิร์ฟเวอร์จริง
-  // เมื่อ User-Agent เป็นเบราว์เซอร์ ทำให้ fetch ได้ HTML กลับมาแทน JSON แล้ว resp.json()
-  // โยน error -> ชั้นนี้หยุดโพลไปเงียบ ๆ โดยไม่มีอะไรบอกสาเหตุ
-  //
-  // การเปิดหน้าเว็บผ่าน ngrok ตรง ๆ กดผ่านหน้าเตือนครั้งเดียวแล้วได้คุกกี้ จึงไม่เจอปัญหา
-  // แต่ถ้าเปิดจาก GitHub Pages แล้วชี้ ?api= มาที่ ngrok คำขอเป็นข้ามโดเมน ไม่มีคุกกี้ติดไป
-  // จะโดนหน้าเตือนทุกครั้ง — header นี้คือทางที่ ngrok ให้ไว้ให้ข้าม (ค่าอะไรก็ได้)
-  // ไม่มีผลข้างเคียงเมื่อไม่ได้ใช้ ngrok เพราะเซิร์ฟเวอร์อื่นแค่มองข้าม header ที่ไม่รู้จัก
   const FETCH_OPTS = {
     cache: "no-store",
     headers: { "ngrok-skip-browser-warning": "true" },
@@ -189,17 +137,12 @@ const DeviceTracker = (() => {
       data = await resp.json();
     } catch (err) {
       // ยังไม่เคยต่อติดเลยสักครั้ง = หน้านี้ไม่มี API ให้คุยด้วยจริง ๆ (เปิดจาก file://
-      // หรือ static host ที่ไม่ได้ตั้ง API_BASE_FALLBACK) หยุดโพลไปเลย ไม่ต้องรัว
-      // คำเตือนใน console ทุก 2 วิ และไม่ต้องขึ้นป้ายอะไรให้ผู้ใช้งง
       if (!everConnected) {
         statusEl().textContent = "";
         stop();
         return;
       }
       // เคยต่อติดแล้วเพิ่งมาพลาด = สัญญาณตกชั่วคราว ไม่ใช่ "ไม่มี API"
-      // ต้องพยายามต่อ ไม่ใช่ยอมแพ้ถาวร — บนเน็ตมือถือ + ngrok การพลาดสัก 1-2 ครั้ง
-      // เป็นเรื่องปกติมาก เคยหยุดโพลถาวรตรงนี้แล้วผู้ใช้ต้องรีเฟรชหน้าเองถึงจะกลับมา
-      // (เจอจริงตอนทดสอบภาคสนาม 2026-08-28)
       consecutiveFails++;
       statusEl().textContent =
         `⚠️ อุปกรณ์: ขาดการเชื่อมต่อ (พยายามต่อใหม่... ${consecutiveFails})`;
@@ -210,7 +153,6 @@ const DeviceTracker = (() => {
         marker = null;
       }
       // ถี่เท่าเดิมช่วงแรกเพื่อกลับมาให้ไวที่สุดตอนสัญญาณแค่กระพริบ แล้วค่อยผ่อนลง
-      // เมื่อพลาดติดกันหลายครั้ง เพื่อไม่ให้เปลืองแบตกับเน็ตมือถือตอนเซิร์ฟเวอร์ล่มยาว
       retimer(consecutiveFails <= 3 ? POLL_MS : RETRY_MS);
       return;
     }
@@ -223,8 +165,6 @@ const DeviceTracker = (() => {
 
     if (data.lat === null || data.lng === null) {
       // searching = อุปกรณ์ยังติดต่อเข้ามาอยู่ แค่ GPS ยังจับดาวไม่ได้ ต่างจากเครื่องดับ
-      // ที่เงียบไปเลย — ก่อนหน้านี้สองกรณีนี้หน้าตาเหมือนกันบนเว็บ ทำให้ตอนออกภาคสนาม
-      // แยกไม่ออกว่าต้องไปขยับปลั๊กไฟ หรือแค่รอ/ย้ายที่วางตัวรับ
       if (data.searching) {
         const sats = data.satellites;
         statusEl().textContent =
@@ -238,7 +178,6 @@ const DeviceTracker = (() => {
         return;
       }
       // forgotten_age_s = เคยส่งมาแล้วแต่นานจนเซิร์ฟเวอร์ลืมทิ้ง — ต่างจากไม่เคยส่งเลย
-      // แยกสองกรณีนี้ให้ผู้ใช้เห็น เพราะวิธีแก้ต่างกัน (ยังไม่เปิดเครื่อง vs เปิดแล้วแต่หลุด)
       statusEl().textContent = data.forgotten_age_s
         ? `🚌 อุปกรณ์: เงียบมา ${fmtAge(data.forgotten_age_s)}`
         : "🚌 อุปกรณ์: ยังไม่เคยส่งตำแหน่ง";
@@ -255,6 +194,35 @@ const DeviceTracker = (() => {
     render(data);
   }
 
+  const COMPASS_TH = ["เหนือ", "ตะวันออกเฉียงเหนือ", "ตะวันออก", "ตะวันออกเฉียงใต้",
+                      "ใต้", "ตะวันตกเฉียงใต้", "ตะวันตก", "ตะวันตกเฉียงเหนือ"];
+
+  /** องศา -> ทิศภาษาไทย + ตัวเลข เช่น 47 -> "ตะวันออกเฉียงเหนือ (47°)" */
+  function compassLabel(deg) {
+    const idx = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
+    return `${COMPASS_TH[idx]} (${Math.round(deg)}°)`;
+  }
+
+  // มุมสะสมของลูกศร — ดูเหตุผลที่ไม่ตัดกลับเข้า 0-360 ใน MapView.setUserHeading
+  let displayedHeading = 0;
+
+  /** หมุนลูกศรบอกทิศของหมุดรถตามค่า heading ที่ Pi ส่งขึ้นมา (null = ซ่อนลูกศร) */
+  function setDeviceHeading(headingDeg) {
+    const dot = marker && marker.getElement()
+      ? marker.getElement().querySelector(".device-dot")
+      : null;
+    if (!dot) return;
+    const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
+    dot.classList.toggle("has-heading", known);
+    if (!known) return;
+    let delta = (headingDeg - ((displayedHeading % 360) + 360) % 360) % 360;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    displayedHeading += delta;
+    const arrow = dot.querySelector(".device-arrow");
+    if (arrow) arrow.style.transform = `rotate(${displayedHeading}deg)`;
+  }
+
   function render(d) {
     const latlng = [d.lat, d.lng];
     const online = d.online;
@@ -263,7 +231,8 @@ const DeviceTracker = (() => {
       marker = L.marker(latlng, {
         icon: L.divIcon({
           className: "device-marker",
-          html: '<div class="device-dot">🚌</div>',
+          // ลูกศรทิศแยกชิ้นกับตัวรถ เพื่อให้หมุนลูกศรได้โดยที่ 🚌 ยังตั้งตรงอ่านออก
+          html: '<div class="device-dot"><span class="device-arrow"></span>🚌</div>',
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         }),
@@ -276,10 +245,10 @@ const DeviceTracker = (() => {
     }
 
     marker.getElement()?.classList.toggle("device-stale", !online);
+    setDeviceHeading(online ? d.heading : null);
     marker.setPopupContent(popupHtml(d));
 
     // จัดกลางแผนที่ให้ครั้งแรกครั้งเดียว เฉพาะตอนที่ยังไม่มีหมุดตำแหน่งของเครื่องที่เปิดเว็บ
-    // (เปิดจากมือถือที่บ้าน/ไม่ได้กดอนุญาตตำแหน่ง) — ถ้าจัดกลางทุกรอบจะลากแผนที่ดูที่อื่นไม่ได้
     if (!centeredOnce && !document.querySelector(".user-marker")) {
       map.setView(latlng, 16);
       centeredOnce = true;
@@ -287,10 +256,12 @@ const DeviceTracker = (() => {
 
     const parts = [`🚌 อุปกรณ์: ${online ? "ออนไลน์" : `ขาดหาย ${fmtAge(d.age_s)}`}`];
     // เตือนบนแถบสถานะด้วย ไม่ใช่แค่ใน popup ที่ต้องกดหมุดก่อนถึงจะเห็น
-    // ตอนสาธิตต้องแยกออกทันทีว่ากำลังดู GPS จริงหรือข้อมูลจำลอง
     if (d.source === "route" || d.source === "fixed") parts.push("⚠️ ข้อมูลจำลอง");
     if (online && d.speed_kmh !== null && d.speed_kmh !== undefined) {
       parts.push(`${d.speed_kmh.toFixed(0)} กม./ชม.`);
+    }
+    if (online && d.heading !== null && d.heading !== undefined) {
+      parts.push(`ทิศ ${compassLabel(d.heading)}`);
     }
     const el = statusEl();
     el.textContent = parts.join(" · ");

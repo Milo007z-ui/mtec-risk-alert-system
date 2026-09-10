@@ -1,10 +1,7 @@
-/**
- * map.js — ตั้งค่าแผนที่ Leaflet + marker ตำแหน่งผู้ใช้
- */
+/** map.js — ตั้งค่าแผนที่ Leaflet + marker ตำแหน่งผู้ใช้ */
 
 const MapView = (() => {
   // หน้าเว็บตั้ง window.MAP_CENTER / window.MAP_ZOOM ไว้ก่อนโหลดสคริปต์นี้ได้
-  // เพื่อเปิดแผนที่ค้างที่สนามทดสอบแทนภาพรวมกรุงเทพฯ (ดู test-nstda.html)
   const BKK_CENTER = [13.7563, 100.5018];
   const START_CENTER = window.MAP_CENTER || BKK_CENTER;
   const START_ZOOM = window.MAP_ZOOM || 11;
@@ -13,6 +10,7 @@ const MapView = (() => {
   let accuracyCircle = null;
   let routeLine = null;
   let firstFixZoom = 16;
+  let displayedHeading = 0; // มุมสะสมของลูกศร (ไม่ถูกตัดกลับเข้า 0-360 โดยตั้งใจ)
   let autoPan = true;
 
   function init() {
@@ -38,7 +36,7 @@ const MapView = (() => {
   }
 
   /** อัปเดตตำแหน่งผู้ใช้บนแผนที่ (สร้าง marker ครั้งแรก, ขยับครั้งถัดไป) */
-  function updateUserPosition(lat, lng, accuracyM) {
+  function updateUserPosition(lat, lng, accuracyM, headingDeg = null) {
     const latlng = [lat, lng];
     if (!userMarker) {
       userMarker = L.marker(latlng, {
@@ -63,6 +61,23 @@ const MapView = (() => {
       accuracyCircle.setLatLng(latlng).setRadius(accuracyM);
       if (autoPan) map.panTo(latlng);
     }
+    setUserHeading(headingDeg);
+  }
+
+  /** หมุนหัวลูกศรของหมุดผู้ใช้ให้ชี้ตามทิศที่รถวิ่งจริง */
+  function setUserHeading(headingDeg) {
+    const dot = userMarker && userMarker.getElement()
+      ? userMarker.getElement().querySelector(".user-dot")
+      : null;
+    if (!dot) return;
+    const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
+    dot.classList.toggle("has-heading", known);
+    if (!known) return;
+    let delta = (headingDeg - ((displayedHeading % 360) + 360) % 360) % 360;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    displayedHeading += delta;
+    dot.style.transform = `rotate(${displayedHeading}deg)`;
   }
 
   /** วาดเส้นทางที่วางแผนไว้ (ใช้ในโหมดจำลอง) เป็นเส้นประ + ซูมออกให้เห็นทางข้างหน้า */
@@ -82,5 +97,5 @@ const MapView = (() => {
     return map;
   }
 
-  return { init, updateUserPosition, drawRoute, getMap };
+  return { init, updateUserPosition, setUserHeading, drawRoute, getMap };
 })();

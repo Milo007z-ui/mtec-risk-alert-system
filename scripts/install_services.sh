@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
 # install_services.sh — ติดตั้งให้ระบบทั้งชุดเริ่มเองตอนเสียบไฟ (ทำครั้งเดียว)
-#
-# หลังติดตั้งเสร็จ เวลาออกภาคสนามแค่ "เสียบไฟ Pi" อย่างเดียว ไม่ต้องมีคอม ไม่ต้องพิมพ์อะไร
-# แล้วเปิดลิงก์ที่ bookmark ไว้ในมือถือดูตำแหน่งได้เลย
-#
-#   sudo bash scripts/install_services.sh
-#
-# ทำอะไรบ้าง:
-#   1. คัดลอก systemd/*.service ไป /etc/systemd/system/
-#   2. สร้าง /etc/mtec.env จากไฟล์ตัวอย่าง (ถ้ายังไม่มี)
-#   3. enable ให้เริ่มเองตอนบูต
-#
-# ⚠️ ต้องกรอก NGROK_AUTHTOKEN กับ NGROK_DOMAIN ใน /etc/mtec.env ก่อน tunnel จะทำงาน
 set -euo pipefail
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -23,7 +11,6 @@ cd "$(dirname "$0")/.."
 REPO_DIR="$(pwd)"
 
 # unit ทั้งหมดตั้ง WorkingDirectory=/home/pi/mtec-risk-alert-system ไว้ตายตัว
-# ถ้า clone ไว้ที่อื่นจะ start ไม่ขึ้นแล้วหาสาเหตุยาก เลยตรวจให้ตั้งแต่ต้น
 if [ "$REPO_DIR" != "/home/pi/mtec-risk-alert-system" ]; then
   echo "!!! โปรเจกต์อยู่ที่ $REPO_DIR"
   echo "    แต่ไฟล์ .service ตั้งค่าไว้ที่ /home/pi/mtec-risk-alert-system"
@@ -36,7 +23,6 @@ cp systemd/mtec-api.service systemd/mtec-alert-client.service /etc/systemd/syste
 cp systemd/mtec-autoheal.service systemd/mtec-autoheal.timer /etc/systemd/system/
 
 # path ของ ngrok ต่างกันตามวิธีติดตั้ง (snap -> /snap/bin, apt -> /usr/local/bin)
-# systemd บังคับให้ ExecStart เป็น absolute path จึงต้องหาให้ตอนติดตั้ง ล็อกไว้ในไฟล์ไม่ได้
 NGROK_BIN="$(command -v ngrok || true)"
 if [ -z "$NGROK_BIN" ]; then
   # command -v ไม่เห็น /snap/bin ตอนรันผ่าน sudo เพราะ PATH ถูกล้าง จึงเช็คตรง ๆ อีกที
@@ -68,8 +54,6 @@ echo "==> ให้ผู้ใช้ pi อ่านพอร์ต GPS ได�
 usermod -a -G dialout pi
 
 # หน้าต่าง log สดบนจอของ Pi เอง — ช่วยเฉพาะตอนต่อจอไว้ ไม่มีผลตอนออกภาคสนาม
-# ต้องวางใน ~/.config/autostart ของผู้ใช้ ไม่ใช่ systemd เพราะต้องรอเดสก์ท็อปขึ้นก่อน
-# และต้องเป็นเจ้าของโดย pi ไม่ใช่ root ไม่งั้นเซสชันเดสก์ท็อปจะไม่หยิบไปรัน
 echo "==> หน้าต่างแสดงสถานะบนจอ Pi (autostart)"
 if command -v lxterminal >/dev/null 2>&1; then
   install -d -o pi -g pi /home/pi/.config/autostart
@@ -84,12 +68,11 @@ fi
 echo "==> เปิดให้เริ่มเองตอนบูต"
 systemctl daemon-reload
 systemctl enable mtec-api.service mtec-alert-client.service >/dev/null
-# timer กู้ service ที่ถูกสั่ง stop แล้วลืมเปิดกลับ (เกิดมาแล้ว 4 ครั้ง — ดูหมายเหตุในไฟล์ .timer)
+# timer คอยกู้ service ที่ถูกสั่ง stop แล้วลืมเปิดกลับ
 systemctl enable --now mtec-autoheal.timer >/dev/null
 echo "    เปิด mtec-autoheal.timer แล้ว (ตรวจทุก 5 นาที)"
 
 # tunnel enable ให้เฉพาะเมื่อกรอกโดเมนแล้ว ไม่งั้นจะ restart วนไม่รู้จบตอนบูต
-# แล้ว log เต็มไปด้วย error จนกลบปัญหาจริงของ service อื่น
 if grep -q '^NGROK_DOMAIN=.\+' /etc/mtec.env 2>/dev/null \
    && [ -f /etc/systemd/system/mtec-tunnel.service ]; then
   systemctl enable mtec-tunnel.service >/dev/null

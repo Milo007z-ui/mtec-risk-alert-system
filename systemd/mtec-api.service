@@ -1,6 +1,6 @@
 [Unit]
 Description=EMMA Risk Point API (mtec-risk-alert-system)
-# ต้องรอให้เครือข่ายพร้อมก่อน ไม่งั้นบางทีบูตเสร็จเร็วกว่า network-online
+# รอเครือข่ายพร้อมก่อน บางทีบูตเสร็จเร็วกว่าเครือข่าย
 After=network-online.target
 Wants=network-online.target
 
@@ -8,17 +8,11 @@ Wants=network-online.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/mtec-risk-alert-system
-# RISK_DATA_FILE ตั้งที่ /etc/mtec.env — สลับระหว่างชุดสนามทดสอบ สวทช. กับชุด กทม.
-# ได้โดยไม่ต้องแก้ไฟล์นี้ (แก้ env แล้ว restart พอ ไม่ต้อง daemon-reload)
-# ⚠️ ต้องสลับพร้อมกับ ALERT_RADIUS_M/EXIT_RADIUS_M และหน้าเว็บที่เปิดดูเสมอ
+# ตั้ง RISK_DATA_FILE และ BOTNOI_TOKEN ที่ /etc/mtec.env
 EnvironmentFile=/etc/mtec.env
 ExecStart=/usr/bin/python3 -m uvicorn api.server:app --host 0.0.0.0 --port 8000
 Restart=on-failure
 RestartSec=3
-
-# ตั้ง BOTNOI_TOKEN ที่นี่ถ้าต้องการเสียง Botnoi สด (ชั้น 1) — ไม่ตั้งไว้ก็ใช้งานได้ปกติ
-# แค่ตกไปชั้น 0/2/3 แทน ดู README หัวข้อ "เสียงพูดบนอุปกรณ์"
-# Environment=BOTNOI_TOKEN=xxxxxxxx
 
 [Install]
 WantedBy=multi-user.target

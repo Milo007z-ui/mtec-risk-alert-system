@@ -52,11 +52,25 @@ html, body {
 
 /* ---------- marker ตำแหน่งผู้ใช้ ---------- */
 .user-dot {
+  position: relative;
   width: 18px; height: 18px;
   background: #1976d2;
   border: 3px solid #fff;
   border-radius: 50%;
   box-shadow: 0 0 6px rgba(25,118,210,.8);
+  /* หมุนตามทิศที่รถวิ่ง — สั้นกว่าจังหวะ GPS (1 วิ) ให้ลูกศรกวาดต่อเนื่องไม่กระตุก */
+  transition: transform .25s linear;
+}
+/* หัวลูกศรบอกทิศ โผล่เฉพาะตอนที่ระบบมั่นใจในทิศจริง ๆ (มี COG ที่ผ่าน speed gate แล้ว) */
+.user-dot.has-heading::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: -13px;
+  margin-left: -6px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid #1976d2;
+  filter: drop-shadow(0 -1px 1px rgba(255,255,255,.95));
 }
 
 /* ---------- ปุ่มกลับมาตำแหน่งฉัน ---------- */
@@ -393,8 +407,7 @@ html, body {
 }
 
 /* ---------- marker + สถานะอุปกรณ์ Raspberry Pi บนรถ ---------- */
-/* แยกหน้าตาจากหมุดผู้ใช้ (จุดน้ำเงิน) ให้ชัด เพราะสองหมุดนี้อยู่บนแผนที่พร้อมกันได้
-   และมีความหมายคนละอย่าง: จุดน้ำเงิน = เครื่องที่เปิดเว็บ, 🚌 = กล่อง Pi บนรถ */
+/* แยกหน้าตาจากหมุดผู้ใช้ (จุดน้ำเงิน) ให้ชัด เพราะสองหมุดนี้อยู่บนแผนที่พร้อมกันได้ */
 .device-dot {
   position: relative;   /* จุดอ้างอิงของวงกระเพื่อม ::after ด้านล่าง */
   width: 30px; height: 30px;
@@ -406,8 +419,26 @@ html, body {
   box-shadow: 0 0 8px rgba(0,137,123,.7);
   transition: opacity .3s, filter .3s;
 }
-/* วงกระเพื่อมบอกว่ายังมีข้อมูลไหลเข้ามาอยู่ — ดูออกทันทีว่าอุปกรณ์ยังส่งอยู่ไหม
-   โดยไม่ต้องอ่านตัวหนังสือบนแถบสถานะ */
+/* ลูกศรบอกทิศของหมุดรถ — หมุนแยกจาก 🚌 เพื่อให้ตัวรถยังตั้งตรงอ่านออกเสมอ */
+.device-dot .device-arrow { display: none; }
+.device-dot.has-heading .device-arrow {
+  display: block;
+  position: absolute;
+  inset: 0;
+  transition: transform .25s linear;
+}
+.device-dot.has-heading .device-arrow::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: -14px;
+  margin-left: -6px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid #00897b;
+  filter: drop-shadow(0 -1px 1px rgba(255,255,255,.95));
+}
+
+/* วงกระเพื่อมบอกว่ายังมีข้อมูลไหลเข้ามาอยู่ — ดูออกทันทีว่าอุปกรณ์ยังส่งอยู่ไหม */
 .device-dot::after {
   content: "";
   position: absolute;
@@ -416,8 +447,7 @@ html, body {
   border-radius: 50%;
   animation: device-pulse 2s ease-out infinite;
 }
-/* หยุดกระเพื่อมและทำให้ซีดลงเมื่อขาดการติดต่อ — หมุดยังอยู่ที่เดิมให้รู้ว่า
-   "เห็นครั้งสุดท้ายตรงนี้" แต่ต้องไม่ดูเหมือนตำแหน่งสด ๆ */
+/* หยุดกระเพื่อมและทำให้ซีดลงเมื่อขาดการติดต่อ — หมุดยังอยู่ที่เดิมให้รู้ว่า */
 .device-marker.device-stale .device-dot {
   opacity: .45;
   filter: grayscale(1);
@@ -441,8 +471,7 @@ html, body {
 .device-popup td:first-child { color: #666; }
 
 /* ---------- ข้อความแจ้งเตือนตอนอุปกรณ์เชื่อมต่อ/หลุด ---------- */
-/* วางไว้ล่างจอ (ไม่ใช้ตำแหน่งเดียวกับ .alert-banner) กันไปทับแบนเนอร์เตือนจุดเสี่ยง
-   ซึ่งสำคัญกว่าและต้องเห็นชัดกว่าเสมอ */
+/* วางไว้ล่างจอ (ไม่ใช้ตำแหน่งเดียวกับ .alert-banner) กันไปทับแบนเนอร์เตือนจุดเสี่ยง */
 .device-toast {
   position: absolute;
   left: 10px; right: 10px; bottom: 16px;
