@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>สนามทดสอบ GPS — อุทยานวิทยาศาสตร์ประเทศไทย (สวทช. ปทุมธานี)</title>
+  <title>เส้นทางจำลองรังสิต — วนผ่านจุดเสี่ยงจริง 3 จุด</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css?v=13">
-  <!-- หน้านี้ = หน้าทดสอบภาคสนาม ใช้โค้ดชุดเดียวกับ index.html ทุกบรรทัด ต่างกันแค่ 4 ... -->
+  <!-- หน้านี้ = เส้นทางจำลองในห้อง ใช้โค้ดชุดเดียวกับ index.html ต่างกันแค่ค่าตั้งด้านล่าง -->
   <script>
-    window.RISK_DATA_URL = "data/risk_points_nstda_test.geojson";
-    window.MOCK_ROUTE_URL = "data/mock_route_nstda.geojson";
-    window.MAP_CENTER = [14.07847, 100.60216];
-    window.MAP_ZOOM = 16;
+    window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
+    window.ACCIDENT_DATA_URL = "data/accident_points_3y.geojson";
+    window.MOCK_ROUTE_URL = "data/mock_route_rangsit.geojson";
+    window.MAP_CENTER = [14.08034, 100.63249];
+    window.MAP_ZOOM = 13;
 
-    // รัศมีเตือนปรับได้จาก URL (?alert=25&exit=40) เผื่อหน้างานอยากลองหลายค่าเทียบกัน
+    // รัศมีเตือนปรับได้จาก URL (?alert=300&exit=400) เผื่ออยากลองหลายค่าเทียบกัน
     // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
     (function () {
       const qp = new URLSearchParams(location.search);
-      const alertM = Number(qp.get("alert")) || 40;
-      const exitM = Number(qp.get("exit")) || 55;
+      const alertM = Number(qp.get("alert")) || 500;
+      const exitM = Number(qp.get("exit")) || 600;
       window.ALERT_RADIUS_M = alertM;
       window.EXIT_RADIUS_M = Math.max(exitM, alertM);
     })();
@@ -41,7 +42,7 @@
   <div id="status-bar">
     <span id="gps-status">กำลังโหลด...</span>
     <span id="nearest-info"></span>
-    <a href="test-rangsit.html?mock=1" title="เส้นทางจำลองในห้อง">🛣️ เส้นทางจำลอง</a>
+    <a href="test-nstda.html" title="สนามทดสอบภาคสนาม สวทช.">🧪 สนาม สวทช.</a>
     <a id="link-dashboard" href="index.html" title="กลับหน้าแผนที่จริง">🗺️ แผนที่จริง</a>
   </div>
 
@@ -75,6 +76,12 @@
       <label class="filter-label" for="f-pattern">ประเภทปัญหาหลัก</label>
       <select id="f-pattern"></select>
 
+      <div class="filter-levels filter-layers">
+        <label><input type="checkbox" id="f-show-accidents">
+          <span class="dot dot-sm"></span>ดูจุดเสี่ยงรายอุบัติเหตุ</label>
+        <span class="filter-hint">13,525 จุด · ดูอย่างเดียว ไม่มีผลกับการแจ้งเตือน</span>
+      </div>
+
       <div class="filter-foot">
         <span id="filter-count"></span>
         <button id="filter-reset" type="button">ล้างตัวกรอง</button>
@@ -90,18 +97,21 @@
 
   <div id="start-overlay">
     <div class="start-card">
-      <h1>🧪 สนามทดสอบ GPS — อุทยานวิทยาศาสตร์ประเทศไทย</h1>
-      <p>ขับวนรอบอุทยานฯ 1 รอบ (~1.4 กม.) เจอจุดเสี่ยง 8 จุด ครบสามระดับ</p>
+      <h1>🛣️ เส้นทางจำลองรังสิต</h1>
+      <p>ขับวน 23.02 กม. ผ่านจุดเสี่ยงจริง 3 จุด — ต่างระดับคลองหลวง · บ้านพร้าว–คลองห้า · หน้า รพ.ธรรมศาสตร์</p>
       <p class="hint">
-        แจ้งเตือนที่ระยะ 60 เมตร (ย่อจาก 500 เมตรของระบบจริง ให้พอดีกับถนนในพื้นที่)
-        · ลองระยะอื่นได้ด้วย <code>?alert=40&amp;exit=60</code>
+        เส้นทางหาด้วย Dijkstra บนกราฟถนนจริงจาก OpenStreetMap โดยเคารพทิศทางเดินรถ
+        จุดกลับรถ 2 แห่งจึงอยู่ตรงทางกลับรถจริงบนถนน
       </p>
-      <p class="hint" style="color:#c62828">
-        ⚠️ จุดเสี่ยง 8 จุดนี้เป็น<b>ข้อมูลสมมติสำหรับทดสอบระบบ</b>
-        ไม่ใช่สถิติอุบัติเหตุจริงของถนนในอุทยานวิทยาศาสตร์ฯ
+      <p class="hint">
+        แจ้งเตือนที่ 500 เมตร ออกที่ 600 เมตร เท่าระบบจริง · กรองทิศ ±30°
+        · ลองระยะอื่นได้ด้วย <code>?alert=300&amp;exit=400</code>
       </p>
-      <button id="btn-start">เริ่มทดสอบ</button>
-      <p class="hint">ต้องอนุญาตให้เข้าถึงตำแหน่ง และเปิดเสียงเครื่อง · ซ้อมในห้องได้ด้วย ?mock=1&amp;kmh=30</p>
+      <p class="hint" style="color:#2e7d32">
+        ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 456 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
+      </p>
+      <button id="btn-start">เริ่มเส้นทางจำลอง</button>
+      <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=80</code></p>
     </div>
   </div>
 
@@ -111,7 +121,7 @@
   <script src="js/tts.js?v=12"></script>
   <script src="js/riskrules.js?v=11"></script>
   <script src="js/riskpoints.js?v=22"></script>
-  <!-- ไม่โหลด accidents.js: สนามทดสอบไม่มีชั้นจุดเสี่ยงรายอุบัติเหตุ (app.js/filters.js ... -->
+  <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=9"></script>
   <script src="js/gps.js?v=15"></script>
