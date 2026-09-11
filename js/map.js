@@ -43,9 +43,9 @@ const MapView = (() => {
       userMarker = L.marker(latlng, {
         icon: L.divIcon({
           className: "user-marker",
-          html: '<div class="user-dot"></div>',
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          html: '<div class="user-dot"><span class="user-arrow"></span>🚌</div>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
         }),
         zIndexOffset: 1000,
       }).addTo(map);
@@ -78,7 +78,8 @@ const MapView = (() => {
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
     displayedHeading += delta;
-    dot.style.transform = `rotate(${displayedHeading}deg)`;
+    const arrow = dot.querySelector(".user-arrow");
+    if (arrow) arrow.style.transform = `rotate(${displayedHeading}deg)`;
   }
 
   /** หาพิกัดที่อยู่ห่างจากจุดตั้งต้นตามทิศและระยะที่กำหนด (สูตร great-circle) */
