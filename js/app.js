@@ -54,6 +54,9 @@
         // ให้ AlertSystem คิดทิศก่อน (มันกรอง COG ด้วยความเร็วและคงค่าล่าสุดไว้ตอนรถจอด)
         AlertSystem.onPositionUpdate(lat, lng, courseDeg, speedKmh);
         MapView.updateUserPosition(lat, lng, accuracy, AlertSystem.heading());
+        // กรวยที่ใช้กรองจุดเสี่ยง — วาดด้วยค่าเดียวกับที่ AlertSystem ใช้ตัดสินใจจริง
+        MapView.setUserCone(lat, lng, AlertSystem.heading(),
+                            AlertSystem.HEADING_WINDOW_DEG, AlertSystem.ALERT_RADIUS_M);
         if (!GPS.isMockMode()) {
           showStatus(`📍 GPS ทำงาน (ความแม่นยำ ±${Math.round(accuracy)} ม.)`);
         }

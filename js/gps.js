@@ -172,7 +172,9 @@ const GPS = (() => {
       total += d;
     }
 
-    const kmh = Math.max(10, Math.min(160, Number(param("kmh", 80)) || 80));
+    // ความเร็วเริ่มต้นตั้งต่อหน้าได้ด้วย window.MOCK_KMH · ?kmh= ใน URL ชนะเสมอ
+    const defaultKmh = Number(window.MOCK_KMH) || 80;
+    const kmh = Math.max(10, Math.min(240, Number(param("kmh", defaultKmh)) || defaultKmh));
     const cruise = kmh / 3.6; // m/s
     const ACCEL_MS2 = 2.0; // อัตราเร่ง/หน่วงของรถยนต์ทั่วไป (0-100 กม./ชม. ราว 14 วิ)
     const TICK_MS = 200; // ใกล้เคียงจังหวะที่ GPS จริงส่งตำแหน่ง (1-5 ครั้งต่อวินาที)

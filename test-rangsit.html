@@ -6,7 +6,7 @@
   <title>เส้นทางจำลองรังสิต — วนผ่านจุดเสี่ยงจริง 3 จุด</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=13">
+  <link rel="stylesheet" href="css/style.css?v=14">
   <!-- หน้านี้ = เส้นทางจำลองในห้อง ใช้โค้ดชุดเดียวกับ index.html ต่างกันแค่ค่าตั้งด้านล่าง -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
@@ -14,6 +14,8 @@
     window.MOCK_ROUTE_URL = "data/mock_route_rangsit.geojson";
     window.MAP_CENTER = [14.08034, 100.63249];
     window.MAP_ZOOM = 13;
+    // เส้นทางยาว 23 กม. ถ้าใช้ 80 กม./ชม. ต้องนั่งดู 17 นาที — เร่งให้จบใน ~8 นาที
+    window.MOCK_KMH = 180;
 
     // รัศมีเตือนปรับได้จาก URL (?alert=300&exit=400) เผื่ออยากลองหลายค่าเทียบกัน
     // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
@@ -111,7 +113,7 @@
         ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 456 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
       </p>
       <button id="btn-start">เริ่มเส้นทางจำลอง</button>
-      <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=80</code></p>
+      <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=80</code> (ค่าเริ่มต้น 180)</p>
     </div>
   </div>
 
@@ -123,11 +125,11 @@
   <script src="js/riskpoints.js?v=22"></script>
   <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
-  <script src="js/map.js?v=9"></script>
-  <script src="js/gps.js?v=15"></script>
+  <script src="js/map.js?v=10"></script>
+  <script src="js/gps.js?v=16"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=11"></script>
   <script src="js/alert.js?v=24"></script>
-  <script src="js/app.js?v=15"></script>
+  <script src="js/app.js?v=16"></script>
 </body>
 </html>
