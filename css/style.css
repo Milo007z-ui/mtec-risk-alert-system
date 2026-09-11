@@ -493,3 +493,61 @@ html, body {
   from { transform: translateY(16px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
+
+/* ---------- แผงสถานะ GPS สด (มุมล่างซ้าย เหนือ legend) ---------- */
+#gps-panel {
+  position: absolute;
+  bottom: 130px; left: 12px;
+  width: 188px;
+  background: rgba(255,255,255,.94);
+  padding: 9px 11px 10px;
+  border-radius: 8px;
+  border-left: 3px solid #9e9e9e;
+  font-size: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.25);
+  z-index: 1100;
+}
+#gps-panel.state-online { border-left-color: #2e7d32; }
+#gps-panel.state-searching { border-left-color: #ef6c00; }
+#gps-panel.state-offline { border-left-color: #c62828; }
+#gps-panel .gp-head {
+  display: flex; align-items: center; gap: 6px;
+  font-weight: 600; margin-bottom: 7px;
+}
+#gps-panel .gp-led {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #9e9e9e; flex: none;
+}
+/* กะพริบเฉพาะตอนค้นหา สื่อว่ากำลังทำงานอยู่ ไม่ใช่ค้าง */
+.state-searching .gp-led { background: #ef6c00; animation: gp-blink 1s ease-in-out infinite; }
+.state-online .gp-led { background: #2e7d32; }
+.state-offline .gp-led { background: #c62828; }
+@keyframes gp-blink { 50% { opacity: .25; } }
+#gps-panel .gp-sats {
+  display: flex; align-items: baseline; gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+#gps-panel .gp-sats b { font-size: 22px; line-height: 1; }
+#gps-panel .gp-sats span { color: #666; font-size: 11px; }
+/* ขีดละ 1 ดวง — เห็นจำนวนเพิ่มขึ้นได้โดยไม่ต้องอ่านตัวเลข */
+#gps-panel .gp-bar {
+  display: flex; gap: 2px; margin: 6px 0 7px;
+}
+#gps-panel .gp-bar i {
+  flex: 1; height: 5px; border-radius: 1px; background: #e0e0e0;
+}
+#gps-panel .gp-bar i.on { background: #2e7d32; }
+.state-searching .gp-bar i.on { background: #ef6c00; }
+#gps-panel .gp-spark {
+  display: block; width: 100%; height: 24px; margin-bottom: 6px;
+}
+#gps-panel .gp-row {
+  display: flex; justify-content: space-between; gap: 8px;
+  color: #555; line-height: 1.7;
+}
+#gps-panel .gp-row b { font-weight: 500; color: #222; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  #gps-panel { width: 150px; bottom: 118px; padding: 7px 9px 8px; }
+  #gps-panel .gp-sats b { font-size: 18px; }
+  #gps-panel .gp-spark { height: 18px; }
+}

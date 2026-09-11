@@ -148,6 +148,7 @@ const DeviceTracker = (() => {
         `⚠️ อุปกรณ์: ขาดการเชื่อมต่อ (พยายามต่อใหม่... ${consecutiveFails})`;
       statusEl().className = "device-offline";
       notifyState("offline");
+      updateGpsPanel("offline", null);
       if (marker) {
         marker.remove();
         marker = null;
@@ -171,6 +172,7 @@ const DeviceTracker = (() => {
           `🔍 อุปกรณ์: กำลังค้นหาสัญญาณดาวเทียม${sats == null ? "" : ` · เห็นดาว ${sats} ดวง`}`;
         statusEl().className = "device-searching";
         notifyState("searching");
+        updateGpsPanel("searching", data);
         if (marker) {
           marker.remove();
           marker = null;
@@ -183,6 +185,7 @@ const DeviceTracker = (() => {
         : "🚌 อุปกรณ์: ยังไม่เคยส่งตำแหน่ง";
       statusEl().className = "device-offline";
       notifyState("offline");
+      updateGpsPanel("offline", data);
       if (marker) {
         marker.remove();
         marker = null;
@@ -191,6 +194,7 @@ const DeviceTracker = (() => {
     }
 
     lastPos = data;
+    updateGpsPanel(data.online ? "online" : "stale", data);
     render(data);
   }
 
@@ -221,6 +225,77 @@ const DeviceTracker = (() => {
     displayedHeading += delta;
     const arrow = dot.querySelector(".device-arrow");
     if (arrow) arrow.style.transform = `rotate(${displayedHeading}deg)`;
+  }
+
+  // ---------- แผงสถานะ GPS สด ----------
+  // เก็บจำนวนดาวย้อนหลัง 60 วินาที ไว้วาดกราฟเส้น จะได้เห็นว่ากำลังไต่ขึ้นหรือค้างอยู่
+  const SAT_HISTORY_MAX = 60;
+  const satHistory = [];
+  const SAT_BARS = 12;     // ขีดเต็มแถบ = จับดาวได้ดีมากแล้ว
+  let lastOkAt = null;
+
+  const STATE_TH = {
+    online: "รับสัญญาณแล้ว",
+    stale: "สัญญาณขาดช่วง",
+    searching: "กำลังค้นหาดาวเทียม",
+    offline: "ขาดการเชื่อมต่อ",
+  };
+
+  function gpsPanel() {
+    let el = document.getElementById("gps-panel");
+    if (el) return el;
+    const host = document.getElementById("map") || document.body;
+    el = document.createElement("div");
+    el.id = "gps-panel";
+    el.innerHTML =
+      '<div class="gp-head"><i class="gp-led"></i><span class="gp-state">กำลังเชื่อมต่อ</span></div>' +
+      '<div class="gp-sats"><b class="gp-num">0</b><span>ดวงที่มองเห็น</span></div>' +
+      `<div class="gp-bar">${'<i></i>'.repeat(SAT_BARS)}</div>` +
+      '<svg class="gp-spark" viewBox="0 0 120 24" preserveAspectRatio="none" aria-hidden="true">' +
+      '<polyline class="gp-line" fill="none" stroke="#ef6c00" stroke-width="1.5" points=""></polyline></svg>' +
+      '<div class="gp-row"><span>พิกัด</span><b class="gp-fix">—</b></div>' +
+      '<div class="gp-row"><span>อัปเดตเมื่อ</span><b class="gp-age">—</b></div>';
+    host.appendChild(el);
+    return el;
+  }
+
+  /** วาดกราฟจำนวนดาว 60 วินาทีล่าสุด — สูงสุดของแกนตั้งอย่างน้อย 8 เพื่อไม่ให้เส้นเด้งเกินจริง */
+  function drawSpark(line, colour) {
+    if (satHistory.length < 2) { line.setAttribute("points", ""); return; }
+    const top = Math.max(8, ...satHistory);
+    const step = 120 / (SAT_HISTORY_MAX - 1);
+    const pts = satHistory
+      .map((v, i) => `${(i + SAT_HISTORY_MAX - satHistory.length) * step},${23 - (v / top) * 22}`)
+      .join(" ");
+    line.setAttribute("points", pts);
+    line.setAttribute("stroke", colour);
+  }
+
+  /** อัปเดตแผงทุกครั้งที่ poll เสร็จ ไม่ว่าผลจะเป็นอย่างไร */
+  function updateGpsPanel(state, d) {
+    const el = gpsPanel();
+    el.className = `state-${state}`;
+    el.querySelector(".gp-state").textContent = STATE_TH[state] || state;
+
+    const sats = d && d.satellites != null ? d.satellites : null;
+    if (state !== "offline") {
+      satHistory.push(sats == null ? 0 : sats);
+      if (satHistory.length > SAT_HISTORY_MAX) satHistory.shift();
+      lastOkAt = Date.now();
+    }
+    el.querySelector(".gp-num").textContent = sats == null ? "—" : sats;
+
+    const bars = el.querySelectorAll(".gp-bar i");
+    bars.forEach((b, i) => b.classList.toggle("on", sats != null && i < sats));
+    drawSpark(el.querySelector(".gp-line"),
+      state === "online" ? "#2e7d32" : state === "offline" ? "#c62828" : "#ef6c00");
+
+    el.querySelector(".gp-fix").textContent =
+      state === "online" || state === "stale"
+        ? `${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}`
+        : "ยังจับไม่ได้";
+    el.querySelector(".gp-age").textContent =
+      lastOkAt === null ? "—" : `${Math.round((Date.now() - lastOkAt) / 1000)} วิ`;
   }
 
   function render(d) {
