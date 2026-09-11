@@ -29,6 +29,7 @@ const AlertSystem = (() => {
   let lastTelemetry = {
     rawCourse: null, heading: null, trueCourse: null,
     speedKmh: null, inRadius: { off: 0, c90: 0, c30: 0 },
+    beep: null, beepFrom: null,
   };
 
   const LEVEL_RANK = { low: 1, medium: 2, high: 3 };
@@ -81,6 +82,15 @@ const AlertSystem = (() => {
       isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)
     );
 
+    // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
+    if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
+      lastMovingSpeedKmh = speedForGate;
+    }
+
+    // beep บอกระยะ — คิดแยกจาก cooldown ของเสียงพูด อัปเดตทุกรอบจนกว่าจะขับผ่านไป
+    const beepPattern = beepPatternFor(ahead, closestSeen, lastMovingSpeedKmh);
+    TTS.setBeepPattern(beepPattern);
+
     // นับจุดในระยะเตือนของกรวยแต่ละความกว้าง — ไว้เทียบให้เห็นว่าการกรองตัดอะไรออก
     const within = nearby.filter(({ distance }) => distance <= ALERT_RADIUS_M);
     const countCone = (deg) =>
@@ -93,15 +103,17 @@ const AlertSystem = (() => {
       trueCourse: typeof window.MOCK_TRUE_COURSE === "number" ? window.MOCK_TRUE_COURSE : null,
       speedKmh: speedForGate,
       inRadius: { off: within.length, c90: countCone(90), c30: countCone(HEADING_WINDOW_DEG) },
+      beep: beepPattern,
+      // จุดที่ทำให้ beep ร้องอยู่ตอนนี้ — ไว้ไล่หาเวลาที่เสียงไม่หยุดอย่างที่คาด
+      beepFrom: beepPattern === null ? null : (() => {
+        const r = beepStartM(lastMovingSpeedKmh);
+        const inBeep = ahead.filter(({ distance }) => distance <= r);
+        if (!inBeep.length) return null;
+        const near = inBeep.reduce((a, b) => (b.distance < a.distance ? b : a));
+        return `${near.point.id} ${Math.round(near.distance)} ม.`;
+      })(),
     };
 
-    // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
-    if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
-      lastMovingSpeedKmh = speedForGate;
-    }
-
-    // beep บอกระยะ — คิดแยกจาก cooldown ของเสียงพูด อัปเดตทุกรอบจนกว่าจะขับผ่านไป
-    TTS.setBeepPattern(beepPatternFor(ahead, closestSeen, lastMovingSpeedKmh));
 
     // เตือนเฉพาะจุดที่ใกล้ที่สุดที่เข้าเงื่อนไข (กันพูดรัวเมื่อหลายจุดติดกัน)
     for (const { point, distance } of ahead) {

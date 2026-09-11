@@ -33,6 +33,11 @@ const Telemetry = (() => {
         '<div class="tm-kv"><span>ไม่กรองทิศ</span><b id="tm-off">0</b></div>' +
         '<div class="tm-kv"><span>กรวย ±90°</span><b id="tm-c90">0</b></div>' +
         '<div class="tm-kv tm-pick"><span id="tm-lbl30">กรวย ±30°</span><b id="tm-c30">0</b></div>' +
+      '</div>' +
+      '<div class="tm-card">' +
+        '<h3>เสียง beep</h3>' +
+        '<div class="tm-kv"><span>จังหวะ</span><b id="tm-beep">เงียบ</b></div>' +
+        '<div class="tm-kv"><span>เพราะจุด</span><b id="tm-beepfrom">—</b></div>' +
       '</div>';
     document.body.appendChild(box);
     return box;
@@ -82,6 +87,10 @@ const Telemetry = (() => {
     q("tm-off").textContent = t.inRadius.off;
     q("tm-c90").textContent = t.inRadius.c90;
     q("tm-c30").textContent = t.inRadius.c30;
+
+    const BEEP_TH = { far: "ช้า", mid: "ปานกลาง", near: "ถี่" };
+    q("tm-beep").textContent = t.beep === null ? "เงียบ" : BEEP_TH[t.beep] || t.beep;
+    q("tm-beepfrom").textContent = t.beepFrom === null ? "—" : t.beepFrom;
   }
 
   return { update, enabled };
