@@ -50,33 +50,26 @@ html, body {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ---------- marker ตำแหน่งผู้ใช้ (รถ) ---------- */
+/* ---------- marker ตำแหน่งผู้ใช้ ---------- */
 .user-dot {
   position: relative;
-  width: 30px; height: 30px;
-  font-size: 21px;
-  line-height: 30px;
-  text-align: center;
-  /* ตัวรถตั้งตรงเสมอเพื่อให้ดูออกว่าเป็นรถ ทิศบอกด้วยลูกศรที่หมุนรอบตัว */
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.45));
-}
-/* ลูกศรบอกทิศ โผล่เฉพาะตอนที่ระบบมั่นใจในทิศจริง ๆ (มี COG ที่ผ่าน speed gate แล้ว) */
-.user-arrow {
-  position: absolute;
-  inset: 0;
-  /* หมุนสั้นกว่าจังหวะ GPS (1 วิ) ให้ลูกศรกวาดต่อเนื่องไม่กระตุก */
+  width: 18px; height: 18px;
+  background: #1976d2;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(25,118,210,.8);
+  /* หมุนตามทิศที่รถวิ่ง — สั้นกว่าจังหวะ GPS (1 วิ) ให้ลูกศรกวาดต่อเนื่องไม่กระตุก */
   transition: transform .25s linear;
-  opacity: 0;
 }
-.user-dot.has-heading .user-arrow { opacity: 1; }
-.user-arrow::after {
+/* หัวลูกศรบอกทิศ โผล่เฉพาะตอนที่ระบบมั่นใจในทิศจริง ๆ (มี COG ที่ผ่าน speed gate แล้ว) */
+.user-dot.has-heading::after {
   content: "";
   position: absolute;
-  left: 50%; top: -11px;
+  left: 50%; top: -13px;
   margin-left: -6px;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-bottom: 11px solid #1976d2;
+  border-bottom: 10px solid #1976d2;
   filter: drop-shadow(0 -1px 1px rgba(255,255,255,.95));
 }
 
