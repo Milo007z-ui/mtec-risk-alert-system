@@ -51,6 +51,10 @@ const Telemetry = (() => {
     const t = AlertSystem.telemetry();
 
     if (startedAt === null) startedAt = Date.now();
+    // โหมดจำลองเร่งเวลาได้ จึงอ่านเวลาเดินทางของรถจาก gps.js แทนเวลาจริงที่นั่งดู
+    const elapsedS = typeof window.MOCK_ELAPSED_S === "number"
+      ? window.MOCK_ELAPSED_S
+      : (Date.now() - startedAt) / 1000;
     if (lastLat !== null) distM += haversineMeters(lastLat, lastLng, lat, lng);
     lastLat = lat;
     lastLng = lng;
@@ -60,7 +64,7 @@ const Telemetry = (() => {
       `${t.speedKmh === null || t.speedKmh === undefined ? "—" : Math.round(t.speedKmh)}` +
       '<small>กม./ชม.</small>';
     q("tm-dist").textContent = `${(distM / 1000).toFixed(2)} กม.`;
-    q("tm-clk").textContent = mmss((Date.now() - startedAt) / 1000);
+    q("tm-clk").textContent = mmss(elapsedS);
 
     q("tm-cog").innerHTML =
       `${t.heading === null ? "—" : Math.round(t.heading)}<small>°</small>`;

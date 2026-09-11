@@ -175,6 +175,10 @@ const GPS = (() => {
     // ความเร็วเริ่มต้นตั้งต่อหน้าได้ด้วย window.MOCK_KMH · ?kmh= ใน URL ชนะเสมอ
     const defaultKmh = Number(window.MOCK_KMH) || 80;
     const kmh = Math.max(10, Math.min(240, Number(param("kmh", defaultKmh)) || defaultKmh));
+    // ตัวคูณความเร็วการเล่น — ย่นเวลาให้ดูจบไว โดยที่ความเร็วรถบนแผงยังเป็นค่าจริง
+    // แยกจาก kmh เพราะถ้าเร่ง kmh แทน แผงจะโชว์ 300 กม./ชม. ซึ่งไม่ใช่ความเร็วที่ควรสาธิต
+    const defaultX = Number(window.MOCK_SPEEDUP) || 1;
+    const SPEEDUP = Math.max(1, Math.min(30, Number(param("x", defaultX)) || defaultX));
     const cruise = kmh / 3.6; // m/s
     const ACCEL_MS2 = 2.0; // อัตราเร่ง/หน่วงของรถยนต์ทั่วไป (0-100 กม./ชม. ราว 14 วิ)
     const TICK_MS = 100; // 10 Hz เท่าที่สั่งโมดูล u-blox M10 ไว้จริง
@@ -183,7 +187,8 @@ const GPS = (() => {
     const durationS = total / cruise + cruise / ACCEL_MS2;
     console.log(
       `[MOCK] เส้นทางจำลอง ${(total / 1000).toFixed(2)} กม. · ${kmh} กม./ชม. · ~${Math.round(durationS)} วิ` +
-        ` (ปรับด้วย ?kmh=)`
+        (SPEEDUP > 1 ? ` · เล่นเร็ว ${SPEEDUP}× = ดูจบใน ~${Math.round(durationS / SPEEDUP)} วิ` : "") +
+        ` (ปรับด้วย ?kmh= และ ?x=)`
     );
 
     // ทิศของแต่ละเซกเมนต์ = COG ที่ตัวรับจริงจะรายงานตอนวิ่งอยู่ช่วงนั้น
@@ -214,7 +219,9 @@ const GPS = (() => {
     const startedAt = performance.now();
     onUpdate(verts[0].lat, verts[0].lng, 8, noisyCourse(segCourse[0]), 0);
     mockTimer = setInterval(() => {
-      const elapsedS = (performance.now() - startedAt) / 1000;
+      // เวลาที่ "รถ" เดินทางไปแล้ว = เวลาจริง × ตัวคูณ — แผงตัวเลขอ่านค่านี้ไปแสดง
+      const elapsedS = ((performance.now() - startedAt) / 1000) * SPEEDUP;
+      window.MOCK_ELAPSED_S = elapsedS;
       let dist = distanceAtTime(elapsedS, cruise, ACCEL_MS2, total);
       if (dist >= total) {
         onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8,
