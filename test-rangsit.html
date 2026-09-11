@@ -6,7 +6,7 @@
   <title>เส้นทางจำลองรังสิต — วนผ่านจุดเสี่ยงจริง 3 จุด</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=15">
   <!-- หน้านี้ = เส้นทางจำลองในห้อง ใช้โค้ดชุดเดียวกับ index.html ต่างกันแค่ค่าตั้งด้านล่าง -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
@@ -97,6 +97,80 @@
     <div><span class="dot" style="background:#2e7d32"></span> ต่ำ</div>
   </div>
 
+
+  <button id="btn-method" type="button">📖 วิธีทำงาน</button>
+
+  <aside id="method-panel" aria-hidden="true">
+    <button id="method-close" type="button" title="ปิด">✕</button>
+    <h2>10 Hz + Circular Moving Average</h2>
+    <p>แผงตัวเลขมุมซ้ายอ่านค่าจากตัวกรองชุดเดียวกับที่ตัดสินใจแจ้งเตือนจริง
+       ไม่ได้คำนวณแยก</p>
+
+    <h3>1. ทำไมต้อง 10 Hz</h3>
+    <p>โมดูล u-blox M10 ถูกสั่งด้วย <span class="mono" style="padding:1px 5px">UBX-CFG-VALSET</span>
+       ให้ส่ง RMC / VTG / GGA วินาทีละ 10 ครั้ง แทนค่าจากโรงงานที่วินาทีละครั้ง</p>
+    <p>ที่ 1 Hz ถ้าจังหวะนั้นเจอสัญญาณสะท้อนตึกพอดี ก็ได้ค่าผิดไปทั้งวินาที เพราะไม่มีค่าอื่นมาเทียบ
+       ที่ 10 Hz ค่าผิดหนึ่งตัวถูกกลืนด้วยค่าถูกอีกสี่ตัวในหน้าต่างเดียวกัน</p>
+    <p>ต้องแลกด้วยแบนด์วิดท์ จึงปิดประโยค GSV / GSA / GLL ทิ้ง</p>
+    <table><thead><tr><th>ประโยคที่เปิด</th><th class="n">1 Hz</th><th class="n">10 Hz</th></tr></thead>
+    <tbody>
+      <tr><td>ครบ 6 ประโยค</td><td class="n">11.8%</td><td class="n bad">117.6% สายล้น</td></tr>
+      <tr><td>RMC + VTG + GGA</td><td class="n">1.8%</td><td class="n good">17.8%</td></tr>
+    </tbody></table>
+    <p>วัดจริงบน Raspberry Pi ได้ 813 ไบต์/วิ = 7.1% ของ 115200 bps และโมดูลตอบ ACK ยืนยัน PROTVER=34.10</p>
+
+    <h3>2. หน้าต่างเลื่อน t₁ → t₅</h3>
+    <p>เก็บค่าทิศที่เข้ามาในช่วง 0.5 วินาทีล่าสุด — ที่ 10 Hz เท่ากับ 5 ตัวอย่าง
+       ค่าเก่าที่พ้น 0.5 วินาทีถูกทิ้งออกจากคิวอัตโนมัติ หน้าต่างจึงเลื่อนตามเวลาไปเรื่อย ๆ</p>
+    <div class="mono">
+เวลา   t₁   t₂   t₃   t₄   t₅   t₆   t₇ ...<br>
+      └──── หน้าต่าง ────┘<br>
+           └──── เลื่อนไป ────┘
+    </div>
+
+    <h3>3. ทำไมเฉลี่ยองศาตรง ๆ ไม่ได้</h3>
+    <p>องศาวนกลับที่ 360 ถ้าบวกแล้วหารเหมือนเลขธรรมดา ค่าที่ได้จะกระโดดไปคนละทิศ</p>
+    <div class="mono">
+(359° + 1°) ÷ 2 = <span class="bad">180°</span> &nbsp;← ผิด ชี้กลับหลัง<br>
+ทั้งที่ 359° กับ 1° ห่างกันแค่ 2°
+    </div>
+
+    <h3>4. วิธีแก้: รวมเป็นเวกเตอร์ก่อน</h3>
+    <div class="mono">
+x = Σ cos(θᵢ)&nbsp;&nbsp;&nbsp;&nbsp;y = Σ sin(θᵢ)<br>
+ทิศเฉลี่ย = <b>atan2(y, x)</b><br>
+R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่อ ใช้ค่าเดิม
+    </div>
+    <p>แต่ละองศาถูกมองเป็นลูกศรยาวเท่ากันชี้คนละทาง เอามาต่อกันแล้วดูว่าผลรวมชี้ไปทางไหน
+       ไม่มีปัญหาเรื่องเลขวนที่ 360 เพราะไม่ได้บวกตัวเลข แต่บวกทิศทาง</p>
+    <div class="mono">(359° + 1°) แบบวงกลม = <span class="good">0°</span> &nbsp;← ถูก</div>
+
+    <h3>5. ตัวอย่างจริง</h3>
+    <p>หน้าต่างหนึ่งจากจังหวะที่เจอสัญญาณสะท้อนตึกแรงที่สุดในการจำลองเส้นทางนี้</p>
+    <div class="mono">
+[268.4°, 266.1°, <span class="bad">136.3°</span>, 269.8°, 267.2°]<br><br>
+เฉลี่ยเลขตรง ๆ&nbsp; = 241.6°&nbsp;&nbsp;คลาด 27.5°<br>
+เฉลี่ยแบบวงกลม = <span class="good">255.2°</span>&nbsp;&nbsp;คลาด 13.9°<br>
+ทิศจริง&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 269.1°
+    </div>
+
+    <h3>6. ผลตลอดเส้นทาง 23 กม.</h3>
+    <p>วัดความคลาดของทิศเทียบกับทิศจริงของถนน 3,823 จุดวัด</p>
+    <table><thead><tr><th></th><th class="n">มัธยฐาน</th><th class="n">สูงสุด</th><th class="n">ผิดเกิน 30°</th></tr></thead>
+    <tbody>
+      <tr><td>ดิบ 10 Hz</td><td class="n">1.70°</td><td class="n bad">132.8°</td><td class="n">26 จุด</td></tr>
+      <tr><td>หลังเฉลี่ยวน</td><td class="n good">0.80°</td><td class="n">65.5°</td><td class="n good">6 จุด</td></tr>
+    </tbody></table>
+    <p>เฉพาะ 45 จังหวะที่มีสัญญาณสะท้อนตึก ความคลาดมัธยฐานลดจาก 42.9° เหลือ 6.5°
+       จังหวะแรงที่สุดลดจาก 132.8° เหลือ 9.7°</p>
+
+    <h3>7. แล้วเอาทิศไปใช้ทำอะไร</h3>
+    <p>ทิศที่ผ่านการกรองแล้วถูกใช้วาดกรวยสีน้ำเงินบนแผนที่ และใช้ตัดจุดเสี่ยงที่อยู่นอกกรวยทิ้ง
+       แผงมุมซ้ายบรรทัดล่างสุดนับให้เห็นว่าแต่ละความกว้างเหลือกี่จุด</p>
+    <p>เกณฑ์ประกอบอีก 2 ข้อ — ความเร็วต่ำกว่า 5 กม./ชม. ไม่รับทิศใหม่ (ตอนจอด COG หมุนสุ่ม)
+       และจุดที่ใกล้กว่า 30 เมตรข้ามการกรองทิศเสมอ เพราะมุมแกว่งรุนแรงเมื่อระยะสั้น</p>
+  </aside>
+
   <div id="start-overlay">
     <div class="start-card">
       <h1>🛣️ เส้นทางจำลองรังสิต</h1>
@@ -126,10 +200,23 @@
   <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=10"></script>
-  <script src="js/gps.js?v=16"></script>
+  <script src="js/gps.js?v=17"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=11"></script>
-  <script src="js/alert.js?v=24"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/alert.js?v=25"></script>
+  <!-- แผงตัวเลขสด อ่านค่าจาก AlertSystem.telemetry() -->
+  <script src="js/telemetry.js?v=1"></script>
+  <script src="js/app.js?v=17"></script>
+  <script>
+    // แผงอธิบายวิธีทำงาน — เลื่อนเข้าจากขอบขวา
+    (function () {
+      const panel = document.getElementById("method-panel");
+      const open = () => { panel.classList.add("open"); panel.setAttribute("aria-hidden", "false"); };
+      const close = () => { panel.classList.remove("open"); panel.setAttribute("aria-hidden", "true"); };
+      document.getElementById("btn-method").addEventListener("click", open);
+      document.getElementById("method-close").addEventListener("click", close);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    })();
+  </script>
 </body>
 </html>

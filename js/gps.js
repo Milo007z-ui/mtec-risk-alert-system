@@ -177,7 +177,7 @@ const GPS = (() => {
     const kmh = Math.max(10, Math.min(240, Number(param("kmh", defaultKmh)) || defaultKmh));
     const cruise = kmh / 3.6; // m/s
     const ACCEL_MS2 = 2.0; // อัตราเร่ง/หน่วงของรถยนต์ทั่วไป (0-100 กม./ชม. ราว 14 วิ)
-    const TICK_MS = 200; // ใกล้เคียงจังหวะที่ GPS จริงส่งตำแหน่ง (1-5 ครั้งต่อวินาที)
+    const TICK_MS = 100; // 10 Hz เท่าที่สั่งโมดูล u-blox M10 ไว้จริง
 
     // เวลารวมโดยประมาณ (ช่วงเร่ง+เบรกทำให้ช้ากว่าวิ่งความเร็วคงที่เล็กน้อย)
     const durationS = total / cruise + cruise / ACCEL_MS2;
@@ -192,14 +192,33 @@ const GPS = (() => {
       segCourse.push(bearingDegrees(verts[i].lat, verts[i].lng, verts[i + 1].lat, verts[i + 1].lng));
     }
 
+    // จำลองสัญญาณรบกวนของ COG จริง: สั่นปกติ + สัญญาณสะท้อนตึกเป็นครั้งคราว
+    // ปิดได้ด้วย ?noise=0 — ถ้าปิด ค่าที่ส่งจะเป็นทิศของถนนเป๊ะ ๆ ซึ่งไม่เหมือนของจริง
+    const NOISE_ON = param("noise", window.MOCK_NOISE === false ? "0" : "1") !== "0";
+    const COURSE_SIGMA_DEG = 2.5;
+    const SPIKE_CHANCE = 0.012;
+    const SPIKE_SIGMA_DEG = 60;
+    function gauss(sigma) {
+      const u = Math.max(1e-9, Math.random());
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random()) * sigma;
+    }
+    function noisyCourse(trueDeg) {
+      // ทิศจริงของถนนเก็บไว้ให้แผงตัวเลขเทียบว่าหลังกรองแล้วเหลือคลาดเท่าไร
+      window.MOCK_TRUE_COURSE = trueDeg;
+      if (!NOISE_ON) return trueDeg;
+      const spike = Math.random() < SPIKE_CHANCE;
+      window.MOCK_SPIKE = spike;
+      return ((trueDeg + gauss(spike ? SPIKE_SIGMA_DEG : COURSE_SIGMA_DEG)) % 360 + 360) % 360;
+    }
+
     const startedAt = performance.now();
-    onUpdate(verts[0].lat, verts[0].lng, 8, segCourse[0], 0);
+    onUpdate(verts[0].lat, verts[0].lng, 8, noisyCourse(segCourse[0]), 0);
     mockTimer = setInterval(() => {
       const elapsedS = (performance.now() - startedAt) / 1000;
       let dist = distanceAtTime(elapsedS, cruise, ACCEL_MS2, total);
       if (dist >= total) {
         onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8,
-                 segCourse[segCourse.length - 1], 0);
+                 noisyCourse(segCourse[segCourse.length - 1]), 0);
         clearInterval(mockTimer);
         mockTimer = null;
         console.log("[MOCK] จบเส้นทางจำลอง");
@@ -217,7 +236,7 @@ const GPS = (() => {
       const dNext = distanceAtTime(elapsedS + 1, cruise, ACCEL_MS2, total);
       const speedKmh = Math.max(0, dNext - distanceAtTime(elapsedS, cruise, ACCEL_MS2, total)) * 3.6;
       // ความแม่นยำแกว่งเล็กน้อยให้เหมือนจริง
-      onUpdate(lat, lng, 6 + Math.random() * 6, segCourse[i], speedKmh);
+      onUpdate(lat, lng, 6 + Math.random() * 6, noisyCourse(segCourse[i]), speedKmh);
     }, TICK_MS);
   }
 

@@ -57,6 +57,7 @@
         // กรวยที่ใช้กรองจุดเสี่ยง — วาดด้วยค่าเดียวกับที่ AlertSystem ใช้ตัดสินใจจริง
         MapView.setUserCone(lat, lng, AlertSystem.heading(),
                             AlertSystem.HEADING_WINDOW_DEG, AlertSystem.ALERT_RADIUS_M);
+        if (typeof Telemetry !== "undefined") Telemetry.update(lat, lng);
         if (!GPS.isMockMode()) {
           showStatus(`📍 GPS ทำงาน (ความแม่นยำ ±${Math.round(accuracy)} ม.)`);
         }

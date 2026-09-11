@@ -25,6 +25,12 @@ const AlertSystem = (() => {
   const heading = createHeadingTracker(15);
   let headingSource = null; // "COG" / "พิกัด" / null — ใช้ใน log และหมุนหมุด
 
+  // ภาพนิ่งของรอบล่าสุด ให้แผงตัวเลขบนแผนที่อ่านไปแสดง (ไม่มีผลกับการตัดสินใจ)
+  let lastTelemetry = {
+    rawCourse: null, heading: null, trueCourse: null,
+    speedKmh: null, inRadius: { off: 0, c90: 0, c30: 0 },
+  };
+
   const LEVEL_RANK = { low: 1, medium: 2, high: 3 };
 
   // id จุดเสี่ยง -> { lastAlertAt } (มี entry = ยังอยู่ในสถานะ "เตือนแล้ว")
@@ -74,6 +80,20 @@ const AlertSystem = (() => {
     const ahead = nearby.filter(({ point }) =>
       isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)
     );
+
+    // นับจุดในระยะเตือนของกรวยแต่ละความกว้าง — ไว้เทียบให้เห็นว่าการกรองตัดอะไรออก
+    const within = nearby.filter(({ distance }) => distance <= ALERT_RADIUS_M);
+    const countCone = (deg) =>
+      within.filter(({ point }) =>
+        isAhead(headingDeg, lat, lng, point.lat, point.lng, deg)
+      ).length;
+    lastTelemetry = {
+      rawCourse: courseDeg,
+      heading: headingDeg,
+      trueCourse: typeof window.MOCK_TRUE_COURSE === "number" ? window.MOCK_TRUE_COURSE : null,
+      speedKmh: speedForGate,
+      inRadius: { off: within.length, c90: countCone(90), c30: countCone(HEADING_WINDOW_DEG) },
+    };
 
     // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
     if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
@@ -145,6 +165,7 @@ const AlertSystem = (() => {
     onPositionUpdate,
     ALERT_RADIUS_M,
     HEADING_WINDOW_DEG,
+    telemetry: () => lastTelemetry,
     // ทิศที่ใช้กรองอยู่จริง (null = ยังไม่รู้ทิศ = ไม่กรอง) — map.js ใช้หมุนหมุด
     heading: () => (course.get() !== null ? course.get() : heading.get()),
     headingSource: () => headingSource,
