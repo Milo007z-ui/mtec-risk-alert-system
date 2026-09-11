@@ -264,7 +264,7 @@ def nearby_risk_points(
         None, ge=0, lt=360,
         description="ทิศที่รถกำลังมุ่งหน้า (COG องศา อ้าง true north) — ไม่ใส่ = ไม่กรองทิศ"),
     cone_deg: float = Query(
-        90, gt=0, le=180,
+        30, gt=0, le=180,
         description="มุมที่ถือว่าอยู่ข้างหน้า นับจาก heading ไปทางละเท่านี้ (180 = ปิดการกรอง)"),
 ):
     """จุดเสี่ยงในรัศมี เรียงใกล้ -> ไกล พร้อม distance_m และ alert_message ให้อุปกรณ์พูดได้ทันที"""

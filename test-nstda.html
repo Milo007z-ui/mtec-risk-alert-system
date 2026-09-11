@@ -14,12 +14,12 @@
     window.MAP_CENTER = [14.07847, 100.60216];
     window.MAP_ZOOM = 16;
 
-    // รัศมีเตือนปรับได้จาก URL (?alert=40&exit=60) เผื่อหน้างานอยากลองหลายค่าเทียบกัน
+    // รัศมีเตือนปรับได้จาก URL (?alert=25&exit=40) เผื่อหน้างานอยากลองหลายค่าเทียบกัน
     // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
     (function () {
       const qp = new URLSearchParams(location.search);
-      const alertM = Number(qp.get("alert")) || 60;
-      const exitM = Number(qp.get("exit")) || 80;
+      const alertM = Number(qp.get("alert")) || 40;
+      const exitM = Number(qp.get("exit")) || 55;
       window.ALERT_RADIUS_M = alertM;
       window.EXIT_RADIUS_M = Math.max(exitM, alertM);
     })();

@@ -84,7 +84,7 @@ function createHeadingTracker(minMoveM = 15) {
 }
 
 /** มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้) */
-const FRONT_CONE_DEG = 90;
+const FRONT_CONE_DEG = 30;
 
 /** ความเร็วต่ำสุดที่ยอมเชื่อค่า COG จากตัวรับ GPS */
 const COG_MIN_SPEED_KMH = 5;

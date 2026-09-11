@@ -15,7 +15,7 @@ EnvironmentFile=/etc/mtec.env
 # ฆ่าไคลเอนต์ตัวเก่าที่ค้างอยู่ก่อนเสมอ กันสองตัวแย่งกันส่งพิกัดจนหมุดกระโดด
 ExecStartPre=-/usr/bin/pkill -f "pi_alert_client.py"
 # --serial = อ่าน NMEA จากตัวรับ GPS โดยตรง ไม่ต้องมี gpsd
-ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} $SPEAK_FLAG
+ExecStart=/usr/bin/python3 device/pi_alert_client.py --api http://localhost:8000 --serial --audio-device plughw:2,0 --alert-radius ${ALERT_RADIUS_M} --exit-radius ${EXIT_RADIUS_M} --volume ${VOLUME_PCT} $SPEAK_FLAG $HEADING_FLAG
 # หาพอร์ต GPS ไม่เจอตอนเพิ่งบูต = ลองใหม่ทุก 5 วิ จนกว่าเคอร์เนลจะสร้างไฟล์พอร์ตให้
 Restart=on-failure
 RestartSec=5

@@ -251,7 +251,7 @@ check("ทิศ 350° จุดทางเหนือ -> ข้างหน�
 
 print()
 print("ค่าตั้งต้นต้องตรงกับฝั่งเว็บ (js/distance.js):")
-check("มุมกรวยเริ่มต้น = 90", pac.DEFAULT_HEADING_WINDOW_DEG == 90)
+check("มุมกรวยเริ่มต้น = 30", pac.DEFAULT_HEADING_WINDOW_DEG == 30)
 check("ระยะยกเว้นการกรองทิศ = 30 ม.", pac.HEADING_NEAR_BYPASS_M == 30)
 check("เกณฑ์ความเร็วของ COG = 5 กม./ชม.", pac.COG_MIN_SPEED_KMH == 5)
 check("อายุทิศที่ค้างไว้ = 120 วิ", pac.COG_HOLD_MAX_S == 120)
