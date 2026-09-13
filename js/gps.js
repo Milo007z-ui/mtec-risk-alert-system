@@ -179,12 +179,14 @@ const GPS = (() => {
     // แยกจาก kmh เพราะถ้าเร่ง kmh แทน แผงจะโชว์ 300 กม./ชม. ซึ่งไม่ใช่ความเร็วที่ควรสาธิต
     const defaultX = Number(window.MOCK_SPEEDUP) || 1;
     const SPEEDUP = Math.max(1, Math.min(30, Number(param("x", defaultX)) || defaultX));
+    // เริ่มกลางเส้นทางได้ด้วย ?start=<กิโลเมตร> — ไว้กระโดดไปดูช่วงใกล้จุดเสี่ยงโดยไม่ต้องรอ
+    const START_M = Math.max(0, Math.min(total - 50, Number(param("start", 0)) * 1000 || 0));
     const cruise = kmh / 3.6; // m/s
     const ACCEL_MS2 = 2.0; // อัตราเร่ง/หน่วงของรถยนต์ทั่วไป (0-100 กม./ชม. ราว 14 วิ)
     const TICK_MS = 100; // 10 Hz เท่าที่สั่งโมดูล u-blox M10 ไว้จริง
 
     // เวลารวมโดยประมาณ (ช่วงเร่ง+เบรกทำให้ช้ากว่าวิ่งความเร็วคงที่เล็กน้อย)
-    const durationS = total / cruise + cruise / ACCEL_MS2;
+    const durationS = (total - START_M) / cruise + cruise / ACCEL_MS2;
     console.log(
       `[MOCK] เส้นทางจำลอง ${(total / 1000).toFixed(2)} กม. · ${kmh} กม./ชม. · ~${Math.round(durationS)} วิ` +
         (SPEEDUP > 1 ? ` · เล่นเร็ว ${SPEEDUP}× = ดูจบใน ~${Math.round(durationS / SPEEDUP)} วิ` : "") +
@@ -217,12 +219,20 @@ const GPS = (() => {
     }
 
     const startedAt = performance.now();
-    onUpdate(verts[0].lat, verts[0].lng, 8, noisyCourse(segCourse[0]), 0);
+    // ถ้าเริ่มกลางทาง ให้หมุดไปโผล่ตรงนั้นเลย ไม่ต้องเริ่มจากต้นเส้นทาง
+    (function seedStart() {
+      let d = START_M, k = 0;
+      while (k < seg.length - 1 && d > seg[k]) { d -= seg[k]; k++; }
+      const f = seg[k] ? d / seg[k] : 0;
+      onUpdate(verts[k].lat + (verts[k + 1].lat - verts[k].lat) * f,
+               verts[k].lng + (verts[k + 1].lng - verts[k].lng) * f,
+               8, noisyCourse(segCourse[k]), 0);
+    })();
     mockTimer = setInterval(() => {
       // เวลาที่ "รถ" เดินทางไปแล้ว = เวลาจริง × ตัวคูณ — แผงตัวเลขอ่านค่านี้ไปแสดง
       const elapsedS = ((performance.now() - startedAt) / 1000) * SPEEDUP;
       window.MOCK_ELAPSED_S = elapsedS;
-      let dist = distanceAtTime(elapsedS, cruise, ACCEL_MS2, total);
+      let dist = START_M + distanceAtTime(elapsedS, cruise, ACCEL_MS2, total - START_M);
       if (dist >= total) {
         onUpdate(verts[verts.length - 1].lat, verts[verts.length - 1].lng, 8,
                  noisyCourse(segCourse[segCourse.length - 1]), 0);
@@ -240,8 +250,9 @@ const GPS = (() => {
       const lat = verts[i].lat + (verts[i + 1].lat - verts[i].lat) * t;
       const lng = verts[i].lng + (verts[i + 1].lng - verts[i].lng) * t;
       // ความเร็ว ณ วินาทีนั้น (หาจากระยะที่วิ่งได้ในช่วง 1 วิ) — ให้ speed gate ของ
-      const dNext = distanceAtTime(elapsedS + 1, cruise, ACCEL_MS2, total);
-      const speedKmh = Math.max(0, dNext - distanceAtTime(elapsedS, cruise, ACCEL_MS2, total)) * 3.6;
+      const dNext = distanceAtTime(elapsedS + 1, cruise, ACCEL_MS2, total - START_M);
+      const speedKmh =
+        Math.max(0, dNext - distanceAtTime(elapsedS, cruise, ACCEL_MS2, total - START_M)) * 3.6;
       // ความแม่นยำแกว่งเล็กน้อยให้เหมือนจริง
       onUpdate(lat, lng, 6 + Math.random() * 6, noisyCourse(segCourse[i]), speedKmh);
     }, TICK_MS);

@@ -16,8 +16,9 @@
     window.MAP_ZOOM = 13;
     // ความเร็วรถที่แผงตัวเลขจะแสดง — ใช้ค่าที่สมจริงบนถนนสายนี้
     window.MOCK_KMH = 90;
-    // ย่นเวลาดู: 23 กม. ที่ 90 กม./ชม. = 15 นาที · เล่นเร็ว 5 เท่า = ดูจบใน ~3 นาที
-    window.MOCK_SPEEDUP = 5;
+    // เล่นเร็ว 2 เท่า — ช้าพอให้ได้ยินการไล่ระดับ beep (ช้า -> ปานกลาง -> ถี่)
+    // ซึ่งแต่ละขั้นกินเวลาราว 5 วินาทีของการเดินทางจริง
+    window.MOCK_SPEEDUP = 2;
 
     // รัศมีเตือนปรับได้จาก URL (?alert=300&exit=400) เผื่ออยากลองหลายค่าเทียบกัน
     // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
@@ -189,7 +190,7 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
         ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 456 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
       </p>
       <button id="btn-start">เริ่มเส้นทางจำลอง</button>
-      <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=120</code> · เร่ง/ลดความเร็วการเล่นด้วย <code>&amp;x=10</code></p>
+      <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=120</code> · เร่ง/ลดความเร็วการเล่นด้วย <code>&amp;x=10</code> · กระโดดไปกลางทางด้วย <code>&amp;start=3</code> (กม.)</p>
     </div>
   </div>
 
@@ -202,7 +203,7 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
   <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=12"></script>
-  <script src="js/gps.js?v=18"></script>
+  <script src="js/gps.js?v=19"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=11"></script>
   <script src="js/alert.js?v=26"></script>
