@@ -2,7 +2,7 @@
 
 const {
   haversineMeters, inBoundingBox, findNearbyPoints,
-  bearingDegrees, angleDiffDegrees, createHeadingTracker, isAhead,
+  bearingDegrees, angleDiffDegrees, compassName, createHeadingTracker, isAhead,
   createCourseTracker, circularMeanDegrees, FRONT_CONE_DEG,
   COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS, COURSE_WINDOW_MS,
   beepStartM, beepPatternFor, createSpeedTracker, DSD_E_M, BEEP_RECEDE_MIN_M,
@@ -78,6 +78,18 @@ assert("350° กับ 10° ต่างกัน 20° (ข้ามรอย 0
 assert("10° กับ 350° ได้เท่ากัน ไม่ขึ้นกับลำดับ", angleDiffDegrees(10, 350) === 20);
 assert("ตรงข้ามกันได้ 180°", angleDiffDegrees(0, 180) === 180);
 assert("มุมเดียวกันได้ 0°", angleDiffDegrees(90, 90) === 0);
+
+console.log("compassName (ตาราง tandhava, กฎ ล่าง < d ≤ บน):");
+for (const [deg, name] of [
+  [0, "เหนือ"], [30, "เหนือ"], [30.7, "ตะวันออกเฉียงเหนือ"], [60, "ตะวันออกเฉียงเหนือ"],
+  [60.1, "ตะวันออก"], [90, "ตะวันออก"], [120, "ตะวันออก"], [135, "ตะวันออกเฉียงใต้"],
+  [150, "ตะวันออกเฉียงใต้"], [180, "ใต้"], [210, "ใต้"], [225, "ตะวันตกเฉียงใต้"],
+  [240, "ตะวันตกเฉียงใต้"], [270, "ตะวันตก"], [300, "ตะวันตก"], [315, "ตะวันตกเฉียงเหนือ"],
+  [330, "ตะวันตกเฉียงเหนือ"], [330.4, "เหนือ"], [359.9, "เหนือ"], [360, "เหนือ"],
+  [-10, "เหนือ"], [370, "เหนือ"],
+]) {
+  assert(`${deg}° = ${name}`, compassName(deg) === name);
+}
 
 console.log("createHeadingTracker:");
 {

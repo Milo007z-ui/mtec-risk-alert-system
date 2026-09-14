@@ -52,6 +52,35 @@ function angleDiffDegrees(a, b) {
   return d > 180 ? 360 - d : d;
 }
 
+/**
+ * องศา -> ชื่อทิศภาษาไทย ตามตาราง tandhava.in.th
+ *
+ *   N  เหนือ               330 – 30
+ *   NE ตะวันออกเฉียงเหนือ    30 – 60
+ *   E  ตะวันออก             60 – 120
+ *   SE ตะวันออกเฉียงใต้     120 – 150
+ *   S  ใต้                 150 – 210
+ *   SW ตะวันตกเฉียงใต้      210 – 240
+ *   W  ตะวันตก             240 – 300
+ *   NW ตะวันตกเฉียงเหนือ    300 – 330
+ *
+ * กฎขอบช่วง: ล่าง < d ≤ บน (30° = เหนือ, 30.7° = ตะวันออกเฉียงเหนือ)
+ * ใช้ < กับ ≤ ไม่ใช่เลขจำนวนเต็ม เพราะ GPS ส่งทศนิยมมา (330.4° ต้องมีทิศ)
+ */
+function compassName(deg) {
+  const d = ((deg % 360) + 360) % 360; // ทำให้อยู่ในช่วง 0–359.99 เช่น -10 -> 350, 370 -> 10
+
+  if (d > 330 || d <= 30)   return "เหนือ";              // N  330 – 30 (คร่อม 0°)
+  if (d > 30  && d <= 60)   return "ตะวันออกเฉียงเหนือ";   // NE  30 – 60
+  if (d > 60  && d <= 120)  return "ตะวันออก";            // E   60 – 120
+  if (d > 120 && d <= 150)  return "ตะวันออกเฉียงใต้";     // SE 120 – 150
+  if (d > 150 && d <= 210)  return "ใต้";                 // S  150 – 210
+  if (d > 210 && d <= 240)  return "ตะวันตกเฉียงใต้";      // SW 210 – 240
+  if (d > 240 && d <= 300)  return "ตะวันตก";             // W  240 – 300
+  if (d > 300 && d <= 330)  return "ตะวันตกเฉียงเหนือ";    // NW 300 – 330
+  return "เหนือ"; // ไม่ควรมาถึง (ครบทุกช่วงแล้ว) — เผื่อ deg เป็น NaN
+}
+
 /** ตัวติดตามทิศที่รถกำลังมุ่งหน้า — คำนวณจากตำแหน่งที่ขยับไปจริง */
 function createHeadingTracker(minMoveM = 15) {
   let anchorLat = null;
@@ -240,7 +269,7 @@ function beepPatternFor(entries, closestSeen, speedKmh) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     haversineMeters, inBoundingBox, findNearbyPoints,
-    bearingDegrees, angleDiffDegrees, createHeadingTracker, isAhead,
+    bearingDegrees, angleDiffDegrees, compassName, createHeadingTracker, isAhead,
     createCourseTracker, circularMeanDegrees,
     HEADING_NEAR_BYPASS_M, FRONT_CONE_DEG, COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS,
     COURSE_WINDOW_MS,

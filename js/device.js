@@ -198,13 +198,9 @@ const DeviceTracker = (() => {
     render(data);
   }
 
-  const COMPASS_TH = ["เหนือ", "ตะวันออกเฉียงเหนือ", "ตะวันออก", "ตะวันออกเฉียงใต้",
-                      "ใต้", "ตะวันตกเฉียงใต้", "ตะวันตก", "ตะวันตกเฉียงเหนือ"];
-
-  /** องศา -> ทิศภาษาไทย + ตัวเลข เช่น 47 -> "ตะวันออกเฉียงเหนือ (47°)" */
+  /** องศา -> ทิศภาษาไทย + ตัวเลข เช่น 47 -> "ตะวันออกเฉียงเหนือ (47°)" (ช่วงองศาดู compassName ใน distance.js) */
   function compassLabel(deg) {
-    const idx = Math.round((((deg % 360) + 360) % 360) / 45) % 8;
-    return `${COMPASS_TH[idx]} (${Math.round(deg)}°)`;
+    return `${compassName(deg)} (${Math.round(deg)}°)`;
   }
 
   // มุมสะสมของลูกศร — ดูเหตุผลที่ไม่ตัดกลับเข้า 0-360 ใน MapView.setUserHeading
