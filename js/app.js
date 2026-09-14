@@ -53,14 +53,19 @@
       (lat, lng, accuracy, courseDeg, speedKmh) => {
         // ให้ AlertSystem คิดทิศก่อน (มันกรอง COG ด้วยความเร็วและคงค่าล่าสุดไว้ตอนรถจอด)
         AlertSystem.onPositionUpdate(lat, lng, courseDeg, speedKmh);
-        MapView.updateUserPosition(lat, lng, accuracy, AlertSystem.heading());
+        const headingDeg = AlertSystem.heading();
+        MapView.updateUserPosition(lat, lng, accuracy, headingDeg);
         // กรวยที่ใช้กรองจุดเสี่ยง — วาดด้วยค่าเดียวกับที่ AlertSystem ใช้ตัดสินใจจริง
-        MapView.setUserCone(lat, lng, AlertSystem.heading(),
+        MapView.setUserCone(lat, lng, headingDeg,
                             AlertSystem.HEADING_WINDOW_DEG, AlertSystem.ALERT_RADIUS_M);
         if (typeof Telemetry !== "undefined") Telemetry.update(lat, lng);
-        if (!GPS.isMockMode()) {
-          showStatus(`📍 GPS ทำงาน (ความแม่นยำ ±${Math.round(accuracy)} ม.)`);
-        }
+        // ทิศที่แสดงคือค่าเดียวกับที่หมุนลูกศรและใช้กรองจุดเสี่ยง (null = รถยังไม่เคลื่อนที่พอ)
+        const dirText = headingDeg === null
+          ? "ทิศ ยังไม่รู้ รอรถเคลื่อนที่"
+          : `ทิศ ${compassName(headingDeg)} (${Math.round(headingDeg)}°)`;
+        showStatus(GPS.isMockMode()
+          ? `🧪 โหมดจำลอง GPS · ${dirText}`
+          : `📍 GPS ทำงาน (ความแม่นยำ ±${Math.round(accuracy)} ม.) · ${dirText}`);
       },
       (message) => showStatus(`❌ ${message}`)
     );

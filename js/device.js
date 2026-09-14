@@ -355,6 +355,8 @@ const DeviceTracker = (() => {
     if (d.speed_kmh !== null && d.speed_kmh !== undefined) {
       rows.push(["ความเร็ว", `${d.speed_kmh.toFixed(1)} กม./ชม.`]);
     }
+    rows.push(["ทิศ", d.heading !== null && d.heading !== undefined
+      ? compassLabel(d.heading) : "ยังไม่รู้ รอรถเคลื่อนที่"]);
     if (d.satellites !== null && d.satellites !== undefined) {
       rows.push(["ดาวเทียม", `${d.satellites} ดวง`]);
     }
