@@ -218,6 +218,89 @@ const GPS = (() => {
       return ((trueDeg + gauss(spike ? SPIKE_SIGMA_DEG : COURSE_SIGMA_DEG)) % 360 + 360) % 360;
     }
 
+    // สถานการณ์ทดสอบ beep (?scenario=brake|accel) — โปรไฟล์ความเร็วกำหนดเองรอบจุดเสี่ยงจุดเดียว
+    // ค่าของแต่ละสถานการณ์ตั้งในหน้า HTML (window.MOCK_SCENARIOS) เพราะผูกกับเส้นทางของหน้านั้น
+    const scenario = (window.MOCK_SCENARIOS || {})[param("scenario", "")];
+    if (scenario) {
+      runScenario(scenario);
+      return;
+    }
+
+    /** พิกัด ณ ระยะ d เมตรตามเส้นทาง + index ของเซกเมนต์ (ไว้หยิบทิศ COG) */
+    function pointAt(d) {
+      let i = 0;
+      while (i < seg.length - 1 && d > seg[i]) { d -= seg[i]; i++; }
+      const f = seg[i] ? Math.min(1, d / seg[i]) : 0;
+      return {
+        lat: verts[i].lat + (verts[i + 1].lat - verts[i].lat) * f,
+        lng: verts[i].lng + (verts[i + 1].lng - verts[i].lng) * f,
+        i,
+      };
+    }
+
+    /** ล่วงหน้าทั้งสถานการณ์ทุก 0.05 วิ: [{ t, s, v, phase }] — s = ระยะตามเส้นทาง (ม.), v = ม./วิ */
+    function scenarioTimeline(sc) {
+      const DT = 0.05;
+      const cruise = sc.fromKmh / 3.6;
+      let s = Math.max(0, sc.targetM - sc.startBeforeM);
+      const endS = Math.min(total, sc.targetM + sc.endAfterM);
+      let v = cruise, t = 0, phase = "cruise", hold = 0;
+      const out = [{ t, s, v, phase }];
+      while (s < endS && t < 900) {
+        let a = 0;
+        // ถึงระยะที่กำหนด (วัดตามเส้นทางถึงจุดเสี่ยง) -> เริ่มเบรก/เร่ง
+        if (phase === "cruise" && sc.targetM - s <= sc.triggerM) phase = sc.kind;
+        if (phase === "brake") {
+          a = -sc.decel;
+          if (v + a * DT <= 0) { v = 0; a = 0; phase = "stopped"; hold = sc.holdS; }
+        } else if (phase === "stopped") {
+          hold -= DT;
+          if (hold <= 0) phase = "go";
+        } else if (phase === "go") {
+          a = sc.accel;
+          if (v + a * DT >= cruise) { v = cruise; a = 0; phase = "resume"; }
+        } else if (phase === "accel") {
+          a = sc.accel;
+          if (v + a * DT >= sc.toKmh / 3.6) { v = sc.toKmh / 3.6; a = 0; phase = "fast"; }
+        }
+        v = Math.max(0, v + a * DT);
+        s += v * DT;
+        t += DT;
+        out.push({ t, s, v, phase });
+      }
+      return { DT, out };
+    }
+
+    function runScenario(sc) {
+      // ค่าเริ่มต้นเล่นเวลาจริง (1×) ให้ได้ยินจังหวะ beep ตรงกับที่รถจริงจะได้ยิน · ?x= ยังเร่งได้
+      const x = Math.max(1, Math.min(30, Number(param("x", 1)) || 1));
+      const { DT, out } = scenarioTimeline(sc);
+      window.MOCK_SCENARIO = { ...sc, phase: out[0].phase };
+      console.log(`[MOCK] สถานการณ์ "${sc.title}" · ${Math.round(out[out.length - 1].t)} วิ` +
+                  (x > 1 ? ` · เล่นเร็ว ${x}×` : ""));
+      const emit = (k, phaseOverride) => {
+        const p = out[k];
+        const pos = pointAt(p.s);
+        window.MOCK_ELAPSED_S = p.t;
+        window.MOCK_SCENARIO.phase = phaseOverride || p.phase;
+        // ความเร็วจริง ณ ขณะนั้น (ไม่ใช่ค่าเฉลี่ย 1 วิ) — ตอนจอดส่ง 0 เหมือนตัวรับ GPS
+        onUpdate(pos.lat, pos.lng, 8, noisyCourse(segCourse[pos.i]), p.v * 3.6);
+      };
+      const t0 = performance.now();
+      emit(0);
+      mockTimer = setInterval(() => {
+        const k = Math.floor((((performance.now() - t0) / 1000) * x) / DT);
+        if (k >= out.length - 1) {
+          emit(out.length - 1, "done");
+          clearInterval(mockTimer);
+          mockTimer = null;
+          console.log("[MOCK] จบสถานการณ์");
+          return;
+        }
+        emit(k);
+      }, TICK_MS);
+    }
+
     const startedAt = performance.now();
     // ถ้าเริ่มกลางทาง ให้หมุดไปโผล่ตรงนั้นเลย ไม่ต้องเริ่มจากต้นเส้นทาง
     (function seedStart() {

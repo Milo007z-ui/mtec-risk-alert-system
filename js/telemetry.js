@@ -38,7 +38,19 @@ const Telemetry = (() => {
         '<h3>เสียง beep</h3>' +
         '<div class="tm-kv"><span>จังหวะ</span><b id="tm-beep">เงียบ</b></div>' +
         '<div class="tm-kv"><span>เพราะจุด</span><b id="tm-beepfrom">—</b></div>' +
-      '</div>';
+      '</div>' +
+      // การ์ดสถานการณ์ทดสอบ beep — มีเฉพาะตอนเปิดด้วย ?scenario= (gps.js ตั้ง MOCK_SCENARIO ไว้)
+      (window.MOCK_SCENARIO
+        ? '<div class="tm-card">' +
+            '<h3>สถานการณ์ทดสอบ</h3>' +
+            '<div class="tm-kv tm-pick"><span>ตอนนี้</span><b id="tm-phase">—</b></div>' +
+            // ซ้ำกับการ์ดความเร็วด้านบน เพราะแบนเนอร์เตือนมักบังการ์ดนั้นตอนเข้าใกล้จุดเสี่ยง
+            '<div class="tm-kv"><span>ความเร็วรถ</span><b id="tm-vnow">—</b></div>' +
+            `<div class="tm-kv"><span>ถึง ${window.MOCK_SCENARIO.target}</span><b id="tm-target">—</b></div>` +
+            '<div class="tm-kv"><span>ความเร็วคิด beep</span><b id="tm-bspd">—</b></div>' +
+            '<div class="tm-kv"><span>เริ่ม beep ที่</span><b id="tm-bstart">—</b></div>' +
+          '</div>'
+        : "");
     document.body.appendChild(box);
     return box;
   }
@@ -91,6 +103,18 @@ const Telemetry = (() => {
     const BEEP_TH = { far: "ช้า", mid: "ปานกลาง", near: "ถี่" };
     q("tm-beep").textContent = t.beep === null ? "เงียบ" : BEEP_TH[t.beep] || t.beep;
     q("tm-beepfrom").textContent = t.beepFrom === null ? "—" : t.beepFrom;
+
+    const sc = window.MOCK_SCENARIO;
+    if (sc && q("tm-phase")) {
+      q("tm-phase").textContent = (sc.phases && sc.phases[sc.phase]) || sc.phase;
+      q("tm-vnow").textContent =
+        t.speedKmh === null || t.speedKmh === undefined ? "—" : `${Math.round(t.speedKmh)} กม./ชม.`;
+      const tp = RiskPoints.all().find((p) => p.id === sc.target);
+      q("tm-target").textContent = tp ? `${Math.round(haversineMeters(lat, lng, tp.lat, tp.lng))} ม.` : "—";
+      q("tm-bspd").textContent =
+        t.beepSpeedKmh === null ? "ยังไม่รู้ ใช้ 90" : `${Math.round(t.beepSpeedKmh)} กม./ชม.`;
+      q("tm-bstart").textContent = `${t.beepStartM} ม.`;
+    }
   }
 
   return { update, enabled };

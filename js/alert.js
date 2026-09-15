@@ -104,6 +104,9 @@ const AlertSystem = (() => {
       speedKmh: speedForGate,
       inRadius: { off: within.length, c90: countCone(90), c30: countCone(HEADING_WINDOW_DEG) },
       beep: beepPattern,
+      // ความเร็วที่ใช้คิดระยะเริ่ม beep (ค้างค่าล่าสุดที่ ≥ 5 กม./ชม. ตอนรถจอด) + ระยะที่ได้
+      beepSpeedKmh: lastMovingSpeedKmh,
+      beepStartM: beepStartM(lastMovingSpeedKmh),
       // จุดที่ทำให้ beep ร้องอยู่ตอนนี้ — ไว้ไล่หาเวลาที่เสียงไม่หยุดอย่างที่คาด
       beepFrom: beepPattern === null ? null : (() => {
         const r = beepStartM(lastMovingSpeedKmh);

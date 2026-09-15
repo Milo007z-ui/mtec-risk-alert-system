@@ -20,6 +20,26 @@
     // ซึ่งแต่ละขั้นกินเวลาราว 5 วินาทีของการเดินทางจริง
     window.MOCK_SPEEDUP = 2;
 
+    // สถานการณ์ทดสอบ beep รอบจุดเสี่ยง zone_319 (บ้านพร้าว–คลองห้า) ที่กิโลเมตร 12.182 ของเส้นทาง
+    // เปิดด้วย ?mock=1&scenario=brake หรือ ?mock=1&scenario=accel (เล่นเวลาจริง ปรับได้ด้วย &x=)
+    // triggerM = ระยะตามเส้นทางถึงจุดเสี่ยงที่เริ่มเบรก/เร่ง · decel 3.4 = ค่าออกแบบ AASHTO
+    window.MOCK_SCENARIOS = {
+      brake: {
+        title: "ขับ 90 แล้วเบรกจนจอด เริ่มเบรกที่ 210 ม.", kind: "brake",
+        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        fromKmh: 90, triggerM: 210, decel: 3.4, holdS: 20, accel: 2.0,
+        phases: { cruise: "ขับ 90 กม./ชม.", brake: "เหยียบเบรก", stopped: "จอดนิ่ง 20 วิ",
+                  go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
+      },
+      accel: {
+        title: "ขับ 90 แล้วเร่งถึง 120 เริ่มเร่งที่ 200 ม.", kind: "accel",
+        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        fromKmh: 90, toKmh: 120, triggerM: 200, accel: 1.39,
+        phases: { cruise: "ขับ 90 กม./ชม.", accel: "เร่ง 90 → 120", fast: "ขับ 120 กม./ชม.",
+                  done: "จบสถานการณ์" },
+      },
+    };
+
     // รัศมีเตือนปรับได้จาก URL (?alert=300&exit=400) เผื่ออยากลองหลายค่าเทียบกัน
     // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
     (function () {
@@ -189,6 +209,11 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
       <p class="hint" style="color:#2e7d32">
         ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 456 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
       </p>
+      <p class="hint">
+        สถานการณ์ทดสอบ beep ที่จุดบ้านพร้าว–คลองห้า:
+        <a href="?mock=1&amp;scenario=brake">🛑 ขับ 90 แล้วเบรกจนจอด</a> ·
+        <a href="?mock=1&amp;scenario=accel">🚀 ขับ 90 แล้วเร่งถึง 120</a>
+      </p>
       <button id="btn-start">เริ่มเส้นทางจำลอง</button>
       <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=120</code> · เร่ง/ลดความเร็วการเล่นด้วย <code>&amp;x=10</code> · กระโดดไปกลางทางด้วย <code>&amp;start=3</code> (กม.)</p>
     </div>
@@ -203,12 +228,12 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
   <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=12"></script>
-  <script src="js/gps.js?v=19"></script>
+  <script src="js/gps.js?v=20"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=14"></script>
-  <script src="js/alert.js?v=26"></script>
+  <script src="js/alert.js?v=27"></script>
   <!-- แผงตัวเลขสด อ่านค่าจาก AlertSystem.telemetry() -->
-  <script src="js/telemetry.js?v=3"></script>
+  <script src="js/telemetry.js?v=4"></script>
   <script src="js/app.js?v=18"></script>
   <script>
     // แผงอธิบายวิธีทำงาน — เลื่อนเข้าจากขอบขวา
