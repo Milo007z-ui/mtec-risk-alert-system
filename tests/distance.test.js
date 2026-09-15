@@ -6,6 +6,7 @@ const {
   createCourseTracker, circularMeanDegrees, FRONT_CONE_DEG,
   COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS, COURSE_WINDOW_MS,
   beepStartM, beepPatternFor, createSpeedTracker, DSD_E_M, BEEP_RECEDE_MIN_M,
+  createParkedDetector, PARKED_MUTE_MS,
 } = require("../js/distance.js");
 
 let passed = 0;
@@ -327,6 +328,29 @@ console.log("createSpeedTracker:");
   const v = t.update(13.751, 100.5, 4000);
   assert("ขยับ 111 ม. ใน 4 วิ -> ได้ ~100 กม./ชม.", v > 95 && v < 105);
   assert("get() คืนค่าล่าสุด", t.get() === v);
+
+  // จอดนิ่ง: GPS แกว่ง ~3 ม. ไม่ถึง 15 ม. ต้องไม่ค้างความเร็วตอนวิ่งไว้ตลอด (ไม่งั้นไม่มีวันหยุด beep)
+  assert("หยุดนิ่ง 3 วิ -> ยังคงค่าเดิม (สั้นเกินจะเชื่อ)", t.update(13.751027, 100.5, 7000) === v);
+  const still = t.update(13.751027, 100.5, 10000);
+  assert("ไม่ขยับถึง 15 ม. นาน 6 วิ -> ความเร็วลดต่ำกว่า 5 กม./ชม.", still !== null && still < 5);
+}
+
+console.log("");
+console.log("createParkedDetector (หยุด beep เมื่อรถจอดนิ่ง):");
+{
+  const p = createParkedDetector();
+  assert("วิ่ง 40 กม./ชม. -> ไม่นับว่าจอด", p.update(40, 0) === false);
+  assert("เพิ่งช้าลงต่ำกว่า 5 -> ยังไม่หยุด beep ทันที", p.update(2, 1000) === false);
+  assert("ช้าต่อ 2.9 วิ -> ยังร้อง", p.update(0, 3900) === false);
+  assert(`ครบ ${PARKED_MUTE_MS / 1000} วิ -> หยุด beep`, p.update(0, 4000) === true);
+  assert("GPS แกว่ง 1.8 กม./ชม. ตอนจอด -> ยังนับว่าจอด", p.update(1.8, 10000) === true);
+  assert("ออกตัว 6 กม./ชม. -> ร้องต่อทันที", p.update(6, 11000) === false);
+  assert("รถติดหยุดแป๊บเดียวไม่ถึง 3 วิ -> ไม่ตัดเสียง",
+    p.update(3, 12000) === false && p.update(10, 14000) === false);
+  const q = createParkedDetector();
+  q.update(0, 0);
+  assert("ไม่รู้ความเร็ว (null) -> ไม่นับว่าจอด และเริ่มนับใหม่",
+    q.update(null, 5000) === false && q.update(0, 6000) === false);
 }
 
 console.log("");

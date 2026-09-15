@@ -214,6 +214,30 @@ const BEEP_MID_FRAC = 0.33; // 33-66% = ปานกลาง · ต่ำกว
 // ถือว่า "ขับผ่านไปแล้ว" เมื่อระยะเพิ่มจากค่าต่ำสุดที่เคยวัดได้เกินค่านี้ แล้วหยุด beep
 const BEEP_RECEDE_MIN_M = 25;
 
+// รถแทบหยุดนิ่ง (ต่ำกว่า SPEED_HOLD_MIN_KMH) ติดต่อกันนานเท่านี้ -> หยุด beep
+// จอดติดไฟแดงหน้าจุดเสี่ยง beep ที่ร้องต่อไม่ได้เตือนอะไรเพิ่ม กลายเป็นเสียงรบกวน
+// รอ 3 วิก่อน กันเสียงดับ ๆ ติด ๆ ตอนรถติดที่หยุดแป๊บเดียวแล้วคลานต่อ
+const PARKED_MUTE_MS = 3000;
+
+// ประเมินความเร็วจากพิกัด: ไม่ขยับถึงเกณฑ์นานเท่านี้ = รถแทบไม่เคลื่อนที่
+// (ไม่งั้นค่าตอนวิ่งจะค้างไว้ตลอดตอนจอด แล้วระบบไม่มีวันรู้ว่ารถหยุด)
+const SPEED_STILL_AFTER_MS = 5000;
+
+/** ตรวจว่ารถจอดนิ่งนานพอจะหยุด beep หรือยัง — ไม่รู้ความเร็ว (null) = ไม่นับว่าจอด */
+function createParkedDetector(minKmh = SPEED_HOLD_MIN_KMH, muteAfterMs = PARKED_MUTE_MS) {
+  let stoppedSince = null;
+  return {
+    update(speedKmh, nowMs = Date.now()) {
+      if (speedKmh === null || speedKmh === undefined || Number.isNaN(speedKmh) || speedKmh >= minKmh) {
+        stoppedSince = null;
+        return false;
+      }
+      if (stoppedSince === null) stoppedSince = nowMs;
+      return nowMs - stoppedSince >= muteAfterMs;
+    },
+  };
+}
+
 /** ระยะที่เริ่ม beep บอกระยะ = DSD Maneuver E ที่ความเร็วรถขณะนั้น */
 function beepStartM(speedKmh) {
   let v = (speedKmh === null || speedKmh === undefined || Number.isNaN(speedKmh))
@@ -236,7 +260,13 @@ function createSpeedTracker(minMoveM = 15) {
       }
       const moved = haversineMeters(last.lat, last.lng, lat, lng);
       const dt = (nowMs - last.t) / 1000;
-      if (moved < minMoveM || dt <= 0) return speedKmh; // ยังขยับไม่พอให้เชื่อ
+      if (dt <= 0) return speedKmh;
+      if (moved < minMoveM) {
+        // ขยับไม่ถึงเกณฑ์ช่วงสั้น ๆ = ยังไม่เชื่อ (GPS แกว่ง) · นานเกิน 5 วิ = รถแทบไม่เคลื่อนที่จริง
+        // จึงลดความเร็วลงตามระยะที่ขยับได้ ไม่ค้างค่าตอนวิ่งไว้ (anchor ไม่ย้าย ค่าจะลดลงเรื่อย ๆ)
+        if (dt * 1000 >= SPEED_STILL_AFTER_MS) speedKmh = (moved / dt) * 3.6;
+        return speedKmh;
+      }
       speedKmh = (moved / dt) * 3.6;
       last = { lat, lng, t: nowMs };
       return speedKmh;
@@ -273,7 +303,8 @@ if (typeof module !== "undefined" && module.exports) {
     createCourseTracker, circularMeanDegrees,
     HEADING_NEAR_BYPASS_M, FRONT_CONE_DEG, COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS,
     COURSE_WINDOW_MS,
-    beepStartM, beepPatternFor, createSpeedTracker,
+    beepStartM, beepPatternFor, createSpeedTracker, createParkedDetector,
     DSD_E_M, BEEP_RECEDE_MIN_M, SPEED_HOLD_MIN_KMH, DEFAULT_SPEED_KMH,
+    PARKED_MUTE_MS, SPEED_STILL_AFTER_MS,
   };
 }

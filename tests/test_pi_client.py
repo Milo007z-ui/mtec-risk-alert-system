@@ -250,7 +250,25 @@ check("ทิศ 350° จุดทางเหนือ -> ข้างหน�
       pac.is_ahead(350, *O, *N, 90))
 
 print()
+print("ParkedDetector (หยุด beep เมื่อรถจอดนิ่ง):")
+pd = pac.ParkedDetector()
+check("วิ่ง 40 กม./ชม. -> ไม่นับว่าจอด", pd.update(40, now=0.0) is False)
+check("เพิ่งช้าลงต่ำกว่า 5 -> ยังไม่หยุด beep ทันที", pd.update(2, now=1.0) is False)
+check("ช้าต่อ 2.9 วิ -> ยังร้อง", pd.update(0, now=3.9) is False)
+check("ครบ 3 วิ -> หยุด beep", pd.update(0, now=4.0) is True)
+check("GPS แกว่ง 1.8 กม./ชม. ตอนจอด -> ยังนับว่าจอด", pd.update(1.8, now=10.0) is True)
+check("ออกตัว 6 กม./ชม. -> ร้องต่อทันที", pd.update(6, now=11.0) is False)
+check("รถติดหยุดแป๊บเดียวไม่ถึง 3 วิ -> ไม่ตัดเสียง",
+      pd.update(3, now=12.0) is False and pd.update(10, now=14.0) is False)
+pd = pac.ParkedDetector()
+pd.update(0, now=0.0)
+check("ไม่รู้ความเร็ว (None) -> ไม่นับว่าจอด และเริ่มนับใหม่",
+      pd.update(None, now=5.0) is False and pd.update(0, now=6.0) is False)
+
+print()
 print("ค่าตั้งต้นต้องตรงกับฝั่งเว็บ (js/distance.js):")
+check("รอจอดนิ่งก่อนหยุด beep = 3 วิ (ตรงกับ PARKED_MUTE_MS = 3000)", pac.PARKED_MUTE_S == 3)
+check("เกณฑ์ถือว่ารถจอด = 5 กม./ชม. (ตรงกับ SPEED_HOLD_MIN_KMH)", pac.SPEED_HOLD_MIN_KMH == 5)
 check("มุมกรวยเริ่มต้น = 30", pac.DEFAULT_HEADING_WINDOW_DEG == 30)
 check("ระยะยกเว้นการกรองทิศ = 30 ม.", pac.HEADING_NEAR_BYPASS_M == 30)
 check("เกณฑ์ความเร็วของ COG = 5 กม./ชม.", pac.COG_MIN_SPEED_KMH == 5)

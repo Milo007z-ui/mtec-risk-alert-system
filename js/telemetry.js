@@ -101,7 +101,9 @@ const Telemetry = (() => {
     q("tm-c30").textContent = t.inRadius.c30;
 
     const BEEP_TH = { far: "ช้า", mid: "ปานกลาง", near: "ถี่" };
-    q("tm-beep").textContent = t.beep === null ? "เงียบ" : BEEP_TH[t.beep] || t.beep;
+    q("tm-beep").textContent = t.beep === null
+      ? (t.parked ? "เงียบ · รถจอด" : "เงียบ")
+      : BEEP_TH[t.beep] || t.beep;
     q("tm-beepfrom").textContent = t.beepFrom === null ? "—" : t.beepFrom;
 
     const sc = window.MOCK_SCENARIO;

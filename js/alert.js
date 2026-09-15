@@ -12,6 +12,8 @@ const AlertSystem = (() => {
   // ความเร็วรถ ใช้เลือกระยะเริ่ม beep — Geolocation API ไม่ได้ส่ง coords.speed มาที่นี่
   const speedTracker = createSpeedTracker(15);
   let lastMovingSpeedKmh = null; // ความเร็วล่าสุดตอนที่รถยังเคลื่อนที่จริง
+  // รถจอดนิ่งเกิน 3 วิ -> หยุด beep (เสียงพูดไม่เกี่ยว)
+  const parked = createParkedDetector();
 
   // มุมที่ถือว่า "ข้างหน้า" นับจากทิศที่รถมุ่งหน้า (องศา ไปทางละเท่านี้)
   const HEADING_WINDOW_DEG = (() => {
@@ -88,7 +90,10 @@ const AlertSystem = (() => {
     }
 
     // beep บอกระยะ — คิดแยกจาก cooldown ของเสียงพูด อัปเดตทุกรอบจนกว่าจะขับผ่านไป
-    const beepPattern = beepPatternFor(ahead, closestSeen, lastMovingSpeedKmh);
+    // ยังคิดจังหวะทุกรอบ (ให้ closestSeen ตามระยะจริงต่อไป) แต่ถ้ารถจอดนิ่งเกิน 3 วิ ให้เงียบ
+    const isParked = parked.update(speedForGate, now);
+    const movingPattern = beepPatternFor(ahead, closestSeen, lastMovingSpeedKmh);
+    const beepPattern = isParked ? null : movingPattern;
     TTS.setBeepPattern(beepPattern);
 
     // นับจุดในระยะเตือนของกรวยแต่ละความกว้าง — ไว้เทียบให้เห็นว่าการกรองตัดอะไรออก
@@ -104,6 +109,7 @@ const AlertSystem = (() => {
       speedKmh: speedForGate,
       inRadius: { off: within.length, c90: countCone(90), c30: countCone(HEADING_WINDOW_DEG) },
       beep: beepPattern,
+      parked: isParked, // true = รถจอดนิ่งเกิน 3 วิ beep จึงเงียบ (แผงตัวเลขใช้บอกเหตุผล)
       // ความเร็วที่ใช้คิดระยะเริ่ม beep (ค้างค่าล่าสุดที่ ≥ 5 กม./ชม. ตอนรถจอด) + ระยะที่ได้
       beepSpeedKmh: lastMovingSpeedKmh,
       beepStartM: beepStartM(lastMovingSpeedKmh),

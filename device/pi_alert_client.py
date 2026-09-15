@@ -754,6 +754,31 @@ def beep_pattern_for(points, closest_seen, speed_kmh):
     return "near"
 
 
+# รถแทบหยุดนิ่ง (ต่ำกว่า SPEED_HOLD_MIN_KMH) ติดต่อกันนานเท่านี้ -> หยุด beep
+# จอดติดไฟแดงหน้าจุดเสี่ยง beep ที่ร้องต่อไม่ได้เตือนอะไรเพิ่ม กลายเป็นเสียงรบกวน
+# รอ 3 วิก่อน กันเสียงดับ ๆ ติด ๆ ตอนรถติดที่หยุดแป๊บเดียวแล้วคลานต่อ (ต้องตรงกับ PARKED_MUTE_MS)
+PARKED_MUTE_S = 3.0
+
+
+class ParkedDetector:
+    """ตรวจว่ารถจอดนิ่งนานพอจะหยุด beep หรือยัง — ไม่รู้ความเร็ว (None) = ไม่นับว่าจอด"""
+
+    def __init__(self, min_speed_kmh=None, mute_after_s=None):
+        self.min_speed_kmh = SPEED_HOLD_MIN_KMH if min_speed_kmh is None else min_speed_kmh
+        self.mute_after_s = PARKED_MUTE_S if mute_after_s is None else mute_after_s
+        self.stopped_since = None
+
+    def update(self, speed_kmh, now=None):
+        """ป้อนความเร็วรอบนี้ คืน True เมื่อจอดนิ่งติดต่อกันถึงเกณฑ์"""
+        now = time.monotonic() if now is None else now
+        if speed_kmh is None or speed_kmh >= self.min_speed_kmh:
+            self.stopped_since = None
+            return False
+        if self.stopped_since is None:
+            self.stopped_since = now
+        return now - self.stopped_since >= self.mute_after_s
+
+
 class BeepLoop:
     """เล่นไฟล์แพตเทิร์น beep วนซ้ำในเธรดแยก จนกว่าจะสั่งเปลี่ยนหรือหยุด"""
 
@@ -963,6 +988,7 @@ def run(api_base, position_source, speak_enabled=True):
     announced = set()          # จุดที่พูดประโยคเตือนไปแล้ว (cooldown ของเสียงพูด)
     closest_seen = {}          # id -> ระยะต่ำสุดที่เคยวัดได้ ใช้ดูว่าขับผ่านไปหรือยัง
     last_moving_speed = None   # ความเร็วล่าสุดตอนที่รถยังเคลื่อนที่จริง
+    parked = ParkedDetector()  # จอดนิ่งเกิน 3 วิ -> หยุด beep (เสียงพูดไม่เกี่ยว)
     beeper = BeepLoop()
     beeper.start()
 
@@ -1057,8 +1083,9 @@ def run(api_base, position_source, speak_enabled=True):
                 # beep บอกระยะคิดแยกจาก cooldown ของเสียงพูด เพราะตอบคนละคำถาม:
                 if speed_now is not None and speed_now >= SPEED_HOLD_MIN_KMH:
                     last_moving_speed = speed_now
-                beeper.set_pattern(
-                    beep_pattern_for(ahead, closest_seen, last_moving_speed))
+                # คิดจังหวะทุกรอบให้ closest_seen ตามระยะจริงต่อไป แต่รถจอดนิ่งเกิน 3 วิให้เงียบ
+                moving_pattern = beep_pattern_for(ahead, closest_seen, last_moving_speed)
+                beeper.set_pattern(None if parked.update(speed_now) else moving_pattern)
 
                 nearest = nearby[0] if nearby else None
                 status = (
