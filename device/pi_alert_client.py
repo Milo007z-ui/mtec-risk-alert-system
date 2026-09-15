@@ -23,7 +23,7 @@ DEFAULT_EXIT_RADIUS_M = 600      # ต้องออกไกลกว่าน
 ALERT_RADIUS_M = DEFAULT_ALERT_RADIUS_M
 EXIT_RADIUS_M = DEFAULT_EXIT_RADIUS_M
 
-DEFAULT_HEADING_WINDOW_DEG = 30  # นับว่า "ข้างหน้า" ถ้าเบนจากหัวรถไม่เกินนี้ (180 = ปิดการกรอง)
+DEFAULT_HEADING_WINDOW_DEG = 20  # นับว่า "ข้างหน้า" ถ้าเบนจากหัวรถไม่เกินนี้ (180 = ปิดการกรอง) · ต้องตรงกับ FRONT_CONE_DEG
 HEADING_WINDOW_DEG = DEFAULT_HEADING_WINDOW_DEG
 HEADING_MIN_MOVE_M = 15          # วิธีสำรอง: ต้องขยับเกินนี้ก่อนถึงเชื่อทิศที่คำนวณจากพิกัด
 
