@@ -291,7 +291,15 @@ const DeviceTracker = (() => {
         ? `${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}`
         : "ยังจับไม่ได้";
     el.querySelector(".gp-age").textContent =
-      lastOkAt === null ? "—" : `${Math.round((Date.now() - lastOkAt) / 1000)} วิ`;
+      lastOkAt === null ? "—" : fmtDateTime(lastOkAt);
+  }
+
+  /** เวลาแบบไทย วัน/เดือน/ปี พ.ศ. ชั่วโมง:นาที:วินาที เช่น "15/9/2569 09:15:32" */
+  function fmtDateTime(ms) {
+    return new Date(ms).toLocaleString("th-TH", {
+      day: "numeric", month: "numeric", year: "numeric",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    });
   }
 
   function render(d) {
