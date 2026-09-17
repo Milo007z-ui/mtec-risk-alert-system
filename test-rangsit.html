@@ -31,10 +31,27 @@
         phases: { cruise: "ขับ 90 กม./ชม.", brake: "เหยียบเบรก", stopped: "จอดนิ่ง 20 วิ",
                   go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
       },
-      accel: {
-        title: "ขับ 90 แล้วเร่งถึง 120 เริ่มเร่งที่ 200 ม.", kind: "accel",
+      // เบรกกะทันหัน: 7.5 ม./วิ² ≈ 0.76g = เบรกเต็มแรงรถมี ABS บนถนนแห้ง (90 -> 0 ใน 3.3 วิ ระยะ 42 ม.)
+      hardbrake: {
+        title: "ขับ 90 แล้วเบรกกะทันหันจนจอด เริ่มเบรกที่ 210 ม.", kind: "brake",
         target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
-        fromKmh: 90, toKmh: 120, triggerM: 200, accel: 1.39,
+        fromKmh: 90, triggerM: 210, decel: 7.5, holdS: 20, accel: 2.0,
+        phases: { cruise: "ขับ 90 กม./ชม.", brake: "เบรกกะทันหัน", stopped: "จอดนิ่ง 20 วิ",
+                  go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
+      },
+      // ขับช้าคงที่ผ่านจุดเสี่ยง — ไม่เบรกไม่เร่ง (kind "cruise" = ไม่มีความเร่ง) เอาไว้ฟัง beep ไล่ 3 ระดับ
+      // ที่ 30 กม./ชม. ระยะเริ่ม beep = 200 ม. (ตาราง DSD ช่องต่ำสุด) แบ่งเป็น
+      // ช้า 200–132 ม. · ปานกลาง 132–66 ม. · ถี่ 66–0 ม. → ระดับละ ~8 วินาที
+      slow: {
+        title: "ขับช้า 30 กม./ชม. ผ่านจุดเสี่ยง (ฟัง beep ครบ 3 ระดับ)", kind: "cruise",
+        target: "zone_319", targetM: 12182, startBeforeM: 600, endAfterM: 200,
+        fromKmh: 30, triggerM: 0,
+        phases: { cruise: "ขับ 30 กม./ชม. คงที่", done: "จบสถานการณ์" },
+      },
+      accel: {
+        title: "ขับ 90 แล้วเร่งถึง 120 เริ่มเร่งที่ 210 ม.", kind: "accel",
+        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        fromKmh: 90, toKmh: 120, triggerM: 210, accel: 1.39,
         phases: { cruise: "ขับ 90 กม./ชม.", accel: "เร่ง 90 → 120", fast: "ขับ 120 กม./ชม.",
                   done: "จบสถานการณ์" },
       },
@@ -212,7 +229,9 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
       <p class="hint">
         สถานการณ์ทดสอบ beep ที่จุดบ้านพร้าว–คลองห้า:
         <a href="?mock=1&amp;scenario=brake">🛑 ขับ 90 แล้วเบรกจนจอด</a> ·
-        <a href="?mock=1&amp;scenario=accel">🚀 ขับ 90 แล้วเร่งถึง 120</a>
+        <a href="?mock=1&amp;scenario=hardbrake">⚠️ ขับ 90 แล้วเบรกกะทันหัน</a> ·
+        <a href="?mock=1&amp;scenario=accel">🚀 ขับ 90 แล้วเร่งถึง 120</a> ·
+        <a href="?mock=1&amp;scenario=slow">🐢 ขับช้า 30 ฟัง beep ครบ 3 ระดับ</a>
       </p>
       <button id="btn-start">เริ่มเส้นทางจำลอง</button>
       <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=120</code> · เร่ง/ลดความเร็วการเล่นด้วย <code>&amp;x=10</code> · กระโดดไปกลางทางด้วย <code>&amp;start=3</code> (กม.)</p>
