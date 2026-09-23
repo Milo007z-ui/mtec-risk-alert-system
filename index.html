@@ -6,7 +6,7 @@
   <title>ระบบแจ้งเตือนจุดเสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
   <!-- ชุดข้อมูลที่ใช้: รอบ 3 ปี 2566-2568 (v2569-r1-3y, 456 คลัสเตอร์) ต้องตั้งค่าก่อนโหลด ... -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
@@ -108,6 +108,9 @@
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=14"></script>
   <script src="js/alert.js?v=29"></script>
+  <!-- กล่องทิศทาง COG มุมซ้ายบน (การ์ดเดียวจากแผงตัวเลขของหน้าทดสอบ) · ซ่อนได้ด้วย ?hud=0 -->
+  <script>window.TELEMETRY_CARDS = ["cog"];</script>
+  <script src="js/telemetry.js?v=8"></script>
   <script src="js/app.js?v=19"></script>
 </body>
 </html>

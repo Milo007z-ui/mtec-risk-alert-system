@@ -608,10 +608,14 @@ html, body {
 #telemetry .tm-kv b { font-weight: 500; color: #263238; font-variant-numeric: tabular-nums; }
 #telemetry .tm-pick span, #telemetry .tm-pick b { color: #1976d2; font-weight: 600; }
 /* ขอบแดงวาบตอนจำลองสัญญาณสะท้อนตึก — เห็นจังหวะที่ค่าดิบกระโดด */
-#telemetry.tm-spike .tm-card:nth-child(2) { box-shadow: 0 0 0 2px #c62828, 0 1px 5px rgba(0,0,0,.25); }
+#telemetry.tm-spike .tm-cog-card { box-shadow: 0 0 0 2px #c62828, 0 1px 5px rgba(0,0,0,.25); }
+
+/* การ์ดเดียวบนแผนที่จริง: วางใต้แถบสถานะและปุ่มซูม +/− ไม่บังของเดิม */
+#telemetry.tm-single { top: 128px; left: 10px; width: 150px; }
 
 @media (max-width: 640px) {
   #telemetry { width: 142px; top: 8px; left: 8px; gap: 6px; }
+  #telemetry.tm-single { top: 124px; left: 10px; width: 132px; }
   #telemetry .tm-big { font-size: 20px; }
   #telemetry .tm-card { padding: 7px 9px 8px; }
 }

@@ -11,36 +11,48 @@ const Telemetry = (() => {
     return new URLSearchParams(location.search).get("hud") !== "0";
   }
 
+  // หน้าเว็บเลือกการ์ดที่จะแสดงได้ด้วย window.TELEMETRY_CARDS (ไม่ตั้ง = ทุกการ์ด)
+  // แผนที่จริง (index.html) ใช้แค่ ["cog"] ส่วนหน้าทดสอบใช้ครบทุกการ์ด
+  const CARDS = window.TELEMETRY_CARDS || ["speed", "cog", "radius", "beep", "scenario"];
+  const has = (name) => CARDS.includes(name);
+
   function build() {
     if (box) return box;
     box = document.createElement("div");
     box.id = "telemetry";
+    if (CARDS.length === 1) box.classList.add("tm-single");
     box.innerHTML =
-      '<div class="tm-card">' +
-        '<h3>ความเร็ว</h3>' +
-        '<div class="tm-big" id="tm-spd">0<small>กม./ชม.</small></div>' +
-        '<div class="tm-kv"><span>ระยะที่ขับแล้ว</span><b id="tm-dist">0.00 กม.</b></div>' +
-        '<div class="tm-kv"><span>เวลาเดินทาง</span><b id="tm-clk">00:00</b></div>' +
-      '</div>' +
-      '<div class="tm-card">' +
-        '<h3>ทิศทาง COG</h3>' +
-        '<div class="tm-big" id="tm-cog">—<small>°</small></div>' +
-        '<div class="tm-kv"><span>ดิบจากโมดูล</span><b id="tm-raw">—</b></div>' +
-        '<div class="tm-kv"><span>หลังเฉลี่ยวน</span><b id="tm-err">—</b></div>' +
-      '</div>' +
+      (has("speed")
+        ? '<div class="tm-card">' +
+            '<h3>ความเร็ว</h3>' +
+            '<div class="tm-big" id="tm-spd">0<small>กม./ชม.</small></div>' +
+            '<div class="tm-kv"><span>ระยะที่ขับแล้ว</span><b id="tm-dist">0.00 กม.</b></div>' +
+            '<div class="tm-kv"><span>เวลาเดินทาง</span><b id="tm-clk">00:00</b></div>' +
+          '</div>'
+        : "") +
+      (has("cog")
+        ? '<div class="tm-card tm-cog-card">' +
+            '<h3>ทิศทาง COG</h3>' +
+            '<div class="tm-big" id="tm-cog">—<small>°</small></div>' +
+            '<div class="tm-kv"><span>ดิบจากโมดูล</span><b id="tm-raw">—</b></div>' +
+            '<div class="tm-kv"><span>หลังเฉลี่ยวน</span><b id="tm-err">—</b></div>' +
+          '</div>'
+        : "") +
+      (!has("radius") ? "" :
       '<div class="tm-card">' +
         '<h3 id="tm-head3">จุดในระยะ 500 ม.</h3>' +
         '<div class="tm-kv"><span>ไม่กรองทิศ</span><b id="tm-off">0</b></div>' +
         '<div class="tm-kv"><span>กรวย ±90°</span><b id="tm-c90">0</b></div>' +
         '<div class="tm-kv tm-pick"><span id="tm-lbl30">กรวย 3 ระดับ</span><b id="tm-c30">0</b></div>' +
-      '</div>' +
+      '</div>') +
+      (!has("beep") ? "" :
       '<div class="tm-card">' +
         '<h3>เสียง beep</h3>' +
         '<div class="tm-kv"><span>จังหวะ</span><b id="tm-beep">เงียบ</b></div>' +
         '<div class="tm-kv"><span>เพราะจุด</span><b id="tm-beepfrom">—</b></div>' +
-      '</div>' +
+      '</div>') +
       // การ์ดสถานการณ์ทดสอบ beep — มีเฉพาะตอนเปิดด้วย ?scenario= (gps.js ตั้ง MOCK_SCENARIO ไว้)
-      (window.MOCK_SCENARIO
+      (has("scenario") && window.MOCK_SCENARIO
         ? '<div class="tm-card">' +
             '<h3>สถานการณ์ทดสอบ</h3>' +
             '<div class="tm-kv tm-pick"><span>ตอนนี้</span><b id="tm-phase">—</b></div>' +
@@ -76,7 +88,8 @@ const Telemetry = (() => {
     lastLat = lat;
     lastLng = lng;
 
-    const q = (id) => el.querySelector("#" + id);
+    // การ์ดที่ไม่ได้เลือกไว้ไม่มี element — เขียนลงตัวแทนเปล่าแทน โค้ดด้านล่างจึงไม่ต้องเช็คทีละช่อง
+    const q = (id) => el.querySelector("#" + id) || { textContent: "", innerHTML: "" };
     q("tm-spd").innerHTML =
       `${t.speedKmh === null || t.speedKmh === undefined ? "—" : Math.round(t.speedKmh)}` +
       '<small>กม./ชม.</small>';
@@ -107,7 +120,7 @@ const Telemetry = (() => {
     q("tm-beepfrom").textContent = t.beepFrom === null ? "—" : t.beepFrom;
 
     const sc = window.MOCK_SCENARIO;
-    if (sc && q("tm-phase")) {
+    if (sc && el.querySelector("#tm-phase")) {
       q("tm-phase").textContent = (sc.phases && sc.phases[sc.phase]) || sc.phase;
       q("tm-vnow").textContent =
         t.speedKmh === null || t.speedKmh === undefined ? "—" : `${Math.round(t.speedKmh)} กม./ชม.`;
