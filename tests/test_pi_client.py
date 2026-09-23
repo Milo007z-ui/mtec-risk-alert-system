@@ -250,6 +250,32 @@ check("ทิศ 350° จุดทางเหนือ -> ข้างหน�
       pac.is_ahead(350, *O, *N, 90))
 
 print()
+print("cone_window_deg — กรวย 3 ระดับ (ต้องให้ผลตรงกับ coneWindowDeg ใน js/distance.js):")
+check("90 กม./ชม. ที่ 500 ม. -> โซนไกล 20°", pac.cone_window_deg(500, 90, 20) == 20)
+check("90 กม./ชม. ที่ 200 ม. -> โซนกลาง 30°", pac.cone_window_deg(200, 90, 20) == 30)
+check("90 กม./ชม. ที่ 100 ม. -> โซนใกล้ 60°", pac.cone_window_deg(100, 90, 20) == 60)
+check("120 กม./ชม. ที่ 300 ม. -> โซนกลาง (โซนขยายตามความเร็ว)", pac.cone_window_deg(300, 120, 20) == 30)
+check("120 กม./ชม. ที่ 140 ม. -> โซนใกล้", pac.cone_window_deg(140, 120, 20) == 60)
+check("ไม่รู้ความเร็ว -> ใช้โซนของ 90 กม./ชม.", pac.cone_window_deg(200, None, 20) == 30)
+check("พูดเตือนที่ 500 ม. อยู่โซนไกลทุกความเร็วในตาราง DSD",
+      all(pac.cone_window_deg(500, v, 20) == 20 for v in [30, *pac.DSD_E_M, 150]))
+check("--heading-window 90 -> โซนใกล้ไม่แคบกว่า 90°", pac.cone_window_deg(100, 90, 90) == 90)
+check("180 = ปิดการกรอง ทุกโซน", pac.cone_window_deg(100, 90, 180) == 180)
+check("มุมโซนกลาง/ใกล้ = 30/60 (ตรงกับ CONE_MID_DEG / CONE_NEAR_DEG)",
+      pac.CONE_MID_DEG == 30 and pac.CONE_NEAR_DEG == 60)
+SIDE = (13.7563 + 60 / 111195, 100.5018 + 25 / 108011)   # ริมถนน เยื้อง 25 ม. เหลือ 60 ม.
+d_side = pac._haversine_m(*O, *SIDE)
+check("จุดริมถนนเหลือ 60 ม. -> กรวยเดิม ±20° ตัดทิ้ง", not pac.is_ahead(0, *O, *SIDE, 20))
+check("จุดริมถนนเหลือ 60 ม. -> กรวย 3 ระดับยังนับ beep ร้องต่อ",
+      pac.is_ahead(0, *O, *SIDE, pac.cone_window_deg(d_side, 90, 20)))
+PAR = (13.7563 + 300 / 111195, 100.5018 + 150 / 108011)  # ถนนคู่ขนาน เยื้อง 150 ม.
+check("ถนนคู่ขนานเยื้อง 150 ม. ที่ระยะ 335 ม. -> ยังถูกตัดทิ้ง",
+      not pac.is_ahead(0, *O, *PAR, pac.cone_window_deg(pac._haversine_m(*O, *PAR), 90, 20)))
+BEHIND = (13.7563 - 60 / 111195, 100.5018)
+check("จุดข้างหลัง 60 ม. ในโซนใกล้ -> ยังถูกตัดทิ้ง",
+      not pac.is_ahead(0, *O, *BEHIND, pac.cone_window_deg(60, 90, 20)))
+
+print()
 print("ParkedDetector (หยุด beep เมื่อรถจอดนิ่ง):")
 pd = pac.ParkedDetector()
 check("วิ่ง 40 กม./ชม. -> ไม่นับว่าจอด", pd.update(40, now=0.0) is False)

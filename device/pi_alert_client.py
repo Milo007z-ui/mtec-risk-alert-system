@@ -700,6 +700,26 @@ def beep_start_m(speed_kmh):
     return float(DSD_E_M[max(DSD_E_M)])
 
 
+# กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — HEADING_WINDOW_DEG คือมุมโซนไกล (โซนที่พูดเตือนที่ 500 ม.)
+# กรวยแคบเท่ากันทุกระยะทำให้จุดเสี่ยงริมถนนหลุดกรวยตอนรถเข้าใกล้ beep จึงเงียบก่อนขับผ่านจริง
+# ต้องตรงกับ CONE_MID_DEG / CONE_NEAR_DEG / coneWindowDeg ใน js/distance.js
+CONE_MID_DEG = 30
+CONE_NEAR_DEG = 60
+
+
+def cone_window_deg(distance_m, speed_kmh, far_deg):
+    """มุมกรวยที่ระยะนี้ — แบ่งโซนด้วยสัดส่วนของระยะเริ่ม beep เดียวกับจังหวะ beep ช้า/ปานกลาง/ถี่"""
+    if far_deg >= 180:
+        return far_deg  # ปิดการกรอง
+    r = beep_start_m(speed_kmh)
+    if distance_m > r * BEEP_FAR_FRAC:
+        return far_deg
+    # ถ้าตั้งมุมโซนไกลกว้างกว่านี้เอง (--heading-window 90) โซนใกล้ต้องไม่แคบกว่าโซนไกล
+    if distance_m > r * BEEP_MID_FRAC:
+        return max(far_deg, CONE_MID_DEG)
+    return max(far_deg, CONE_NEAR_DEG)
+
+
 def _play_wav(path):
     """เล่น WAV ออกลำโพงตัวเดียวกับเสียงพูด — คืน True ถ้าเล่นจบปกติ"""
     exe = shutil.which("aplay") or shutil.which("ffplay")
@@ -919,12 +939,13 @@ def announce(text, speak_enabled, api_base):
         VOLUME_PCT = saved
 
 
-def fetch_nearby(api_base, lat, lng, heading_deg=None):
-    """ดึงจุดเสี่ยงในรัศมี — ส่งทิศไปด้วยเพื่อให้เซิร์ฟเวอร์กรองเฉพาะจุดข้างหน้าให้เลย"""
-    params = {"lat": f"{lat:.6f}", "lng": f"{lng:.6f}", "radius": EXIT_RADIUS_M}
-    if heading_deg is not None and HEADING_WINDOW_DEG < 180:
-        params["heading"] = f"{heading_deg:.1f}"
-        params["cone_deg"] = f"{HEADING_WINDOW_DEG:.1f}"
+def fetch_nearby(api_base, lat, lng):
+    """ดึงจุดเสี่ยงทุกทิศในรัศมี — กรองทิศเองในเครื่องด้วยกรวย 3 ระดับ
+
+    ไม่ส่งทิศให้เซิร์ฟเวอร์กรองแล้ว เพราะเซิร์ฟเวอร์รู้มุมเดียว จะตัดจุดริมถนนทิ้งก่อนถึงกรวยโซนใกล้
+    และจุดที่หายจาก nearby ชั่วคราวจะถูกลบจาก announced แล้วพูดซ้ำเมื่อกลับเข้ากรวย (ทางโค้ง)
+    """
+    params = {"lat": f"{lat:.6f}", "lng": f"{lng:.6f}", "radius": EXIT_RADIUS_M, "limit": 50}
     query = urllib.parse.urlencode(params)
     url = f"{api_base}/api/risk-points/nearby?{query}"
     with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_S) as resp:
@@ -1004,7 +1025,7 @@ def run(api_base, position_source, speak_enabled=True):
     beep_ready = "พร้อม" if (BEEP_DIR / "beep_far.wav").exists() else "ไม่มีไฟล์"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม. "
-        f"{'ทุกทิศรอบตัว' if HEADING_WINDOW_DEG >= 180 else f'เฉพาะข้างหน้า ±{HEADING_WINDOW_DEG:.0f}°'}, "
+        f"{'ทุกทิศรอบตัว' if HEADING_WINDOW_DEG >= 180 else f'เฉพาะข้างหน้า กรวย 3 ระดับ ไกล ±{HEADING_WINDOW_DEG:.0f}° · กลาง ±{max(HEADING_WINDOW_DEG, CONE_MID_DEG):.0f}° · ใกล้ ±{max(HEADING_WINDOW_DEG, CONE_NEAR_DEG):.0f}°'}, "
         f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
         f"beep: {beep_ready})"
     )
@@ -1053,7 +1074,7 @@ def run(api_base, position_source, speak_enabled=True):
             report_location(api_base, lat, lng, getattr(position_source, "name", None),
                             heading_deg)
             try:
-                nearby = fetch_nearby(api_base, lat, lng, heading_deg)
+                nearby = fetch_nearby(api_base, lat, lng)
             except OSError as e:
                 print(f"[api] เรียกเซิร์ฟเวอร์ไม่สำเร็จ: {e}", file=sys.stderr)
                 nearby = None
@@ -1066,9 +1087,15 @@ def run(api_base, position_source, speak_enabled=True):
                 for pid in [k for k in closest_seen if k not in nearby_ids]:
                     del closest_seen[pid]
 
+                # รถจอด/คลานช้า -> คงความเร็วเดิมไว้ (ต้องอัปเดตก่อนกรองทิศ เพราะโซนกรวยคิดจากค่านี้)
+                if speed_now is not None and speed_now >= SPEED_HOLD_MIN_KMH:
+                    last_moving_speed = speed_now
+
+                # กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — จุดริมถนนไม่หลุดกรวยก่อนรถขับผ่าน
                 ahead = [p for p in nearby
                          if is_ahead(heading_deg, lat, lng, p["lat"], p["lng"],
-                                     HEADING_WINDOW_DEG)]
+                                     cone_window_deg(p["distance_m"], last_moving_speed,
+                                                     HEADING_WINDOW_DEG))]
 
                 for p in ahead:
                     if p["distance_m"] > ALERT_RADIUS_M:
@@ -1080,9 +1107,7 @@ def run(api_base, position_source, speak_enabled=True):
                         if speak_enabled:
                             speak(p["alert_message"], api_base)
 
-                # beep บอกระยะคิดแยกจาก cooldown ของเสียงพูด เพราะตอบคนละคำถาม:
-                if speed_now is not None and speed_now >= SPEED_HOLD_MIN_KMH:
-                    last_moving_speed = speed_now
+                # beep บอกระยะคิดแยกจาก cooldown ของเสียงพูด เพราะตอบคนละคำถาม
                 # คิดจังหวะทุกรอบให้ closest_seen ตามระยะจริงต่อไป แต่รถจอดนิ่งเกิน 3 วิให้เงียบ
                 moving_pattern = beep_pattern_for(ahead, closest_seen, last_moving_speed)
                 beeper.set_pattern(None if parked.update(speed_now) else moving_pattern)
