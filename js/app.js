@@ -56,8 +56,8 @@
         const headingDeg = AlertSystem.heading();
         MapView.updateUserPosition(lat, lng, accuracy, headingDeg);
         // กรวยที่ใช้กรองจุดเสี่ยง — วาดด้วยค่าเดียวกับที่ AlertSystem ใช้ตัดสินใจจริง
-        MapView.setUserCone(lat, lng, headingDeg,
-                            AlertSystem.HEADING_WINDOW_DEG, AlertSystem.ALERT_RADIUS_M);
+        MapView.setUserCone(lat, lng, headingDeg, AlertSystem.coneDegAt,
+                            AlertSystem.ALERT_RADIUS_M, AlertSystem.coneZoneEdgesM());
         if (typeof Telemetry !== "undefined") Telemetry.update(lat, lng);
         // ทิศที่แสดงคือค่าเดียวกับที่หมุนลูกศรและใช้กรองจุดเสี่ยง (null = รถยังไม่เคลื่อนที่พอ)
         const dirText = headingDeg === null

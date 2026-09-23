@@ -117,6 +117,13 @@ function createHeadingTracker(minMoveM = 15) {
 // เตือนผิดลด ~9% · เตือนช้า (<300 ม.) 0.3% -> 0.9% · ต่ำกว่า ±15° เตือนช้าบนทางโค้งเพิ่มเร็ว
 const FRONT_CONE_DEG = 20;
 
+/** กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — FRONT_CONE_DEG คือมุมโซนไกล (โซนที่พูดเตือนที่ 500 ม.) */
+// กรวยแคบเท่ากันทุกระยะทำให้จุดเสี่ยงริมถนนหลุดกรวยตอนรถเข้าใกล้ beep จึงเงียบก่อนขับผ่านจริง
+// จำลองถนนจริง 7,756 กม.: beep เงียบก่อนถึงจุด 43% -> 5% (90 คงที่) · 41% -> 6% (เร่งถึง 120)
+// เสียงพูดเท่าเดิม เพราะ 500 ม. อยู่ในโซนไกลเสมอ (DSD สูงสุด 470 ม.) · 60° ใช้เฉพาะระยะ ≤ 33% ของ DSD
+const CONE_MID_DEG = 30;
+const CONE_NEAR_DEG = 60;
+
 /** ความเร็วต่ำสุดที่ยอมเชื่อค่า COG จากตัวรับ GPS */
 const COG_MIN_SPEED_KMH = 5;
 
@@ -250,6 +257,16 @@ function beepStartM(speedKmh) {
   return DSD_E_M[speeds[speeds.length - 1]];
 }
 
+/** มุมกรวยที่ระยะนี้ — แบ่งโซนด้วยสัดส่วนของระยะเริ่ม beep เดียวกับจังหวะ beep ช้า/ปานกลาง/ถี่ */
+function coneWindowDeg(distanceM, speedKmh, farDeg = FRONT_CONE_DEG) {
+  if (farDeg >= 180) return farDeg; // ปิดการกรอง
+  const r = beepStartM(speedKmh);
+  if (distanceM > r * BEEP_FAR_FRAC) return farDeg;
+  // ถ้าตั้งมุมโซนไกลกว้างกว่านี้เอง (?heading=90) โซนใกล้ต้องไม่แคบกว่าโซนไกล
+  if (distanceM > r * BEEP_MID_FRAC) return Math.max(farDeg, CONE_MID_DEG);
+  return Math.max(farDeg, CONE_NEAR_DEG);
+}
+
 /** ประเมินความเร็วจากพิกัดที่เปลี่ยนไป — ใช้เมื่อ coords.speed ของเบราว์เซอร์เป็น null */
 function createSpeedTracker(minMoveM = 15) {
   let last = null;
@@ -304,7 +321,7 @@ if (typeof module !== "undefined" && module.exports) {
     bearingDegrees, angleDiffDegrees, compassName, createHeadingTracker, isAhead,
     createCourseTracker, circularMeanDegrees,
     HEADING_NEAR_BYPASS_M, FRONT_CONE_DEG, COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS,
-    COURSE_WINDOW_MS,
+    COURSE_WINDOW_MS, CONE_MID_DEG, CONE_NEAR_DEG, coneWindowDeg,
     beepStartM, beepPatternFor, createSpeedTracker, createParkedDetector,
     DSD_E_M, BEEP_RECEDE_MIN_M, SPEED_HOLD_MIN_KMH, DEFAULT_SPEED_KMH,
     PARKED_MUTE_MS, SPEED_STILL_AFTER_MS,

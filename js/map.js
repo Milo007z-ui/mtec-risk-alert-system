@@ -95,17 +95,39 @@ const MapView = (() => {
     return [(p2 * 180) / Math.PI, (l2 * 180) / Math.PI];
   }
 
-  /** วาดกรวยที่ระบบใช้กรองจุดเสี่ยง — เห็นด้วยตาว่าจุดไหนอยู่ในกรวยและจุดไหนถูกตัดออก */
-  function setUserCone(lat, lng, headingDeg, coneDeg, radiusM) {
+  /**
+   * วาดกรวยที่ระบบใช้กรองจุดเสี่ยง — เห็นด้วยตาว่าจุดไหนอยู่ในกรวยและจุดไหนถูกตัดออก
+   * coneDegAt(d) = มุมกรวยที่ระยะ d · zoneEdgesM = ระยะรอยต่อโซน [ใกล้|กลาง, กลาง|ไกล]
+   * (กรวย 3 ระดับ: ใกล้กว้าง ไกลแคบ จึงวาดเป็นขั้นบันไดตามรอยต่อ)
+   */
+  function setUserCone(lat, lng, headingDeg, coneDegAt, radiusM, zoneEdgesM = []) {
     const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
-    if (!known || coneDeg >= 180) {
+    if (!known || coneDegAt(radiusM) >= 180) {
       if (coneLayer) { coneLayer.remove(); coneLayer = null; }
       return;
     }
+    // ขอบกรวยฝั่งขวาไล่จากตัวรถออกไป: [มุมเบนจากหัวรถ, ระยะ]
+    const bounds = [0, ...zoneEdgesM.filter((e) => e > 0 && e < radiusM), radiusM];
+    const side = [];
+    for (let i = 0; i < bounds.length - 1; i++) {
+      const deg = coneDegAt((bounds[i] + bounds[i + 1]) / 2);
+      if (i > 0) {
+        // รอยต่อโซน: โค้งที่ระยะเดียวกัน จากมุมโซนก่อนหน้าแคบลงมาเป็นมุมโซนนี้
+        const prev = side[side.length - 1][0];
+        for (let k = 1; k <= 4; k++) side.push([prev + ((deg - prev) * k) / 4, bounds[i]]);
+      }
+      side.push([deg, bounds[i + 1]]);
+    }
     const pts = [[lat, lng]];
+    for (const [deg, d] of side) pts.push(destination(lat, lng, headingDeg + deg, d));
+    // ปลายกรวยโค้งตามรัศมีเตือน จากขวาไปซ้าย
+    const farDeg = side[side.length - 1][0];
     const STEPS = 20;
-    for (let i = 0; i <= STEPS; i++) {
-      pts.push(destination(lat, lng, headingDeg - coneDeg + (2 * coneDeg * i) / STEPS, radiusM));
+    for (let i = 1; i < STEPS; i++) {
+      pts.push(destination(lat, lng, headingDeg + farDeg - (2 * farDeg * i) / STEPS, radiusM));
+    }
+    for (let i = side.length - 1; i >= 0; i--) {
+      pts.push(destination(lat, lng, headingDeg - side[i][0], side[i][1]));
     }
     if (!coneLayer) {
       coneLayer = L.polygon(pts, {

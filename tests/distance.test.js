@@ -6,7 +6,7 @@ const {
   createCourseTracker, circularMeanDegrees, FRONT_CONE_DEG,
   COG_MIN_SPEED_KMH, COG_HOLD_MAX_MS, COURSE_WINDOW_MS,
   beepStartM, beepPatternFor, createSpeedTracker, DSD_E_M, BEEP_RECEDE_MIN_M,
-  createParkedDetector, PARKED_MUTE_MS,
+  createParkedDetector, PARKED_MUTE_MS, coneWindowDeg,
 } = require("../js/distance.js");
 
 let passed = 0;
@@ -122,6 +122,39 @@ console.log("isAhead:");
     isAhead(0, ...O, 13.75621, 100.5018, 90));
   assert("จุดข้างหลังห่าง 100 ม. -> ข้าม (พ้นระยะยกเว้นแล้ว)",
     !isAhead(0, ...O, 13.7554, 100.5018, 90));
+}
+
+console.log("");
+console.log("coneWindowDeg — กรวย 3 ระดับ ไกล ±20° · กลาง ±30° · ใกล้ ±60° (โซนตามระยะ beep DSD):");
+{
+  // ที่ 90 กม./ชม. เริ่ม beep 360 ม. -> ไกล > 238 · กลาง 238–119 · ใกล้ < 119
+  assert("90 กม./ชม. ที่ 500 ม. -> โซนไกล 20°", coneWindowDeg(500, 90) === 20);
+  assert("90 กม./ชม. ที่ 200 ม. -> โซนกลาง 30°", coneWindowDeg(200, 90) === 30);
+  assert("90 กม./ชม. ที่ 100 ม. -> โซนใกล้ 60°", coneWindowDeg(100, 90) === 60);
+  // ที่ 120 กม./ชม. เริ่ม beep 470 ม. -> ไกล > 310 · กลาง 310–155 · ใกล้ < 155
+  assert("120 กม./ชม. ที่ 300 ม. -> โซนกลาง (โซนขยายตามความเร็ว)", coneWindowDeg(300, 120) === 30);
+  assert("120 กม./ชม. ที่ 140 ม. -> โซนใกล้", coneWindowDeg(140, 120) === 60);
+  assert("ไม่รู้ความเร็ว -> ใช้โซนของ 90 กม./ชม.", coneWindowDeg(200, null) === 30);
+  // เสียงพูดเตือนที่ 500 ม. ต้องกรองด้วย ±20° เท่าเดิมทุกความเร็ว (DSD สูงสุด 470 ม.)
+  assert("พูดเตือนที่ 500 ม. อยู่โซนไกลทุกความเร็วในตาราง DSD",
+    [30, ...Object.keys(DSD_E_M).map(Number), 150].every((v) => coneWindowDeg(500, v) === FRONT_CONE_DEG));
+  assert("ตั้งมุมโซนไกลเอง 90° -> โซนใกล้ไม่แคบกว่า 90°", coneWindowDeg(100, 90, 90) === 90);
+  assert("ตั้ง 180 = ปิดการกรอง ทุกโซน", coneWindowDeg(100, 90, 180) === 180);
+
+  // เคสที่เจอจริง: จุดเสี่ยงริมถนน เยื้อง 25 ม. เหลืออีก 60 ม. (มุม ~23°) ขับขึ้นเหนือ 90 กม./ชม.
+  const side = [13.7563 + 60 / 111195, 100.5018 + 25 / 108011];
+  const dSide = haversineMeters(...O, ...side);
+  assert("จุดริมถนนเหลือ 60 ม. -> กรวยเดิม ±20° ตัดทิ้ง (beep เคยเงียบก่อนถึงจุด)",
+    !isAhead(0, ...O, ...side, 20));
+  assert("จุดริมถนนเหลือ 60 ม. -> กรวย 3 ระดับยังนับ beep ร้องต่อจนขับผ่าน",
+    isAhead(0, ...O, ...side, coneWindowDeg(dSide, 90)));
+  // ถนนคู่ขนาน เยื้อง 150 ม. ข้างหน้า 300 ม. (มุม ~27°) — โซนไกลยังตัดทิ้งเหมือนเดิม
+  const par = [13.7563 + 300 / 111195, 100.5018 + 150 / 108011];
+  assert("ถนนคู่ขนานเยื้อง 150 ม. ที่ระยะ 335 ม. -> ยังถูกตัดทิ้ง",
+    !isAhead(0, ...O, ...par, coneWindowDeg(haversineMeters(...O, ...par), 90)));
+  const behind = [13.7563 - 60 / 111195, 100.5018];
+  assert("จุดข้างหลัง 60 ม. ในโซนใกล้ -> ยังถูกตัดทิ้ง (60° ไม่ได้คลุมด้านหลัง)",
+    !isAhead(0, ...O, ...behind, coneWindowDeg(60, 90)));
 }
 
 console.log("");

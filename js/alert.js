@@ -79,15 +79,18 @@ const AlertSystem = (() => {
       if (!nearbyIds.has(id)) closestSeen.delete(id);
     }
 
-    // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
-    const ahead = nearby.filter(({ point }) =>
-      isAhead(headingDeg, lat, lng, point.lat, point.lng, HEADING_WINDOW_DEG)
-    );
-
     // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
+    // (ต้องอัปเดตก่อนกรองทิศ เพราะโซนของกรวย 3 ระดับคิดจากความเร็วนี้)
     if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
       lastMovingSpeedKmh = speedForGate;
     }
+
+    // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
+    // กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — จุดริมถนนไม่หลุดกรวยก่อนรถขับผ่าน
+    const ahead = nearby.filter(({ point, distance }) =>
+      isAhead(headingDeg, lat, lng, point.lat, point.lng,
+              coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG))
+    );
 
     // beep บอกระยะ — คิดแยกจาก cooldown ของเสียงพูด อัปเดตทุกรอบจนกว่าจะขับผ่านไป
     // ยังคิดจังหวะทุกรอบ (ให้ closestSeen ตามระยะจริงต่อไป) แต่ถ้ารถจอดนิ่งเกิน 3 วิ ให้เงียบ
@@ -107,7 +110,14 @@ const AlertSystem = (() => {
       heading: headingDeg,
       trueCourse: typeof window.MOCK_TRUE_COURSE === "number" ? window.MOCK_TRUE_COURSE : null,
       speedKmh: speedForGate,
-      inRadius: { off: within.length, c90: countCone(90), c30: countCone(HEADING_WINDOW_DEG) },
+      inRadius: {
+        off: within.length,
+        c90: countCone(90),
+        c30: within.filter(({ point, distance }) =>
+          isAhead(headingDeg, lat, lng, point.lat, point.lng,
+                  coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG))
+        ).length,
+      },
       beep: beepPattern,
       parked: isParked, // true = รถจอดนิ่งเกิน 3 วิ beep จึงเงียบ (แผงตัวเลขใช้บอกเหตุผล)
       // ความเร็วที่ใช้คิดระยะเริ่ม beep (ค้างค่าล่าสุดที่ ≥ 5 กม./ชม. ตอนรถจอด) + ระยะที่ได้
@@ -138,7 +148,7 @@ const AlertSystem = (() => {
       console.log(
         `[ALERT] ${point.level} ${point.id} ที่ ${distance.toFixed(0)} ม. | ` +
           `ทิศรถ ${headingDeg === null ? "ยังไม่รู้" : `${headingDeg.toFixed(0)}° (${headingSource})`} ` +
-          `(กรอง ±${HEADING_WINDOW_DEG}°) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
+          `(กรวย 3 ระดับ ±${coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG)}° ที่ระยะนี้) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
           nearby
             .map((n) => `${n.point.id} ${n.distance.toFixed(0)}ม.${alerted.has(n.point.id) ? "*" : ""}`)
             .join(", ") +
@@ -186,6 +196,12 @@ const AlertSystem = (() => {
     onPositionUpdate,
     ALERT_RADIUS_M,
     HEADING_WINDOW_DEG,
+    // มุมกรวยที่ระยะ d ตามความเร็วตอนนี้ — map.js ใช้วาดกรวย 3 ระดับให้ตรงกับที่ใช้ตัดสินจริง
+    coneDegAt: (d) => coneWindowDeg(d, lastMovingSpeedKmh, HEADING_WINDOW_DEG),
+    coneZoneEdgesM: () => {
+      const r = beepStartM(lastMovingSpeedKmh);
+      return [r * BEEP_MID_FRAC, r * BEEP_FAR_FRAC];
+    },
     telemetry: () => lastTelemetry,
     // ทิศที่ใช้กรองอยู่จริง (null = ยังไม่รู้ทิศ = ไม่กรอง) — map.js ใช้หมุนหมุด
     heading: () => (course.get() !== null ? course.get() : heading.get()),
