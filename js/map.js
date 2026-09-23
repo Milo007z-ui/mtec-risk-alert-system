@@ -9,7 +9,7 @@ const MapView = (() => {
   let userMarker = null;
   let accuracyCircle = null;
   let routeLine = null;
-  let coneLayer = null;
+  let coneLayers = []; // พัดกรวยกรองทิศ: [ไกล, กลาง, ใกล้]
   let firstFixZoom = 16;
   let displayedHeading = 0; // มุมสะสมของลูกศร (ไม่ถูกตัดกลับเข้า 0-360 โดยตั้งใจ)
   let autoPan = true;
@@ -95,53 +95,66 @@ const MapView = (() => {
     return [(p2 * 180) / Math.PI, (l2 * 180) / Math.PI];
   }
 
+  // สีพัดแต่ละโซน แบบภาพ ADAS: ไกล = น้ำเงินเข้ม · กลาง = ฟ้า · ใกล้ = เหลือง (วาดไกลก่อน ใกล้ทับบนสุด)
+  const CONE_STYLES = [
+    { color: "#1a3f8f", fillOpacity: 0.16 },  // ไกล
+    { color: "#29a3e0", fillOpacity: 0.22 },  // กลาง
+    { color: "#f5c518", fillOpacity: 0.30 },  // ใกล้
+  ];
+
+  /** พัดหนึ่งอันจากตัวรถ: มุม ±deg ยาว lenM */
+  function fanPoints(lat, lng, headingDeg, deg, lenM) {
+    const pts = [[lat, lng]];
+    const STEPS = Math.max(8, Math.round(deg / 2));
+    for (let i = 0; i <= STEPS; i++) {
+      pts.push(destination(lat, lng, headingDeg - deg + (2 * deg * i) / STEPS, lenM));
+    }
+    return pts;
+  }
+
   /**
    * วาดกรวยที่ระบบใช้กรองจุดเสี่ยง — เห็นด้วยตาว่าจุดไหนอยู่ในกรวยและจุดไหนถูกตัดออก
    * coneDegAt(d) = มุมกรวยที่ระยะ d · zoneEdgesM = ระยะรอยต่อโซน [ใกล้|กลาง, กลาง|ไกล]
-   * (กรวย 3 ระดับ: ใกล้กว้าง ไกลแคบ จึงวาดเป็นขั้นบันไดตามรอยต่อ)
+   * กรวย 3 ระดับวาดเป็นพัด 3 อันซ้อนกันจากตัวรถ (แบบภาพ ADAS) — พื้นที่รวมเท่ากับที่ใช้ตัดสินจริง
    */
   function setUserCone(lat, lng, headingDeg, coneDegAt, radiusM, zoneEdgesM = []) {
     const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
     if (!known || coneDegAt(radiusM) >= 180) {
-      if (coneLayer) { coneLayer.remove(); coneLayer = null; }
+      coneLayers.forEach((l) => l.remove());
+      coneLayers = [];
       return;
     }
-    // ขอบกรวยฝั่งขวาไล่จากตัวรถออกไป: [มุมเบนจากหัวรถ, ระยะ]
-    const bounds = [0, ...zoneEdgesM.filter((e) => e > 0 && e < radiusM), radiusM];
-    const side = [];
-    for (let i = 0; i < bounds.length - 1; i++) {
-      const deg = coneDegAt((bounds[i] + bounds[i + 1]) / 2);
-      if (i > 0) {
-        // รอยต่อโซน: โค้งที่ระยะเดียวกัน จากมุมโซนก่อนหน้าแคบลงมาเป็นมุมโซนนี้
-        const prev = side[side.length - 1][0];
-        for (let k = 1; k <= 4; k++) side.push([prev + ((deg - prev) * k) / 4, bounds[i]]);
+    const [nearEdge = radiusM, midEdge = radiusM] = zoneEdgesM;
+    // [โซน, ความยาวพัด, ระยะกลางโซนไว้ถามมุม] — โซนที่เริ่มเลยรัศมีเตือนไปแล้วไม่ต้องวาด
+    // (สนามทดสอบรัศมี 40 ม. อยู่ในโซนใกล้ทั้งหมด จึงเหลือพัดเดียว)
+    const fans = [
+      [0, radiusM, (midEdge + radiusM) / 2, midEdge < radiusM],
+      [1, Math.min(midEdge, radiusM), (nearEdge + midEdge) / 2, nearEdge < radiusM],
+      [2, Math.min(nearEdge, radiusM), nearEdge / 2, true],
+    ].filter((f) => f[3]);
+    if (coneLayers.length !== fans.length) {
+      coneLayers.forEach((l) => l.remove());
+      coneLayers = [];
+    }
+    fans.forEach(([zone, lenM, probeM], i) => {
+      const pts = fanPoints(lat, lng, headingDeg, coneDegAt(probeM), lenM);
+      if (!coneLayers[i]) {
+        const st = CONE_STYLES[zone];
+        coneLayers[i] = L.polygon(pts, {
+          color: st.color,
+          weight: 1,
+          opacity: 0.8,
+          fillColor: st.color,
+          fillOpacity: st.fillOpacity,
+          interactive: false,
+        }).addTo(map);
+      } else {
+        coneLayers[i].setLatLngs(pts);
       }
-      side.push([deg, bounds[i + 1]]);
-    }
-    const pts = [[lat, lng]];
-    for (const [deg, d] of side) pts.push(destination(lat, lng, headingDeg + deg, d));
-    // ปลายกรวยโค้งตามรัศมีเตือน จากขวาไปซ้าย
-    const farDeg = side[side.length - 1][0];
-    const STEPS = 20;
-    for (let i = 1; i < STEPS; i++) {
-      pts.push(destination(lat, lng, headingDeg + farDeg - (2 * farDeg * i) / STEPS, radiusM));
-    }
-    for (let i = side.length - 1; i >= 0; i--) {
-      pts.push(destination(lat, lng, headingDeg - side[i][0], side[i][1]));
-    }
-    if (!coneLayer) {
-      coneLayer = L.polygon(pts, {
-        color: "#1976d2",
-        weight: 1.5,
-        opacity: 0.7,
-        fillColor: "#1976d2",
-        fillOpacity: 0.13,
-        interactive: false,
-      }).addTo(map);
-      // ให้กรวยอยู่ใต้หมุดทั้งหมด จะได้ไม่บังจุดเสี่ยง
-      if (coneLayer.bringToBack) coneLayer.bringToBack();
-    } else {
-      coneLayer.setLatLngs(pts);
+    });
+    // ให้กรวยอยู่ใต้หมุดทั้งหมด จะได้ไม่บังจุดเสี่ยง (ไล่จากใกล้ไปไกล พัดไกลจึงอยู่ล่างสุด)
+    for (let i = coneLayers.length - 1; i >= 0; i--) {
+      if (coneLayers[i].bringToBack) coneLayers[i].bringToBack();
     }
   }
 
