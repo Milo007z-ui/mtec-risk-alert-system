@@ -73,7 +73,15 @@ const TTS = (() => {
     // ปลดล็อก <audio> (ชั้น neural) — สร้างและ "อุ่นเครื่อง" ระหว่างมี user gesture
     audioEl = new Audio();
     audioEl.play().catch(() => {}); // ยังไม่มี src เล่นไม่ได้ แต่นับเป็นการปลดล็อก
-    // ปลดล็อก AudioContext (เสียง beep) — มือถือบล็อกถ้าไม่ได้สร้าง/resume ใน user gesture
+    // iOS 17+: ไม่ให้สวิตช์ปิดเสียง (silent) ปิด beep ไปด้วย
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = "playback";
+    } catch (e) { /* เบราว์เซอร์ไม่รองรับ */ }
+    // ปลดล็อก <audio> ของ beep — เล่นเงียบ ๆ ครั้งหนึ่งใน user gesture แล้วค่อยเปิดเสียง
+    // (ทางเดียวกับเสียงพูด ซึ่งดังบนมือถือจริง ต่างจาก Web Audio ที่มักเงียบ)
+    beepEl = makeToneEl([0.0]);
+    leadEl = makeToneEl(BEEP_LEAD_TIMES);
+    // ปลดล็อก AudioContext (สำรอง ใช้เมื่อ <audio> เล่นไม่ขึ้น)
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       toneCtx = toneCtx || new AudioCtx();
@@ -156,13 +164,77 @@ const TTS = (() => {
     }
   }
 
+  let beepEl = null; // <audio> beep ครั้งเดียว (จังหวะบอกระยะ)
+  let leadEl = null; // <audio> beep สองครั้งนำหน้าประโยค
+
+  /** สร้างไฟล์ WAV ของ beep เสียงเดียวกับ scheduleBeep() เริ่มที่เวลา times (วินาที) */
+  function toneWavUrl(times) {
+    const RATE = 22050;
+    const total = Math.ceil((times[times.length - 1] + BEEP_S + 0.02) * RATE);
+    const buf = new ArrayBuffer(44 + total * 2);
+    const v = new DataView(buf);
+    const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    str(0, "RIFF"); v.setUint32(4, 36 + total * 2, true); str(8, "WAVE");
+    str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, RATE, true); v.setUint32(28, RATE * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, "data"); v.setUint32(40, total * 2, true);
+    // envelope แบบเดียวกับ Web Audio: ไต่ขึ้นแบบ exponential -> คงที่ -> หรี่ลง
+    const env = (t) => {
+      if (t < 0 || t > BEEP_S) return 0;
+      if (t < ATTACK_S) return 0.0001 * Math.pow(1e4, t / ATTACK_S);
+      if (t < BEEP_S - RELEASE_S) return 1;
+      return Math.pow(1e-4, (t - (BEEP_S - RELEASE_S)) / RELEASE_S);
+    };
+    for (let i = 0; i < total; i++) {
+      const t = i / RATE;
+      let s = 0;
+      for (const at of times) {
+        const g = env(t - at);
+        if (!g) continue;
+        for (const [mult, share] of HARMONICS) {
+          s += BEEP_PEAK * share * g * Math.sin(2 * Math.PI * BEEP_HZ * mult * (t - at));
+        }
+      }
+      v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, s)) * 32767, true);
+    }
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  }
+
+  /** <audio> ของ beep ที่ปลดล็อกแล้ว — ต้องเรียกใน user gesture */
+  function makeToneEl(times) {
+    const el = new Audio(toneWavUrl(times));
+    el.muted = true; // iOS ไม่สน volume จึงใช้ muted ตอนปลดล็อก
+    const p = el.play();
+    const reset = () => { el.pause(); el.currentTime = 0; el.muted = false; };
+    if (p && p.then) p.then(reset).catch(reset);
+    else reset();
+    return el;
+  }
+
+  /** เล่น beep ผ่าน <audio> — ไม่ขึ้นค่อยใช้ Web Audio แทน */
+  function playTone(el, times) {
+    const viaCtx = () => {
+      if (!toneCtx) return;
+      if (toneCtx.state !== "running") toneCtx.resume();
+      const t0 = toneCtx.currentTime + 0.02; // เผื่อเวลาให้ scheduler เล็กน้อย
+      for (const at of times) scheduleBeep(t0 + at);
+    };
+    if (!el) return viaCtx();
+    try {
+      el.currentTime = 0;
+      const p = el.play();
+      if (p && p.catch) p.catch(viaCtx);
+    } catch (e) {
+      viaCtx();
+    }
+  }
+
   /** beep สองครั้งนำหน้าประโยคเตือน — แทน playChime() เดิม */
   function playLeadBeep() {
     return new Promise((resolve) => {
-      if (!toneCtx) return setTimeout(resolve, BEEP_FALLBACK_MS);
-      if (toneCtx.state === "suspended") toneCtx.resume();
-      const t0 = toneCtx.currentTime + 0.02; // เผื่อเวลาให้ scheduler เล็กน้อย
-      for (const at of BEEP_LEAD_TIMES) scheduleBeep(t0 + at);
+      if (!leadEl && !toneCtx) return setTimeout(resolve, BEEP_FALLBACK_MS);
+      playTone(leadEl, BEEP_LEAD_TIMES);
       const lenMs = (BEEP_LEAD_TIMES[BEEP_LEAD_TIMES.length - 1] + BEEP_S) * 1000;
       setTimeout(resolve, lenMs + BEEP_LEAD_GAP_MS);
     });
@@ -179,12 +251,11 @@ const TTS = (() => {
       clearInterval(beepTimer);
       beepTimer = null;
     }
-    if (!name || !toneCtx) return;
-    if (toneCtx.state === "suspended") toneCtx.resume();
+    if (!name || (!beepEl && !toneCtx)) return;
     const tick = () => {
       // ประโยคเตือนสำคัญกว่า beep — ข้ามจังหวะนี้ไปเฉย ๆ ไม่ต้องหยุดทั้งชุด
-      if (speaking || !toneCtx) return;
-      scheduleBeep(toneCtx.currentTime + 0.02);
+      if (speaking) return;
+      playTone(beepEl, [0.0]);
     };
     tick();
     beepTimer = setInterval(tick, 1000 / BEEP_RATE_HZ[name]);
