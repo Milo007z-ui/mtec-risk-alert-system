@@ -58,7 +58,7 @@ const Telemetry = (() => {
             '<div class="tm-kv tm-pick"><span>ตอนนี้</span><b id="tm-phase">—</b></div>' +
             // ซ้ำกับการ์ดความเร็วด้านบน เพราะแบนเนอร์เตือนมักบังการ์ดนั้นตอนเข้าใกล้จุดเสี่ยง
             '<div class="tm-kv"><span>ความเร็วรถ</span><b id="tm-vnow">—</b></div>' +
-            `<div class="tm-kv"><span>ถึง ${window.MOCK_SCENARIO.target}</span><b id="tm-target">—</b></div>` +
+            `<div class="tm-kv"><span id="tm-target-lbl">ถึง ${window.MOCK_SCENARIO.target}</span><b id="tm-target">—</b></div>` +
             '<div class="tm-kv"><span>ความเร็วคิด beep</span><b id="tm-bspd">—</b></div>' +
             '<div class="tm-kv"><span>เริ่ม beep ที่</span><b id="tm-bstart">—</b></div>' +
           '</div>'
@@ -125,6 +125,7 @@ const Telemetry = (() => {
       q("tm-vnow").textContent =
         t.speedKmh === null || t.speedKmh === undefined ? "—" : `${Math.round(t.speedKmh)} กม./ชม.`;
       const tp = RiskPoints.all().find((p) => p.id === sc.target);
+      q("tm-target-lbl").textContent = `ถึง ${sc.target}`; // สถานการณ์หลายช่วงเปลี่ยนเป้าหมายได้
       q("tm-target").textContent = tp ? `${Math.round(haversineMeters(lat, lng, tp.lat, tp.lng))} ม.` : "—";
       q("tm-bspd").textContent =
         t.beepSpeedKmh === null ? "ยังไม่รู้ ใช้ 90" : `${Math.round(t.beepSpeedKmh)} กม./ชม.`;

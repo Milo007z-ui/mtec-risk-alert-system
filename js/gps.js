@@ -239,7 +239,45 @@ const GPS = (() => {
     }
 
     /** ล่วงหน้าทั้งสถานการณ์ทุก 0.05 วิ: [{ t, s, v, phase }] — s = ระยะตามเส้นทาง (ม.), v = ม./วิ */
+    /**
+     * สถานการณ์หลายช่วง (kind "profile") — เปลี่ยนความเร็วตามตำแหน่งบนเส้นทาง ผ่านจุดเสี่ยงได้หลายจุด
+     * steps[i] = { atM, toKmh, rate (ม./วิ²), phase, reachedPhase?, holdS?, then?, target? }
+     * ถึง atM -> ไล่ความเร็วเข้าหา toKmh ด้วย rate · ถึงความเร็วแล้วเปลี่ยนเป็น reachedPhase
+     * toKmh 0 + holdS -> จอดนิ่ง holdS วิ แล้วทำตาม then (ออกตัวต่อ)
+     */
+    function profileTimeline(sc) {
+      const DT = 0.05;
+      const steps = [...sc.steps].sort((a, b) => a.atM - b.atM);
+      let s = Math.max(0, sc.startM);
+      const endS = Math.min(total, sc.endM);
+      let v = sc.fromKmh / 3.6, t = 0, phase = "cruise", target = sc.target;
+      let goal = v, rate = 0, reachedPhase = null, holdPending = null, then = null, hold = 0, si = 0;
+      const apply = (st) => {
+        goal = st.toKmh / 3.6; rate = st.rate || 0; phase = st.phase;
+        reachedPhase = st.reachedPhase || null; holdPending = st.holdS || null; then = st.then || null;
+        if (st.target) target = st.target;
+      };
+      const out = [{ t, s, v, phase, target }];
+      while (s < endS && t < 1800) {
+        while (si < steps.length && s >= steps[si].atM) apply(steps[si++]);
+        if (phase === "stopped") {
+          hold -= DT;
+          if (hold <= 0 && then) apply(then);
+        } else {
+          if (v < goal) v = Math.min(goal, v + rate * DT);
+          else if (v > goal) v = Math.max(goal, v - rate * DT);
+          if (v === goal && goal === 0 && holdPending) { phase = "stopped"; hold = holdPending; holdPending = null; }
+          else if (v === goal && reachedPhase) { phase = reachedPhase; reachedPhase = null; }
+        }
+        s += v * DT;
+        t += DT;
+        out.push({ t, s, v, phase, target });
+      }
+      return { DT, out };
+    }
+
     function scenarioTimeline(sc) {
+      if (sc.kind === "profile") return profileTimeline(sc);
       const DT = 0.05;
       const cruise = sc.fromKmh / 3.6;
       let s = Math.max(0, sc.targetM - sc.startBeforeM);
@@ -283,6 +321,7 @@ const GPS = (() => {
         const pos = pointAt(p.s);
         window.MOCK_ELAPSED_S = p.t;
         window.MOCK_SCENARIO.phase = phaseOverride || p.phase;
+        if (p.target) window.MOCK_SCENARIO.target = p.target; // profile เปลี่ยนจุดเป้าหมายระหว่างทาง
         // ความเร็วจริง ณ ขณะนั้น (ไม่ใช่ค่าเฉลี่ย 1 วิ) — ตอนจอดส่ง 0 เหมือนตัวรับ GPS
         onUpdate(pos.lat, pos.lng, 8, noisyCourse(segCourse[pos.i]), p.v * 3.6);
       };

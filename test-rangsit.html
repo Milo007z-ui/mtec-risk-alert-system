@@ -48,6 +48,23 @@
         fromKmh: 30, triggerM: 0,
         phases: { cruise: "ขับ 30 กม./ชม. คงที่", done: "จบสถานการณ์" },
       },
+      // สาธิตครบในรอบเดียว (kind "profile" = หลายช่วง): zone_302 อยู่ กม. 5.405 · zone_319 อยู่ กม. 12.175
+      // ขับ 90 → เร่งถึง 120 ก่อนถึง zone_302 → ผ่านแล้วลดกลับ 90 → ใกล้ zone_319 เบรกจนจอด 15 วิ → ขับต่อ 90
+      demo: {
+        title: "สาธิต: เร่ง 90 → 120 ผ่าน zone_302 · เบรกจอดก่อน zone_319 แล้วขับต่อ", kind: "profile",
+        target: "zone_302", startM: 5405 - 1000, endM: 12175 + 300, fromKmh: 90,
+        steps: [
+          { atM: 5405 - 600, toKmh: 120, rate: 1.39, phase: "accel", reachedPhase: "fast" },
+          { atM: 5405 + 250, toKmh: 90, rate: 1.0, phase: "back90", reachedPhase: "cruise2" },
+          { atM: 12175 - 900, toKmh: 90, rate: 1.0, phase: "approach", target: "zone_319" },
+          { atM: 12175 - 260, toKmh: 0, rate: 3.4, phase: "brake", holdS: 15,
+            then: { atM: 0, toKmh: 90, rate: 2.0, phase: "go", reachedPhase: "resume" } },
+        ],
+        phases: { cruise: "ขับ 90 กม./ชม.", accel: "เร่ง 90 → 120", fast: "ขับ 120 กม./ชม.",
+                  back90: "ผ่านจุดแล้ว ลดกลับ 90", cruise2: "ขับ 90 กม./ชม. ไปจุดที่ 2",
+                  approach: "ใกล้จุดที่ 2 ขับ 90 กม./ชม.", brake: "เหยียบเบรก", stopped: "จอดนิ่ง 15 วิ",
+                  go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
+      },
       accel: {
         title: "ขับ 90 แล้วเร่งถึง 120 เริ่มเร่งที่ 210 ม.", kind: "accel",
         target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
@@ -231,7 +248,8 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
         <a href="?mock=1&amp;scenario=brake">🛑 ขับ 90 แล้วเบรกจนจอด</a> ·
         <a href="?mock=1&amp;scenario=hardbrake">⚠️ ขับ 90 แล้วเบรกกะทันหัน</a> ·
         <a href="?mock=1&amp;scenario=accel">🚀 ขับ 90 แล้วเร่งถึง 120</a> ·
-        <a href="?mock=1&amp;scenario=slow">🐢 ขับช้า 30 ฟัง beep ครบ 3 ระดับ</a>
+        <a href="?mock=1&amp;scenario=slow">🐢 ขับช้า 30 ฟัง beep ครบ 3 ระดับ</a> ·
+        <a href="?mock=1&amp;scenario=demo">🎬 สาธิต: เร่ง 120 แล้วเบรกจอด (2 จุด)</a>
       </p>
       <button id="btn-start">เริ่มเส้นทางจำลอง</button>
       <p class="hint">หน้านี้ออกแบบให้ดูในห้อง เปิดด้วย <code>?mock=1</code> · ปรับความเร็วด้วย <code>&amp;kmh=120</code> · เร่ง/ลดความเร็วการเล่นด้วย <code>&amp;x=10</code> · กระโดดไปกลางทางด้วย <code>&amp;start=3</code> (กม.)</p>
@@ -247,12 +265,12 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
   <script src="js/accidents.js?v=8"></script>
   <script src="js/filters.js?v=14"></script>
   <script src="js/map.js?v=14"></script>
-  <script src="js/gps.js?v=20"></script>
+  <script src="js/gps.js?v=21"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
   <script src="js/device.js?v=14"></script>
   <script src="js/alert.js?v=29"></script>
   <!-- แผงตัวเลขสด อ่านค่าจาก AlertSystem.telemetry() -->
-  <script src="js/telemetry.js?v=8"></script>
+  <script src="js/telemetry.js?v=9"></script>
   <script src="js/app.js?v=19"></script>
   <script>
     // แผงอธิบายวิธีทำงาน — เลื่อนเข้าจากขอบขวา
