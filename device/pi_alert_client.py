@@ -1101,7 +1101,9 @@ def run(api_base, position_source, speak_enabled=True):
         time.sleep(max(0, POLL_INTERVAL_S - (time.monotonic() - started)))
 
 
-SAMPLE_TEXT = "ข้างหน้าอีกประมาณ 500 เมตร มีจุดอันตราย กรุณาลดความเร็ว และใช้ความระมัดระวังเป็นพิเศษ"
+# ต้องเป็นประโยคที่มีไฟล์อัดไว้ใน VOICE_CLIPS — ไม่งั้นตกไป Botnoi สด/Google ที่เบากว่าชุด
+# audio/loud มาก ทำให้ผลทดสอบความดังไม่ตรงกับเสียงเตือนจริงบนถนน
+SAMPLE_TEXT = "ข้างหน้าอีก 500 เมตร ใกล้จุดเสี่ยงสูง โปรดใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ"
 
 
 def check_voice(api_base):
