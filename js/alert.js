@@ -80,13 +80,13 @@ const AlertSystem = (() => {
     }
 
     // รถจอด/คลานช้า -> คงความเร็วเดิมไว้ ไม่งั้นระยะเริ่ม beep จะร่วงลงไปที่ขั้นต่ำสุด
-    // (ต้องอัปเดตก่อนกรองทิศ เพราะโซนของกรวย 3 ระดับคิดจากความเร็วนี้)
+    // (ต้องอัปเดตก่อนกรองทิศ เพราะโซนของกรวยคิดจากความเร็วนี้)
     if (speedForGate !== null && speedForGate >= SPEED_HOLD_MIN_KMH) {
       lastMovingSpeedKmh = speedForGate;
     }
 
     // จุดที่ขับผ่านไปแล้ว/อยู่ด้านหลัง ไม่ต้องเตือน (ยังไม่รู้ทิศ = เตือนไว้ก่อน)
-    // กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — จุดริมถนนไม่หลุดกรวยก่อนรถขับผ่าน
+    // มุมกรวยตามระยะ (coneWindowDeg) — ตอนนี้ชั้นเดียว ±20° ทุกระยะ
     const ahead = nearby.filter(({ point, distance }) =>
       isAhead(headingDeg, lat, lng, point.lat, point.lng,
               coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG))
@@ -148,7 +148,7 @@ const AlertSystem = (() => {
       console.log(
         `[ALERT] ${point.level} ${point.id} ที่ ${distance.toFixed(0)} ม. | ` +
           `ทิศรถ ${headingDeg === null ? "ยังไม่รู้" : `${headingDeg.toFixed(0)}° (${headingSource})`} ` +
-          `(กรวย 3 ระดับ ±${coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG)}° ที่ระยะนี้) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
+          `(กรวย ±${coneWindowDeg(distance, lastMovingSpeedKmh, HEADING_WINDOW_DEG)}° ที่ระยะนี้) | ในระยะ ${EXIT_RADIUS_M} ม. ตอนนี้: ` +
           nearby
             .map((n) => `${n.point.id} ${n.distance.toFixed(0)}ม.${alerted.has(n.point.id) ? "*" : ""}`)
             .join(", ") +

@@ -645,11 +645,24 @@ def beep_start_m(speed_kmh):
     return float(DSD_E_M[max(DSD_E_M)])
 
 
-# กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — HEADING_WINDOW_DEG คือมุมโซนไกล (โซนที่พูดเตือนที่ 500 ม.)
-# กรวยแคบเท่ากันทุกระยะทำให้จุดเสี่ยงริมถนนหลุดกรวยตอนรถเข้าใกล้ beep จึงเงียบก่อนขับผ่านจริง
+# มุมกรวยโซนกลาง/ใกล้ — ตอนนี้ใช้กรวยชั้นเดียว ±20° ทุกระยะ (ตั้งเท่า HEADING_WINDOW_DEG)
+# เปลี่ยนกลับเป็นกรวย 3 ระดับ (ไกลแคบ ใกล้กว้าง) ได้ด้วยการตั้ง 30 / 60
+# ข้อแลกเปลี่ยนของชั้นเดียว: จุดเสี่ยงริมถนนหลุดกรวยตอนรถเข้าใกล้ beep จึงเงียบก่อนขับผ่านจริง
 # ต้องตรงกับ CONE_MID_DEG / CONE_NEAR_DEG / coneWindowDeg ใน js/distance.js
-CONE_MID_DEG = 30
-CONE_NEAR_DEG = 60
+CONE_MID_DEG = 20
+CONE_NEAR_DEG = 20
+
+
+def _cone_desc():
+    """ข้อความบอกโหมดกรวยตอนเริ่มทำงาน — status.sh ดึงบรรทัดนี้ไปแสดง"""
+    if HEADING_WINDOW_DEG >= 180:
+        return "ทุกทิศรอบตัว"
+    mid = max(HEADING_WINDOW_DEG, CONE_MID_DEG)
+    near = max(HEADING_WINDOW_DEG, CONE_NEAR_DEG)
+    if mid == near == HEADING_WINDOW_DEG:
+        return f"เฉพาะข้างหน้า กรวยชั้นเดียว ±{HEADING_WINDOW_DEG:.0f}°"
+    return (f"เฉพาะข้างหน้า กรวย 3 ระดับ ไกล ±{HEADING_WINDOW_DEG:.0f}° · "
+            f"กลาง ±{mid:.0f}° · ใกล้ ±{near:.0f}°")
 
 
 def cone_window_deg(distance_m, speed_kmh, far_deg):
@@ -970,7 +983,7 @@ def run(api_base, position_source, speak_enabled=True):
     beep_ready = "พร้อม" if (BEEP_DIR / "beep_far.wav").exists() else "ไม่มีไฟล์"
     print(
         f"เริ่มเฝ้าระวังจุดเสี่ยง (API: {api_base}, เตือนที่ {ALERT_RADIUS_M} ม. "
-        f"{'ทุกทิศรอบตัว' if HEADING_WINDOW_DEG >= 180 else f'เฉพาะข้างหน้า กรวย 3 ระดับ ไกล ±{HEADING_WINDOW_DEG:.0f}° · กลาง ±{max(HEADING_WINDOW_DEG, CONE_MID_DEG):.0f}° · ใกล้ ±{max(HEADING_WINDOW_DEG, CONE_NEAR_DEG):.0f}°'}, "
+        f"{_cone_desc()}, "
         f"เสียงพูด: {voice} [{player} -> {AUDIO_DEVICE or 'default'} {VOLUME_PCT}%], "
         f"beep: {beep_ready})"
     )
@@ -1036,7 +1049,7 @@ def run(api_base, position_source, speak_enabled=True):
                 if speed_now is not None and speed_now >= SPEED_HOLD_MIN_KMH:
                     last_moving_speed = speed_now
 
-                # กรวย 3 ระดับ: ไกลแคบ ใกล้กว้าง — จุดริมถนนไม่หลุดกรวยก่อนรถขับผ่าน
+                # กรองเฉพาะจุดข้างหน้ารถ (มุมกรวยตาม cone_window_deg)
                 ahead = [p for p in nearby
                          if is_ahead(heading_deg, lat, lng, p["lat"], p["lng"],
                                      cone_window_deg(p["distance_m"], last_moving_speed,

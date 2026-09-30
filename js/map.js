@@ -124,7 +124,9 @@ const MapView = (() => {
       coneLayers = [];
       return;
     }
-    const [nearEdge = radiusM, midEdge = radiusM] = zoneEdgesM;
+    // มุมเท่ากันทุกโซน (กรวยชั้นเดียว) -> วาดพัดอันเดียว ไม่ซ้อน 3 ชั้นสีเดียวกัน
+    const single = coneDegAt(0) === coneDegAt(radiusM);
+    const [nearEdge = radiusM, midEdge = radiusM] = single ? [] : zoneEdgesM;
     // [โซน, ความยาวพัด, ระยะกลางโซนไว้ถามมุม] — โซนที่เริ่มเลยรัศมีเตือนไปแล้วไม่ต้องวาด
     // (สนามทดสอบรัศมี 40 ม. อยู่ในโซนใกล้ทั้งหมด จึงเหลือพัดเดียว)
     const fans = [
