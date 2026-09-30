@@ -9,7 +9,7 @@ const GPS = (() => {
   const MOCK_ROUTE_URL = window.MOCK_ROUTE_URL || "data/mock_route.geojson";
 
   // สำรอง: ถ้าโหลดไฟล์เส้นทางไม่ได้ ค่อยร้อยคลัสเตอร์เป็นเส้นตรงแทน
-  const MOCK_ROUTE_IDS = ["zone_431", "zone_440", "zone_455"];
+  const MOCK_ROUTE_IDS = ["zone_614", "zone_603", "zone_626"];
 
   // คลัสเตอร์ที่ "ยกเว้นเฉพาะโหมดจำลอง" — ใส่ id วงที่อยู่คนละฝั่งเลน/แรมป์ ที่รถไม่ได้ขับผ่านจริง
   const MOCK_EXCLUDE_IDS = [];

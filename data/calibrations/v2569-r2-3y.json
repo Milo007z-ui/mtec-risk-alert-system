@@ -1,0 +1,131 @@
+{
+  "version": "v2569-r2-3y",
+  "generated_at": "2026-09-30T02:49:08+00:00",
+  "recalibration_policy": "ทุก 6 เดือน",
+  "source": "accident2023-2025.xlsx",
+  "events_total": 14101,
+  "events_with_coords": 13525,
+  "dbscan": {
+    "eps_m": 200,
+    "min_samples": 3,
+    "passes": 2,
+    "second_pass_split_by": "road"
+  },
+  "scoring_method": "severity_index",
+  "si_formula": "(F + PI) / Total Accident",
+  "cost_per_person_thb": {
+    "death": 6700000,
+    "serious": 2000000,
+    "minor": 58000
+  },
+  "epdo_weights_million_per_person": {
+    "fatal": 6.7,
+    "serious": 2.0,
+    "minor": 0.058
+  },
+  "level_breaks": [
+    1.0,
+    2.0
+  ],
+  "level_break_method": "fixed_si_cutoff",
+  "marker_position": "medoid",
+  "road_label_fill": {
+    "max_borrow_dist_m": 2000,
+    "by_source": {
+      "record": 443,
+      "nearest_road": 187,
+      "route_ref": 0,
+      "unknown": 0
+    }
+  },
+  "risk_points": 13525,
+  "analysis_units": 630,
+  "zones": 630,
+  "core_clusters": 630,
+  "noise_points": 2303,
+  "noise_excluded_from_levels": true,
+  "overall": {
+    "risk_points": 13525,
+    "deaths": 691,
+    "serious_injury": 623,
+    "minor_injury": 7061,
+    "epdo_total_million": 6285.24
+  },
+  "excluded_noise": {
+    "risk_points": 2303,
+    "deaths": 382,
+    "serious_injury": 321,
+    "minor_injury": 1300,
+    "epdo_total_million": 3276.8
+  },
+  "events_in_clusters": 11222,
+  "largest_cluster_events": 918,
+  "levels": {
+    "high": 27,
+    "medium": 131,
+    "low": 472
+  },
+  "si_stats": {
+    "mean": 0.672,
+    "median": 0.5395,
+    "sd": 0.6444,
+    "min": 0.0,
+    "max": 5.25
+  },
+  "epdo_total_million": 3008.44,
+  "epdo_by_level": {
+    "low": {
+      "points": 472,
+      "epdo_total_million": 2212.15,
+      "epdo_mean_million": 4.69
+    },
+    "medium": {
+      "points": 131,
+      "epdo_total_million": 584.12,
+      "epdo_mean_million": 4.46
+    },
+    "high": {
+      "points": 27,
+      "epdo_total_million": 212.17,
+      "epdo_mean_million": 7.86
+    }
+  },
+  "by_province": {
+    "กรุงเทพมหานคร": {
+      "points": 283,
+      "low_pct": 74.2,
+      "medium_pct": 23.0,
+      "high_pct": 2.8
+    },
+    "นนทบุรี": {
+      "points": 36,
+      "low_pct": 80.6,
+      "medium_pct": 19.4,
+      "high_pct": 0.0
+    },
+    "ปทุมธานี": {
+      "points": 78,
+      "low_pct": 73.1,
+      "medium_pct": 20.5,
+      "high_pct": 6.4
+    },
+    "สมุทรปราการ": {
+      "points": 144,
+      "low_pct": 77.1,
+      "medium_pct": 18.1,
+      "high_pct": 4.9
+    },
+    "นครปฐม": {
+      "points": 24,
+      "low_pct": 58.3,
+      "medium_pct": 25.0,
+      "high_pct": 16.7
+    },
+    "สมุทรสาคร": {
+      "points": 65,
+      "low_pct": 78.5,
+      "medium_pct": 16.9,
+      "high_pct": 4.6
+    }
+  }
+}

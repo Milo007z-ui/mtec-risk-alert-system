@@ -2,39 +2,27 @@
  "type": "FeatureCollection",
  "name": "mock_drive_route",
  "properties": {
-  "description": "เส้นทางจำลอง ถนนแยกสาครเกษม-คลองมะเดื่อ (สมุทรสาคร) ทิศทางเดียวไม่สวนเลน ผ่านครบทั้งสามระดับ ต่ำ ปานกลาง สูง เริ่มก่อนจุดเสี่ยงแรก ~1.3 กม.",
+  "description": "เส้นทางจำลอง ถนนแยกสาครเกษม-คลองมะเดื่อ (สมุทรสาคร) ทิศทางเดียวไม่สวนเลน ผ่านครบทั้งสามระดับ ต่ำ ปานกลาง สูง เริ่มก่อนจุดเสี่ยงแรก ~2.5 กม.",
   "road": "แยกสาครเกษม - คลองมะเดื่อ",
   "length_km": 6.19,
-  "start_offset_m": 1300,
-  "calibration": "v2569-r1-3y",
+  "start_offset_m": 2466,
+  "calibration": "v2569-r2-3y",
   "targets": [
    {
-    "id": "zone_432",
-    "level": "low"
-   },
-   {
-    "id": "zone_431",
-    "level": "low"
-   },
-   {
-    "id": "zone_440",
+    "id": "zone_614",
     "level": "medium"
    },
    {
-    "id": "zone_439",
+    "id": "zone_603",
     "level": "low"
    },
    {
-    "id": "zone_441",
+    "id": "zone_604",
     "level": "medium"
    },
    {
-    "id": "zone_455",
+    "id": "zone_626",
     "level": "high"
-   },
-   {
-    "id": "zone_453",
-    "level": "medium"
    }
   ]
  },

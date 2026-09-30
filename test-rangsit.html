@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>เส้นทางจำลองรังสิต — วนผ่านจุดเสี่ยงจริง 3 จุด</title>
+  <title>เส้นทางจำลองรังสิต — วนผ่านจุดเสี่ยงจริง 2 จุด</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css?v=18">
@@ -20,13 +20,13 @@
     // ซึ่งแต่ละขั้นกินเวลาราว 5 วินาทีของการเดินทางจริง
     window.MOCK_SPEEDUP = 2;
 
-    // สถานการณ์ทดสอบ beep รอบจุดเสี่ยง zone_319 (บ้านพร้าว–คลองห้า) ที่กิโลเมตร 12.182 ของเส้นทาง
+    // สถานการณ์ทดสอบ beep รอบจุดเสี่ยง zone_419 (ต่างระดับคลองหลวง ระดับปานกลาง) ที่กิโลเมตร 5.346 ของเส้นทาง
     // เปิดด้วย ?mock=1&scenario=brake หรือ ?mock=1&scenario=accel (เล่นเวลาจริง ปรับได้ด้วย &x=)
     // triggerM = ระยะตามเส้นทางถึงจุดเสี่ยงที่เริ่มเบรก/เร่ง · decel 3.4 = ค่าออกแบบ AASHTO
     window.MOCK_SCENARIOS = {
       brake: {
         title: "ขับ 90 แล้วเบรกจนจอด เริ่มเบรกที่ 210 ม.", kind: "brake",
-        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        target: "zone_419", targetM: 5346, startBeforeM: 1000, endAfterM: 400,
         fromKmh: 90, triggerM: 210, decel: 3.4, holdS: 20, accel: 2.0,
         phases: { cruise: "ขับ 90 กม./ชม.", brake: "เหยียบเบรก", stopped: "จอดนิ่ง 20 วิ",
                   go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
@@ -34,7 +34,7 @@
       // เบรกกะทันหัน: 7.5 ม./วิ² ≈ 0.76g = เบรกเต็มแรงรถมี ABS บนถนนแห้ง (90 -> 0 ใน 3.3 วิ ระยะ 42 ม.)
       hardbrake: {
         title: "ขับ 90 แล้วเบรกกะทันหันจนจอด เริ่มเบรกที่ 210 ม.", kind: "brake",
-        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        target: "zone_419", targetM: 5346, startBeforeM: 1000, endAfterM: 400,
         fromKmh: 90, triggerM: 210, decel: 7.5, holdS: 20, accel: 2.0,
         phases: { cruise: "ขับ 90 กม./ชม.", brake: "เบรกกะทันหัน", stopped: "จอดนิ่ง 20 วิ",
                   go: "ออกตัว", resume: "ขับต่อ 90 กม./ชม.", done: "จบสถานการณ์" },
@@ -44,20 +44,20 @@
       // ช้า 200–132 ม. · ปานกลาง 132–66 ม. · ถี่ 66–0 ม. → ระดับละ ~8 วินาที
       slow: {
         title: "ขับช้า 30 กม./ชม. ผ่านจุดเสี่ยง (ฟัง beep ครบ 3 ระดับ)", kind: "cruise",
-        target: "zone_319", targetM: 12182, startBeforeM: 600, endAfterM: 200,
+        target: "zone_419", targetM: 5346, startBeforeM: 600, endAfterM: 200,
         fromKmh: 30, triggerM: 0,
         phases: { cruise: "ขับ 30 กม./ชม. คงที่", done: "จบสถานการณ์" },
       },
-      // สาธิตครบในรอบเดียว (kind "profile" = หลายช่วง): zone_302 อยู่ กม. 5.405 · zone_319 อยู่ กม. 12.175
-      // ขับ 90 → เร่งถึง 120 ก่อนถึง zone_302 → ผ่านแล้วลดกลับ 90 → ใกล้ zone_319 เบรกจนจอด 15 วิ → ขับต่อ 90
+      // สาธิตครบในรอบเดียว (kind "profile" = หลายช่วง): zone_420 อยู่ กม. 4.003 · zone_419 อยู่ กม. 5.346 (eps 200 ม. — zone_302/319 เดิมไม่มีแล้ว)
+      // ขับ 90 → เร่งถึง 120 ก่อนถึง zone_420 → ผ่านแล้วลดกลับ 90 → ใกล้ zone_419 เบรกจนจอด 15 วิ → ขับต่อ 90
       demo: {
-        title: "สาธิต: เร่ง 90 → 120 ผ่าน zone_302 · เบรกจอดก่อน zone_319 แล้วขับต่อ", kind: "profile",
-        target: "zone_302", startM: 5405 - 1000, endM: 12175 + 300, fromKmh: 90,
+        title: "สาธิต: เร่ง 90 → 120 ผ่าน zone_420 · เบรกจอดก่อน zone_419 แล้วขับต่อ", kind: "profile",
+        target: "zone_420", startM: 4003 - 1000, endM: 5346 + 300, fromKmh: 90,
         steps: [
-          { atM: 5405 - 600, toKmh: 120, rate: 1.39, phase: "accel", reachedPhase: "fast" },
-          { atM: 5405 + 250, toKmh: 90, rate: 1.0, phase: "back90", reachedPhase: "cruise2" },
-          { atM: 12175 - 900, toKmh: 90, rate: 1.0, phase: "approach", target: "zone_319" },
-          { atM: 12175 - 260, toKmh: 0, rate: 3.4, phase: "brake", holdS: 15,
+          { atM: 4003 - 600, toKmh: 120, rate: 1.39, phase: "accel", reachedPhase: "fast" },
+          { atM: 4003 + 250, toKmh: 90, rate: 1.0, phase: "back90", reachedPhase: "cruise2" },
+          { atM: 5346 - 900, toKmh: 90, rate: 1.0, phase: "approach", target: "zone_419" },
+          { atM: 5346 - 260, toKmh: 0, rate: 3.4, phase: "brake", holdS: 15,
             then: { atM: 0, toKmh: 90, rate: 2.0, phase: "go", reachedPhase: "resume" } },
         ],
         phases: { cruise: "ขับ 90 กม./ชม.", accel: "เร่ง 90 → 120", fast: "ขับ 120 กม./ชม.",
@@ -67,7 +67,7 @@
       },
       accel: {
         title: "ขับ 90 แล้วเร่งถึง 120 เริ่มเร่งที่ 210 ม.", kind: "accel",
-        target: "zone_319", targetM: 12182, startBeforeM: 1000, endAfterM: 400,
+        target: "zone_419", targetM: 5346, startBeforeM: 1000, endAfterM: 400,
         fromKmh: 90, toKmh: 120, triggerM: 210, accel: 1.39,
         phases: { cruise: "ขับ 90 กม./ชม.", accel: "เร่ง 90 → 120", fast: "ขับ 120 กม./ชม.",
                   done: "จบสถานการณ์" },
@@ -241,7 +241,7 @@ R = √(x² + y²) ÷ n&nbsp;&nbsp;&nbsp;// R &lt; 0.3 = ไม่เชื่�
         · ลองระยะอื่นได้ด้วย <code>?alert=300&amp;exit=400</code>
       </p>
       <p class="hint" style="color:#2e7d32">
-        ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 456 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
+        ✓ จุดเสี่ยงทั้งหมดเป็น<b>ข้อมูลจริงจากชุด 630 คลัสเตอร์</b> ชุดเดียวกับที่ระบบใช้งานจริง
       </p>
       <p class="hint">
         สถานการณ์ทดสอบ beep ที่จุดบ้านพร้าว–คลองห้า:
