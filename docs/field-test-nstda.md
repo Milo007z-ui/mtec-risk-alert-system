@@ -108,7 +108,7 @@ RISK_DATA_FILE=data/risk_points_nstda_test.geojson uvicorn api.server:app --host
 #   -> dataset ต้องเป็น risk_points_nstda_test.geojson และ total_points = 8
 
 # เทอร์มินัลที่ 2 — GPS จริง ด้วยรัศมีของสนามทดสอบ
-python3 device/pi_alert_client.py --gpsd --alert-radius 60 --exit-radius 80
+python3 device/pi_alert_client.py --serial --alert-radius 60 --exit-radius 80
 
 # ซ้อมในห้อง (ไม่ต้องมี GPS) — เดินตามเส้นทางทีละพิกัด
 python3 device/pi_alert_client.py --route data/mock_route_nstda.geojson --once \
@@ -169,7 +169,7 @@ date '+%Y-%m-%d %H:%M:%S'
 ```
 
 - pi client พิมพ์ทุกบรรทัดพร้อม `[HH:MM:SS]` และพิกัดอยู่แล้ว — เก็บล็อกไว้ด้วย
-  `python3 device/pi_alert_client.py --gpsd --alert-radius 60 --exit-radius 80 | tee test-run-1.log`
+  `python3 device/pi_alert_client.py --serial --alert-radius 60 --exit-radius 80 | tee test-run-1.log`
 - นำเวลาที่ขึ้นบรรทัด `>>` (เริ่มพูดประโยคเตือน) ทั้ง 8 ครั้งไปเทียบกับ timestamp ของภาพ/คลิปจาก EMMA
   เพื่อดูว่า "ตอนระบบเตือน กล้องเห็นอะไรอยู่" — ใช้ประกอบรายงานได้ทั้งภาพและเสียง
 - ถ้า EMMA บันทึกพิกัดของตัวเองด้วย ให้เทียบพิกัดชุดเดียวกันได้อีกทาง

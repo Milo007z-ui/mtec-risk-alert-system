@@ -35,8 +35,6 @@ POLL_INTERVAL_S = 1              # รอบของลูปหลัก: อ�
 HTTP_TIMEOUT_S = 5               # รอเซิร์ฟเวอร์ตอบนานสุดเท่านี้
 REPORT_LOCATION = True           # ส่งพิกัดขึ้นเว็บให้เห็นหมุดรถแบบเรียลไทม์
 
-GPSD_HOST, GPSD_PORT = "127.0.0.1", 2947
-
 # พอร์ตที่ไล่หาตัวรับ GPS ตามลำดับ (ชื่อ by-id ก่อน เพราะไม่สลับเลขเวลาเสียบ USB หลายตัว)
 GPS_PORT_GLOBS = ["/dev/serial/by-id/*GPS*", "/dev/serial/by-id/*u-blox*",
                   "/dev/ttyACM*", "/dev/ttyUSB*"]
@@ -530,59 +528,6 @@ class NmeaSerialReader:
     def read(self):
         with self._lock:
             return self.last_fix
-
-
-class GpsdReader:
-    """อ่านพิกัดจาก gpsd ผ่าน TCP JSON protocol (ไม่ต้องใช้ไลบรารี gps3)"""
-
-    name = "gpsd"
-
-    def __init__(self):
-        self.sock = None
-        self.buffer = b""
-        self.last_fix = None
-        self.course = None      # gpsd TPV field "track" = COG องศา อ้าง true north (เฉลี่ยแล้ว)
-        self.course_raw = None
-        self.speed_kmh = None   # TPV field "speed" เป็น m/s ต้องคูณ 3.6
-        self.satellites = None
-        self._smoother = CircularCourseSmoother()
-
-    def _connect(self):
-        self.sock = socket.create_connection((GPSD_HOST, GPSD_PORT), timeout=5)
-        self.sock.sendall(b'?WATCH={"enable":true,"json":true}\n')
-        self.sock.settimeout(2)
-
-    def read(self):
-        """คืน (lat, lng) จากรายงาน TPV ล่าสุด หรือ fix เก่าถ้ายังไม่มีรายงานใหม่"""
-        try:
-            if self.sock is None:
-                self._connect()
-            try:
-                self.buffer += self.sock.recv(65536)
-            except socket.timeout:
-                pass
-            *lines, self.buffer = self.buffer.split(b"\n")
-            for line in lines:
-                try:
-                    report = json.loads(line)
-                except ValueError:
-                    continue
-                if report.get("class") == "SKY" and "satellites" in report:
-                    self.satellites = len(report["satellites"])
-                if report.get("class") != "TPV":
-                    continue
-                if "lat" in report and "lon" in report:
-                    self.last_fix = (report["lat"], report["lon"])
-                # track/speed อาจไม่มาในทุกรายงาน — ไม่มีก็คงค่าเดิมไว้
-                if report.get("speed") is not None:
-                    self.speed_kmh = float(report["speed"]) * 3.6
-                if report.get("track") is not None:
-                    self.course_raw = float(report["track"])
-                    self.course = self._smoother.add(self.course_raw, self.speed_kmh)
-        except OSError as e:
-            print(f"[gpsd] ขาดการเชื่อมต่อ: {e} — จะลองใหม่", file=sys.stderr)
-            self.sock = None
-        return self.last_fix
 
 
 _AUDIO_DIR = pathlib.Path(__file__).resolve().parent.parent / "audio"
@@ -1345,7 +1290,6 @@ def main():
                              "ไม่ใส่พอร์ต = หาให้อัตโนมัติ · ระบุเองได้ เช่น /dev/ttyUSB0")
     source.add_argument("--checkgps", nargs="?", const="", metavar="PORT",
                         help="ตรวจว่าตัวรับ GPS ทำงานไหม จับดาวได้กี่ดวง (ไม่ยิง API)")
-    source.add_argument("--gpsd", action="store_true", help="อ่านพิกัดจริงจาก gpsd")
     parser.add_argument("--gps-hz", type=float, metavar="HZ", default=DEFAULT_GPS_UPDATE_HZ,
                         help=f"อัตราที่สั่งให้โมดูลส่งข้อมูล (ค่าเริ่มต้น {DEFAULT_GPS_UPDATE_HZ}) "
                              "0 = ไม่ตั้งค่า ใช้ค่าที่โมดูลจำไว้ · เขียนลง RAM เท่านั้น")
@@ -1391,8 +1335,6 @@ def main():
 
     if args.serial is not None:
         position_source = NmeaSerialReader(args.serial or None)
-    elif args.gpsd:
-        position_source = GpsdReader()
     elif args.test:
         position_source = FixedPosition(*args.test)
     else:

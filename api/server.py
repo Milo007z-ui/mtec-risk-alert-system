@@ -384,7 +384,7 @@ _device_location: dict = {
     "speed_kmh": None,
     "heading": None,
     "satellites": None,
-    "source": None,      # "serial" / "gpsd" / "route" / "fixed" — บอกว่าเป็น GPS จริงหรือโหมดจำลอง
+    "source": None,      # "serial" / "route" / "fixed" — บอกว่าเป็น GPS จริงหรือโหมดจำลอง
     "updated_at": None,  # epoch seconds ที่ได้ "พิกัด" ล่าสุด
     # เวลาที่ Pi ติดต่อเข้ามาล่าสุด ไม่ว่าจะมีพิกัดหรือไม่ — แยกจาก updated_at เพราะ
     "seen_at": None,

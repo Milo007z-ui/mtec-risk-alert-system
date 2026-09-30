@@ -51,7 +51,6 @@ const DeviceTracker = (() => {
 
   const SOURCE_LABEL = {
     serial: "GPS จริง",
-    gpsd: "GPS จริง (gpsd)",
     route: "เส้นทางจำลอง",
     fixed: "พิกัดทดสอบคงที่",
   };
