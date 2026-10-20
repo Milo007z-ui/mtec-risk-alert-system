@@ -173,7 +173,8 @@ RULES = [
         "rear-end",
         lambda p: re.search(r"ชนท้าย", p.get("crash_pattern") or ""),
         lambda p: "จุดนี้เกิดเหตุชนท้ายบ่อยครั้ง",
-        lambda p: "เว้นระยะห่างจากรถคันหน้าให้มากขึ้น",
+        # ใช้ประโยคเดียวกับ multi-vehicle ให้ตรงกับไฟล์เสียงที่อัดไว้ (alert_04 / alert_06)
+        lambda p: "เว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง",
     ),
     (
         "rollover",
@@ -209,6 +210,9 @@ def build_alert_message(point, distance_m):
     top = matched[0] if matched else None
 
     if point["level"] == "high":
+        # ประโยค "ใช้ความเร็วไม่เกิน …" มีไฟล์เสียงอัดไว้เฉพาะระดับปานกลาง (alert_09)
+        # ระดับสูงจึงข้ามไปใช้กฎข้อถัดไป ให้ทุกจุดพูดด้วยเสียงชุดเดียวกัน
+        top = next((r for r in matched if r["id"] != "speeding-cause"), None)
         advice = top["advice"] if top else "ใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ"
         return f"ข้างหน้าอีก {dist} เมตร ใกล้จุดเสี่ยงสูง โปรด{advice}"
     if point["level"] == "medium":
