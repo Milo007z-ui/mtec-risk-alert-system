@@ -243,6 +243,8 @@ EPDO รวมทุกจุดเสี่ยง = **6,285.24 ล้านบ�
 
 รายละเอียดสูตรทุกเกณฑ์ + เหตุผลการเลือกวิธี + อ้างอิงครบ: **[docs/risk-score-criteria.md](docs/risk-score-criteria.md)**
 
+**การวิเคราะห์ Accident Rate ร่วมกับ SI (ผลสำหรับเล่ม ยังไม่ใช้กับแผนที่):** AADT 3 ปีจากข้อมูลเปิดของ ทล. / กทพ. / ทช. ครบ 598 จาก 630 คลัสเตอร์ · Rate Quality Control (HSM สมการ 4-10, 4-11 · ณัฐพงศ์ 2558) · ระดับรวม สูง 111 / ปานกลาง 167 / ต่ำ 320 → **[analysis/accident-rate/](analysis/accident-rate/README.md)**
+
 ## REST API สำหรับอุปกรณ์ (`api/server.py`)
 
 เซิร์ฟเวอร์ FastAPI แจกจ่ายข้อมูลจุดเสี่ยงให้อุปกรณ์ภายนอก (Raspberry Pi, มือถือ ฯลฯ)
