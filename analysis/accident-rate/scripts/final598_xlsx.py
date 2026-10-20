@@ -95,7 +95,7 @@ for row in [
     ("2. Accident Rate (สมการ 2.2)", "R = A × 1,000,000 / (365 × T × V × L) = A / MEV  · A = จำนวนอุบัติเหตุ 3 ปี · T = 3 ปี · L = 1 กม. (คงที่) · MEV = 365×T×V×L/10⁶ (ล้านคันที่ผ่าน, HSM สมการ 4-8)"),
     ("3. Rate Quality Control", "Ra = ΣA / ΣMEV ของหน่วยงานเดียวกัน = ค่าเฉลี่ยถ่วงน้ำหนักด้วยปริมาณจราจร (AASHTO 2010 HSM สมการ 4-10 หน้า 4-43) · Rc = Ra + K√(Ra/MEV) + 1/(2·MEV) (ณัฐพงศ์ 2558 สมการ 3.4 หน้า 35 · HSM สมการ 4-11 หน้า 4-44) · DF = R/Rc (สมการ 3.3) · K = 1.645 ความเชื่อมั่น 95% (ณัฐพงศ์ หน้า 35 · HSM Exhibit 4-46 หน้า 4-41)"),
     ("4. ระดับตาม Rate", "ตามขั้นตอนของ MnDOT (2010) สไลด์ 3-18: เทียบกับค่าเฉลี่ยก่อน แล้วทดสอบค่าวิกฤติเฉพาะจุดที่สูงกว่าค่าเฉลี่ย → low: R ≤ Ra (ไม่เกินค่าเฉลี่ย) · medium: Ra < R ≤ Rc (สูงกว่าค่าเฉลี่ยแต่ไม่มีนัยสำคัญทางสถิติ — ชื่อระดับเป็นการตีความของผู้วิจัย) · high: R > Rc หรือ DF > 1 (ณัฐพงศ์ 2558 รูป 4.4 หน้า 54 · HSM หน้า 4-12, 4-41)"),
-    ("5. ระดับตาม SI", "SI = (F + PI) / Total Accident (ณัฐพงศ์ 2558 สมการ 2.6 หน้า 7) · low: SI < 1 · medium: 1 ≤ SI < 2 · high: SI ≥ 2 · จุดตัด ≈ Q3 (0.99) และรั้วบน Q3 + 1.5·IQR (2.05) ของ Tukey (1977) หน้า 39–44 · NIST e-Handbook 7.1.6"),
+    ("5. ระดับตาม SI", "SI = (F + PI) / Total Accident (ณัฐพงศ์ 2558 สมการ 2.6 หน้า 7) · low: SI < 1 · medium: 1 ≤ SI < 2 · high: SI ≥ 2 · จุดตัด 1 และ 2 กำหนดโดยผู้วิจัย สอดคล้องกับช่วงที่ราบของการกระจาย SI (P76–P83 มีค่า SI = 1.000)"),
     ("6. รวม SI + Rate", "ระดับรวม = ระดับที่สูงกว่าระหว่าง ระดับ_SI กับ ระดับ_Rate → จุดที่เกินเกณฑ์ด้านอัตราหรือด้านความรุนแรงอย่างใดอย่างหนึ่งถือว่าเสี่ยง (WisDOT Figure 3 หน้า 9: Crash Rate > UCL OR KAB Crash Rate > KAB UCL · MnDOT สไลด์ 3-18: 'Crash rate may be low, but crash severity may be high' · ณัฐพงศ์ หน้า 55 เสนอให้ใช้ Accident Severity ร่วมกับวิธีอื่น)"),
     ("ทำไมแยก Ra ตามหน่วยงาน", "ปริมาณจราจรของแต่ละหน่วยงานวัดคนละแบบ (ทางพิเศษใช้ยอดผ่านด่านทั้งสาย ซึ่งสูงกว่า AADT รายจุดมาก) ถ้าใช้ Ra เดียวกันทั้งชุด ทางพิเศษจะถูกจัดเป็นความเสี่ยงต่ำเกือบทั้งหมด"),
     ("ข้อจำกัด", "ทช. มีเพียง 7 คลัสเตอร์ ค่า Ra ของกลุ่มจึงไม่เสถียร · 32 คลัสเตอร์ที่ไม่มีข้อมูลเปิด (สะพานภูมิพล 29, ราชพฤกษ์ กม.11–28 อีก 2, E006 อีก 1) ใช้ระดับจาก SI อย่างเดียว (ชีต 32 วง)"),
@@ -112,7 +112,6 @@ NATT = "ณัฐพงศ์ ซื่อสัตย์ (2558) วิทยา
 HSM = "https://ftp.granit.unh.edu/submissions/NHDOTOUT/craig/HSM/Chapter%204_NetworkScreening.pdf"
 MN = "https://www.dot.state.mn.us/context-sensitive-solutions/pdf/2010/3-risk.pdf"
 WI = "https://wisconsindot.gov/dtsdManuals/traffic-ops/manuals-and-standards/safety/crashrates/rates20.pdf"
-NIST = "https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm"
 for r in [
     ("Accident Rate R", NATT, "สมการ 2.2 หน้า 5 · สมการ 3.2 หน้า 35", "R = (A × 1,000,000) / (365 × T × V × L)", ""),
     ("Ra (สูตรคำนวณ)", "AASHTO (2010) Highway Safety Manual Ch.4 (ฉบับร่าง 2009)", "สมการ 4-10 หน้า 4-43 (PDF หน้า 49)", "weighted average crash rate for each population weighted by traffic volume", HSM),
@@ -125,7 +124,6 @@ for r in [
     ("ลำดับขั้น: เทียบค่าเฉลี่ย แล้วทดสอบค่าวิกฤติ (ที่มาของ 3 ระดับ Rate)", "Minnesota DOT (2010) Risk Management and Safety, Session 3", "สไลด์ 3-18 (ตัวอย่างสไลด์ 3-21)", "Critical Crash Rate – Performed if the crash rate is ABOVE average. Tests the crash rate to see if there is statistical significance", MN),
     ("แยกกลุ่มอ้างอิงตามประเภทถนน (Ra แยกหน่วยงาน)", "AASHTO (2010) HSM Ch.4", "หน้า 4-43 STEP 3", "Divide the network into reference populations based on operational or geometric differences", HSM),
     ("Accident Severity SI", NATT, "สมการ 2.6 หน้า 7", "SI = (F + PI) / Total Accidents", ""),
-    ("จุดตัด SI 1 และ 2 (Q3 และรั้วบน)", "Tukey, J. W. (1977) Exploratory Data Analysis · NIST/SEMATECH e-Handbook", "Tukey หน้า 39–44 · NIST หัวข้อ 7.1.6", "upper inner fence: Q3 + 1.5*IQ … a point beyond an inner fence … is considered a mild outlier", NIST),
     ("รวม Rate กับ Severity (อย่างใดอย่างหนึ่งเกินเกณฑ์)", "Wisconsin DOT Statewide Average Crash Rates and UCLs", "หน้า 9 Figure 3", "Segment Crash Rate > Crash Rate UCL OR KAB Crash Rate > KAB Crash Rate UCL", WI),
     ("ใช้ Severity ร่วมกับวิธีอื่น", NATT, "หน้า 55", "สามารถใช้วิธี Accident Severity ร่วมกับวิธีการอื่นได้ ในการศึกษาต่อๆไป", ""),
     ("L = 1 กม.", NATT, "หน้า 35–36 และหน้า 51", "สำหรับช่วงถนน 1 กิโลเมตร", ""),
