@@ -4,12 +4,10 @@ import json
 import os
 import re
 import time
-import urllib.error
-import urllib.request
 from math import asin, atan2, cos, degrees, pi, radians, sin, sqrt
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -21,12 +19,6 @@ DEFAULT_DATA_FILE = "data/risk_points_bkk_metro_3y.geojson"  # ชุด 3 ป�
 DATA_FILE = PROJECT_ROOT / os.environ.get("RISK_DATA_FILE", DEFAULT_DATA_FILE)
 
 EARTH_RADIUS_M = 6371000
-
-# ---------- ตั้งค่า Botnoi Voice (TTS) ----------
-BOTNOI_TOKEN = os.environ.get("BOTNOI_TOKEN", "")
-BOTNOI_SPEAKER = os.environ.get("BOTNOI_SPEAKER", "1")  # เลือก speaker id ที่ชอบได้
-BOTNOI_URL = "https://api-voice.botnoi.ai/openapi/v1/generate_audio"
-_tts_cache: dict[str, bytes] = {}  # (speaker:text) -> ไฟล์เสียง mp3 ที่สร้างแล้ว
 
 app = FastAPI(
     title="EMMA Risk Point API",
@@ -301,75 +293,6 @@ def get_risk_point(point_id: str):
     if point is None:
         raise HTTPException(status_code=404, detail=f"ไม่พบจุดเสี่ยง id={point_id}")
     return {**point, "risk_factors": evaluate_rules(point)}
-
-
-# ---------- TTS proxy (Botnoi Voice) ----------
-def _fetch_botnoi_audio(text: str, speaker: str) -> bytes | None:
-    """เรียก Botnoi สร้างเสียง คืน bytes ของ mp3 / None ถ้าล้มเหลว (ให้ frontend fallback)"""
-    body = json.dumps(
-        {
-            "text": text,
-            "speaker": speaker,
-            "volume": 1,
-            "speed": 1,
-            "type_media": "mp3",
-            "save_file": "true",
-            "language": "th",
-        }
-    ).encode("utf-8")
-    req = urllib.request.Request(
-        BOTNOI_URL,
-        data=body,
-        method="POST",
-        headers={"Content-Type": "application/json", "botnoi-token": BOTNOI_TOKEN},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            ctype = resp.headers.get("Content-Type", "")
-            data = resp.read()
-    except urllib.error.HTTPError as e:
-        print(f"[botnoi] HTTP {e.code}: {e.read()[:200]!r}")
-        return None
-    except Exception as e:  # noqa: BLE001 — network/timeout ใดๆ ให้ fallback
-        print(f"[botnoi] error: {e}")
-        return None
-
-    # Botnoi อาจตอบเป็นไฟล์เสียงตรงๆ หรือ JSON ที่มี URL ของไฟล์เสียง
-    if ctype.startswith("audio/"):
-        return data
-    try:
-        obj = json.loads(data)
-    except Exception:
-        return data or None
-    url = obj.get("audio_url") or obj.get("url") or obj.get("data")
-    if not isinstance(url, str) or not url:
-        print(f"[botnoi] รูปแบบ response ไม่คาดคิด: {str(obj)[:200]}")
-        return None
-    try:
-        with urllib.request.urlopen(url, timeout=30) as r2:
-            return r2.read()
-    except Exception as e:  # noqa: BLE001
-        print(f"[botnoi] โหลดไฟล์เสียงจาก url ไม่สำเร็จ: {e}")
-        return None
-
-
-@app.get("/api/tts")
-def tts(
-    text: str = Query(..., min_length=1, max_length=300, description="ข้อความที่จะแปลงเป็นเสียง"),
-    speaker: str | None = Query(None, description="speaker id ของ Botnoi (ไม่ใส่ = ค่าเริ่มต้น)"),
-):
-    """คืนไฟล์เสียง mp3 จาก Botnoi ให้ <audio> เล่นได้ตรงๆ — มี cache กันเรียกซ้ำ (ประหยัดพอยท์)"""
-    if not BOTNOI_TOKEN:
-        raise HTTPException(status_code=503, detail="ยังไม่ได้ตั้งค่า BOTNOI_TOKEN")
-    spk = speaker or BOTNOI_SPEAKER
-    key = f"{spk}:{text}"
-    audio = _tts_cache.get(key)
-    if audio is None:
-        audio = _fetch_botnoi_audio(text, spk)
-        if audio is None:
-            raise HTTPException(status_code=502, detail="สร้างเสียงจาก Botnoi ไม่สำเร็จ")
-        _tts_cache[key] = audio
-    return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "max-age=86400"})
 
 
 # ---------- ตำแหน่งเรียลไทม์ของอุปกรณ์ (Raspberry Pi + GPS BE-609U) ----------

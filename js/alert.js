@@ -156,7 +156,7 @@ const AlertSystem = (() => {
       );
       const msg = RiskRules.buildAlertMessage(point, distance);
       showBanner("🔊 " + msg, point.level);
-      // beep นำสองครั้งก่อน แล้วค่อยพูดข้อความ (Botnoi -> Google -> Web Speech)
+      // beep นำสองครั้งก่อน แล้วค่อยพูดข้อความ (ไฟล์อัดไว้ -> Google -> Web Speech)
       speakingLevel = point.level;
       const seq = ++speakSeq;
       TTS.playLeadBeep()

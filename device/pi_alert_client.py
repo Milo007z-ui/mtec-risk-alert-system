@@ -552,8 +552,6 @@ VOLUME_PCT = DEFAULT_VOLUME_PCT
 ANNOUNCE_VOLUME_RATIO = 0.5
 ANNOUNCE_VOLUME_MIN_PCT = 50
 
-BOTNOI_ENABLED = True
-
 VOICE_CLIPS = {
     "ข้างหน้าอีก 500 เมตร ใกล้จุดเสี่ยงต่ำ โปรดขับขี่ด้วยความระมัดระวัง":
         "alert_01.mp3",
@@ -798,7 +796,7 @@ class BeepLoop:
 
 
 def _speak_clip(text):
-    """ชั้น 0 — ไฟล์เสียง Botnoi ที่อัดไว้ล่วงหน้า"""
+    """ชั้น 0 — ไฟล์เสียงที่อัดไว้ล่วงหน้า (สร้างจาก Botnoi Voice Studio ครั้งเดียว ไม่เรียก API ตอนใช้งาน)"""
     name = VOICE_CLIPS.get(text)
     if name is None:
         return False
@@ -808,30 +806,8 @@ def _speak_clip(text):
     return _play_mp3(path.read_bytes(), f"ชั้น 0 ไฟล์ที่อัดไว้ {name}")
 
 
-def _speak_botnoi(text, api_base):
-    """ชั้น 1 — Botnoi สดผ่าน proxy /api/tts ของเซิร์ฟเวอร์เรา"""
-    global BOTNOI_ENABLED
-    if not BOTNOI_ENABLED:
-        return False
-    url = f"{api_base}/api/tts?" + urllib.parse.urlencode({"text": text})
-    try:
-        with urllib.request.urlopen(url, timeout=30) as resp:
-            data = resp.read()
-    except urllib.error.HTTPError as e:
-        if e.code == 503:
-            BOTNOI_ENABLED = False
-            print("   [เสียง] ข้ามชั้น 1 ทั้งรอบ: เซิร์ฟเวอร์ยังไม่ได้ตั้ง BOTNOI_TOKEN")
-        else:
-            print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
-        return False
-    except Exception as e:
-        print(f"   [เสียง] Botnoi สดไม่สำเร็จ: {e}", file=sys.stderr)
-        return False
-    return _play_mp3(data, "ชั้น 1 Botnoi สด")
-
-
 def _speak_google(text):
-    """ชั้น 2 — Google translate_tts (ต้องมีเน็ต)"""
+    """ชั้น 1 — Google translate_tts (ต้องมีเน็ต ไม่ใช้ API key ไม่มีค่าใช้จ่าย)"""
     if len(text) > 190:
         return False
     url = "https://translate.google.com/translate_tts?" + urllib.parse.urlencode(
@@ -844,11 +820,11 @@ def _speak_google(text):
     except Exception as e:
         print(f"   [เสียง] Google ไม่สำเร็จ: {e}", file=sys.stderr)
         return False
-    return _play_mp3(data, "ชั้น 2 Google")
+    return _play_mp3(data, "ชั้น 1 Google")
 
 
 def _speak_espeak(text):
-    """ชั้น 3 — espeak-ng ในเครื่อง ใช้ตอนไม่มีเน็ต (เสียงแข็ง ใช้เป็นตัวสำรองเท่านั้น)"""
+    """ชั้น 2 — espeak-ng ในเครื่อง ใช้ตอนไม่มีเน็ต (เสียงแข็ง ใช้เป็นตัวสำรองเท่านั้น)"""
     if not shutil.which("espeak-ng"):
         return False
     try:
@@ -859,7 +835,7 @@ def _speak_espeak(text):
             return False
     except (OSError, subprocess.TimeoutExpired):
         return False
-    print("   [เสียง] ชั้น 3 espeak-ng (สำรอง)")
+    print("   [เสียง] ชั้น 2 espeak-ng (สำรอง)")
     return True
 
 
@@ -871,7 +847,6 @@ def speak(text, api_base):
         with AUDIO_LOCK:
             for layer in (
                 lambda: _speak_clip(text),
-                lambda: _speak_botnoi(text, api_base),
                 lambda: _speak_google(text),
                 lambda: _speak_espeak(text),
             ):
@@ -1084,7 +1059,7 @@ def run(api_base, position_source, speak_enabled=True):
         time.sleep(max(0, POLL_INTERVAL_S - (time.monotonic() - started)))
 
 
-# ต้องเป็นประโยคที่มีไฟล์อัดไว้ใน VOICE_CLIPS — ไม่งั้นตกไป Botnoi สด/Google ที่เบากว่าชุด
+# ต้องเป็นประโยคที่มีไฟล์อัดไว้ใน VOICE_CLIPS — ไม่งั้นตกไป Google ที่เบากว่าชุด
 # audio/loud มาก ทำให้ผลทดสอบความดังไม่ตรงกับเสียงเตือนจริงบนถนน
 SAMPLE_TEXT = "ข้างหน้าอีก 500 เมตร ใกล้จุดเสี่ยงสูง โปรดใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ"
 

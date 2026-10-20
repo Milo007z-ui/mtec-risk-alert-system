@@ -1,8 +1,7 @@
-/** tts.js — อ่านข้อความแจ้งเตือนเป็นเสียงภาษาไทย (แบบ 4 ชั้น fallback อัตโนมัติ) */
+/** tts.js — อ่านข้อความแจ้งเตือนเป็นเสียงภาษาไทย (แบบ 3 ชั้น fallback อัตโนมัติ) */
 
 const TTS = (() => {
-  const USE_BOTNOI = true; // ชั้น 1: เรียก proxy /api/tts (Botnoi)
-  const USE_NEURAL = true; // ชั้น 2: Google translate_tts
+  const USE_NEURAL = true; // ชั้น 1: Google translate_tts (ไม่ใช้ API key ไม่มีค่าใช้จ่าย)
   const NEURAL_MAX_CHARS = 190; // translate_tts รับได้จำกัดต่อครั้ง
 
   const BEEP_FALLBACK_MS = 700; // ใช้เมื่อไม่มี Web Audio (เล่นเสียงนำไม่ได้ ได้แค่หน่วงเวลา)
@@ -22,11 +21,6 @@ const TTS = (() => {
   }
   function isSupported() {
     return speechSupported() || "Audio" in window;
-  }
-
-  /** URL เสียง Botnoi ผ่าน proxy ฝั่งเซิร์ฟเวอร์เรา (ซ่อน token ไว้ที่ server) */
-  function botnoiUrl(text) {
-    return `/api/tts?text=${encodeURIComponent(text)}`;
   }
 
   /** URL เสียง neural ภาษาไทยจาก Google (ไม่ต้องใช้ API key) */
@@ -90,7 +84,7 @@ const TTS = (() => {
     unlocked = true;
   }
 
-  /** เสียงพูดที่อัดไว้ล่วงหน้าด้วย Botnoi Voice — ข้อความ -> ชื่อไฟล์ใน CLIP_DIR */
+  /** เสียงพูดที่อัดไว้ล่วงหน้า (สร้างจาก Botnoi Voice Studio ครั้งเดียว) — ข้อความ -> ชื่อไฟล์ใน CLIP_DIR */
   const CLIP_DIR = "audio/";
   const VOICE_CLIPS = {
     // ⚠️ รอบสี่ (2026-08-25): ผู้ใช้ลองตัด "ลดความเร็ว" ออกแล้วไม่ชอบ ขอกลับไปใช้
@@ -361,7 +355,7 @@ const TTS = (() => {
     });
   }
 
-  /** พูดข้อความภาษาไทย — ไล่ลองทีละชั้น: Botnoi -> Google -> Web Speech */
+  /** พูดข้อความภาษาไทย — ไล่ลองทีละชั้น: ไฟล์อัดไว้ -> Google -> Web Speech */
   async function speak(text) {
     speaking = true;
     try {
@@ -377,9 +371,8 @@ const TTS = (() => {
     await fadeOutCurrent(); // ถ้ายังพูดประโยคก่อนค้างอยู่ ให้หรี่ลงก่อน ไม่ตัดกลางคำ
 
     const urls = [];
-    // ชั้น 0: ไฟล์เสียง Botnoi ที่อัดไว้ล่วงหน้า — เร็วที่สุด ไม่ใช้เน็ต ไม่เสียพอยท์
+    // ชั้น 0: ไฟล์เสียงที่อัดไว้ล่วงหน้า — เร็วที่สุด ไม่ใช้เน็ต ไม่มีค่าใช้จ่าย
     if (VOICE_CLIPS[text]) urls.push(CLIP_DIR + VOICE_CLIPS[text]);
-    if (USE_BOTNOI) urls.push(botnoiUrl(text));
     if (USE_NEURAL && text.length <= NEURAL_MAX_CHARS) urls.push(neuralUrl(text));
 
     for (const url of urls) {
