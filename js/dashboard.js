@@ -103,15 +103,31 @@
     color: "var(--series-1)",
   });
 
-  // ---------- กราฟสาเหตุ (top 7 + อื่นๆ) ----------
-  const byCause = new Map();
-  for (const z of zones) {
-    byCause.set(z.top_cause, (byCause.get(z.top_cause) || 0) + z.accident_count);
+  // ---------- กราฟสาเหตุ (top 8 + อื่นๆ + ไม่ระบุ) ----------
+  // นับรายจุดเสี่ยงในคลัสเตอร์จาก data/cause_counts_3y.json (scripts/build_cause_counts.py)
+  // ชุดเดียวกับตารางที่ 4-7 ในรายงาน · ถ้าโหลดไม่ได้ ใช้สาเหตุหลักรายคลัสเตอร์แทน
+  const CAUSE_TOP_N = 8;
+  let causes;
+  let unspecified = 0;
+  try {
+    const resp = await fetch(window.CAUSE_DATA_URL || "data/cause_counts_3y.json");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    causes = data.causes.map((c) => [c.cause, c.count]);
+    unspecified = data.unspecified || 0;
+  } catch (err) {
+    const byCause = new Map();
+    for (const z of zones) {
+      byCause.set(z.top_cause, (byCause.get(z.top_cause) || 0) + z.accident_count);
+    }
+    causes = [...byCause.entries()].sort((a, b) => b[1] - a[1]);
+    document.getElementById("cause-note").textContent =
+      "จำนวนจุดเสี่ยงสะสมในจุดคลัสเตอร์ที่มีสาเหตุหลักนั้น";
   }
-  const causes = [...byCause.entries()].sort((a, b) => b[1] - a[1]);
-  const topCauses = causes.slice(0, 7);
-  const otherTotal = causes.slice(7).reduce((acc, [, n]) => acc + n, 0);
-  if (otherTotal > 0) topCauses.push([`อื่นๆ (${causes.length - 7} สาเหตุ)`, otherTotal]);
+  const topCauses = causes.slice(0, CAUSE_TOP_N);
+  const otherTotal = causes.slice(CAUSE_TOP_N).reduce((acc, [, n]) => acc + n, 0);
+  if (otherTotal > 0) topCauses.push([`อื่นๆ (${causes.length - CAUSE_TOP_N} สาเหตุ)`, otherTotal]);
+  if (unspecified > 0) topCauses.push(["ไม่ระบุ", unspecified]);
 
   drawBars({
     container: document.getElementById("cause-chart"),
