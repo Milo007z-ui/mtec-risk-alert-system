@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>แดชบอร์ดจุดคลัสเตอร์เสี่ยงอุบัติเหตุ — กรุงเทพฯ และปริมณฑล</title>
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/dashboard.css?v=2">
   <!-- ชุดข้อมูลที่ใช้: รอบ 3 ปี 2566-2568 (v2569-r2-3y, eps 200 ม., 630 คลัสเตอร์) ต้องตั้งค่าก่อนโหลด ... -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_bkk_metro_3y.geojson";
@@ -44,11 +44,32 @@
       </div>
     </section>
 
-    <!-- สัดส่วนระดับความเสี่ยง -->
+    <!-- สัดส่วนระดับความเสี่ยง (ระดับรวม 2 ปัจจัย) -->
     <section class="card">
-      <h2>สัดส่วนจุดคลัสเตอร์ตามระดับความรุนแรง</h2>
+      <h2>สัดส่วนจุดคลัสเตอร์ตามระดับความเสี่ยง (2 ปัจจัย)</h2>
+      <p class="card-note" id="level-note">ระดับรวม = ระดับที่สูงกว่าระหว่าง Accident Severity (SI) กับ Accident Rate (จำแนกด้วย Rate Quality Control)</p>
       <div class="level-bar" id="level-bar"></div>
       <div class="legend" id="level-legend"></div>
+    </section>
+
+    <!-- เปรียบเทียบเกณฑ์ -->
+    <section class="card" id="method-card">
+      <h2>เกณฑ์แบ่งระดับ 2 ปัจจัย</h2>
+      <p class="card-note" id="method-note"></p>
+      <div class="table-wrap">
+        <table id="method-table">
+          <thead>
+            <tr>
+              <th>ระดับ</th>
+              <th class="num">ปัจจัยที่ 1<br>Accident Severity (SI)</th>
+              <th class="num">ปัจจัยที่ 2<br>Accident Rate (RQC)</th>
+              <th class="num">ระดับรวม<br>SI + Rate</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <ul class="method-list" id="method-list"></ul>
     </section>
 
     <div class="two-col">
@@ -69,15 +90,35 @@
 
     <!-- ตาราง 10 อันดับ -->
     <section class="card">
-      <h2>10 จุดคลัสเตอร์ที่รุนแรงที่สุด</h2>
+      <h2>10 จุดคลัสเตอร์ที่รุนแรงที่สุด (ปัจจัยที่ 1: SI สูงสุด)</h2>
       <p class="card-note">เรียงตามดัชนีความรุนแรงอุบัติเหตุ SI = (จำนวนครั้งที่มีผู้เสียชีวิต + จำนวนผู้บาดเจ็บ) ÷ จำนวนจุดเสี่ยงทั้งหมดของคลัสเตอร์นั้น แบ่งระดับที่ ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</p>
       <div class="table-wrap">
         <table id="top-table">
           <thead>
             <tr>
-              <th>#</th><th>สายทาง</th><th>จังหวัด</th><th>ระดับ</th>
+              <th>#</th><th>สายทาง</th><th>จังหวัด</th>
               <th class="num">อุบัติเหตุ</th><th class="num">เสียชีวิต</th>
               <th class="num">สาหัส</th><th class="num">เล็กน้อย</th><th class="num">SI</th>
+              <th>ระดับ SI</th><th>ระดับรวม</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ตาราง 10 อันดับ Accident Rate -->
+    <section class="card" id="rate-card">
+      <h2>10 จุดคลัสเตอร์ที่อัตราการเกิดอุบัติเหตุสูงที่สุด (ปัจจัยที่ 2: R สูงสุด)</h2>
+      <p class="card-note">R = A × 1,000,000 ÷ (365 × T × V × L) ครั้งต่อล้านคัน-กิโลเมตร · T = 3 ปี · L = 1 กม. · V = AADT เฉลี่ย 3 ปี · DF = R ÷ Rc (มากกว่า 1 = สูงกว่าอัตราวิกฤต)</p>
+      <div class="table-wrap">
+        <table id="rate-table">
+          <thead>
+            <tr>
+              <th>#</th><th>สายทาง</th><th>หน่วยงาน</th>
+              <th class="num">อุบัติเหตุ</th><th class="num">V (คัน/วัน)</th>
+              <th class="num">R</th><th class="num">DF</th><th class="num">SI</th>
+              <th>ระดับ Rate</th><th>ระดับรวม</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -90,6 +131,7 @@
       อุบัติเหตุบนโครงข่ายถนนของกระทรวงคมนาคม (MOT Data Catalog)</a> ปี 2566–2568 รวม 14,101 เหตุการณ์
       (มีพิกัดครบ 13,525 จุดเสี่ยง) · จัดกลุ่มด้วย DBSCAN รัศมี 200 ม. ขั้นต่ำ 3 จุด
       จัดกลุ่มสองชั้น แยกตามสายทาง ได้คลัสเตอร์ 630 วง (จุดเสี่ยงเดี่ยว 2,303 จุดไม่นำมาจัดระดับ)<span id="calib-note"></span>
+      · ปริมาณจราจร (AADT) ปี 2566–2568 จากข้อมูลเปิดของกรมทางหลวง การทางพิเศษแห่งประเทศไทย และกรมทางหลวงชนบท
     </footer>
   </main>
 
@@ -97,6 +139,6 @@
   <div id="loading" class="load-msg">กำลังโหลดข้อมูล...</div>
   <div id="tooltip" class="tooltip hidden" role="status"></div>
 
-  <script src="js/dashboard.js?v=12"></script>
+  <script src="js/dashboard.js?v=13"></script>
 </body>
 </html>

@@ -26,13 +26,34 @@
     return;
   }
 
+  // ระดับรวม 2 ปัจจัย (SI + Accident Rate จำแนกด้วย Rate Quality Control)
+  // จาก data/combined_levels_3y.json (scripts/build_combined_levels.py)
+  // ถ้าโหลดไม่ได้ ใช้ระดับจาก SI อย่างเดียว และซ่อนการ์ดที่ต้องใช้ข้อมูล Accident Rate
+  let combined = null;
+  try {
+    const resp = await fetch(window.LEVELS_DATA_URL || "data/combined_levels_3y.json");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    combined = await resp.json();
+  } catch (err) {
+    document.getElementById("method-card").classList.add("hidden");
+    document.getElementById("rate-card").classList.add("hidden");
+    document.getElementById("level-note").textContent = "ระดับจาก Accident Severity (SI) อย่างเดียว";
+  }
+  const info = (z) => (combined && combined.clusters[z.id]) || null;
+  const levelOf = (z) => (info(z) ? info(z).level : z.level);
+
   const sum = (key) => zones.reduce((acc, z) => acc + (z[key] || 0), 0);
   const score = (z) => z.severity_index ?? 0; // Severity Index (คำนวณฝั่ง Python)
   const fmt = (n) => n.toLocaleString("th-TH");
+  const chip = (key) => {
+    if (!key) return `<span style="color:var(--muted)">–</span>`;
+    const lv = LEVELS.find((l) => l.key === key);
+    return `<span class="level-chip ${key}" style="background:${lv.color}">${lv.label}</span>`;
+  };
 
   // ---------- KPI ----------
   const byLevel = {};
-  for (const lv of LEVELS) byLevel[lv.key] = zones.filter((z) => z.level === lv.key).length;
+  for (const lv of LEVELS) byLevel[lv.key] = zones.filter((z) => levelOf(z) === lv.key).length;
 
   // KPI ผู้เสียชีวิต/บาดเจ็บ/จุดเสี่ยง ใช้ยอด "ทุกจุดเสี่ยง" จาก calibration.overall
   const overall = (calibration && calibration.overall) || null;
@@ -44,7 +65,8 @@
 
   document.getElementById("kpi-zones").textContent = fmt(zones.length);
   document.getElementById("kpi-zones-sub").textContent =
-    `สูง ${byLevel.high} · ปานกลาง ${byLevel.medium} · ต่ำ ${byLevel.low}`;
+    `สูง ${byLevel.high} · ปานกลาง ${byLevel.medium} · ต่ำ ${byLevel.low}` +
+    (combined ? " (ระดับรวม 2 ปัจจัย)" : "");
   document.getElementById("kpi-accidents").textContent = fmt(totalAcc);
   document.getElementById("kpi-deaths").textContent = fmt(totalDeaths);
   document.getElementById("kpi-deaths-sub").textContent = excluded
@@ -82,13 +104,49 @@
     }
   });
 
+  // ---------- เกณฑ์แบ่งระดับ 2 ปัจจัย ----------
+  if (combined) {
+    const c = combined.counts;
+    const total = (o) => LEVELS.reduce((acc, lv) => acc + (o[lv.key] || 0), 0);
+    document.getElementById("method-note").textContent =
+      `${fmt(combined.with_aadt)} วงที่มีข้อมูลปริมาณจราจร (AADT) ใช้ทั้งสองปัจจัย · ` +
+      `${fmt(combined.without_aadt)} วงที่ไม่มี AADT ใช้ระดับจาก SI`;
+    const mtb = document.querySelector("#method-table tbody");
+    for (const lv of LEVELS) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${chip(lv.key)}</td>` +
+        `<td class="num">${fmt(c.si[lv.key] || 0)}</td>` +
+        `<td class="num">${fmt(c.rate[lv.key] || 0)}</td>` +
+        `<td class="num"><strong>${fmt(c.combined[lv.key] || 0)}</strong></td>`;
+      mtb.appendChild(tr);
+    }
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>รวม</td><td class="num">${fmt(total(c.si))} วง</td>` +
+      `<td class="num">${fmt(total(c.rate))} วง</td><td class="num">${fmt(total(c.combined))} วง</td>`;
+    mtb.appendChild(tr);
+    const ra = Object.entries(combined.ra_by_agency)
+      .map(([name, v]) => `${name} ${v.toFixed(4)}`).join(" · ");
+    const items = [
+      `ปัจจัยที่ 1 Accident Severity: ${combined.method.severity}`,
+      `ปัจจัยที่ 2 ${combined.method.rate} (Rc ที่ระดับความเชื่อมั่นร้อยละ 95)`,
+      `Ra แยกตามหน่วยงาน: ${ra}`,
+      combined.method.combine,
+    ];
+    const ul = document.getElementById("method-list");
+    for (const t of items) {
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    }
+  }
+
   // ---------- กราฟจังหวัด ----------
   const byProvince = new Map();
   for (const z of zones) {
     if (!byProvince.has(z.province)) byProvince.set(z.province, { total: 0, high: 0, medium: 0, low: 0 });
     const p = byProvince.get(z.province);
     p.total++;
-    p[z.level]++;
+    p[levelOf(z)]++;
   }
   const provinces = [...byProvince.entries()].sort((a, b) => b[1].total - a[1].total);
 
@@ -143,20 +201,42 @@
   const tbody = document.querySelector("#top-table tbody");
   const top10 = [...zones].sort((a, b) => score(b) - score(a)).slice(0, 10);
   top10.forEach((z, i) => {
-    const lv = LEVELS.find((l) => l.key === z.level) || LEVELS[2];
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${i + 1}</td>
       <td>${z.road_label || z.road}</td>
       <td>${z.province}</td>
-      <td><span class="level-chip ${z.level}" style="background:${lv.color}">${lv.label}</span></td>
       <td class="num">${z.accident_count}</td>
       <td class="num">${z.deaths}</td>
       <td class="num">${z.serious_injury}</td>
       <td class="num">${z.minor_injury}</td>
-      <td class="num">${score(z).toFixed(2)}</td>`;
+      <td class="num">${score(z).toFixed(2)}</td>
+      <td>${chip(z.level)}</td>
+      <td>${chip(levelOf(z))}</td>`;
     tbody.appendChild(tr);
   });
+
+  // ---------- ตาราง 10 อันดับ Accident Rate ----------
+  if (combined) {
+    const rtb = document.querySelector("#rate-table tbody");
+    const withRate = zones.filter((z) => info(z) && info(z).R != null);
+    withRate.sort((a, b) => info(b).R - info(a).R).slice(0, 10).forEach((z, i) => {
+      const c = info(z);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${z.road_label || z.road}</td>
+        <td>${c.agency}</td>
+        <td class="num">${fmt(z.accident_count)}</td>
+        <td class="num">${fmt(c.V)}</td>
+        <td class="num">${c.R.toFixed(3)}</td>
+        <td class="num">${c.DF.toFixed(2)}</td>
+        <td class="num">${score(z).toFixed(2)}</td>
+        <td>${chip(c.rate_level)}</td>
+        <td>${chip(c.level)}</td>`;
+      rtb.appendChild(tr);
+    });
+  }
 
   // ระบุรอบ calibration ที่ผลชุดนี้ถูก "ล็อก" ไว้ (Fixed-Schedule Recalibration)
   if (calibration) {
