@@ -318,6 +318,16 @@ mtec-alert-client.service` ก่อน ไม่งั้นจะมีสอ�
 | `GET /api/risk-points/{id}` | รายละเอียดจุดเดียว + ปัจจัยเสี่ยง |
 
 **ชุดข้อมูลที่ API แจกจ่าย** = `data/risk_points_bkk_metro_3y.geojson` (ชุด 3 ปี 630 คลัสเตอร์)
+
+**ระดับความเสี่ยงที่แผนที่ แดชบอร์ด และเสียงเตือนใช้ (ตั้งแต่ 22 ต.ค. 2569) = ระดับรวม 2 ปัจจัย**
+ระดับที่สูงกว่าระหว่าง Accident Severity (SI จุดตัด 1/2 → `si_level`) กับ Accident Rate จำแนกด้วย
+Rate Quality Control (ต่ำ R ≤ Ra · ปานกลาง Ra < R ≤ Rc · สูง R > Rc → `rate_level`) ได้ สูง 111 · ปานกลาง 175 · ต่ำ 344
+(32 วงที่ไม่มี AADT ใช้ระดับจาก SI) ค่าคำนวณมาจาก `analysis/accident-rate/` หลังคำนวณรอบใหม่ต้องรันต่อ:
+
+```bash
+python scripts/build_combined_levels.py   # รวมระดับ -> data/combined_levels_3y.json
+python scripts/apply_combined_levels.py   # เขียน level/si_level/rate_level ลง geojson ทั้ง 2 ไฟล์ (รันซ้ำได้)
+```
 ตรงกับที่หน้าเว็บตั้งไว้ใน `window.RISK_DATA_URL` — ต้องเป็นชุดเดียวกันเสมอ ไม่งั้นอุปกรณ์จะเตือน
 คนละคลัสเตอร์กับหมุดที่เห็นบนแผนที่ สลับไปชุด 1 ปีเพื่อเทียบผลได้ด้วย env var:
 

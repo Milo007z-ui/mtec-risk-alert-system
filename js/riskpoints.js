@@ -211,16 +211,26 @@ const RiskPoints = (() => {
     const injured = p.injured_total ?? 0;
     const n = p.accident_count ?? 1;
 
+    // ระดับรวม 2 ปัจจัย: Accident Severity (SI) + Accident Rate จำแนกด้วย Rate Quality Control
+    const siStyle = LEVEL_STYLE[p.si_level] || style;
+    const rateStyle = LEVEL_STYLE[p.rate_level];
+    const tag = (st) => `<span class="pp-level" style="background:${st.color}">${st.label}</span>`;
+    const fmt3 = (x) => Number(x).toFixed(4);
+    const rateLine = rateStyle
+      ? `R = ${n} × 10⁶ ÷ (365 × 3 × ${Number(p.aadt_v).toLocaleString("th-TH")}) = <b>${Number(p.accident_rate).toFixed(3)}</b>
+         ครั้ง/ล้านคัน-กม. · Ra ${fmt3(p.rate_ra)} · Rc ${fmt3(p.rate_rc)} · DF ${Number(p.rate_df).toFixed(2)} → ${tag(rateStyle)}`
+      : "ไม่มีข้อมูลปริมาณจราจร (AADT) ของถนนช่วงนี้ — ใช้ระดับจาก SI";
+
     return `
       <div class="popup">
         <div class="pp-head">
           <div class="pp-title"${roadTip}>${roadName}</div>
-          <div class="pp-score" style="background:${style.color}">
+          <div class="pp-score" style="background:${siStyle.color}">
             ${si.toFixed(2)}<small>SI</small>
           </div>
         </div>
         <div class="pp-sub">${p.province} · ${p.road_ref || p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
-        <div class="pp-levelrow">ระดับความเสี่ยง:
+        <div class="pp-levelrow">ระดับความเสี่ยง (2 ปัจจัย):
           <span class="pp-level" style="background:${style.color}">${style.label}</span>
         </div>
         <div class="pp-stats">
@@ -234,12 +244,16 @@ const RiskPoints = (() => {
         ${factors ? `<div class="pp-section">ปัจจัยเสี่ยง</div><div class="pp-chips">${factors}</div>` : ""}
         <div class="pp-advice">💡 ${advice}</div>
         <div class="pp-advice">🛠️ ${ENG_ADVICE[p.pattern] || ENG_ADVICE.mixed}</div>
-        <div class="pp-section">ที่มาของดัชนีความรุนแรง</div>
+        <div class="pp-section">ที่มาของระดับความเสี่ยง</div>
         <div class="pp-formula">
+          ปัจจัยที่ 1 Accident Severity:
           SI = (ครั้งที่มีผู้เสียชีวิต ${fatal} + ผู้บาดเจ็บ ${injured} คน) ÷ อุบัติเหตุ ${n} ครั้ง
-          = <b>${si.toFixed(2)}</b>
+          = <b>${si.toFixed(2)}</b> → ${tag(siStyle)}
         </div>
-        <div class="pp-sub">เกณฑ์: ต่ำ SI &lt; 1 · ปานกลาง 1–2 · สูง SI ≥ 2</div>
+        <div class="pp-formula">ปัจจัยที่ 2 Accident Rate: ${rateLine}</div>
+        <div class="pp-sub">ระดับรวม = ระดับที่สูงกว่าระหว่างสองปัจจัย ·
+          เกณฑ์ SI: ต่ำ &lt; 1 · ปานกลาง 1–2 · สูง ≥ 2 ·
+          เกณฑ์ Rate (Rate Quality Control): ต่ำ R ≤ Ra · ปานกลาง Ra &lt; R ≤ Rc · สูง R &gt; Rc</div>
         <div class="pp-inspect">🔎 กำลังแสดงขอบเขตและจุดเสี่ยง
           <b>${p.accident_count}</b> จุดที่ DBSCAN จัดเข้าวงนี้ (รัศมี ${Math.round(p.radius_m || 0)} ม.)</div>
         ${buildSplitHtml(p, single, multi)}

@@ -197,6 +197,31 @@
     color: "var(--series-2)",
   });
 
+  // ---------- ตาราง 10 อันดับ ระดับรวม (เรียงระดับ แล้ว EPDO ภายในระดับ) ----------
+  const RANK = { high: 2, medium: 1, low: 0 };
+  const ctb = document.querySelector("#combined-table tbody");
+  [...zones]
+    .sort((a, b) => RANK[levelOf(b)] - RANK[levelOf(a)] || b.epdo_million - a.epdo_million)
+    .slice(0, 10)
+    .forEach((z, i) => {
+      const c = info(z) || {};
+      const has = c.R != null;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${z.road_label || z.road}</td>
+        <td>${z.province}</td>
+        <td class="num">${fmt(z.accident_count)}</td>
+        <td class="num">${score(z).toFixed(2)}</td>
+        <td>${chip(z.si_level || c.si_level || z.level)}</td>
+        <td class="num">${has ? c.R.toFixed(3) : "–"}</td>
+        <td class="num">${has ? c.DF.toFixed(2) : "–"}</td>
+        <td>${chip(c.rate_level)}</td>
+        <td class="num">${z.epdo_million.toFixed(2)}</td>
+        <td>${chip(levelOf(z))}</td>`;
+      ctb.appendChild(tr);
+    });
+
   // ---------- ตาราง 10 อันดับ ----------
   const tbody = document.querySelector("#top-table tbody");
   const top10 = [...zones].sort((a, b) => score(b) - score(a)).slice(0, 10);
@@ -211,7 +236,7 @@
       <td class="num">${z.serious_injury}</td>
       <td class="num">${z.minor_injury}</td>
       <td class="num">${score(z).toFixed(2)}</td>
-      <td>${chip(z.level)}</td>
+      <td>${chip(z.si_level || z.level)}</td>
       <td>${chip(levelOf(z))}</td>`;
     tbody.appendChild(tr);
   });

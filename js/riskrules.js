@@ -89,7 +89,8 @@ const RiskRules = (() => {
       id: "high-speed-road",
       when: (p) => (p.speed_limit || 0) >= 90,
       cause: () => "เป็นถนนที่ใช้ความเร็วสูง",
-      advice: "เว้นระยะห่าง และหลีกเลี่ยงการเปลี่ยนช่องทางกะทันหัน",
+      // ใช้ประโยคเดียวกับ multi-vehicle ให้ตรงกับไฟล์เสียงที่อัดไว้ (alert_04 / alert_06)
+      advice: "เว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง",
       icon: "⚡",
     },
   ];
@@ -105,6 +106,8 @@ const RiskRules = (() => {
     }));
   }
 
+  const HIGH_SKIP_RULES = new Set(["speeding-cause", "junction"]);
+
   /** ข้อความเตือน: สุภาพ กระชับ เป็นประโยคเดียวลื่นไหล (ไม่มีวงเล็บ/ตัวย่อ ให้ TTS ไม่สะดุด) */
   function buildAlertMessage(point, distanceMeters) {
     const dist = Math.round(distanceMeters / 50) * 50;
@@ -112,9 +115,10 @@ const RiskRules = (() => {
     const top = matched[0]; // กติกาเรียงตามความสำคัญแล้ว
 
     if (point.level === "high") {
-      // ประโยค "ใช้ความเร็วไม่เกิน …" มีไฟล์เสียงอัดไว้เฉพาะระดับปานกลาง (alert_09)
-      // ระดับสูงจึงข้ามไปใช้กฎข้อถัดไป ให้ทุกจุดพูดด้วยเสียงชุดเดียวกัน
-      const topHigh = matched.find((r) => r.id !== "speeding-cause");
+      // ประโยค "ใช้ความเร็วไม่เกิน …" (alert_09) และ "ระวังรถตัดผ่านทางแยก" (alert_07)
+      // มีไฟล์เสียงอัดไว้เฉพาะระดับปานกลาง ระดับสูงจึงข้ามไปใช้กฎข้อถัดไป
+      // ให้ทุกจุดพูดด้วยไฟล์เสียงที่อัดไว้
+      const topHigh = matched.find((r) => !HIGH_SKIP_RULES.has(r.id));
       const advice = topHigh ? topHigh.advice : "ใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ";
       return `ข้างหน้าอีก ${dist} เมตร ใกล้จุดเสี่ยงสูง โปรด${advice}`;
     }

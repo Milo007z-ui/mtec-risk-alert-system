@@ -72,6 +72,26 @@
       <ul class="method-list" id="method-list"></ul>
     </section>
 
+    <!-- ตาราง 10 อันดับ ระดับรวม -->
+    <section class="card" id="combined-card">
+      <h2>10 จุดเสี่ยงอันดับแรก (ระดับรวม 2 ปัจจัย)</h2>
+      <p class="card-note">เรียงตามระดับรวม แล้วจัดลำดับภายในระดับเดียวกันด้วยมูลค่าความสูญเสียทางเศรษฐกิจ (EPDO) ·
+        ระดับรวม = ระดับที่สูงกว่าระหว่าง Accident Severity (SI) กับ Accident Rate (Rate Quality Control)</p>
+      <div class="table-wrap">
+        <table id="combined-table">
+          <thead>
+            <tr>
+              <th>#</th><th>สายทาง</th><th>จังหวัด</th>
+              <th class="num">อุบัติเหตุ</th><th class="num">SI</th><th>ระดับ SI</th>
+              <th class="num">R</th><th class="num">DF</th><th>ระดับ Rate</th>
+              <th class="num">EPDO (ลบ.)</th><th>ระดับรวม</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
     <div class="two-col">
       <!-- จุดคลัสเตอร์รายจังหวัด -->
       <section class="card">
@@ -139,6 +159,6 @@
   <div id="loading" class="load-msg">กำลังโหลดข้อมูล...</div>
   <div id="tooltip" class="tooltip hidden" role="status"></div>
 
-  <script src="js/dashboard.js?v=13"></script>
+  <script src="js/dashboard.js?v=14"></script>
 </body>
 </html>

@@ -190,7 +190,8 @@ RULES = [
         "high-speed-road",
         lambda p: (p.get("speed_limit") or 0) >= 90,
         lambda p: "เป็นถนนที่ใช้ความเร็วสูง",
-        lambda p: "เว้นระยะห่าง และหลีกเลี่ยงการเปลี่ยนช่องทางกะทันหัน",
+        # ใช้ประโยคเดียวกับ multi-vehicle ให้ตรงกับไฟล์เสียงที่อัดไว้ (alert_04 / alert_06)
+        lambda p: "เว้นระยะห่างจากคันหน้า และระวังรถเปลี่ยนช่องทาง",
     ),
 ]
 
@@ -203,6 +204,9 @@ def evaluate_rules(point):
     ]
 
 
+HIGH_SKIP_RULES = {"speeding-cause", "junction"}
+
+
 def build_alert_message(point, distance_m):
     """ข้อความเตือนภาษาไทย (แบบเดียวกับ riskrules.buildAlertMessage) พร้อมให้ TTS พูด"""
     dist = round(distance_m / 50) * 50
@@ -210,9 +214,10 @@ def build_alert_message(point, distance_m):
     top = matched[0] if matched else None
 
     if point["level"] == "high":
-        # ประโยค "ใช้ความเร็วไม่เกิน …" มีไฟล์เสียงอัดไว้เฉพาะระดับปานกลาง (alert_09)
-        # ระดับสูงจึงข้ามไปใช้กฎข้อถัดไป ให้ทุกจุดพูดด้วยเสียงชุดเดียวกัน
-        top = next((r for r in matched if r["id"] != "speeding-cause"), None)
+        # ประโยค "ใช้ความเร็วไม่เกิน …" (alert_09) และ "ระวังรถตัดผ่านทางแยก" (alert_07)
+        # มีไฟล์เสียงอัดไว้เฉพาะระดับปานกลาง ระดับสูงจึงข้ามไปใช้กฎข้อถัดไป
+        # ให้ทุกจุดพูดด้วยไฟล์เสียงที่อัดไว้
+        top = next((r for r in matched if r["id"] not in HIGH_SKIP_RULES), None)
         advice = top["advice"] if top else "ใช้ความเร็วให้เหมาะสม และขับขี่ระมัดระวังเป็นพิเศษ"
         return f"ข้างหน้าอีก {dist} เมตร ใกล้จุดเสี่ยงสูง โปรด{advice}"
     if point["level"] == "medium":
