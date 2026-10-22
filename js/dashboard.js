@@ -269,7 +269,8 @@
     document.getElementById("calib-note").textContent =
       ` · รอบคำนวณ ${calibration.version}` +
       (excluded ? ` · จุดเสี่ยงเดี่ยว ${fmt(excluded.risk_points)} จุดไม่นำมาจัดระดับ` : "") +
-      (b1 != null ? ` (เกณฑ์คงที่: ต่ำ SI < ${b1} · ปานกลาง ${b1}–${b2} · สูง SI ≥ ${b2})` : "");
+      (b1 != null ? ` (ระดับรวม 2 ปัจจัย = ระดับที่สูงกว่าระหว่างปัจจัยที่ 1 SI: ต่ำ < ${b1} · ปานกลาง ${b1}–${b2} · สูง ≥ ${b2}` +
+        ` กับปัจจัยที่ 2 Accident Rate: ต่ำ R ≤ Ra · ปานกลาง Ra < R ≤ Rc · สูง R > Rc)` : "");
   }
 
   document.getElementById("loading").classList.add("hidden");
