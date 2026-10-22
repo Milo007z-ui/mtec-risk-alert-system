@@ -1128,7 +1128,7 @@ def _alert_client_service_running():
 def check_gps(port=None):
     """ดูว่าตัวรับ GPS ส่งอะไรมาบ้าง จับดาวได้กี่ดวง — ใช้ตอน --serial แล้วไม่ได้พิกัด"""
     print("=" * 62)
-    print("ตรวจตัวรับ GPS (Beltian BE-609U)")
+    print("ตรวจตัวรับ GPS (Beitian BE-609U)")
     print("=" * 62)
 
     if _alert_client_service_running():

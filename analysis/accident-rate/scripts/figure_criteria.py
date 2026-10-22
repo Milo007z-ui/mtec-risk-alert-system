@@ -29,15 +29,15 @@ def level_bar(x, y, w, labels, conds, h=6.2):
 
 # ---------- หัวเรื่อง
 t(80, 117.5, "เกณฑ์การแบ่งระดับจุดเสี่ยงอุบัติเหตุ: Accident Severity ร่วมกับ Accident Rate", 20, INK, "bold", ha="center")
-t(80, 113.2, "คลัสเตอร์จุดเสี่ยง 598 จุด (มีข้อมูลปริมาณจราจรของหน่วยงานครบ 3 ปี 2566–2568) · แต่ละวิธีให้ระดับ ต่ำ / ปานกลาง / สูง แยกกัน แล้วนำมารวม",
+t(80, 113.2, "คลัสเตอร์ 598 วง (มีข้อมูลปริมาณจราจรของหน่วยงานครบ 3 ปี 2566–2568) · แต่ละปัจจัยให้ระดับ ต่ำ / ปานกลาง / สูง แยกกัน แล้วนำมารวม",
   12.5, MUTED, ha="center")
 
 # ---------- ① SI
 X1, W = 4, 74
 box(X1, 42, W, 67, BLUE_BG, BLUE)
 ax.add_patch(FancyBboxPatch((X1, 101.5), W, 7.5, boxstyle="round,pad=0,rounding_size=1.2", fc=BLUE, ec=BLUE))
-t(X1 + 2.5, 105.2, "วิธีที่ 1  Accident Severity Index (SI)", 16, "white", "bold")
-t(X1 + W - 2.5, 105.2, "วัด \"เกิดแล้วรุนแรงแค่ไหน\"", 12, "white", ha="right")
+t(X1 + 2.5, 105.2, "ปัจจัยที่ 1  Accident Severity Index (SI)", 14, "white", "bold")
+t(X1 + W - 2.5, 105.2, "วัด \"เกิดแล้วรุนแรงแค่ไหน\"", 11, "white", ha="right")
 box(X1 + 4, 86.5, W - 8, 11.5, "white", BLUE, lw=1.1)
 t(X1 + W / 2, 92.3, r"$SI = \dfrac{F + PI}{\mathrm{Total\ Accidents}}$", 22, BLUE, ha="center")
 for i, s in enumerate(["F    = จำนวนครั้งของอุบัติเหตุที่มีผู้เสียชีวิต",
@@ -54,8 +54,8 @@ t(X1 + 4, 45.3, "จุดตัด 1 และ 2 กำหนดโดยผู
 X2 = 82
 box(X2, 42, W, 67, ORG_BG, ORG)
 ax.add_patch(FancyBboxPatch((X2, 101.5), W, 7.5, boxstyle="round,pad=0,rounding_size=1.2", fc=ORG, ec=ORG))
-t(X2 + 2.5, 105.2, "วิธีที่ 2  Accident Rate + Rate Quality Control", 16, "white", "bold")
-t(X2 + W - 2.5, 105.2, "วัด \"เกิดบ่อยผิดปกติไหม\"", 12, "white", ha="right")
+t(X2 + 2.5, 105.2, "ปัจจัยที่ 2  Accident Rate + Rate Quality Control", 14, "white", "bold")
+t(X2 + W - 2.5, 105.2, "วัด \"เกิดบ่อยผิดปกติไหม\"", 11, "white", ha="right")
 steps = [("ขั้น 1  อัตราการเกิดอุบัติเหตุ (ณัฐพงศ์ สมการ 3.2)", r"$R = \dfrac{A \times 1{,}000{,}000}{365 \times T \times V \times L}$", 7.0, 17),
          ("ขั้น 2  Ra ค่าเฉลี่ยถ่วงน้ำหนักด้วยปริมาณจราจร (HSM สมการ 4-10)", r"$R_a = \dfrac{\sum\,(V_i \times R_i)}{\sum\,V_i}$", 7.0, 17),
          ("ขั้น 3  Rc ค่าวิกฤติ 95% (ณัฐพงศ์ สมการ 3.4 · HSM สมการ 4-11)",
@@ -78,7 +78,7 @@ for x in (X1 + W / 2, X2 + W / 2):
 
 # ---------- ③ รวม
 box(4, 2, 152, 35.5, "#F6F8FA", "#8C959F")
-t(8, 33.2, "รวม 2 วิธี:  ระดับรวม = ระดับที่สูงกว่า ระหว่าง SI กับ Rate", 16, INK, "bold")
+t(8, 33.2, "ระดับรวม 2 ปัจจัย:  ระดับรวม = ระดับที่สูงกว่า ระหว่าง SI กับ Rate", 16, INK, "bold")
 t(8, 28.6, "เกินเกณฑ์ด้านความรุนแรงหรือด้านอัตราอย่างใดอย่างหนึ่ง ถือว่าเสี่ยง (WisDOT Figure 3 · ณัฐพงศ์ หน้า 55)", 12, MUTED)
 # ตาราง 3x3
 gx, gy, cw, ch = 34, 3.6, 15.5, 5.6
@@ -107,7 +107,7 @@ for i, (lab, a, b, c, fc, tc) in enumerate(data):
     t(rx + 5, y, lab, 11.5, tc, "bold", ha="center")
     for x, v, bold in ((xs[1], a, False), (xs[2], b, False), (xs[3], c, True)):
         t(x + 6, y, f"{v}", 12.5, INK, "bold" if bold else "normal", ha="center")
-t(rx, 3.8, "ไม่มีคลัสเตอร์ใดที่ได้ระดับสูงจากทั้งสองวิธี → สองวิธีวัดความเสี่ยงคนละมิติ", 10.8, MUTED)
+t(rx, 3.8, "ไม่มีคลัสเตอร์ใดที่ได้ระดับสูงจากทั้งสองปัจจัย → สองปัจจัยวัดความเสี่ยงคนละมิติ", 10.8, MUTED)
 
 fig.savefig(OUT, dpi=150, facecolor=BG)
 print("saved", OUT)
