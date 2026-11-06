@@ -225,14 +225,11 @@ const RiskPoints = (() => {
       <div class="popup">
         <div class="pp-head">
           <div class="pp-title"${roadTip}>${roadName}</div>
-          <div class="pp-score" style="background:${siStyle.color}">
-            ${si.toFixed(2)}<small>SI</small>
+          <div class="pp-score" style="background:${style.color}">
+            <small style="margin-right:4px">ระดับรวม</small>${style.label}
           </div>
         </div>
         <div class="pp-sub">${p.province} · ${p.road_ref || p.road_type} · จำกัด ~${p.speed_limit} กม./ชม.</div>
-        <div class="pp-levelrow">ระดับความเสี่ยง (2 ปัจจัย):
-          <span class="pp-level" style="background:${style.color}">${style.label}</span>
-        </div>
         <div class="pp-stats">
           <div><b>${p.accident_count}</b><span>อุบัติเหตุ</span></div>
           <div><b>${p.deaths}</b><span>เสียชีวิต</span></div>
