@@ -450,23 +450,23 @@
    "geometry": {
     "type": "Point",
     "coordinates": [
-     100.511287,
-     13.842586
+     100.515002,
+     13.839411
     ]
    },
    "properties": {
     "id": "tw_09",
     "unit_type": "cluster",
     "centroid": [
-     13.842586,
-     100.511287
+     13.839411,
+     100.515002
     ],
     "radius_m": 60.0,
     "province": "นนทบุรี",
     "road": "ถนนกรุงเทพ-นนทบุรี",
-    "road_label": "ถนนกรุงเทพ-นนทบุรี ก่อนถึงแยกติวานนท์",
+    "road_label": "ถนนกรุงเทพ-นนทบุรี ใกล้สถานี MRT แยกติวานนท์",
     "road_label_source": "record",
-    "landmark": "ถนนกรุงเทพ-นนทบุรี ก่อนถึงแยกติวานนท์",
+    "landmark": "ถนนกรุงเทพ-นนทบุรี ใกล้สถานี MRT แยกติวานนท์",
     "accident_count": 4,
     "deaths": 1,
     "serious_injury": 1,
@@ -489,8 +489,8 @@
     "speed_limit": 60,
     "synthetic": true,
     "source_page": 5,
-    "snap_distance_m": 1.9,
-    "route_m": 12193
+    "snap_distance_m": 0.0,
+    "route_m": 11659
    }
   }
  ]
