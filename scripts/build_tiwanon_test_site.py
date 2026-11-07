@@ -67,15 +67,6 @@ SITES = [
         "crash_pattern": "ชนด้านข้างบริเวณทางแยก",
     },
     {
-        "id": "tw_04", "page": 5, "lat": 13.841955, "lng": 100.509982, "level": "medium",
-        "road": "ถนนนครอินทร์", "province": "นนทบุรี",
-        "landmark": "ถนนนครอินทร์ ถัดจากแยกติวานนท์",
-        "accident_count": 4, "fatal_crashes": 0, "deaths": 0,
-        "serious_injury": 2, "minor_injury": 3, "single_count": 1, "multi_count": 3,
-        "top_cause": "ขับตามกระชั้นชิด", "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-        "crash_pattern": "ชนท้ายในทางตรง",
-    },
-    {
         "id": "tw_05", "page": 7, "lat": 13.836550, "lng": 100.506176, "level": "low",
         "road": "ถนนนครอินทร์", "province": "นนทบุรี",
         "landmark": "ถนนนครอินทร์ ช่วงป้าย นบ.1020",

@@ -156,7 +156,7 @@ GeoJSON จึงเก็บแยกกัน — `road` = ค่าดิบ�
 ├── index.html                  # หน้าแผนที่ โหลด Leaflet จาก CDN
 ├── dashboard.html              # หน้าแดชบอร์ดสถิติ
 ├── test-nstda.html             # หน้าสนามทดสอบภาคสนาม สวทช. ปทุมธานี (ชุดข้อมูลสมมติ)
-├── test-tiwanon.html           # หน้าขับทดสอบวงรอบติวานนท์ นนทบุรี (จุดสมมติ 9 + จุดจริง 1)
+├── test-tiwanon.html           # หน้าขับทดสอบวงรอบติวานนท์ นนทบุรี (จุดสมมติ 8 + จุดจริง 1)
 ├── css/  style.css · dashboard.css
 ├── js/
 │   ├── distance.js             # Haversine + bounding box (ไม่แตะ DOM, test ได้ใน Node)

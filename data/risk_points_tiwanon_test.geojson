@@ -26,23 +26,23 @@
    "minor": 0.058
   },
   "marker_position": "on_route",
-  "analysis_units": 10,
-  "zones": 10,
-  "risk_points": 40,
+  "analysis_units": 9,
+  "zones": 9,
+  "risk_points": 36,
   "levels": {
    "high": 1,
-   "medium": 3,
+   "medium": 2,
    "low": 6
   },
-  "min_gap_m": 143.4,
+  "min_gap_m": 490.4,
   "recommended_alert_radius_m": 500,
   "recommended_exit_radius_m": 600,
   "overall": {
-   "risk_points": 40,
+   "risk_points": 36,
    "deaths": 3,
-   "serious_injury": 10,
-   "minor_injury": 22,
-   "epdo_total_million": 41.376
+   "serious_injury": 8,
+   "minor_injury": 19,
+   "epdo_total_million": 37.202
   }
  },
  "features": [
@@ -188,54 +188,6 @@
     "source_page": 4,
     "snap_distance_m": 3.4,
     "route_m": 2851
-   }
-  },
-  {
-   "type": "Feature",
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     100.510248,
-     13.841783
-    ]
-   },
-   "properties": {
-    "id": "tw_04",
-    "unit_type": "cluster",
-    "centroid": [
-     13.841783,
-     100.510248
-    ],
-    "radius_m": 60.0,
-    "province": "นนทบุรี",
-    "road": "ถนนนครอินทร์",
-    "road_label": "ถนนนครอินทร์ ถัดจากแยกติวานนท์",
-    "road_label_source": "record",
-    "landmark": "ถนนนครอินทร์ ถัดจากแยกติวานนท์",
-    "accident_count": 4,
-    "deaths": 0,
-    "serious_injury": 2,
-    "minor_injury": 3,
-    "fatal_crashes": 0,
-    "injured_total": 5,
-    "severity_index": 1.25,
-    "level": "medium",
-    "economic_loss": 4174000,
-    "epdo_million": 4.174,
-    "single_count": 1,
-    "multi_count": 3,
-    "single_pct": 25.0,
-    "multi_pct": 75.0,
-    "pattern": "multiple",
-    "top_cause": "ขับตามกระชั้นชิด",
-    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
-    "crash_pattern": "ชนท้ายในทางตรง",
-    "road_type": "ถนนสายหลัก",
-    "speed_limit": 60,
-    "synthetic": true,
-    "source_page": 5,
-    "snap_distance_m": 34.4,
-    "route_m": 3677
    }
   },
   {
