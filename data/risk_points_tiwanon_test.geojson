@@ -1,0 +1,545 @@
+{
+ "type": "FeatureCollection",
+ "calibration": {
+  "version": "tiwanon-test-r1",
+  "generated_at": "2026-11-08",
+  "synthetic": true,
+  "warning": "ข้อมูลสมมติสำหรับทดสอบระบบเท่านั้น ไม่ใช่สถิติอุบัติเหตุจริง (ยกเว้น zone_279 ซึ่งคัดลอกจากชุดหลัก)",
+  "purpose": "ขับทดสอบอุปกรณ์บนถนนจริง วงรอบติวานนท์-นครอินทร์-พิบูลสงคราม-วงศ์สว่าง-กรุงเทพนนทบุรี",
+  "site": "ถนนติวานนท์และถนนเชื่อมต่อ จังหวัดนนทบุรี",
+  "source": "วงกลมที่ผู้ใช้วาดบนภาพหน้าจอแผนที่ snap เข้าเส้นทาง OSRM",
+  "scoring_method": "severity_index",
+  "si_formula": "(F + PI) / Total Accident",
+  "level_breaks": [
+   1.0,
+   2.0
+  ],
+  "level_break_method": "fixed_si_cutoff",
+  "cost_per_person_thb": {
+   "death": 6700000,
+   "serious": 2000000,
+   "minor": 58000
+  },
+  "epdo_weights_million_per_person": {
+   "fatal": 6.7,
+   "serious": 2.0,
+   "minor": 0.058
+  },
+  "marker_position": "on_route",
+  "analysis_units": 10,
+  "zones": 10,
+  "risk_points": 40,
+  "levels": {
+   "high": 1,
+   "medium": 3,
+   "low": 6
+  },
+  "min_gap_m": 143.4,
+  "recommended_alert_radius_m": 500,
+  "recommended_exit_radius_m": 600,
+  "overall": {
+   "risk_points": 40,
+   "deaths": 3,
+   "serious_injury": 10,
+   "minor_injury": 22,
+   "epdo_total_million": 41.376
+  }
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.520382,
+     13.863594
+    ]
+   },
+   "properties": {
+    "id": "tw_01",
+    "unit_type": "cluster",
+    "centroid": [
+     13.863594,
+     100.520382
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนติวานนท์",
+    "road_label": "ถนนติวานนท์ ปากซอยติวานนท์ 20 หน้าสถาบันโรคทรวงอก",
+    "road_label_source": "record",
+    "landmark": "ถนนติวานนท์ ปากซอยติวานนท์ 20 หน้าสถาบันโรคทรวงอก",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 1,
+    "snap_distance_m": 4.4,
+    "route_m": 867
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.521778,
+     13.859397
+    ]
+   },
+   "properties": {
+    "id": "tw_02",
+    "unit_type": "cluster",
+    "centroid": [
+     13.859397,
+     100.521778
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนติวานนท์",
+    "road_label": "สี่แยกแคราย ฝั่งถนนติวานนท์",
+    "road_label_source": "record",
+    "landmark": "สี่แยกแคราย ฝั่งถนนติวานนท์",
+    "accident_count": 3,
+    "deaths": 2,
+    "serious_injury": 2,
+    "minor_injury": 2,
+    "fatal_crashes": 2,
+    "injured_total": 4,
+    "severity_index": 2.0,
+    "level": "high",
+    "economic_loss": 17516000,
+    "epdo_million": 17.516,
+    "single_count": 1,
+    "multi_count": 2,
+    "single_pct": 33.3,
+    "multi_pct": 66.7,
+    "pattern": "multiple",
+    "top_cause": "ฝ่าฝืนสัญญาณไฟจราจร",
+    "road_feature": "ทางแยก+ทางร่วม",
+    "crash_pattern": "ชนด้านข้างบริเวณทางแยก",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 2,
+    "snap_distance_m": 2.2,
+    "route_m": 1357
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.51449,
+     13.847986
+    ]
+   },
+   "properties": {
+    "id": "tw_03",
+    "unit_type": "cluster",
+    "centroid": [
+     13.847986,
+     100.51449
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนติวานนท์",
+    "road_label": "สามแยกศรีธัญญา",
+    "road_label_source": "record",
+    "landmark": "สามแยกศรีธัญญา",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 3,
+    "minor_injury": 4,
+    "fatal_crashes": 0,
+    "injured_total": 7,
+    "severity_index": 1.4,
+    "level": "medium",
+    "economic_loss": 6232000,
+    "epdo_million": 6.232,
+    "single_count": 1,
+    "multi_count": 4,
+    "single_pct": 20.0,
+    "multi_pct": 80.0,
+    "pattern": "multiple",
+    "top_cause": "ตัดหน้ากระชั้นชิด",
+    "road_feature": "ทางแยก+ทางร่วม",
+    "crash_pattern": "ชนด้านข้างบริเวณทางแยก",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 4,
+    "snap_distance_m": 3.4,
+    "route_m": 2851
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.510248,
+     13.841783
+    ]
+   },
+   "properties": {
+    "id": "tw_04",
+    "unit_type": "cluster",
+    "centroid": [
+     13.841783,
+     100.510248
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนนครอินทร์",
+    "road_label": "ถนนนครอินทร์ ถัดจากแยกติวานนท์",
+    "road_label_source": "record",
+    "landmark": "ถนนนครอินทร์ ถัดจากแยกติวานนท์",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 2,
+    "minor_injury": 3,
+    "fatal_crashes": 0,
+    "injured_total": 5,
+    "severity_index": 1.25,
+    "level": "medium",
+    "economic_loss": 4174000,
+    "epdo_million": 4.174,
+    "single_count": 1,
+    "multi_count": 3,
+    "single_pct": 25.0,
+    "multi_pct": 75.0,
+    "pattern": "multiple",
+    "top_cause": "ขับตามกระชั้นชิด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 5,
+    "snap_distance_m": 34.4,
+    "route_m": 3677
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.506186,
+     13.836539
+    ]
+   },
+   "properties": {
+    "id": "tw_05",
+    "unit_type": "cluster",
+    "centroid": [
+     13.836539,
+     100.506186
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนนครอินทร์",
+    "road_label": "ถนนนครอินทร์ ช่วงป้าย นบ.1020",
+    "road_label_source": "record",
+    "landmark": "ถนนนครอินทร์ ช่วงป้าย นบ.1020",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 7,
+    "snap_distance_m": 1.6,
+    "route_m": 4408
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.50391,
+     13.823151
+    ]
+   },
+   "properties": {
+    "id": "tw_06",
+    "unit_type": "cluster",
+    "centroid": [
+     13.823151,
+     100.50391
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนพิบูลสงคราม",
+    "road_label": "ทางโค้งถนนพิบูลสงคราม หน้าโรงเรียนวัดเขมาภิรตาราม",
+    "road_label_source": "record",
+    "landmark": "ทางโค้งถนนพิบูลสงคราม หน้าโรงเรียนวัดเขมาภิรตาราม",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 1,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 3,
+    "severity_index": 0.75,
+    "level": "low",
+    "economic_loss": 2116000,
+    "epdo_million": 2.116,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางโค้ง",
+    "crash_pattern": "เสียหลักออกนอกทางในทางโค้ง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 9,
+    "snap_distance_m": 7.3,
+    "route_m": 6491
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.510454,
+     13.819705
+    ]
+   },
+   "properties": {
+    "id": "zone_279",
+    "unit_type": "cluster",
+    "centroid": [
+     13.819736,
+     100.510336
+    ],
+    "radius_m": 67.6,
+    "province": "กรุงเทพมหานคร",
+    "road": "พระราม7 - แคราย",
+    "route_code": "306",
+    "km_min": 0.645,
+    "km_max": 0.73,
+    "accident_count": 3,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 1,
+    "fatal_crashes": 0,
+    "injured_total": 1,
+    "severity_index": 0.3333,
+    "level": "low",
+    "economic_loss": 58000,
+    "epdo_million": 0.058,
+    "single_count": 3,
+    "multi_count": 0,
+    "single_pct": 100.0,
+    "multi_pct": 0.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "พลิกคว่ำ/ตกถนนในทางตรง",
+    "road_type": "ทางหลวง",
+    "speed_limit": 90,
+    "road_label": "พระราม7 - แคราย",
+    "road_label_source": "record",
+    "road_ref": "ทล.306 กม.0.6-0.7",
+    "medoid_raw": [
+     100.51045,
+     13.819694
+    ],
+    "snap_distance_m": 1.3,
+    "si_level": "low",
+    "rate_level": "low",
+    "agency": "กรมทางหลวง",
+    "aadt_v": 93556,
+    "accident_rate": 0.0293,
+    "rate_ra": 0.1346,
+    "rate_rc": 0.1991,
+    "rate_df": 0.15,
+    "synthetic": false,
+    "route_m": 7302,
+    "route_offset_m": 4.6
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.524799,
+     13.825107
+    ]
+   },
+   "properties": {
+    "id": "tw_07",
+    "unit_type": "cluster",
+    "centroid": [
+     13.825107,
+     100.524799
+    ],
+    "radius_m": 60.0,
+    "province": "กรุงเทพมหานคร",
+    "road": "ถนนวงศ์สว่าง",
+    "road_label": "ถนนวงศ์สว่าง ใกล้ธนาคารกรุงเทพ สาขาวงศ์สว่าง",
+    "road_label_source": "record",
+    "landmark": "ถนนวงศ์สว่าง ใกล้ธนาคารกรุงเทพ สาขาวงศ์สว่าง",
+    "accident_count": 5,
+    "deaths": 0,
+    "serious_injury": 1,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 3,
+    "severity_index": 0.6,
+    "level": "low",
+    "economic_loss": 2116000,
+    "epdo_million": 2.116,
+    "single_count": 2,
+    "multi_count": 3,
+    "single_pct": 40.0,
+    "multi_pct": 60.0,
+    "pattern": "multiple",
+    "top_cause": "ขับตามกระชั้นชิด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 13,
+    "snap_distance_m": 8.9,
+    "route_m": 9248
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.521572,
+     13.833947
+    ]
+   },
+   "properties": {
+    "id": "tw_08",
+    "unit_type": "cluster",
+    "centroid": [
+     13.833947,
+     100.521572
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนกรุงเทพ-นนทบุรี",
+    "road_label": "ถนนกรุงเทพ-นนทบุรี ช่วงรอยต่อจังหวัดนนทบุรี",
+    "road_label_source": "record",
+    "landmark": "ถนนกรุงเทพ-นนทบุรี ช่วงรอยต่อจังหวัดนนทบุรี",
+    "accident_count": 4,
+    "deaths": 0,
+    "serious_injury": 0,
+    "minor_injury": 2,
+    "fatal_crashes": 0,
+    "injured_total": 2,
+    "severity_index": 0.5,
+    "level": "low",
+    "economic_loss": 116000,
+    "epdo_million": 0.116,
+    "single_count": 3,
+    "multi_count": 1,
+    "single_pct": 75.0,
+    "multi_pct": 25.0,
+    "pattern": "single",
+    "top_cause": "ขับรถเร็วเกินอัตรากำหนด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนท้ายในทางตรง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 15,
+    "snap_distance_m": 3.6,
+    "route_m": 10727
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     100.511287,
+     13.842586
+    ]
+   },
+   "properties": {
+    "id": "tw_09",
+    "unit_type": "cluster",
+    "centroid": [
+     13.842586,
+     100.511287
+    ],
+    "radius_m": 60.0,
+    "province": "นนทบุรี",
+    "road": "ถนนกรุงเทพ-นนทบุรี",
+    "road_label": "ถนนกรุงเทพ-นนทบุรี ก่อนถึงแยกติวานนท์",
+    "road_label_source": "record",
+    "landmark": "ถนนกรุงเทพ-นนทบุรี ก่อนถึงแยกติวานนท์",
+    "accident_count": 4,
+    "deaths": 1,
+    "serious_injury": 1,
+    "minor_injury": 2,
+    "fatal_crashes": 1,
+    "injured_total": 3,
+    "severity_index": 1.0,
+    "level": "medium",
+    "economic_loss": 8816000,
+    "epdo_million": 8.816,
+    "single_count": 2,
+    "multi_count": 2,
+    "single_pct": 50.0,
+    "multi_pct": 50.0,
+    "pattern": "multiple",
+    "top_cause": "ตัดหน้ากระชั้นชิด",
+    "road_feature": "ทางตรง+ไม่มีความลาดชัน",
+    "crash_pattern": "ชนด้านข้าง",
+    "road_type": "ถนนสายหลัก",
+    "speed_limit": 60,
+    "synthetic": true,
+    "source_page": 5,
+    "snap_distance_m": 1.9,
+    "route_m": 12193
+   }
+  }
+ ]
+}

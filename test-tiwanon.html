@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ขับทดสอบวงรอบติวานนท์ — จุดเสี่ยงจำลอง 10 จุด</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="css/style.css?v=18">
+  <!-- หน้านี้ = ขับทดสอบบนถนนจริง ใช้โค้ดชุดเดียวกับ index.html ต่างกันแค่ค่าตั้งด้านล่าง -->
+  <script>
+    window.RISK_DATA_URL = "data/risk_points_tiwanon_test.geojson";
+    window.MOCK_ROUTE_URL = "data/mock_route_tiwanon.geojson";
+    window.MAP_CENTER = [13.84400, 100.51300];
+    window.MAP_ZOOM = 14;
+    // ซ้อมในห้องด้วย ?mock=1 — ขับ 60 กม./ชม. เล่นเร็ว 2 เท่า ครบวงราว 8 นาที
+    window.MOCK_KMH = 60;
+    window.MOCK_SPEEDUP = 2;
+
+    // รัศมีเตือนปรับได้จาก URL (?alert=300&exit=400) เผื่อหน้างานอยากลองหลายค่าเทียบกัน
+    // exit ต้องไม่แคบกว่า alert ไม่งั้น hysteresis กลายเป็นเตือนรัวทุกครั้งที่ตำแหน่งอัปเดต
+    (function () {
+      const qp = new URLSearchParams(location.search);
+      const alertM = Number(qp.get("alert")) || 500;
+      const exitM = Number(qp.get("exit")) || 600;
+      window.ALERT_RADIUS_M = alertM;
+      window.EXIT_RADIUS_M = Math.max(exitM, alertM);
+    })();
+
+    // ที่อยู่ของ API บนกล่อง Raspberry Pi — ใช้เฉพาะตอนเปิดหน้านี้จาก GitHub Pages
+    // ซึ่งเป็นไฟล์นิ่งล้วน ไม่มี API อยู่ข้าง ๆ (เปิดจาก uvicorn บน Pi ไม่ใช้ค่านี้)
+    // ทำให้ลิงก์ GitHub Pages ที่ bookmark ไว้ในมือถือใช้ได้เลย ไม่ต้องพิมพ์ ?api=... ต่อท้าย
+    //
+    // เป็น URL คงที่จาก ngrok (แผนฟรีให้โดเมนถาวร 1 ชื่อ) เปลี่ยนได้ที่ NGROK_DOMAIN
+    // ใน /etc/mtec.env บน Pi — ถ้าเปลี่ยนที่นั่น ต้องแก้ตรงนี้ให้ตรงกันด้วย
+    //
+    // ⚠️ POST /api/device/location ยังไม่มีการยืนยันตัวตน การเปิดเผยโดเมนนี้แปลว่า
+    // ใครก็ยิงพิกัดปลอมเข้ามาแทนตำแหน่งรถได้ ยอมรับได้ในขั้นทดสอบ/สาธิต
+    // แต่ถ้าจะใช้งานจริงระยะยาว ต้องใส่ token ที่ endpoint นั้นก่อน
+    window.API_BASE_FALLBACK = "https://patient-praising-doorstep.ngrok-free.dev";
+  </script>
+</head>
+<body>
+  <div id="status-bar">
+    <span id="gps-status">กำลังโหลด...</span>
+    <span id="nearest-info"></span>
+    <a href="test-tiwanon.html?mock=1" title="ซ้อมเส้นทางนี้ในห้อง">🛣️ เส้นทางจำลอง</a>
+    <a id="link-dashboard" href="index.html" title="กลับหน้าแผนที่จริง">🗺️ แผนที่จริง</a>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="alert-banner" class="alert-banner hidden"></div>
+
+  <button id="btn-recenter" class="hidden">📍 กลับมาที่ตำแหน่งฉัน</button>
+
+  <div id="filter-panel">
+    <div class="filter-head">
+      <span class="filter-title">ตัวกรองจุดเสี่ยง</span>
+      <button id="filter-toggle" type="button" title="ย่อ/ขยายแผงตัวกรอง">▾</button>
+    </div>
+    <div class="filter-body">
+      <label class="filter-label" for="f-province">จังหวัด</label>
+      <select id="f-province">
+        <option value="">ทุกจังหวัด</option>
+      </select>
+
+      <div class="filter-label">ระดับความเสี่ยง</div>
+      <div class="filter-levels">
+        <label><input type="checkbox" id="f-level-high" checked>
+          <span class="dot" style="background:#c62828"></span>เสี่ยงสูง</label>
+        <label><input type="checkbox" id="f-level-medium" checked>
+          <span class="dot" style="background:#ef6c00"></span>ปานกลาง</label>
+        <label><input type="checkbox" id="f-level-low" checked>
+          <span class="dot" style="background:#2e7d32"></span>ต่ำ</label>
+      </div>
+
+      <label class="filter-label" for="f-pattern">ประเภทปัญหาหลัก</label>
+      <select id="f-pattern"></select>
+
+      <div class="filter-foot">
+        <span id="filter-count"></span>
+        <button id="filter-reset" type="button">ล้างตัวกรอง</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div><span class="dot" style="background:#c62828"></span> เสี่ยงสูง</div>
+    <div><span class="dot" style="background:#ef6c00"></span> ปานกลาง</div>
+    <div><span class="dot" style="background:#2e7d32"></span> ต่ำ</div>
+  </div>
+
+  <div id="start-overlay">
+    <div class="start-card">
+      <h1>🧪 ขับทดสอบวงรอบติวานนท์</h1>
+      <p>ติวานนท์ → นครอินทร์ → พิบูลสงคราม → วงศ์สว่าง → กรุงเทพ-นนทบุรี → ติวานนท์ (~15.8 กม.) จุดเสี่ยง 10 จุด ครบสามระดับ</p>
+      <p class="hint">
+        แจ้งเตือนที่ระยะ 500 เมตร เท่าระบบจริง
+        · ลองระยะอื่นได้ด้วย <code>?alert=300&amp;exit=400</code>
+      </p>
+      <p class="hint" style="color:#c62828">
+        ⚠️ จุดเสี่ยง 9 จาก 10 จุดเป็น<b>ข้อมูลสมมติสำหรับทดสอบระบบ</b>
+        ไม่ใช่สถิติอุบัติเหตุจริงของถนนเหล่านี้ (จุดจริงมีเพียง zone_279)
+      </p>
+      <button id="btn-start">เริ่มทดสอบ</button>
+      <p class="hint">ต้องอนุญาตให้เข้าถึงตำแหน่ง และเปิดเสียงเครื่อง · ซ้อมในห้องได้ด้วย ?mock=1</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/distance.js?v=11"></script>
+  <script src="js/tts.js?v=14"></script>
+  <script src="js/riskrules.js?v=13"></script>
+  <script src="js/riskpoints.js?v=24"></script>
+  <!-- ไม่โหลด accidents.js: สนามทดสอบไม่มีชั้นจุดเสี่ยงรายอุบัติเหตุ (app.js/filters.js ... -->
+  <script src="js/filters.js?v=14"></script>
+  <script src="js/map.js?v=14"></script>
+  <script src="js/gps.js?v=21"></script>
+  <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
+  <script src="js/device.js?v=14"></script>
+  <script src="js/alert.js?v=29"></script>
+  <script src="js/app.js?v=19"></script>
+</body>
+</html>

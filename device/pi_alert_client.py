@@ -935,6 +935,8 @@ def _web_page(api_base):
             dataset = json.loads(r.read()).get("dataset", "")
     except (OSError, ValueError):
         return "index.html"
+    if "tiwanon" in dataset:
+        return "test-tiwanon.html"
     return "test-nstda.html" if "nstda" in dataset else "index.html"
 
 

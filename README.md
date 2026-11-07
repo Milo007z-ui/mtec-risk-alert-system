@@ -156,6 +156,7 @@ GeoJSON จึงเก็บแยกกัน — `road` = ค่าดิบ�
 ├── index.html                  # หน้าแผนที่ โหลด Leaflet จาก CDN
 ├── dashboard.html              # หน้าแดชบอร์ดสถิติ
 ├── test-nstda.html             # หน้าสนามทดสอบภาคสนาม สวทช. ปทุมธานี (ชุดข้อมูลสมมติ)
+├── test-tiwanon.html           # หน้าขับทดสอบวงรอบติวานนท์ นนทบุรี (จุดสมมติ 9 + จุดจริง 1)
 ├── css/  style.css · dashboard.css
 ├── js/
 │   ├── distance.js             # Haversine + bounding box (ไม่แตะ DOM, test ได้ใน Node)
@@ -184,8 +185,10 @@ GeoJSON จึงเก็บแยกกัน — `road` = ค่าดิบ�
 ├── scripts/build_risk_points.py        # pipeline: Excel -> DBSCAN -> SI -> GeoJSON
 ├── scripts/build_risk_points_3y.py     # รัน pipeline เดิมกับข้อมูล 3 ปี (ที่ใช้จริง)
 ├── scripts/build_nstda_test_site.py    # สร้างชุดสนามทดสอบ สวทช. (จุดเสี่ยงสมมติ + เส้นทาง)
+├── scripts/build_tiwanon_test_site.py  # สร้างชุดขับทดสอบวงรอบติวานนท์ (จุดเสี่ยงสมมติ + เส้นทาง)
 ├── docs/risk-score-criteria.md         # เกณฑ์โมเดล v3 + อ้างอิงทั้งหมด
 ├── docs/field-test-nstda.md            # แผน/ใบตรวจ ทดสอบภาคสนามร่วมกับกล้อง EMMA
+├── docs/field-test-tiwanon.md          # แผน/ใบตรวจ ขับทดสอบวงรอบติวานนท์
 ├── api/server.py                       # REST API (FastAPI) ให้อุปกรณ์ดึงข้อมูลจุดเสี่ยง
 ├── device/pi_alert_client.py           # ไคลเอนต์ Raspberry Pi: GPS -> เรียก API -> พูดเตือน + ส่งตำแหน่งขึ้นเว็บ
 ├── systemd/                            # unit ให้ API + ไคลเอนต์เริ่มเองตอนเปิดเครื่อง
