@@ -40,10 +40,15 @@ const MapView = (() => {
   function updateUserPosition(lat, lng, accuracyM, headingDeg = null) {
     const latlng = [lat, lng];
     if (!userMarker) {
+      // โหมดจำลอง = หมุดนี้คือรถ · ใช้จริง = เครื่องที่เปิดเว็บ (คอม/มือถือ) แสดงเป็นจุดฟ้า
+      // ไม่ให้สับสนกับ 🚌 ของ Raspberry Pi บนรถ (device.js)
+      const isCar = typeof GPS !== "undefined" && GPS.isMockMode();
       userMarker = L.marker(latlng, {
         icon: L.divIcon({
           className: "user-marker",
-          html: '<div class="user-dot"><span class="user-arrow"></span>🚌</div>',
+          html: isCar
+            ? '<div class="user-dot"><span class="user-arrow"></span>🚌</div>'
+            : '<div class="user-dot viewer"><span class="user-arrow"></span></div>',
           iconSize: [30, 30],
           iconAnchor: [15, 15],
         }),

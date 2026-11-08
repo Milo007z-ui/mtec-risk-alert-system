@@ -63,6 +63,13 @@ html, body {
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(25,118,210,.7);
 }
+/* เครื่องที่เปิดเว็บ (ไม่ใช่รถ) — จุดฟ้าทึบขนาดเล็ก แบบ "คุณอยู่ที่นี่" */
+.user-dot.viewer {
+  width: 18px; height: 18px;
+  margin: 6px;          /* จัดกึ่งกลางในกรอบ icon 30 px */
+  background: #1976d2;
+  border: 3px solid #fff;
+}
 /* ลูกศรบอกทิศหมุนแยกจากตัวรถ เพื่อให้ 🚌 ตั้งตรงอ่านออกเสมอ
    โผล่เฉพาะตอนที่ระบบมั่นใจในทิศจริง ๆ (มี COG ที่ผ่าน speed gate แล้ว) */
 .user-dot .user-arrow { display: none; }
