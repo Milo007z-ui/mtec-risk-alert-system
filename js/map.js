@@ -9,7 +9,6 @@ const MapView = (() => {
   let userMarker = null;
   let accuracyCircle = null;
   let routeLine = null;
-  let coneLayers = []; // พัดกรวยกรองทิศ: [ไกล, กลาง, ใกล้]
   let firstFixZoom = 16;
   let displayedHeading = 0; // มุมสะสมของลูกศร (ไม่ถูกตัดกลับเข้า 0-360 โดยตั้งใจ)
   let autoPan = true;
@@ -121,49 +120,55 @@ const MapView = (() => {
    * วาดกรวยที่ระบบใช้กรองจุดเสี่ยง — เห็นด้วยตาว่าจุดไหนอยู่ในกรวยและจุดไหนถูกตัดออก
    * coneDegAt(d) = มุมกรวยที่ระยะ d · zoneEdgesM = ระยะรอยต่อโซน [ใกล้|กลาง, กลาง|ไกล]
    * กรวย 3 ระดับวาดเป็นพัด 3 อันซ้อนกันจากตัวรถ (แบบภาพ ADAS) — พื้นที่รวมเท่ากับที่ใช้ตัดสินจริง
+   * เป็น factory: ชุดของรถจำลอง (หมุดผู้ใช้) กับของ Raspberry Pi แยกกัน ไม่ลบกันเอง
    */
-  function setUserCone(lat, lng, headingDeg, coneDegAt, radiusM, zoneEdgesM = []) {
-    const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
-    if (!known || coneDegAt(radiusM) >= 180) {
-      coneLayers.forEach((l) => l.remove());
-      coneLayers = [];
-      return;
-    }
-    // มุมเท่ากันทุกโซน (กรวยชั้นเดียว) -> วาดพัดอันเดียว ไม่ซ้อน 3 ชั้นสีเดียวกัน
-    const single = coneDegAt(0) === coneDegAt(radiusM);
-    const [nearEdge = radiusM, midEdge = radiusM] = single ? [] : zoneEdgesM;
-    // [โซน, ความยาวพัด, ระยะกลางโซนไว้ถามมุม] — โซนที่เริ่มเลยรัศมีเตือนไปแล้วไม่ต้องวาด
-    // (สนามทดสอบรัศมี 40 ม. อยู่ในโซนใกล้ทั้งหมด จึงเหลือพัดเดียว)
-    const fans = [
-      [0, radiusM, (midEdge + radiusM) / 2, midEdge < radiusM],
-      [1, Math.min(midEdge, radiusM), (nearEdge + midEdge) / 2, nearEdge < radiusM],
-      [2, Math.min(nearEdge, radiusM), nearEdge / 2, true],
-    ].filter((f) => f[3]);
-    if (coneLayers.length !== fans.length) {
-      coneLayers.forEach((l) => l.remove());
-      coneLayers = [];
-    }
-    fans.forEach(([zone, lenM, probeM], i) => {
-      const pts = fanPoints(lat, lng, headingDeg, coneDegAt(probeM), lenM);
-      if (!coneLayers[i]) {
-        const st = CONE_STYLES[zone];
-        coneLayers[i] = L.polygon(pts, {
-          color: st.color,
-          weight: 1,
-          opacity: 0.8,
-          fillColor: st.color,
-          fillOpacity: st.fillOpacity,
-          interactive: false,
-        }).addTo(map);
-      } else {
-        coneLayers[i].setLatLngs(pts);
+  function makeCone() {
+    let layers = []; // พัดกรวยกรองทิศ: [ไกล, กลาง, ใกล้]
+    return function (lat, lng, headingDeg, coneDegAt, radiusM, zoneEdgesM = []) {
+      const known = headingDeg !== null && headingDeg !== undefined && !Number.isNaN(headingDeg);
+      if (!known || coneDegAt(radiusM) >= 180) {
+        layers.forEach((l) => l.remove());
+        layers = [];
+        return;
       }
-    });
-    // ให้กรวยอยู่ใต้หมุดทั้งหมด จะได้ไม่บังจุดเสี่ยง (ไล่จากใกล้ไปไกล พัดไกลจึงอยู่ล่างสุด)
-    for (let i = coneLayers.length - 1; i >= 0; i--) {
-      if (coneLayers[i].bringToBack) coneLayers[i].bringToBack();
-    }
+      // มุมเท่ากันทุกโซน (กรวยชั้นเดียว) -> วาดพัดอันเดียว ไม่ซ้อน 3 ชั้นสีเดียวกัน
+      const single = coneDegAt(0) === coneDegAt(radiusM);
+      const [nearEdge = radiusM, midEdge = radiusM] = single ? [] : zoneEdgesM;
+      // [โซน, ความยาวพัด, ระยะกลางโซนไว้ถามมุม] — โซนที่เริ่มเลยรัศมีเตือนไปแล้วไม่ต้องวาด
+      // (สนามทดสอบรัศมี 40 ม. อยู่ในโซนใกล้ทั้งหมด จึงเหลือพัดเดียว)
+      const fans = [
+        [0, radiusM, (midEdge + radiusM) / 2, midEdge < radiusM],
+        [1, Math.min(midEdge, radiusM), (nearEdge + midEdge) / 2, nearEdge < radiusM],
+        [2, Math.min(nearEdge, radiusM), nearEdge / 2, true],
+      ].filter((f) => f[3]);
+      if (layers.length !== fans.length) {
+        layers.forEach((l) => l.remove());
+        layers = [];
+      }
+      fans.forEach(([zone, lenM, probeM], i) => {
+        const pts = fanPoints(lat, lng, headingDeg, coneDegAt(probeM), lenM);
+        if (!layers[i]) {
+          const st = CONE_STYLES[zone];
+          layers[i] = L.polygon(pts, {
+            color: st.color,
+            weight: 1,
+            opacity: 0.8,
+            fillColor: st.color,
+            fillOpacity: st.fillOpacity,
+            interactive: false,
+          }).addTo(map);
+        } else {
+          layers[i].setLatLngs(pts);
+        }
+      });
+      // ให้กรวยอยู่ใต้หมุดทั้งหมด จะได้ไม่บังจุดเสี่ยง (ไล่จากใกล้ไปไกล พัดไกลจึงอยู่ล่างสุด)
+      for (let i = layers.length - 1; i >= 0; i--) {
+        if (layers[i].bringToBack) layers[i].bringToBack();
+      }
+    };
   }
+  const setUserCone = makeCone();   // รถในโหมดจำลอง
+  const setDeviceCone = makeCone(); // Raspberry Pi บนรถ — ใช้ทิศที่ Pi ส่งมา
 
   /** วาดเส้นทางที่วางแผนไว้ (ใช้ในโหมดจำลอง) เป็นเส้นประ + ซูมออกให้เห็นทางข้างหน้า */
   function drawRoute(latlngs) {
@@ -182,5 +187,5 @@ const MapView = (() => {
     return map;
   }
 
-  return { init, updateUserPosition, setUserHeading, setUserCone, drawRoute, getMap };
+  return { init, updateUserPosition, setUserHeading, setUserCone, setDeviceCone, drawRoute, getMap };
 })();

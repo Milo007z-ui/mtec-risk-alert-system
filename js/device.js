@@ -151,6 +151,7 @@ const DeviceTracker = (() => {
       if (marker) {
         marker.remove();
         marker = null;
+        drawCone(null);
       }
       // ถี่เท่าเดิมช่วงแรกเพื่อกลับมาให้ไวที่สุดตอนสัญญาณแค่กระพริบ แล้วค่อยผ่อนลง
       retimer(consecutiveFails <= 3 ? POLL_MS : RETRY_MS);
@@ -175,6 +176,7 @@ const DeviceTracker = (() => {
         if (marker) {
           marker.remove();
           marker = null;
+          drawCone(null);
         }
         return;
       }
@@ -188,11 +190,13 @@ const DeviceTracker = (() => {
       if (marker) {
         marker.remove();
         marker = null;
+        drawCone(null);
       }
       return;
     }
 
     lastPos = data;
+    showPiAlert(data.last_alert);
     updateGpsPanel(data.online ? "online" : "stale", data);
     render(data);
   }
@@ -301,6 +305,48 @@ const DeviceTracker = (() => {
     });
   }
 
+  /** กรวยกรองทิศของ Pi — วาดจากทิศที่ Pi ส่งมา ไม่มีทิศ/ขาดการเชื่อมต่อ = ลบกรวย
+   * มุมและรัศมีใช้ค่าเดียวกับหน้าเว็บ (กรวยชั้นเดียว ±20° · 500 ม.) ซึ่งตั้งตรงกับ Pi ไว้แล้ว */
+  function drawCone(d) {
+    if (typeof MapView === "undefined" || typeof AlertSystem === "undefined") return;
+    if (!d) {
+      MapView.setDeviceCone(0, 0, null);
+      return;
+    }
+    MapView.setDeviceCone(d.lat, d.lng, d.heading, AlertSystem.coneDegAt,
+                          AlertSystem.ALERT_RADIUS_M, AlertSystem.coneZoneEdgesM());
+  }
+
+  // เวลา (at ของเซิร์ฟเวอร์) ของการเตือนที่ขึ้นป้ายไปแล้ว — กันขึ้นซ้ำทุกรอบโพล
+  let shownAlertAt = null;
+  const PI_ALERT_FRESH_S = 15; // เปิดหน้าเว็บทีหลัง ไม่ต้องขึ้นป้ายการเตือนเก่าที่ผ่านไปนานแล้ว
+
+  /** ขึ้นป้ายบนจอเมื่อ Pi เพิ่งเตือน — ป้ายอย่างเดียว ไม่มีเสียง (เสียงออกลำโพง Pi) */
+  function showPiAlert(a) {
+    if (!a || a.at === shownAlertAt) return;
+    shownAlertAt = a.at;
+    if (a.age_s > PI_ALERT_FRESH_S || typeof AlertSystem === "undefined") return;
+    AlertSystem.showBanner(`🔊 Raspberry Pi: ${a.message}`, a.level);
+  }
+
+  /** แถบ "จุดเสี่ยงใกล้สุด" คิดจากตำแหน่ง Pi — ใช้งานจริงเครื่องที่เปิดเว็บไม่คิดเตือนเอง
+   * โหมดจำลองให้ alert.js เขียนช่องนี้ตามรถจำลองเหมือนเดิม */
+  function showNearest(d) {
+    if (typeof GPS !== "undefined" && GPS.isMockMode()) return;
+    const el = document.getElementById("nearest-info");
+    if (!el || typeof RiskPoints === "undefined") return;
+    let best = null;
+    for (const p of RiskPoints.visible()) {
+      const dist = haversineMeters(d.lat, d.lng, p.lat, p.lng);
+      if (!best || dist < best.dist) best = { p, dist };
+    }
+    el.textContent = !best
+      ? "ไม่มีจุดเสี่ยงตามตัวกรองที่เลือก"
+      : best.dist < 10000
+        ? `จุดเสี่ยงใกล้รถ: ${best.p.road_label || best.p.road} ${(best.dist / 1000).toFixed(2)} กม.`
+        : "ไม่มีจุดเสี่ยงในระยะ 10 กม. จากรถ";
+  }
+
   function render(d) {
     const latlng = [d.lat, d.lng];
     const online = d.online;
@@ -324,6 +370,8 @@ const DeviceTracker = (() => {
 
     marker.getElement()?.classList.toggle("device-stale", !online);
     setDeviceHeading(online ? d.heading : null);
+    drawCone(online ? d : null);
+    showNearest(d);
     marker.setPopupContent(popupHtml(d));
 
     // จัดกลางแผนที่ให้ครั้งแรกครั้งเดียว เฉพาะตอนที่ยังไม่มีหมุดตำแหน่งของเครื่องที่เปิดเว็บ

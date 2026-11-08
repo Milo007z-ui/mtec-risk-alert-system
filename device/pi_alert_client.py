@@ -2,21 +2,25 @@
 """pi_alert_client.py — ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi (สำหรับติดบนรถเมล์)"""
 
 import argparse
+import array
 import collections
 import glob
 import json
 import math
+import os
 import select
 import pathlib
 import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import wave
 
 DEFAULT_ALERT_RADIUS_M = 500      # เริ่มพูดเตือนเมื่อเข้าใกล้จุดเสี่ยงเท่านี้ (เมตร)
 DEFAULT_EXIT_RADIUS_M = 600      # ต้องออกไกลกว่านี้ก่อน ถึงจะเตือนจุดเดิมซ้ำได้
@@ -32,6 +36,7 @@ COG_HOLD_MAX_S = 120             # จอดนานเกินนี้ = ท
 COURSE_WINDOW_S = 0.5            # เฉลี่ยทิศย้อนหลังกี่วินาที (ยาวไปจะตามการเลี้ยวไม่ทัน)
 
 POLL_INTERVAL_S = 1              # รอบของลูปหลัก: อ่าน GPS -> ถาม API -> ตัดสินใจเตือน (วินาที)
+FIX_MAX_AGE_S = 3                # ไม่มี fix ใหม่นานกว่านี้ = สัญญาณหลุด คืน None แทนพิกัดเก่าค้าง
 HTTP_TIMEOUT_S = 5               # รอเซิร์ฟเวอร์ตอบนานสุดเท่านี้
 REPORT_LOCATION = True           # ส่งพิกัดขึ้นเว็บให้เห็นหมุดรถแบบเรียลไทม์
 
@@ -415,6 +420,7 @@ class NmeaSerialReader:
                 "  ถ้าเจอพอร์ตแต่โค้ดหาไม่เจอ ระบุเองได้:  --serial /dev/ttyUSB0"
             )
         self.last_fix = None
+        self.fix_at = 0.0           # time.monotonic() ตอนได้ fix ล่าสุด — ใช้ตัดพิกัดค้างใน read()
         self.speed_kmh = None
         self.course = None          # COG ที่ผ่าน CircularCourseSmoother แล้ว
         self.course_raw = None      # COG ดิบรอบล่าสุด (ไว้เทียบใน log ว่าการเฉลี่ยทำอะไรไป)
@@ -493,6 +499,7 @@ class NmeaSerialReader:
                 if lat is not None and lng is not None:
                     with self._lock:
                         self.last_fix = (lat, lng)
+                        self.fix_at = time.monotonic()
 
         elif kind == "RMC" and len(parts) >= 8:
             if parts[2] != "A":
@@ -502,6 +509,7 @@ class NmeaSerialReader:
             if lat is not None and lng is not None:
                 with self._lock:
                     self.last_fix = (lat, lng)
+                    self.fix_at = time.monotonic()
             try:
                 self.speed_kmh = float(parts[7]) * 1.852
             except ValueError:
@@ -526,7 +534,14 @@ class NmeaSerialReader:
             self.course = smoothed
 
     def read(self):
+        """พิกัดล่าสุด — คืน None ถ้าไม่มี fix ใหม่เกิน FIX_MAX_AGE_S
+        (เข้าอาคาร/ใต้สะพาน/สาย USB หลวม) ไม่คืนพิกัดเก่าค้าง ไม่งั้นลูปหลักคิดว่ารถยังวิ่งอยู่ที่เดิม
+        ด้วยความเร็วเดิม แล้ว beep วนไม่หยุด"""
         with self._lock:
+            if self.last_fix is None:
+                return None
+            if time.monotonic() - getattr(self, "fix_at", 0.0) > FIX_MAX_AGE_S:
+                return None
             return self.last_fix
 
 
@@ -633,6 +648,48 @@ SPEECH_ACTIVE = threading.Event()
 
 _beep_warned = False
 
+# ความดัง beep เป็น % ของไฟล์ต้นฉบับ (แยกจาก VOLUME_PCT ของเสียงพูด) — 50 = เบาลงราว 6 dB
+# ปรับได้ที่ BEEP_VOLUME_PCT ใน /etc/mtec.env · 100 = เท่าไฟล์เดิม
+DEFAULT_BEEP_VOLUME_PCT = 50
+try:
+    BEEP_VOLUME_PCT = max(0, min(100, int(os.environ.get("BEEP_VOLUME_PCT",
+                                                         DEFAULT_BEEP_VOLUME_PCT))))
+except ValueError:
+    BEEP_VOLUME_PCT = DEFAULT_BEEP_VOLUME_PCT
+
+
+def _beep_file(name, pct=None):
+    """ไฟล์ beep ที่ลดความดังแล้ว — สร้างครั้งเดียวไว้ใน temp แล้วใช้ซ้ำ (aplay ปรับความดังเองไม่ได้)
+    ถ้าทำไม่ได้ (ไฟล์ไม่ใช่ 16-bit / เขียน temp ไม่ได้) คืนไฟล์เดิม ให้ยังมีเสียงดีกว่าเงียบ"""
+    pct = BEEP_VOLUME_PCT if pct is None else pct
+    src = BEEP_DIR / name
+    if pct >= 100 or not src.exists():
+        return src
+    dst = pathlib.Path(tempfile.gettempdir()) / f"mtec-beep-{pct}" / name
+    try:
+        if dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+            return dst
+        with wave.open(str(src), "rb") as w:
+            params = w.getparams()
+            frames = w.readframes(w.getnframes())
+        if params.sampwidth != 2:
+            return src
+        samples = array.array("h", frames)
+        if sys.byteorder != "little":   # WAV เป็น little-endian เสมอ
+            samples.byteswap()
+        scale = pct / 100
+        for i, s in enumerate(samples):
+            samples[i] = int(s * scale)
+        if sys.byteorder != "little":
+            samples.byteswap()
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        with wave.open(str(dst), "wb") as out:
+            out.setparams(params)
+            out.writeframes(samples.tobytes())
+        return dst
+    except (OSError, wave.Error, EOFError):
+        return src
+
 
 def beep_start_m(speed_kmh):
     """ระยะที่เริ่ม beep บอกระยะ = DSD Maneuver E ที่ความเร็วรถขณะนั้น"""
@@ -696,7 +753,7 @@ def play_lead_beep():
     """beep สองครั้งนำหน้าประโยคเตือน — แทน chime เดิมของเว็บ"""
     global _beep_warned
     with AUDIO_LOCK:
-        if _play_wav(BEEP_DIR / "beep_lead.wav"):
+        if _play_wav(_beep_file("beep_lead.wav")):
             return True
     if not _beep_warned:
         _beep_warned = True
@@ -786,7 +843,7 @@ class BeepLoop:
                 time.sleep(0.1)
                 continue
             with AUDIO_LOCK:
-                ok = _play_wav(BEEP_DIR / f"beep_{name}.wav")
+                ok = _play_wav(_beep_file(f"beep_{name}.wav"))
             if not ok:
                 if not _beep_warned:
                     _beep_warned = True
@@ -898,6 +955,9 @@ def report_location(api_base, lat, lng, source, heading_deg=None):
         body["heading"] = round(heading_deg, 1)
     if source_telemetry:
         body.update(source_telemetry())
+    # การเตือนล่าสุดของ Pi — เว็บใช้ขึ้นป้ายบนจอ (เว็บไม่คิดเตือนเองจาก GPS ของเครื่องที่เปิดดู)
+    if _last_alert is not None:
+        body["alert"] = _last_alert
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
         f"{api_base}/api/device/location", data=data,
@@ -916,6 +976,20 @@ def report_location(api_base, lat, lng, source, heading_deg=None):
 
 _report_failed_once = False
 source_telemetry = None
+_last_alert = None
+_alert_seq = 0
+
+
+def set_last_alert(point):
+    """จำการเตือนครั้งล่าสุดไว้แนบไปกับ report_location — seq เพิ่มทุกครั้ง ให้เว็บรู้ว่าเป็นครั้งใหม่"""
+    global _last_alert, _alert_seq
+    _alert_seq += 1
+    _last_alert = {
+        "seq": _alert_seq,
+        "id": point["id"],
+        "level": point["level"],
+        "message": point["alert_message"],
+    }
 
 
 def _lan_ip():
@@ -1037,6 +1111,10 @@ def run(api_base, position_source, speak_enabled=True):
                         continue
                     if p["id"] not in announced:
                         announced.add(p["id"])
+                        # ส่งการเตือนขึ้นเว็บก่อนพูด (speak บล็อกหลายวินาที) ให้จอขึ้นป้ายพร้อมเสียง
+                        set_last_alert(p)
+                        report_location(api_base, lat, lng,
+                                        getattr(position_source, "name", None), heading_deg)
                         # beep นำเล่นเสมอแม้ปิดเสียงพูด — เหมือนที่ buzzer เคยทำ
                         play_lead_beep()
                         if speak_enabled:

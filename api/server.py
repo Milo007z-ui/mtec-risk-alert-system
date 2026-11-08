@@ -320,7 +320,17 @@ _device_location: dict = {
     "updated_at": None,  # epoch seconds ที่ได้ "พิกัด" ล่าสุด
     # เวลาที่ Pi ติดต่อเข้ามาล่าสุด ไม่ว่าจะมีพิกัดหรือไม่ — แยกจาก updated_at เพราะ
     "seen_at": None,
+    # การเตือนล่าสุดของ Pi {seq, id, level, message, at} — เว็บขึ้นป้ายตามนี้
+    "last_alert": None,
 }
+
+
+class DeviceAlert(BaseModel):
+    """การเตือนครั้งล่าสุดที่ Pi พูด — seq เพิ่มทุกครั้ง (เริ่มนับใหม่เมื่อโปรแกรมบน Pi รีสตาร์ท)"""
+    seq: int = Field(..., ge=0)
+    id: str = Field(..., max_length=64)
+    level: str = Field(..., max_length=10)
+    message: str = Field(..., max_length=300)
 
 
 class DeviceLocation(BaseModel):
@@ -332,6 +342,7 @@ class DeviceLocation(BaseModel):
     heading: float | None = Field(None, ge=0, lt=360)
     satellites: int | None = Field(None, ge=0, le=64)
     source: str | None = Field(None, max_length=20)
+    alert: DeviceAlert | None = None
 
 
 @app.post("/api/device/location")
@@ -340,6 +351,12 @@ def update_device_location(loc: DeviceLocation):
     now = time.time()
     # จำนวนดาว/แหล่งพิกัด อัปเดตทุกครั้ง เพราะเป็นข้อมูลของ "ตัวรับ" ไม่ใช่ของพิกัด
     _device_location.update(satellites=loc.satellites, source=loc.source, seen_at=now)
+    # Pi แนบการเตือนล่าสุดมาทุกครั้ง — ประทับเวลาเฉพาะตอนที่เป็นครั้งใหม่ (seq/id เปลี่ยน)
+    # เว็บใช้ at แยกครั้ง จึงไม่สับสนตอน seq เริ่มนับใหม่หลัง Pi รีสตาร์ท
+    if loc.alert is not None:
+        prev = _device_location["last_alert"]
+        if prev is None or (prev["seq"], prev["id"]) != (loc.alert.seq, loc.alert.id):
+            _device_location["last_alert"] = {**loc.alert.model_dump(), "at": now}
     # ไม่มีพิกัดก็ไม่แตะพิกัดเดิม — ของเก่ายังมีประโยชน์ตอนสัญญาณตกชั่วคราว
     if loc.lat is not None and loc.lng is not None:
         _device_location.update(
@@ -375,8 +392,11 @@ def get_device_location():
             "forgotten_age_s": round(age_s),  # ให้เว็บบอกผู้ใช้ได้ว่าเงียบมานานแค่ไหน
         }
 
+    last_alert = _device_location["last_alert"]
     return {
         **_device_location,
+        "last_alert": None if last_alert is None
+        else {**last_alert, "age_s": round(now - last_alert["at"], 1)},
         "age_s": age_s,
         "online": online,
         "searching": searching,

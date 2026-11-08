@@ -51,6 +51,16 @@
 
     GPS.start(
       (lat, lng, accuracy, courseDeg, speedKmh) => {
+        // ใช้งานจริง: GPS ของเครื่องที่เปิดเว็บ (มือถือ/ไอแพด/คอม) ใช้แสดงจุด "คุณอยู่ที่นี่" อย่างเดียว
+        // ไม่ส่งเข้า AlertSystem จึงไม่มีป้าย เสียงพูด beep หรือกรวยจากเครื่องนี้เด็ดขาด
+        // การตัดสินใจเตือนทั้งหมดอยู่ที่ Raspberry Pi บนรถ — เว็บแค่แสดงตำแหน่ง/ทิศ/กรวยของ Pi (device.js)
+        if (!GPS.isMockMode()) {
+          MapView.updateUserPosition(lat, lng, accuracy, null);
+          showStatus(`📍 ตำแหน่งเครื่องนี้ (±${Math.round(accuracy)} ม.) · ใช้ดูเท่านั้น ` +
+                     "การเตือนมาจาก Raspberry Pi");
+          return;
+        }
+        // โหมดจำลอง: รถจำลองทำหน้าที่แทน Pi จึงเตือนและวาดกรวยเหมือนอุปกรณ์จริง
         // ให้ AlertSystem คิดทิศก่อน (มันกรอง COG ด้วยความเร็วและคงค่าล่าสุดไว้ตอนรถจอด)
         AlertSystem.onPositionUpdate(lat, lng, courseDeg, speedKmh);
         const headingDeg = AlertSystem.heading();

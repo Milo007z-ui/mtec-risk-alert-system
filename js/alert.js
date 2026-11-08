@@ -194,6 +194,7 @@ const AlertSystem = (() => {
 
   return {
     onPositionUpdate,
+    showBanner, // device.js ใช้ขึ้นป้ายตามการเตือนของ Raspberry Pi
     ALERT_RADIUS_M,
     HEADING_WINDOW_DEG,
     // มุมกรวยที่ระยะ d ตามความเร็วตอนนี้ — map.js ใช้วาดกรวย 3 ระดับให้ตรงกับที่ใช้ตัดสินจริง

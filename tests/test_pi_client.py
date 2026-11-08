@@ -292,6 +292,40 @@ check("ไม่รู้ความเร็ว (None) -> ไม่นับ�
       pd.update(None, now=5.0) is False and pd.update(0, now=6.0) is False)
 
 print()
+print("NmeaSerialReader.read() — สัญญาณหลุดต้องไม่คืนพิกัดเก่าค้าง (เคยทำให้ beep วนไม่หยุด):")
+r = new_reader()
+check("ยังไม่เคยได้ fix -> None", r.read() is None)
+r._handle(nmea("GPRMC,123519,A,1345.3379,N,10030.1000,E,021.6,084.4,080126,,,A"))
+check("เพิ่งได้ fix -> คืนพิกัด", r.read() is not None)
+r.fix_at -= pac.FIX_MAX_AGE_S + 0.5
+check(f"ไม่มี fix ใหม่เกิน {pac.FIX_MAX_AGE_S} วิ -> None (ลูปหลักจะหยุด beep)", r.read() is None)
+r._handle(nmea("GPRMC,123520,V,,,,,,,080126,,,N"))
+check("ได้แต่ประโยคสถานะ V (หลุด) -> ยังเป็น None", r.read() is None)
+r._handle(nmea("GPRMC,123521,A,1345.3380,N,10030.1000,E,021.6,084.4,080126,,,A"))
+check("กลับมาจับดาวได้ -> คืนพิกัดอีกครั้ง", r.read() is not None)
+
+print()
+print("_beep_file — ลดความดัง beep:")
+import wave as _wave  # noqa: E402
+import array as _array  # noqa: E402
+
+
+def _peak(path):
+    with _wave.open(str(path), "rb") as w:
+        return max(abs(s) for s in _array.array("h", w.readframes(w.getnframes())))
+
+
+src = pac.BEEP_DIR / "beep_far.wav"
+if src.exists():
+    half = pac._beep_file("beep_far.wav", pct=50)
+    check("ได้ไฟล์ใหม่ ไม่ทับไฟล์ต้นฉบับ", half != src and src.exists())
+    close("ยอดคลื่น 50% ของต้นฉบับ", _peak(half) / _peak(src), 0.5, 0.01)
+    check("100% -> ใช้ไฟล์ต้นฉบับตรง ๆ", pac._beep_file("beep_far.wav", pct=100) == src)
+check("ไฟล์ไม่มีอยู่ -> คืน path เดิม ไม่ระเบิด",
+      pac._beep_file("ไม่มีไฟล์นี้.wav", pct=50) == pac.BEEP_DIR / "ไม่มีไฟล์นี้.wav")
+check("ค่าเริ่มต้นความดัง beep = 50%", pac.DEFAULT_BEEP_VOLUME_PCT == 50)
+
+print()
 print("ค่าตั้งต้นต้องตรงกับฝั่งเว็บ (js/distance.js):")
 check("รอจอดนิ่งก่อนหยุด beep = 3 วิ (ตรงกับ PARKED_MUTE_MS = 3000)", pac.PARKED_MUTE_S == 3)
 check("เกณฑ์ถือว่ารถจอด = 5 กม./ชม. (ตรงกับ SPEED_HOLD_MIN_KMH)", pac.SPEED_HOLD_MIN_KMH == 5)
