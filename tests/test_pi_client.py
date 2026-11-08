@@ -348,6 +348,18 @@ check("ไม่มีไฟล์ -> ใช้ค่าเริ่มต้น
 pac.ENV_FILE = _saved_env_file
 
 print()
+print("announce — ประโยคบอกสถานะต้องไม่ดังกว่าเสียงเตือน:")
+_spoken = []
+_saved_speak, _saved_vol = pac.speak, pac.VOLUME_PCT
+pac.speak = lambda text, api: _spoken.append(pac.VOLUME_PCT)
+for _vol, _want in ((200, 100), (100, 50), (60, 50), (40, 40), (10, 10)):
+    pac.VOLUME_PCT = _vol
+    pac.announce("ทดสอบ", True, "")
+    check(f"เสียงเตือน {_vol}% -> ประโยคสถานะ {_want}% และคืนค่าเดิม",
+          _spoken[-1] == _want and pac.VOLUME_PCT == _vol)
+pac.speak, pac.VOLUME_PCT = _saved_speak, _saved_vol
+
+print()
 print("ค่าตั้งต้นต้องตรงกับฝั่งเว็บ (js/distance.js):")
 check("รอจอดนิ่งก่อนหยุด beep = 3 วิ (ตรงกับ PARKED_MUTE_MS = 3000)", pac.PARKED_MUTE_S == 3)
 check("เกณฑ์ถือว่ารถจอด = 5 กม./ชม. (ตรงกับ SPEED_HOLD_MIN_KMH)", pac.SPEED_HOLD_MIN_KMH == 5)

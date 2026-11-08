@@ -957,7 +957,9 @@ def announce(text, speak_enabled, api_base):
         return
     global VOLUME_PCT
     saved = VOLUME_PCT
-    VOLUME_PCT = max(ANNOUNCE_VOLUME_MIN_PCT, int(saved * ANNOUNCE_VOLUME_RATIO))
+    # เบากว่าเสียงเตือนครึ่งหนึ่ง แต่ไม่ต่ำกว่า 50% และไม่ดังเกินเสียงเตือน
+    # (ตั้งเสียงเตือน 40% -> ประโยคสถานะ 40% ไม่ใช่ 50% ที่ดังกว่าเสียงเตือนเอง)
+    VOLUME_PCT = min(saved, max(ANNOUNCE_VOLUME_MIN_PCT, int(saved * ANNOUNCE_VOLUME_RATIO)))
     try:
         speak(text, api_base)
     finally:
