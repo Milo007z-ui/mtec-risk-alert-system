@@ -626,7 +626,15 @@ def _play_mp3(data, label):
     exe = _player_cmd()
     if exe is None or not data:
         return False
-    dev = ["-a", AUDIO_DEVICE] if AUDIO_DEVICE and exe in ("mpg123", "mpg321") else []
+    # -o alsa บังคับส่งตรงเข้าการ์ดเสียง — ถ้าไม่ระบุ รันจาก SSH (มี session) mpg123 จะเลือก
+    # PipeWire/Pulse ซึ่งมีระดับเสียงของตัวเอง เบากว่าที่ service เล่น (ไม่มี session) ราว 20 dB
+    # วัดจริง 8 พ.ย. 69: --checkvoice -42 dB vs เตือนจริง -16 dB ทั้งที่ VOLUME_PCT=100 เท่ากัน
+    if AUDIO_DEVICE and exe == "mpg123":
+        dev = ["-o", "alsa", "-a", AUDIO_DEVICE]
+    elif AUDIO_DEVICE and exe == "mpg321":
+        dev = ["-a", AUDIO_DEVICE]
+    else:
+        dev = []
     vol = ["-f", str(int(32768 * VOLUME_PCT / 100))] if exe == "mpg123" and VOLUME_PCT != 100 else []
     cmd = {
         "mpg123": [exe, "-q", *dev, *vol, "-"],
@@ -904,9 +912,18 @@ def _speak_espeak(text):
         return False
     try:
         amp = str(min(200, max(0, VOLUME_PCT)))
-        if subprocess.run(
-            ["espeak-ng", "-v", "th", "-s", "150", "-a", amp, text], timeout=30
-        ).returncode != 0:
+        cmd = ["espeak-ng", "-v", "th", "-s", "150", "-a", amp]
+        aplay = shutil.which("aplay")
+        if AUDIO_DEVICE and aplay:
+            # เล่นออกการ์ดเดียวกับเสียงอื่นผ่าน aplay — espeak-ng เล่นเองจะออกอุปกรณ์ค่าเริ่มต้น
+            # (ผ่าน PipeWire ตอนรันจาก SSH) ความดังจึงไม่เท่ากับตอนเป็น service
+            wav = subprocess.run(cmd + ["--stdout", text], capture_output=True, timeout=30)
+            if wav.returncode != 0 or not wav.stdout:
+                return False
+            if subprocess.run([aplay, "-q", "-D", AUDIO_DEVICE], input=wav.stdout,
+                              timeout=30).returncode != 0:
+                return False
+        elif subprocess.run(cmd + [text], timeout=30).returncode != 0:
             return False
     except (OSError, subprocess.TimeoutExpired):
         return False
