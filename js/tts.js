@@ -126,7 +126,7 @@ const TTS = (() => {
   const BEEP_PEAK = 0.7;
 
   // จังหวะ beep ตามระยะ (ครั้งต่อวินาที) — ตั้งใจไม่ให้ไต่ไปถึงเสียงยาวต่อเนื่องแบบ
-  const BEEP_RATE_HZ = { far: 1, mid: 2, near: 4 };
+  const BEEP_RATE_HZ = { far: 1, mid: 2, near: 3 }; // ต้องตรงกับ PATTERNS ใน scripts/build_beep_clips.py
 
   const BEEP_LEAD_TIMES = [0.0, 0.22]; // beep นำหน้าประโยค 2 ครั้ง
   const BEEP_LEAD_GAP_MS = 280; // เงียบก่อนเริ่มพูด ให้แยกเสียงนำกับประโยคออกจากกัน
