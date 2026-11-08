@@ -561,6 +561,28 @@ CLIP_DIR = _pick_clip_dir()
 DEFAULT_AUDIO_DEVICE = "plughw:2,0"
 AUDIO_DEVICE = DEFAULT_AUDIO_DEVICE
 
+ENV_FILE = pathlib.Path("/etc/mtec.env")
+
+
+def _setting(name, default):
+    """ค่าตั้งตัวเลขจาก environment หรืออ่านจาก /etc/mtec.env เอง
+    service ได้ค่าผ่าน EnvironmentFile ของ systemd แต่ตอนรันเองใน SSH (เช่น --checkvoice)
+    ไม่มีใครโหลดไฟล์ให้ — อ่านเองเพื่อให้รันเองกับ service ได้ความดังเท่ากัน"""
+    val = os.environ.get(name)
+    if val is None:
+        try:
+            for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+                key, sep, rest = line.strip().partition("=")
+                if sep and key == name:
+                    val = rest.strip().strip("\"'")
+        except OSError:
+            pass
+    try:
+        return int(val) if val not in (None, "") else default
+    except ValueError:
+        return default
+
+
 DEFAULT_VOLUME_PCT = 100
 VOLUME_PCT = DEFAULT_VOLUME_PCT
 
@@ -651,11 +673,7 @@ _beep_warned = False
 # ความดัง beep เป็น % ของไฟล์ต้นฉบับ (แยกจาก VOLUME_PCT ของเสียงพูด) — 50 = เบาลงราว 6 dB
 # ปรับได้ที่ BEEP_VOLUME_PCT ใน /etc/mtec.env · 100 = เท่าไฟล์เดิม
 DEFAULT_BEEP_VOLUME_PCT = 50
-try:
-    BEEP_VOLUME_PCT = max(0, min(100, int(os.environ.get("BEEP_VOLUME_PCT",
-                                                         DEFAULT_BEEP_VOLUME_PCT))))
-except ValueError:
-    BEEP_VOLUME_PCT = DEFAULT_BEEP_VOLUME_PCT
+BEEP_VOLUME_PCT = max(0, min(100, _setting("BEEP_VOLUME_PCT", DEFAULT_BEEP_VOLUME_PCT)))
 
 
 def _beep_file(name, pct=None):
@@ -1177,6 +1195,12 @@ def check_voice(api_base):
     if AUDIO_DEVICE:
         print("   อุปกรณ์เสียงที่บังคับใช้:", AUDIO_DEVICE)
 
+    print(f"   ความดังเสียงพูด: {VOLUME_PCT}% · beep: {BEEP_VOLUME_PCT}% "
+          "(ค่าเดียวกับตอนขับจริง จาก /etc/mtec.env)")
+    if ENV_FILE.exists() and not os.access(ENV_FILE, os.R_OK):
+        print("   ⚠️ อ่าน /etc/mtec.env ไม่ได้ (สิทธิ์ไฟล์) ความดังข้างบนจึงอาจไม่ตรงกับตอนขับจริง"
+              " — ใส่ --volume เอง หรือรันคำสั่งนี้ด้วย sudo")
+
     print()
     print("3) ทดลองพูดประโยคตัวอย่าง (ระดับสูง)")
     print("-" * 62)
@@ -1344,8 +1368,10 @@ def main():
     parser = argparse.ArgumentParser(description="ไคลเอนต์แจ้งเตือนจุดเสี่ยงบน Raspberry Pi")
     parser.add_argument("--api", default="http://localhost:8000",
                         help="URL ของ EMMA Risk Point API (ค่าเริ่มต้น: http://localhost:8000)")
-    parser.add_argument("--volume", type=int, default=DEFAULT_VOLUME_PCT, metavar="PCT",
-                        help=f"ความดังเสียงพูดเป็นเปอร์เซ็นต์ (ค่าเริ่มต้น {DEFAULT_VOLUME_PCT}) "
+    parser.add_argument("--volume", type=int, metavar="PCT",
+                        default=_setting("VOLUME_PCT", DEFAULT_VOLUME_PCT),
+                        help="ความดังเสียงพูดเป็นเปอร์เซ็นต์ (ค่าเริ่มต้น = VOLUME_PCT ใน /etc/mtec.env "
+                             f"ถ้าไม่มีใช้ {DEFAULT_VOLUME_PCT}) "
                              "หาเพดานที่ปลอดภัยด้วย scripts/measure_audio_headroom.py")
     parser.add_argument("--audio-device", metavar="DEV", default=DEFAULT_AUDIO_DEVICE,
                         help=f"อุปกรณ์เสียงที่ส่งให้ mpg123 (-a) ค่าเริ่มต้น {DEFAULT_AUDIO_DEVICE} "

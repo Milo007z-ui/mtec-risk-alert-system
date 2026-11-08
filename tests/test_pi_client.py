@@ -326,6 +326,28 @@ check("ไฟล์ไม่มีอยู่ -> คืน path เดิม �
 check("ค่าเริ่มต้นความดัง beep = 50%", pac.DEFAULT_BEEP_VOLUME_PCT == 50)
 
 print()
+print("_setting — รันเองใน SSH ต้องได้ความดังเท่ากับ service:")
+import os as _os  # noqa: E402
+import tempfile as _tempfile  # noqa: E402
+
+_saved_env_file = pac.ENV_FILE
+with _tempfile.TemporaryDirectory() as _d:
+    _f = pathlib.Path(_d) / "mtec.env"
+    _f.write_text("# comment\nVOLUME_PCT=120\nBEEP_VOLUME_PCT=\"30\"\nHEADING_FLAG=\n", encoding="utf-8")
+    pac.ENV_FILE = _f
+    _os.environ.pop("VOLUME_PCT", None)
+    check("อ่าน VOLUME_PCT จากไฟล์ได้ 120", pac._setting("VOLUME_PCT", 100) == 120)
+    check("ค่าในเครื่องหมายคำพูด \"30\" -> 30", pac._setting("BEEP_VOLUME_PCT", 50) == 30)
+    check("ค่าว่าง -> ใช้ค่าเริ่มต้น", pac._setting("HEADING_FLAG", 7) == 7)
+    check("ไม่มีในไฟล์ -> ใช้ค่าเริ่มต้น", pac._setting("NOT_THERE", 42) == 42)
+    _os.environ["VOLUME_PCT"] = "150"
+    check("environment (service) มาก่อนไฟล์", pac._setting("VOLUME_PCT", 100) == 150)
+    del _os.environ["VOLUME_PCT"]
+pac.ENV_FILE = pathlib.Path(_d) / "ไม่มีไฟล์นี้"
+check("ไม่มีไฟล์ -> ใช้ค่าเริ่มต้น ไม่ระเบิด", pac._setting("VOLUME_PCT", 100) == 100)
+pac.ENV_FILE = _saved_env_file
+
+print()
 print("ค่าตั้งต้นต้องตรงกับฝั่งเว็บ (js/distance.js):")
 check("รอจอดนิ่งก่อนหยุด beep = 3 วิ (ตรงกับ PARKED_MUTE_MS = 3000)", pac.PARKED_MUTE_S == 3)
 check("เกณฑ์ถือว่ารถจอด = 5 กม./ชม. (ตรงกับ SPEED_HOLD_MIN_KMH)", pac.SPEED_HOLD_MIN_KMH == 5)
