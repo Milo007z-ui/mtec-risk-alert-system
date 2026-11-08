@@ -9,7 +9,8 @@
   const map = MapView.init();
 
   // ชั้นตำแหน่งอุปกรณ์ Raspberry Pi บนรถ — เริ่มทันทีโดยไม่ต้องรอกด "เริ่มใช้งาน"
-  if (typeof DeviceTracker !== "undefined") DeviceTracker.start(map);
+  // โหมดจำลองไม่ต่อ Pi จริง: รถจำลองทำหน้าที่แทน Pi อยู่แล้ว ถ้า Pi เปิดอยู่จะได้หมุด/กรวย/ป้ายซ้อนสองชุด
+  if (typeof DeviceTracker !== "undefined" && !GPS.isMockMode()) DeviceTracker.start(map);
 
   // โหลดหน่วยวิเคราะห์ (คลัสเตอร์ + จุดเสี่ยงเดี่ยว) — ถ้าโหลดไม่ได้แอปทำอะไรต่อไม่ได้
   const hasAccidentLayer = typeof Accidents !== "undefined";
