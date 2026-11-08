@@ -326,7 +326,7 @@ const DeviceTracker = (() => {
     if (!a || a.at === shownAlertAt) return;
     shownAlertAt = a.at;
     if (a.age_s > PI_ALERT_FRESH_S || typeof AlertSystem === "undefined") return;
-    AlertSystem.showBanner(`🔊 Raspberry Pi: ${a.message}`, a.level);
+    AlertSystem.showBanner(`🔊 ${a.message}`, a.level);
   }
 
   /** แถบ "จุดเสี่ยงใกล้สุด" คิดจากตำแหน่ง Pi — ใช้งานจริงเครื่องที่เปิดเว็บไม่คิดเตือนเอง

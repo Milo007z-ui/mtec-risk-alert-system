@@ -156,8 +156,8 @@ const AlertSystem = (() => {
       );
       const msg = RiskRules.buildAlertMessage(point, distance);
       // alert.js ทำงานเฉพาะโหมดจำลองแล้ว (ใช้งานจริง app.js ไม่ส่ง GPS เข้ามา) — รถจำลองคือ Pi
-      // ป้ายจึงขึ้นรูปแบบเดียวกับป้ายของ Pi จริงใน device.js ให้ดูแล้วเหมือนวันขับจริง
-      showBanner("🔊 Raspberry Pi (จำลอง): " + msg, point.level);
+      // ป้ายรูปแบบเดียวกับป้ายของ Pi จริงใน device.js (แค่ประโยคเตือน ไม่มีชื่ออุปกรณ์นำหน้า)
+      showBanner("🔊 " + msg, point.level);
       // beep นำสองครั้งก่อน แล้วค่อยพูดข้อความ (ไฟล์อัดไว้ -> Google -> Web Speech)
       speakingLevel = point.level;
       const seq = ++speakSeq;
@@ -165,7 +165,7 @@ const AlertSystem = (() => {
         // ถ้าระหว่างเล่น beep นำมีจุดที่เร่งด่วนกว่าตัดเข้ามา ให้ทิ้งประโยคนี้ไปเลย
         .then(() => (seq === speakSeq ? TTS.speak(msg) : true))
         .then((spoken) => {
-          if (!spoken) showBanner("⚠️ Raspberry Pi (จำลอง): " + msg, point.level);
+          if (!spoken) showBanner("⚠️ " + msg, point.level);
         })
         .finally(() => {
           if (seq === speakSeq) speakingLevel = null; // ปลดล็อกเฉพาะชุดล่าสุด
