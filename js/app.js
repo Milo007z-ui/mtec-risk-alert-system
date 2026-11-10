@@ -27,6 +27,13 @@
       : "";
     statusEl.textContent =
       `โหลดคลัสเตอร์ ${clusters} วงแล้ว${accText} — กด "เริ่มใช้งาน" เพื่อเปิดการติดตาม`;
+    // เล่นย้อนจาก log ของ Pi: ไม่ใช้ GPS ของเครื่องนี้เลย ข้ามหน้าเริ่มไปที่แผงควบคุมการเล่น
+    if (typeof Replay !== "undefined" && Replay.isEnabled()) {
+      overlay.classList.add("hidden");
+      statusEl.textContent = "▶️ เล่นย้อนการขับทดสอบจาก log ของ Raspberry Pi";
+      Replay.start(map);
+      return;
+    }
   } catch (err) {
     statusEl.textContent = `❌ ${err.message} — ตรวจว่าเปิดผ่าน local server ไม่ใช่ file://`;
     startBtn.disabled = true;

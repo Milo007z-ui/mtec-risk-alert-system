@@ -671,3 +671,29 @@ html, body {
   background: #eceff1; border: 0; border-radius: 6px;
   width: 30px; height: 30px; font-size: 17px; cursor: pointer; color: #455a64;
 }
+
+/* ---------- แผงควบคุมเล่นย้อนจาก log ของ Pi (?replay=) ---------- */
+#replay-bar {
+  position: absolute;
+  bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  width: min(620px, calc(100% - 24px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  background: rgba(255,255,255,.96);
+  padding: 9px 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.3);
+  font-size: 13px;
+  z-index: 1150;
+}
+#replay-bar .rp-play {
+  font-size: 20px; line-height: 1;
+  background: none; border: none; cursor: pointer; padding: 2px;
+}
+#replay-bar .rp-time { font-weight: 600; font-variant-numeric: tabular-nums; }
+#replay-bar .rp-seek { flex: 1; min-width: 120px; }
+#replay-bar .rp-sound { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+#replay-bar .rp-note { flex-basis: 100%; color: #555; font-size: 12px; }
+/* ยกแผงมุมล่างซ้ายขึ้นพ้นแผงควบคุม */
+body.replay #legend { bottom: 104px; }
+body.replay #gps-panel { bottom: 210px; }

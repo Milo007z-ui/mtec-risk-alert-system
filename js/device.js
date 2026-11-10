@@ -76,6 +76,8 @@ const DeviceTracker = (() => {
   function start(leafletMap) {
     map = leafletMap;
     if (!isEnabled()) return;
+    // เล่นย้อนจาก log ของ Pi (replay.js) — ข้อมูลมาทาง feed() แทนการถาม API
+    if (new URLSearchParams(location.search).has("replay")) return;
     poll();
     timer = setInterval(poll, POLL_MS);
   }
@@ -195,6 +197,11 @@ const DeviceTracker = (() => {
       return;
     }
 
+    feed(data);
+  }
+
+  /** แสดงข้อมูลอุปกรณ์หนึ่งรอบ — poll() เรียกด้วยข้อมูลจาก API, replay.js เรียกด้วยข้อมูลจาก log */
+  function feed(data) {
     lastPos = data;
     showPiAlert(data.last_alert);
     updateGpsPanel(data.online ? "online" : "stale", data);
@@ -280,7 +287,7 @@ const DeviceTracker = (() => {
     if (state !== "offline") {
       satHistory.push(sats == null ? 0 : sats);
       if (satHistory.length > SAT_HISTORY_MAX) satHistory.shift();
-      lastOkAt = Date.now();
+      lastOkAt = d && d.at_ms ? d.at_ms : Date.now(); // at_ms = เวลาจริงใน log ตอนเล่นย้อน
     }
     el.querySelector(".gp-num").textContent = sats == null ? "—" : sats;
 
@@ -424,5 +431,5 @@ const DeviceTracker = (() => {
     return `<div class="device-popup"><h4>🚌 Raspberry Pi บนรถ</h4><table>${body}</table></div>`;
   }
 
-  return { start, stop, isEnabled, lastPosition: () => lastPos };
+  return { start, stop, isEnabled, feed, lastPosition: () => lastPos };
 })();

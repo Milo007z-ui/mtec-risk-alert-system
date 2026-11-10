@@ -6,7 +6,7 @@
   <title>ขับทดสอบวงรอบติวานนท์ — จุดเสี่ยงจำลอง 9 จุด</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=20">
   <!-- หน้านี้ = ขับทดสอบบนถนนจริง ใช้โค้ดชุดเดียวกับ index.html ต่างกันแค่ค่าตั้งด้านล่าง -->
   <script>
     window.RISK_DATA_URL = "data/risk_points_tiwanon_test.geojson";
@@ -119,8 +119,10 @@
   <script src="js/map.js?v=16"></script>
   <script src="js/gps.js?v=21"></script>
   <!-- ชั้นหมุดตำแหน่งเรียลไทม์ของกล่อง Raspberry Pi บนรถ (อ่านจาก /api/device/location) -->
-  <script src="js/device.js?v=16"></script>
+  <script src="js/device.js?v=17"></script>
+  <!-- เล่นย้อนการขับจาก log ของ Pi: ?replay=data/replay_xxx.json -->
+  <script src="js/replay.js?v=1"></script>
   <script src="js/alert.js?v=32"></script>
-  <script src="js/app.js?v=21"></script>
+  <script src="js/app.js?v=22"></script>
 </body>
 </html>
