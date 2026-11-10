@@ -1,4 +1,4 @@
-"""build_risk_points.py — สร้างไฟล์จุดเสี่ยง data/risk_points_bkk_metro.geojson (โมเดล v3)"""
+"""build_risk_points.py — ตัวคำนวณหลัก (อ่านข้อมูล · DBSCAN สองชั้น · SI · EPDO) · ค่าตั้งต้นในไฟล์นี้เป็นของรอบ 1 ปีเดิม ชุดที่ระบบใช้จริงรันผ่าน build_risk_points_3y.py ซึ่งเขียนทับ 5 ค่าแล้วเรียก main() ของไฟล์นี้"""
 
 import json
 import sys
@@ -11,15 +11,15 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 
 # ---------------------------------------------------------------- ค่าคงที่รอบ calibration
-CALIB_VERSION = "v2568-r12"          # แท็กรอบข้อมูล — เปลี่ยนเมื่อ recalibrate รอบถัดไป
+CALIB_VERSION = "v2568-r12"          # รอบ 1 ปีเดิม · ชุดที่ใช้จริงคือ v2569-r2-3y (เขียนทับใน build_risk_points_3y.py)
 RECALIB_POLICY = "ทุก 6 เดือน"      # รอบที่กำหนดล่วงหน้า (Fixed-Schedule)
 
-# จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่ ไม่ใช่เปอร์เซ็นไทล์
+# จุดตัดระดับ ต่ำ/ปานกลาง/สูง บนค่า SI — เลขกลมคงที่ ตรวจจากค่าเปอร์เซ็นไทล์
 SI_BREAK_LOW = 1.0
 SI_BREAK_HIGH = 2.0
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"
+XLSX_FILE = BASE_DIR / "data" / "accident2025_1.xlsx"              # ข้อมูล 1 ปีเดิม · ชุดจริง 3 ปีตั้งใน _3y.py
 OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro.geojson"   # หน่วยวิเคราะห์ 847
 ACCIDENT_FILE = BASE_DIR / "data" / "accident_points.geojson"       # จุดเสี่ยง 4,460
 CALIB_DIR = BASE_DIR / "data" / "calibrations"
@@ -29,7 +29,7 @@ BANGKOK_METRO_PROVINCES = [
     "สมุทรปราการ", "นครปฐม", "สมุทรสาคร",
 ]
 
-# DBSCAN: รัศมี 400 ม. — ค่าฐานจากข้อมูลจริงคือค่ามัธยฐานระยะเพื่อนบ้านลำดับที่ 3
+# DBSCAN: 400 ม. เป็นค่าของรอบ 1 ปีเดิม · ชุดที่ใช้จริง 200 ม. ตั้งใน build_risk_points_3y.py บรรทัด 19
 EPS_METERS = 400
 MIN_SAMPLES = 3
 EARTH_RADIUS_M = 6371000

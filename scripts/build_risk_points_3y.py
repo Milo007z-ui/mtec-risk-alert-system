@@ -1,4 +1,4 @@
-"""build_risk_points_3y.py — รันโมเดลเดิม (v2568-r12) กับข้อมูล 3 ปี 2566-2568 ที่ eps 200 ม."""
+"""build_risk_points_3y.py — ตัวสั่งรันชุดที่ระบบใช้จริง: โหลดตัวคำนวณจาก build_risk_points.py แล้วเขียนทับ 5 ค่า (ข้อมูล 3 ปี 2566-2568, eps 200 ม.) ก่อนเรียก main()"""
 
 import sys
 from pathlib import Path
@@ -9,7 +9,7 @@ import build_risk_points as m
 
 BASE_DIR = m.BASE_DIR
 
-# เปลี่ยนเฉพาะ 5 ค่านี้ — ที่เหลือใช้ของโมเดลเดิมทั้งหมด
+# เขียนทับเฉพาะ 5 ค่านี้ — สูตรและค่าอื่น (MIN_SAMPLES 3, จุดตัด SI 1/2, มูลค่า EPDO) ใช้ของ build_risk_points.py ทั้งหมด
 m.CALIB_VERSION = "v2569-r2-3y"
 m.XLSX_FILE = BASE_DIR / "data" / "accident2023-2025.xlsx"
 m.OUTPUT_FILE = BASE_DIR / "data" / "risk_points_bkk_metro_3y.geojson"
